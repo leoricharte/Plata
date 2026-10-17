@@ -212,7 +212,13 @@ input[type=range]::-moz-range-thumb{width:28px;height:28px;border:0;border-radiu
 .cd.sel b{color:#fff}
 .calsel{border-top:1px solid var(--line);margin-top:8px;padding-top:12px}
 .dotl{width:8px;height:8px;border-radius:50%;flex:none}
-.back{display:flex;align-items:center;gap:6px;color:var(--accent);font-size:17px;min-height:40px;padding:0 4px}
+#s-cuenta,#s-movimientos{-webkit-mask-image:linear-gradient(to bottom,#000 calc(var(--sat) + 4px),#000 calc(100% - var(--sab) - 150px),rgba(0,0,0,.4) calc(100% - var(--sab) - 56px),transparent calc(100% - 2px));mask-image:linear-gradient(to bottom,#000 calc(var(--sat) + 4px),#000 calc(100% - var(--sab) - 150px),rgba(0,0,0,.4) calc(100% - var(--sab) - 56px),transparent calc(100% - 2px))}
+.navrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.editbtn{width:44px;height:44px;border-radius:50%;background:#fff;border:1px solid rgba(60,60,67,.14);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.acctop{text-align:center;padding:4px 0 16px}
+.acctop .ptile{display:flex;justify-content:center}
+html[data-tab="cuenta"] #gearbtn,html[data-tab="cuenta"] #plusbtn{opacity:0;pointer-events:none}
+.back{display:flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0 2px 0 0;border-radius:50%;background:#fff;border:1px solid rgba(60,60,67,.14);box-shadow:0 2px 8px rgba(0,0,0,.06);flex:none}
 .row.tap{cursor:pointer;transition:opacity .2s}
 .row.tap:active{opacity:.6}
 .moreRow{display:flex;align-items:center;gap:8px}
@@ -256,6 +262,7 @@ select.sinput{min-height:26px;color:#1C1C1E}
     <section class="screen" id="s-deuda" aria-label="Cuentas"></section>
     <section class="screen" id="s-ahorro" aria-label="Ahorro"></section>
     <section class="screen" id="s-movimientos" aria-label="Movimientos"></section>
+    <section class="screen" id="s-cuenta" aria-label="Cuenta"></section>
   </main>
 
   <nav class="tabbar" id="tabbar" aria-label="Secciones">
@@ -274,7 +281,7 @@ select.sinput{min-height:26px;color:#1C1C1E}
   <div class="backdrop" id="backdrop" data-act="close"></div>
   <div class="sheet" id="sheet" role="dialog" aria-label="Nuevo movimiento"></div>
   <div class="toast" id="toast" role="status"></div>
-  <div class="splash" id="splash"><div class="sp-title">Plata</div><div class="sp-foot">Beta 34</div></div>
+  <div class="splash" id="splash"><div class="sp-title">Plata</div><div class="sp-foot">Beta 37</div></div>
   <div class="homebar only-frame" aria-hidden="true"></div>
 </div>
 </div>
@@ -752,7 +759,7 @@ function renderResumen() {
     '<div class="bar" style="height:8px;border-radius:4px;margin:10px 0 8px"><i style="height:8px;border-radius:4px;width:' + pct + '%;background:' + (left < 0 ? '#FF3B30' : '#0A6CFF') + '"></i></div>' +
     '<div class="sub">' + (c.budgetTotal ? (left >= 0 ? 'Te quedan ' + fmt(left) : 'Te pasaste por ' + fmt(-left)) : 'Aún no defines límites') + '</div>' +
     '<button class="link" data-act="tab:presupuesto">Ver presupuesto</button></div>';
-  const accRows = data.accounts.map((a, i) => rowEdit('account', a.id, tile(CARD_COLORS[i % CARD_COLORS.length], esc(a.name).charAt(0)),
+  const accRows = data.accounts.map((a, i) => rowEdit('acct', a.id, tile(CARD_COLORS[i % CARD_COLORS.length], esc(a.name).charAt(0)),
     '<div class="name" style="font-size:16px">' + esc(a.name) + '</div><div class="sub" style="font-size:13px">' + accType[a.type] + ' · ' + a.cur + '</div>',
     '<span class="amt">' + fmtC(a.balance, a.cur) + '</span>')).join('');
   $('#s-resumen').innerHTML =
@@ -765,7 +772,9 @@ function renderResumen() {
       '<div class="kpi"><span class="lbl">Ingresos del mes</span><span class="big">' + fmt(c.income) + '</span><span class="sub">' + plural(c.incomeCount, 'ingreso', 'ingresos') + '</span></div>' +
       '<div class="kpi"><span class="lbl">Ahorro total</span><span class="big">' + fmt(c.saved) + '</span><button class="link" data-act="tab:ahorro">Ver ahorro</button></div>' +
       '<div class="kpi"><span class="lbl">Deuda total</span><span class="big">' + fmt(c.debt) + '</span><button class="link" data-act="tab:deuda">Ver deuda</button></div>' +
-    '</div>' + nextCard + budgetCard +
+    '</div>' + nextCard +
+    '<div class="card" style="padding-bottom:6px"><div class="lbl" style="padding-bottom:4px">Últimos movimientos</div>' + movRows(3) +
+      '<button class="linkrow moreRow" data-act="tab:movimientos" style="width:100%;border-top:1px solid var(--line)"><span class="grow">Ver todos los movimientos</span>' + ICON.chev + '</button></div>' + budgetCard +
     '<div class="card"><div class="lbl">Gastos de ' + MON_FULL[c.today.getMonth()] + '</div><div class="big">' + fmt(c.expense) + '</div>' +
       '<div class="legend"><span><u style="background:#EDB03E"></u>Gastos</span><span><u style="background:#6D8BEA"></u>Ingresos</span></div>' + barsSVG(c.months) + '</div>' +
     '<div class="card"><div class="lbl" style="margin-bottom:10px">Por categoría</div><div class="ringrow"><div style="width:140px;flex:none">' + catRing + '</div>' + catList + '</div></div>' +
@@ -815,10 +824,10 @@ function renderDeuda() {
   const detail = ui.interest
     ? '<div style="padding:4px 0 8px">' + c.cards.map((k) => '<div class="row" style="padding:8px 0"><span class="grow">' + esc(k.name) + ' <span class="sub">· ' + k.apr + '% anual</span></span><b>' + fmt2(k.interest) + '/mes</b></div>').join('') + '</div>'
     : '';
-  const debitRows = data.accounts.map((a, i) => rowEdit('account', a.id, tileFor(a, i, 'acc'),
+  const debitRows = data.accounts.map((a, i) => rowEdit('acct', a.id, tileFor(a, i, 'acc'),
     '<div class="name" style="font-size:16px">' + esc(a.name) + '</div><div class="sub" style="font-size:13px">' + accType[a.type] + ' · ' + a.cur + (a.apy > 0 ? ' · ' + a.apy + '% anual · ≈ ' + fmtC2((a.balance * a.apy) / 1200, a.cur) + '/mes' : '') + '</div>',
     '<span class="amt">' + fmtC(a.balance, a.cur) + '</span>')).join('');
-  const creditRows = c.cards.map((k, i) => rowEdit('debt', k.id, tileFor(k, i, 'debt'),
+  const creditRows = c.cards.map((k, i) => rowEdit('acct', k.id, tileFor(k, i, 'debt'),
     '<div class="name">' + esc(k.name) + '</div>' + (k.kind === 'card' && k.limit > 0 ? '<div class="bar"><i style="width:' + Math.min(100, k.util) + '%;background:' + k.color + '"></i></div>' : '') +
     '<div class="sub" style="font-size:13px">' + (k.kind === 'loan' ? 'Préstamo' : k.util + '% usado · disponible ' + fmtC(Math.max(0, k.limit - k.balance), k.cur)) + '</div>' +
     '<div class="sub" style="font-size:13px">' + k.apr + '% anual · ≈ ' + fmtC2((k.balance * k.apr) / 1200, k.cur) + '/mes · pago día ' + k.due_day + '</div>',
@@ -966,9 +975,9 @@ function setSeg(btn) {
   bs.forEach((b, j) => b.classList.toggle('on', j === i));
 }
 function swapIn(el) { el.classList.remove('swap'); void el.offsetWidth; el.classList.add('swap'); }
-function movRows() {
+function movRows(limit, accId) {
   const c = calc();
-  const list = c.tx.filter((t) => ui.mov === 'all' || (ui.mov === 'in' ? t.amount > 0 : t.amount < 0)).slice(0, 40);
+  const list = c.tx.filter((t) => accId ? (t.acc || data.accounts[0].id) === accId : limit || ui.mov === 'all' || (ui.mov === 'in' ? t.amount > 0 : t.amount < 0)).slice(0, limit || 40);
   const rows = list.map((t) => {
     const cat = t.amount > 0 ? 'Ingreso' : (CAT_ORDER.indexOf(t.category) >= 0 ? t.category : 'Otros');
     const d = pd(t.date), cur = accOf(t.acc).cur;
@@ -976,28 +985,63 @@ function movRows() {
       '<div class="grow"><div class="name" style="font-size:16px">' + esc(t.note || cat) + '</div><div class="sub" style="font-size:13px">' + cat + ' · ' + dshort(d) + (data.accounts.length + data.cards.length > 1 ? ' · ' + esc(accOf(t.acc).name) : '') + '</div></div>' +
       '<span class="amt" style="color:' + (t.amount > 0 ? '#248A3D' : '#1C1C1E') + '">' + fmtSC2(t.amount, cur) + '</span>' + ICON.chev + '</div>';
   }).join('');
-  return rows || '<div class="empty">Sin movimientos</div>';
+  return rows || '<div class="empty">Sin movimientos todavía</div>';
 }
 function updateMovList() { const el = $('#movList'); el.innerHTML = movRows(); swapIn(el); }
 function renderMovimientos() {
   $('#s-movimientos').innerHTML =
-    '<button class="back" data-act="tab:resumen"><svg width="12" height="20" viewBox="0 0 14 22" fill="none" stroke="#0A6CFF" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 3L3 11l8 8"/></svg>Resumen</button>' +
+    '<button class="back" data-act="tab:resumen" aria-label="Regresar"><svg width="12" height="20" viewBox="0 0 14 22" fill="none" stroke="#1C1C1E" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 3L3 11l8 8"/></svg></button>' +
     '<div class="head"><div><div class="eyebrow">Últimos movimientos</div><h1>Movimientos</h1></div></div>' +
     segHTML('mov', [{ k: 'all', label: 'Todos', act: 'mov:all' }, { k: 'in', label: 'Ingresos', act: 'mov:in' }, { k: 'out', label: 'Gastos', act: 'mov:out' }], ui.mov) +
     '<div class="card" style="padding:2px 18px;margin-bottom:12px"><button class="linkrow" data-act="add"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0A6CFF" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>Añadir movimiento</button></div>' +
     '<div class="card" style="padding-top:6px;padding-bottom:6px" id="movList">' + movRows() + '</div>';
 }
 
-function renderAll() { syncCats(); renderResumen(); renderPresupuesto(); renderProyeccion(); renderDeuda(); renderAhorro(); renderMovimientos(); }
+/* ---------- Detalle de cuenta / tarjeta ---------- */
+function openAcct(id) { ui.acctId = id; ui.prevTab = ui.tab === 'cuenta' ? ui.prevTab : ui.tab; renderCuenta(); setTab('cuenta'); }
+function renderCuenta() {
+  const el = $('#s-cuenta'); if (!el) return;
+  const a = data.accounts.find((x) => x.id === ui.acctId), k = a ? null : data.cards.find((x) => x.id === ui.acctId);
+  const o = a || k;
+  if (!o) { el.innerHTML = ''; if (ui.tab === 'cuenta') setTab(ui.prevTab && ui.prevTab !== 'cuenta' ? ui.prevTab : 'deuda'); return; }
+  const c = calc(), i = (a ? data.accounts : data.cards).indexOf(o), cur = o.cur;
+  const mine = c.monthTx.filter((t) => (t.acc || data.accounts[0].id) === o.id);
+  const inn = sum(mine.filter((t) => t.amount > 0), (t) => t.amount), out = -sum(mine.filter((t) => t.amount < 0), (t) => t.amount);
+  const st = (l, v, col) => '<div><span class="sub">' + l + '</span><b' + (col ? ' style="color:' + col + '"' : '') + '>' + v + '</b></div>';
+  let hero, info;
+  if (a) {
+    hero = { sub: accType[a.type] + ' · ' + a.cur, lbl: 'Saldo', val: fmtC2(a.balance, cur) };
+    info = '<div class="card"><div class="stats" style="border:0;margin:0;padding:0;gap:20px">' + st('Entró este mes', '+' + fmtC2(inn, cur), '#248A3D') + st('Salió este mes', fmtC2(out, cur)) + '</div>' +
+      '<div class="stats" style="margin-top:14px;gap:20px">' + st('Rendimiento anual', a.apy > 0 ? a.apy + '%' : '—') + st('Ganancia al mes', a.apy > 0 ? '≈ ' + fmtC2((a.balance * a.apy) / 1200, cur) : '—') + '</div></div>';
+  } else {
+    const loan = k.kind === 'loan', util = k.limit > 0 ? Math.min(100, Math.round((k.balance / k.limit) * 100)) : 0, col = o.color || CARD_COLORS[i % CARD_COLORS.length];
+    hero = { sub: (loan ? 'Préstamo' : 'Tarjeta de crédito') + ' · ' + cur, lbl: 'Saldo adeudado', val: fmtC2(k.balance, cur) };
+    info = (!loan && k.limit > 0 ? '<div class="card"><div class="bar" style="height:8px;border-radius:4px;margin:0 0 8px"><i style="height:8px;border-radius:4px;width:' + util + '%;background:' + col + '"></i></div>' +
+        '<div class="sub">' + util + '% usado · disponible ' + fmtC2(Math.max(0, k.limit - k.balance), cur) + ' de ' + fmtC2(k.limit, cur) + '</div></div>' : '') +
+      '<div class="card"><div class="stats" style="border:0;margin:0;padding:0;gap:20px">' + st('Interés anual', k.apr + '%') + st('Interés al mes', '≈ ' + fmtC2((k.balance * k.apr) / 1200, cur), '#B54708') + '</div>' +
+      '<div class="stats" style="margin-top:14px;gap:20px">' + st('Pago mensual', k.payment > 0 ? fmtC2(k.payment, cur) : '—') + st('Día de pago', k.due_day ? 'Día ' + k.due_day : '—') + '</div>' +
+      '<div class="stats" style="margin-top:14px;gap:20px">' + st('Gastado este mes', fmtC2(out, cur)) + '</div></div>';
+  }
+  el.innerHTML =
+    '<div class="navrow"><button class="back" data-act="acctback" aria-label="Regresar"><svg width="12" height="20" viewBox="0 0 14 22" fill="none" stroke="#1C1C1E" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 3L3 11l8 8"/></svg></button>' +
+    '<button class="editbtn" data-act="acctedit" aria-label="Editar"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#1C1C1E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/></svg></button></div>' +
+    '<div class="acctop"><div class="ptile">' + tileFor(o, i, a ? 'acc' : 'debt') + '</div><h1 style="font-size:28px;margin:10px 0 2px">' + esc(o.name) + '</h1><div class="sub">' + hero.sub + '</div>' +
+    '<div class="sub" style="margin-top:14px">' + hero.lbl + '</div><div class="big" style="font-size:40px">' + hero.val + '</div></div>' +
+    info +
+    '<div class="card" style="padding-top:6px;padding-bottom:6px"><div class="lbl" style="padding:10px 0 4px">Movimientos</div>' + movRows(60, o.id) +
+      '<button class="linkrow" data-act="addto:' + o.id + '" style="border-top:1px solid var(--line);width:100%"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0A6CFF" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>Añadir movimiento</button></div>';
+}
+function renderAll() { syncCats(); renderResumen(); renderPresupuesto(); renderProyeccion(); renderDeuda(); renderAhorro(); renderMovimientos(); renderCuenta(); }
 
 /* ---------- Navegación ---------- */
-const TAB_ORDER = ['resumen', 'presupuesto', 'proyeccion', 'deuda', 'ahorro', 'movimientos'];
+const TAB_ORDER = ['resumen', 'presupuesto', 'proyeccion', 'deuda', 'ahorro', 'movimientos', 'cuenta'];
 function setTab(t) {
   document.documentElement.style.setProperty('--dir', TAB_ORDER.indexOf(t) >= TAB_ORDER.indexOf(ui.tab) ? '1' : '-1');
   ui.tab = t;
   TAB_ORDER.forEach((k) => $('#s-' + k).classList.toggle('active', k === t));
   $('#s-' + t).scrollTop = 0;
-  const hl = t === 'movimientos' ? 'resumen' : t;
+  const hl = t === 'movimientos' ? 'resumen' : t === 'cuenta' ? 'deuda' : t;
+  document.documentElement.setAttribute('data-tab', t);
   document.querySelectorAll('.tab').forEach((b) => b.classList.toggle('on', b.getAttribute('data-act') === 'tab:' + hl));
   if (typeof setMini === 'function') setMini(false);
   if (typeof movePill === 'function') movePill();
@@ -1386,7 +1430,10 @@ document.addEventListener('click', (e) => {
   else if (a === 'mov') { ui.mov = arg; setSeg(el); updateMovList(); }
   else if (a === 'interest') { ui.interest = !ui.interest; renderDeuda(); }
   else if (a === 'sim') openSim();
-  else if (a === 'edit') { const q = arg.split(':'); openForm(q[0], q[1]); }
+  else if (a === 'edit') { const q = arg.split(':'); if (q[0] === 'acct') openAcct(q[1]); else openForm(q[0], q[1]); }
+  else if (a === 'acctback') setTab(ui.prevTab && ui.prevTab !== 'cuenta' ? ui.prevTab : 'deuda');
+  else if (a === 'acctedit') { const isA = data.accounts.some((x) => x.id === ui.acctId); openForm(isA ? 'account' : 'debt', ui.acctId); }
+  else if (a === 'addto') { openSheet(); ui.sheetAcc = arg; showSheet(sheetHTML()); }
   else if (a === 'new') openForm(arg, null);
   else if (a === 'fsave') saveForm();
   else if (a === 'fdel') deleteForm();
