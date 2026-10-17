@@ -188,6 +188,9 @@ input[type=range]::-moz-range-thumb{width:28px;height:28px;border:0;border-radiu
 .swatches{display:flex;flex-wrap:wrap;gap:12px;padding:10px 4px 6px}
 .sw{width:32px;height:32px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);position:relative;transition:transform .25s cubic-bezier(.3,1.5,.5,1)}
 .sw:active{transform:scale(.9)}
+.swc{background:conic-gradient(#FF453A,#FF9F0A,#EDB03E,#4CC38A,#5CC8C0,#0A84FF,#B98AE6,#F08FB0,#FF453A)}
+.swc input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;border:0;padding:0}
+.swc i{position:absolute;inset:7px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
 .sw.on::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:2.5px solid #1C1C1E}
 .icons{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;padding:10px 0 6px}
 .ico{height:44px;border-radius:12px;background:#F2F2F7;display:flex;align-items:center;justify-content:center;transition:background .2s}
@@ -281,7 +284,7 @@ select.sinput{min-height:26px;color:#1C1C1E}
   <div class="backdrop" id="backdrop" data-act="close"></div>
   <div class="sheet" id="sheet" role="dialog" aria-label="Nuevo movimiento"></div>
   <div class="toast" id="toast" role="status"></div>
-  <div class="splash" id="splash"><div class="sp-title">Plata</div><div class="sp-foot">Beta 37</div></div>
+  <div class="splash" id="splash"><div class="sp-title">Plata</div><div class="sp-foot">Beta 40</div></div>
   <div class="homebar only-frame" aria-hidden="true"></div>
 </div>
 </div>
@@ -415,8 +418,10 @@ const accOf = (id) => data.accounts.find((a) => a.id === id) || data.cards.find(
 const isCredit = (a) => data.cards.indexOf(a) >= 0;
 /* Un movimiento en débito suma o resta al saldo; en crédito, un gasto sube la deuda y un pago la baja */
 const applyTo = (a, signed) => { a.balance = round2(isCredit(a) ? a.balance - signed : a.balance + signed); };
-const acctOpts = (sel, credit) => '<optgroup label="Débito">' + data.accounts.map((a) => '<option value="' + a.id + '"' + (a.id === sel ? ' selected' : '') + '>' + esc(a.name) + ' · ' + a.cur + '</option>').join('') + '</optgroup>' +
-  (credit && data.cards.length ? '<optgroup label="Crédito">' + data.cards.map((a) => '<option value="' + a.id + '"' + (a.id === sel ? ' selected' : '') + '>' + esc(a.name) + ' · ' + a.cur + '</option>').join('') + '</optgroup>' : '');
+const l4 = (o) => (o && o.last4 ? ' · ● ' + o.last4 : '');
+const l4tag = (o) => (o && o.last4 ? ' <span class="sub" style="font-weight:500;font-size:13px;white-space:nowrap"><i style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#1C1C1E;margin:0 5px 1px 2px"></i>' + esc(o.last4) + '</span>' : '');
+const acctOpts = (sel, credit) => '<optgroup label="Débito">' + data.accounts.map((a) => '<option value="' + a.id + '"' + (a.id === sel ? ' selected' : '') + '>' + esc(a.name) + l4(a) + ' · ' + a.cur + '</option>').join('') + '</optgroup>' +
+  (credit && data.cards.length ? '<optgroup label="Crédito">' + data.cards.map((a) => '<option value="' + a.id + '"' + (a.id === sel ? ' selected' : '') + '>' + esc(a.name) + l4(a) + ' · ' + a.cur + '</option>').join('') + '</optgroup>' : '');
 const txUSD = (t) => usd(t.amount, accOf(t.acc).cur);
 function nextRep(d, rep) {
   if (rep === 'm') { const y = d.getFullYear(), m = d.getMonth() + 1, last = new Date(y, m + 1, 0).getDate(); return new Date(y, m, Math.min(d.getDate(), last)); }
@@ -760,7 +765,7 @@ function renderResumen() {
     '<div class="sub">' + (c.budgetTotal ? (left >= 0 ? 'Te quedan ' + fmt(left) : 'Te pasaste por ' + fmt(-left)) : 'Aún no defines límites') + '</div>' +
     '<button class="link" data-act="tab:presupuesto">Ver presupuesto</button></div>';
   const accRows = data.accounts.map((a, i) => rowEdit('acct', a.id, tile(CARD_COLORS[i % CARD_COLORS.length], esc(a.name).charAt(0)),
-    '<div class="name" style="font-size:16px">' + esc(a.name) + '</div><div class="sub" style="font-size:13px">' + accType[a.type] + ' · ' + a.cur + '</div>',
+    '<div class="name" style="font-size:16px">' + esc(a.name) + l4tag(a) + '</div><div class="sub" style="font-size:13px">' + accType[a.type] + ' · ' + a.cur + '</div>',
     '<span class="amt">' + fmtC(a.balance, a.cur) + '</span>')).join('');
   $('#s-resumen').innerHTML =
     '<div class="head"><div><div class="eyebrow">' + dateLong(c.today) + '</div><h1>Resumen</h1></div></div>' +
@@ -824,20 +829,30 @@ function renderDeuda() {
   const detail = ui.interest
     ? '<div style="padding:4px 0 8px">' + c.cards.map((k) => '<div class="row" style="padding:8px 0"><span class="grow">' + esc(k.name) + ' <span class="sub">· ' + k.apr + '% anual</span></span><b>' + fmt2(k.interest) + '/mes</b></div>').join('') + '</div>'
     : '';
-  const debitRows = data.accounts.map((a, i) => rowEdit('acct', a.id, tileFor(a, i, 'acc'),
-    '<div class="name" style="font-size:16px">' + esc(a.name) + '</div><div class="sub" style="font-size:13px">' + accType[a.type] + ' · ' + a.cur + (a.apy > 0 ? ' · ' + a.apy + '% anual · ≈ ' + fmtC2((a.balance * a.apy) / 1200, a.cur) + '/mes' : '') + '</div>',
-    '<span class="amt">' + fmtC(a.balance, a.cur) + '</span>')).join('');
-  const creditRows = c.cards.map((k, i) => rowEdit('acct', k.id, tileFor(k, i, 'debt'),
-    '<div class="name">' + esc(k.name) + '</div>' + (k.kind === 'card' && k.limit > 0 ? '<div class="bar"><i style="width:' + Math.min(100, k.util) + '%;background:' + k.color + '"></i></div>' : '') +
+  const sortMode = data.settings.acct_sort || 'name', todayD = c.today.getDate(), dimN = c.dim;
+  const byName = (x, y) => String(x.name).localeCompare(String(y.name), 'es');
+  const dueIn = (k) => (k.payment > 0 || k.balance > 0) && k.due_day ? (((k.due_day - todayD) % dimN) + dimN) % dimN : 999;
+  const sortAcc = (list, kind) => list.map((o, i) => ({ o: o, i: i })).sort((A, B) => {
+    const x = A.o, y = B.o;
+    if (sortMode === 'amount') return (kind === 'card' ? y.ub - x.ub : usd(y.balance, y.cur) - usd(x.balance, x.cur)) || byName(x, y);
+    if (sortMode === 'due') return kind === 'card' ? (dueIn(x) - dueIn(y)) || byName(x, y) : byName(x, y);
+    return byName(x, y);
+  });
+  const debitRows = sortAcc(data.accounts, 'acc').map((it) => { const a = it.o, i = it.i; return rowEdit('acct', a.id, tileFor(a, i, 'acc'),
+    '<div class="name" style="font-size:16px">' + esc(a.name) + l4tag(a) + '</div><div class="sub" style="font-size:13px">' + accType[a.type] + ' · ' + a.cur + (a.apy > 0 ? ' · ' + a.apy + '% anual · ≈ ' + fmtC2((a.balance * a.apy) / 1200, a.cur) + '/mes' : '') + '</div>',
+    '<span class="amt">' + fmtC(a.balance, a.cur) + '</span>'); }).join('');
+  const creditRows = sortAcc(c.cards, 'card').map((it) => { const k = it.o, i = it.i; return rowEdit('acct', k.id, tileFor(k, i, 'debt'),
+    '<div class="name">' + esc(k.name) + l4tag(k) + '</div>' + (k.kind === 'card' && k.limit > 0 ? '<div class="bar"><i style="width:' + Math.min(100, k.util) + '%;background:' + k.color + '"></i></div>' : '') +
     '<div class="sub" style="font-size:13px">' + (k.kind === 'loan' ? 'Préstamo' : k.util + '% usado · disponible ' + fmtC(Math.max(0, k.limit - k.balance), k.cur)) + '</div>' +
     '<div class="sub" style="font-size:13px">' + k.apr + '% anual · ≈ ' + fmtC2((k.balance * k.apr) / 1200, k.cur) + '/mes · pago día ' + k.due_day + '</div>',
-    '<span class="amt">' + fmtC(k.balance, k.cur) + '</span>')).join('');
+    '<span class="amt">' + fmtC(k.balance, k.cur) + '</span>'); }).join('');
+  const sortSeg = '<div class="sub" style="padding:2px 4px 6px">Ordenar por</div>' + segHTML('asort', [{ k: 'name', label: 'Nombre', act: 'asort:name' }, { k: 'amount', label: 'Monto', act: 'asort:amount' }, { k: 'due', label: 'Fecha de pago', act: 'asort:due' }], sortMode, ';margin-bottom:12px');
   const base = payoff(0), net = c.balance - c.debt;
   $('#s-deuda').innerHTML =
     '<div class="head"><div><div class="eyebrow">Débito, crédito e intereses</div><h1>Cuentas</h1></div></div>' +
     '<div class="card"><div class="stats" style="border:0;margin:0;padding:0;gap:20px"><div><span class="sub">Disponible (débito)</span><b>' + fmt(c.balance) + '</b></div><div><span class="sub">Deuda (crédito)</span><b style="color:' + (c.debt > 0 ? '#B54708' : '#1C1C1E') + '">' + fmt(c.debt) + '</b></div></div>' +
       '<div class="sub" style="padding-top:8px">Neto: <b style="color:' + (net < 0 ? '#D70015' : '#1C1C1E') + '">' + fmt(net) + '</b> · Los movimientos entran a la cuenta que elijas al añadirlos.</div></div>' +
-    '<div class="card"><div class="lbl" style="padding-bottom:4px">Cuentas de débito</div>' + debitRows + addRow('account', 'Añadir cuenta de débito') + '</div>' +
+    sortSeg + '<div class="card"><div class="lbl" style="padding-bottom:4px">Cuentas de débito</div>' + debitRows + addRow('account', 'Añadir cuenta de débito') + '</div>' +
     (c.cards.length ? '<div class="card"><div style="max-width:300px;margin:0 auto">' + (ring || '<div class="empty">Sin deuda registrada</div>') + '</div>' +
       '<div style="padding-top:10px"><div class="name" style="font-size:17px">' + (!c.debt ? 'Sin deuda' : base.months && base.ok ? 'Libre de deuda en ' + monthYear(addMonths(c.today, base.months)) : 'Tu plan actual no liquida la deuda') + '</div><div class="sub" style="padding:2px 0 6px">Con tus pagos actuales. Mira cuánto cambia pagando un poco más.</div>' +
       '<button class="linkrow" data-act="interest">' + ICON.info + (ui.interest ? 'Ocultar detalle de intereses' : 'Ver detalle de intereses') + '</button>' + detail +
@@ -1010,12 +1025,12 @@ function renderCuenta() {
   const st = (l, v, col) => '<div><span class="sub">' + l + '</span><b' + (col ? ' style="color:' + col + '"' : '') + '>' + v + '</b></div>';
   let hero, info;
   if (a) {
-    hero = { sub: accType[a.type] + ' · ' + a.cur, lbl: 'Saldo', val: fmtC2(a.balance, cur) };
+    hero = { sub: accType[a.type] + ' · ' + a.cur + (a.last4 ? ' · ● ' + a.last4 : ''), lbl: 'Saldo', val: fmtC2(a.balance, cur) };
     info = '<div class="card"><div class="stats" style="border:0;margin:0;padding:0;gap:20px">' + st('Entró este mes', '+' + fmtC2(inn, cur), '#248A3D') + st('Salió este mes', fmtC2(out, cur)) + '</div>' +
       '<div class="stats" style="margin-top:14px;gap:20px">' + st('Rendimiento anual', a.apy > 0 ? a.apy + '%' : '—') + st('Ganancia al mes', a.apy > 0 ? '≈ ' + fmtC2((a.balance * a.apy) / 1200, cur) : '—') + '</div></div>';
   } else {
     const loan = k.kind === 'loan', util = k.limit > 0 ? Math.min(100, Math.round((k.balance / k.limit) * 100)) : 0, col = o.color || CARD_COLORS[i % CARD_COLORS.length];
-    hero = { sub: (loan ? 'Préstamo' : 'Tarjeta de crédito') + ' · ' + cur, lbl: 'Saldo adeudado', val: fmtC2(k.balance, cur) };
+    hero = { sub: (loan ? 'Préstamo' : 'Tarjeta de crédito') + ' · ' + cur + (k.last4 ? ' · ● ' + k.last4 : ''), lbl: 'Saldo adeudado', val: fmtC2(k.balance, cur) };
     info = (!loan && k.limit > 0 ? '<div class="card"><div class="bar" style="height:8px;border-radius:4px;margin:0 0 8px"><i style="height:8px;border-radius:4px;width:' + util + '%;background:' + col + '"></i></div>' +
         '<div class="sub">' + util + '% usado · disponible ' + fmtC2(Math.max(0, k.limit - k.balance), cur) + ' de ' + fmtC2(k.limit, cur) + '</div></div>' : '') +
       '<div class="card"><div class="stats" style="border:0;margin:0;padding:0;gap:20px">' + st('Interés anual', k.apr + '%') + st('Interés al mes', '≈ ' + fmtC2((k.balance * k.apr) / 1200, cur), '#B54708') + '</div>' +
@@ -1127,13 +1142,13 @@ function submitSheet() {
 const CURSEG = { t: 'seg', k: 'cur', opts: [['USD', 'USD'], ['PEN', 'PEN']] };
 const FORMS = {
   account: { coll: 'accounts', hero: 'balance', heroLabel: () => 'Saldo', cur: 'cur', need: ['name'], title: ['Nueva cuenta de débito', 'Cuenta de débito'],
-    fields: [{ k: 'name', t: 'text', label: 'Nombre', ic: ['#0A84FF', 'pen'] }, { t: 'seg', k: 'type', opts: [['checking', 'Corriente'], ['savings', 'Ahorros'], ['cash', 'Efectivo']] }, { k: 'apy', t: 'num', label: 'Rendimiento anual (%) — opcional', ic: ['#FF9F0A', '%'] }, CURSEG],
+    fields: [{ k: 'name', t: 'text', label: 'Nombre', ic: ['#0A84FF', 'pen'] }, { k: 'last4', t: 'last4', label: 'Últimos 4 dígitos (opcional)', ic: ['#8E8E93', '#'] }, { t: 'seg', k: 'type', opts: [['checking', 'Corriente'], ['savings', 'Ahorros'], ['cash', 'Efectivo']] }, { k: 'apy', t: 'num', label: 'Rendimiento anual (%) — opcional', ic: ['#FF9F0A', '%'] }, CURSEG],
     blank: () => ({ id: uid(), name: '', type: 'checking', cur: 'USD', apy: 0, balance: 0, color: '', icon: '' }), style: 'acc' },
   saving: { coll: 'savings', hero: 'balance', heroLabel: () => 'Ahorrado', cur: 'cur', need: ['name'], title: ['Nueva meta', 'Meta de ahorro'],
     fields: [{ k: 'name', t: 'text', label: 'Nombre', ic: ['#0A84FF', 'pen'] }, { k: 'goal', t: 'num', label: 'Meta', ic: ['#4CC38A', '◎'] }, { k: 'monthly', t: 'num', label: 'Aporte mensual', ic: ['#6D8BEA', '+'] }, CURSEG],
     blank: () => ({ id: uid(), name: '', cur: 'USD', balance: 0, goal: 0, monthly: 0, color: CARD_COLORS[Math.floor(Math.random() * 5)], icon: '' }), style: 'sav' },
   debt: { coll: 'cards', hero: 'balance', heroLabel: () => 'Saldo adeudado (lo que debes)', cur: 'cur', need: ['name'], title: ['Nueva tarjeta o préstamo', 'Tarjeta o préstamo'], rebuild: ['kind'],
-    fields: [{ k: 'name', t: 'text', label: 'Nombre', ic: ['#0A84FF', 'pen'] }, { t: 'seg', k: 'kind', opts: [['card', 'Tarjeta'], ['loan', 'Préstamo']] },
+    fields: [{ k: 'name', t: 'text', label: 'Nombre', ic: ['#0A84FF', 'pen'] }, { k: 'last4', t: 'last4', label: 'Últimos 4 dígitos (opcional)', ic: ['#8E8E93', '#'] }, { t: 'seg', k: 'kind', opts: [['card', 'Tarjeta'], ['loan', 'Préstamo']] },
       { k: 'limit', t: 'num', label: 'Límite de la tarjeta', ic: ['#B98AE6', '▭'], show: (o) => o.kind === 'card' },
       { k: 'apr', t: 'num', label: 'Interés anual (%)', ic: ['#FF9F0A', '%'] }, { k: 'payment', t: 'num', label: 'Pago mensual', ic: ['#34C759', '$'] }, { k: 'due_day', t: 'num', label: 'Día de pago', ic: ['#FF3B30', '#'] }, CURSEG],
     blank: () => ({ id: uid(), kind: 'card', name: '', cur: 'USD', limit: 0, balance: 0, apr: 20, payment: 0, due_day: 1, color: '', icon: '' }), style: 'debt' },
@@ -1171,6 +1186,7 @@ function fieldInput(fd, o) {
     const list = fd.k === 'sav' ? data.savings : data.accounts;
     return '<select class="sinput" data-f="' + fd.k + '">' + list.map((x) => '<option value="' + x.id + '"' + (x.id === v ? ' selected' : '') + '>' + esc(x.name) + ' · ' + x.cur + '</option>').join('') + '</select>';
   }
+  if (fd.t === 'last4') return '<input class="sinput" inputmode="numeric" maxlength="4" pattern="[0-9]*" autocomplete="off" data-f="last4" placeholder="1234" value="' + esc(v) + '">';
   if (fd.t === 'date') return '<input class="sinput" type="date" data-f="' + fd.k + '" value="' + esc(v) + '">';
   if (fd.t === 'num') return '<input class="sinput" inputmode="decimal" autocomplete="off" data-f="' + fd.k + '" data-t="num" placeholder="0" value="' + (v === 0 ? '' : v) + '">';
   return '<input class="sinput" autocomplete="off" data-f="' + fd.k + '" placeholder="Nombre" value="' + esc(v) + '">';
@@ -1179,7 +1195,8 @@ function styleKind(F) { return F.style === 'debt' ? 'debt' : F.style; }
 function styleHTML(o, F) {
   const col = o.color || SWATCH[0], kind = styleKind(F);
   const autoGlyph = kind === 'debt' ? iconSVG('card', '#1C1C1E', 22) : '<b>Aa</b>';
-  return '<div class="scard"><div class="srow" style="display:block"><span class="slabel">Color</span><div class="swatches">' + SWATCH.map((c) => '<button class="sw' + (c === col ? ' on' : '') + '" style="background:' + c + '" data-act="fpick:color:' + c + '" aria-label="Color"></button>').join('') + '</div></div>' +
+  return '<div class="scard"><div class="srow" style="display:block"><span class="slabel">Color</span><div class="swatches">' + SWATCH.map((c) => '<button class="sw' + (c === col ? ' on' : '') + '" style="background:' + c + '" data-act="fpick:color:' + c + '" aria-label="Color"></button>').join('') +
+    '<span class="sw swc' + (SWATCH.indexOf(col) < 0 ? ' on' : '') + '" id="swc" aria-label="Color personalizado"><i id="swci"' + (SWATCH.indexOf(col) < 0 ? ' style="background:' + col + '"' : '') + '></i><input type="color" id="cpick" value="' + (/^#[0-9a-fA-F]{6}$/.test(col) ? col : '#0A84FF') + '"></span></div></div>' +
     '<div class="srow" style="display:block"><span class="slabel">Icono</span><div class="icons"><button class="ico' + (!o.icon ? ' on' : '') + '" data-act="fpick:icon:auto" aria-label="Automático">' + autoGlyph + '</button>' +
     Object.keys(ICONS).map((n) => '<button class="ico' + (o.icon === n ? ' on' : '') + '" data-act="fpick:icon:' + n + '" aria-label="' + n + '">' + iconSVG(n, '#1C1C1E', 22) + '</button>').join('') + '</div></div></div>';
 }
@@ -1260,6 +1277,7 @@ function saveForm() {
     return formDone('Aporte registrado');
   }
   if (f.kind === 'income' || f.kind === 'expense') { o.repeat = o.repeat === 'm' ? 'm' : Number(o.repeat) || 0; delete o.snooze; }
+  if (f.kind === 'account' || f.kind === 'debt') o.last4 = String(o.last4 || '').replace(/\D/g, '').slice(0, 4);
   if (f.kind === 'sub') o.day = Math.max(1, Math.min(31, Math.round(o.day) || 1));
   if (f.kind === 'debt' && o.kind !== 'card') o.limit = 0;
   o.name = String(o.name).trim();
@@ -1431,6 +1449,7 @@ document.addEventListener('click', (e) => {
   else if (a === 'interest') { ui.interest = !ui.interest; renderDeuda(); }
   else if (a === 'sim') openSim();
   else if (a === 'edit') { const q = arg.split(':'); if (q[0] === 'acct') openAcct(q[1]); else openForm(q[0], q[1]); }
+  else if (a === 'asort') { data.settings.acct_sort = arg; ui.dirty++; persist(); renderDeuda(); }
   else if (a === 'acctback') setTab(ui.prevTab && ui.prevTab !== 'cuenta' ? ui.prevTab : 'deuda');
   else if (a === 'acctedit') { const isA = data.accounts.some((x) => x.id === ui.acctId); openForm(isA ? 'account' : 'debt', ui.acctId); }
   else if (a === 'addto') { openSheet(); ui.sheetAcc = arg; showSheet(sheetHTML()); }
@@ -1467,6 +1486,11 @@ document.addEventListener('click', (e) => {
 document.addEventListener('input', (e) => {
   if (e.target && (e.target.id === 'fAmount' || e.target.id === 'fHero')) { e.target.style.width = amtW(e.target.value); if (ui.confirmId) updConfirmDelta(); }
   if (e.target && e.target.getAttribute && e.target.getAttribute('data-f') === 'name' && ui.form && FORMS[ui.form.kind].style) { ui.form.obj.name = e.target.value; updPrev(); }
+  if (e.target && e.target.id === 'cpick' && ui.form) {
+    syncForm(); ui.form.obj.color = e.target.value;
+    document.querySelectorAll('#sheet .sw').forEach((b) => b.classList.remove('on'));
+    $('#swc').classList.add('on'); $('#swci').style.background = e.target.value; updPrev();
+  }
   if (e.target && e.target.id === 'extraRange') { ui.extra = Number(e.target.value); updSim(); }
   if (e.target && e.target.id === 'weekRange') { snapStop(); ui.week = Number(e.target.value); updateProjection(true); }
 });
