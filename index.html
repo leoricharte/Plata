@@ -2,11 +2,11 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<title>Finanzas</title>
+<title>Plata</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Finanzas">
+<meta name="apple-mobile-web-app-title" content="Plata">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#F2F2F7">
 <meta name="format-detection" content="telephone=no">
@@ -39,11 +39,15 @@ html.preview{--sat:59px;--sab:34px}
 html.preview .only-frame{display:flex}
 .island{position:absolute;top:11px;left:50%;margin-left:-63px;width:126px;height:37px;border-radius:20px;background:#000;z-index:60;pointer-events:none}
 .statusbar{position:absolute;top:0;left:0;right:0;height:59px;z-index:55;padding:19px 34px 0 46px;justify-content:space-between;align-items:flex-start;font-size:17px;font-weight:600;pointer-events:none}
+.splash{position:absolute;inset:0;background:#000;z-index:200;display:flex;align-items:center;justify-content:center;transition:opacity .6s ease;cursor:default}
+.splash.off{opacity:0;pointer-events:none}
+.splash .sp-title{font-family:'Inter',sans-serif;font-weight:700;font-size:64px;letter-spacing:-0.05em;color:#fff}
+.splash .sp-foot{position:absolute;left:0;right:0;bottom:calc(var(--sab) + 18px);text-align:center;font-size:13px;font-weight:500;letter-spacing:.04em;color:rgba(255,255,255,.45)}
 .homebar{position:absolute;bottom:8px;left:50%;margin-left:-70px;width:140px;height:5px;border-radius:3px;background:#1C1C1E;z-index:60;pointer-events:none}
 .topfade{position:absolute;left:0;right:0;top:0;height:calc(var(--sat) + 4px);background:linear-gradient(to bottom,var(--bg) 72%,rgba(242,242,247,0));z-index:20;pointer-events:none}
 
 /* Pantallas */
-.screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding:calc(var(--sat) + 8px) 16px calc(var(--sab) + 116px);display:none;scrollbar-width:none}
+.screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding:calc(var(--sat) + 8px) 16px calc(var(--sab) + 116px);display:none;scrollbar-width:none;-webkit-mask-image:linear-gradient(to bottom,transparent calc(var(--sat) - 6px),#000 calc(var(--sat) + 26px),#000 calc(100% - var(--sab) - 104px),transparent calc(100% - 4px));mask-image:linear-gradient(to bottom,transparent calc(var(--sat) - 6px),#000 calc(var(--sat) + 26px),#000 calc(100% - var(--sab) - 104px),transparent calc(100% - 4px))}
 .screen::-webkit-scrollbar{display:none}
 .screen.active{display:block;animation:scrin .42s cubic-bezier(.2,.85,.25,1)}
 @keyframes scrin{from{opacity:0;transform:translateX(calc(var(--dir,1) * 26px))}to{opacity:1;transform:none}}
@@ -238,9 +242,9 @@ select.sinput{min-height:26px;color:#1C1C1E}
 <div class="device" id="device">
   <div class="island only-frame" aria-hidden="true"></div>
   <div class="statusbar only-frame" aria-hidden="true"><span>9:41</span><span style="display:flex;gap:6px;align-items:center"><svg width="18" height="12" viewBox="0 0 18 12" fill="#1C1C1E"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg width="27" height="13" viewBox="0 0 27 13"><rect x="0.5" y="0.5" width="23" height="12" rx="3.5" fill="none" stroke="#1C1C1E" opacity=".4"/><rect x="2" y="2" width="20" height="9" rx="2.5" fill="#1C1C1E"/><rect x="25" y="4" width="2" height="5" rx="1" fill="#1C1C1E" opacity=".4"/></svg></span></div>
-  <div class="topfade"></div>
-  <div class="botfade"></div>
+  
   <button class="gearbtn" id="gearbtn" data-act="settings" aria-label="Ajustes"><span class="barbg" aria-hidden="true"></span><div class="refract" aria-hidden="true"></div><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1C1C1E" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3h0a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v0a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+  <button class="gearbtn" id="plusbtn" style="right:70px" data-act="quick" aria-label="Añadir previsto"><span class="barbg" aria-hidden="true"></span><div class="refract" aria-hidden="true"></div><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1C1C1E" stroke-width="2.1" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
 
   <main>
     <section class="screen active" id="s-resumen" aria-label="Resumen"></section>
@@ -267,6 +271,7 @@ select.sinput{min-height:26px;color:#1C1C1E}
   <div class="backdrop" id="backdrop" data-act="close"></div>
   <div class="sheet" id="sheet" role="dialog" aria-label="Nuevo movimiento"></div>
   <div class="toast" id="toast" role="status"></div>
+  <div class="splash" id="splash"><div class="sp-title">Plata</div><div class="sp-foot">Beta 1</div></div>
   <div class="homebar only-frame" aria-hidden="true"></div>
 </div>
 </div>
@@ -749,7 +754,7 @@ function renderResumen() {
     '<span class="amt">' + fmtC(a.balance, a.cur) + '</span>')).join('');
   $('#s-resumen').innerHTML =
     '<div class="head"><div><div class="eyebrow">' + dateLong(c.today) + '</div><h1>Resumen</h1></div></div>' +
-    '<div class="filestat">finanzas.json · ' + status + '</div>' +
+    '<div class="filestat">' + status + '</div>' +
     (hasData() ? '' : '<div class="card"><div class="name" style="font-size:20px">Empieza aquí</div><div class="sub" style="padding:4px 0 6px">Tu app está vacía. Empieza en la pestaña Cuentas: ajusta tu saldo y añade tus tarjetas, añade movimientos o carga tu archivo.</div>' +
       '<button class="linkrow" data-act="add"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0A6CFF" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>Añadir un movimiento</button><button class="linkrow" data-act="load">' + ICON.folder.replace(/#1C1C1E/g, '#0A6CFF') + 'Cargar mi archivo</button><button class="linkrow" data-act="demo">' + ICON.info + 'Ver con datos de ejemplo</button></div>') +
     '<div class="grid2">' +
@@ -1038,7 +1043,7 @@ function settingsHTML() {
   const st = data.settings;
   const blue = (i) => i.replace(/#1C1C1E/g, '#0A6CFF');
   return sheetHead('Ajustes') +
-    '<div class="sub" style="padding:8px 4px 8px;text-align:center">finanzas.json · ' + (ui.dirty > 0 ? plural(ui.dirty, 'cambio', 'cambios') + ' sin guardar' : 'todo guardado') + '</div>' +
+    '<div class="sub" style="padding:8px 4px 8px;text-align:center">' + (ui.dirty > 0 ? plural(ui.dirty, 'cambio', 'cambios') + ' sin guardar' : 'todo guardado') + '</div>' +
     '<div class="scard" style="margin-top:0">' +
     '<button class="linkrow" data-act="load">' + blue(ICON.folder) + 'Cargar archivo</button>' +
     '<button class="linkrow" data-act="save" style="border-top:1px solid var(--line);width:100%">' + blue(ICON.save) + 'Guardar archivo</button></div><div class="scard">' +
@@ -1047,6 +1052,13 @@ function settingsHTML() {
     '<div class="row"><span class="grow" style="font-size:17px">Soles por $1</span><input class="mini" id="sFx" inputmode="decimal" value="' + (st.fx || 3.5) + '"></div>' +
     '</div><div class="scard"><button class="linkrow" data-act="demo" style="width:100%">' + blue(ICON.sliders) + 'Cargar datos de ejemplo</button>' +
     '<button class="linkrow" data-act="wipe" style="width:100%;border-top:1px solid var(--line);color:#FF3B30">Borrar todos los datos</button></div>';
+}
+function quickHTML() {
+  const row = (act, color, ic, t, sub) => '<button class="row tap" style="width:100%;text-align:left" data-act="' + act + '">' + tile(color, ic) + '<div class="grow"><div class="name" style="font-size:17px">' + t + '</div><div class="sub" style="font-size:13px">' + sub + '</div></div>' + ICON.chev + '</button>';
+  return sheetHead('Añadir') + '<div class="scard" style="padding:2px 16px">' +
+    row('new:income', '#4CC38A', iconSVG('bank', '#fff', 22), 'Ingreso previsto', 'Sueldo, proyecto, pago esperado') +
+    row('new:expense', '#FF6B5E', iconSVG('card', '#fff', 22), 'Gasto previsto', 'Alquiler, recibo, compra futura') +
+    row('add', '#6D8BEA', iconSVG('wallet', '#fff', 22), 'Movimiento de hoy', 'Registra algo que ya pasó') + '</div>';
 }
 function openSettings() { ui.confirmId = null; ui.form = null; showSheet(settingsHTML()); }
 function closeSheet() { $('#sheet').classList.remove('show'); $('#backdrop').classList.remove('show'); ui.confirmId = null; }
@@ -1299,17 +1311,22 @@ function updSim() {
 function openSim() { ui.form = null; ui.confirmId = null; showSheet(simHTML()); updSim(); }
 
 /* ---------- Archivo (save file) ---------- */
+function stampName() {
+  const n = new Date(), z = (v) => String(v).padStart(2, '0');
+  return 'plata-' + n.getFullYear() + '-' + z(n.getMonth() + 1) + '-' + z(n.getDate()) + '_' + z(n.getHours()) + '-' + z(n.getMinutes()) + '.json';
+}
 async function saveFile() {
-  const file = new File([JSON.stringify(data, null, 2)], 'finanzas.json', { type: 'application/json' });
+  const fname = stampName();
+  const file = new File([JSON.stringify(data, null, 2)], fname, { type: 'application/json' });
   try {
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({ files: [file], title: 'finanzas.json' });
+      await navigator.share({ files: [file], title: fname });
       markSaved(); return;
     }
   } catch (e) { if (e && e.name === 'AbortError') return; }
   const url = URL.createObjectURL(file);
   const a = document.createElement('a');
-  a.href = url; a.download = 'finanzas.json';
+  a.href = url; a.download = fname;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 4000);
   markSaved();
@@ -1356,6 +1373,7 @@ document.addEventListener('click', (e) => {
   if (a === 'tab') setTab(arg);
   else if (a === 'add') openSheet();
   else if (a === 'settings') openSettings();
+  else if (a === 'quick') { ui.confirmId = null; ui.form = null; showSheet(quickHTML()); }
   else if (a === 'close') closeSheet();
   else if (a === 'type') { ui.sheetType = arg; setSeg(el); const w = $('#catWrap'); w.innerHTML = catsHTML(); swapIn(w); }
   else if (a === 'cat') { ui.sheetCat = arg; el.parentNode.querySelectorAll('.chip').forEach((c) => c.classList.toggle('on', c === el)); }
@@ -1553,7 +1571,7 @@ function makeRefract(host) {
   });
   return { host: host, bands: bands };
 }
-const lensHosts = [makeRefract(tabbar), makeRefract($('#gearbtn'))];
+const lensHosts = [makeRefract(tabbar), makeRefract($('#gearbtn')), makeRefract($('#plusbtn'))];
 function placeGhost() {
   const sc = document.querySelector('.screen.active'), st = sc ? sc.scrollTop : 0, gw = deviceEl.clientWidth + 'px';
   lensHosts.forEach((h) => {
@@ -1593,6 +1611,12 @@ window.addEventListener('resize', syncGhost);
 syncGhost();
 
 /* ---------- Arranque ---------- */
+(function () {
+  const sp = document.getElementById('splash'); if (!sp) return;
+  if (/[?&]nosplash/.test(location.search)) { sp.remove(); return; }
+  const hide = () => { sp.classList.add('off'); setTimeout(() => sp.remove(), 700); };
+  sp.addEventListener('click', hide); setTimeout(hide, 1500);
+})();
 if (/[?&]preview/.test(location.search)) document.documentElement.classList.add('preview');
 function fitFrame() {
   const s = window.innerWidth >= 600 ? Math.min(1, (window.innerHeight - 48) / 874) : 1;

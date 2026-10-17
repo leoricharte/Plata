@@ -1,6 +1,6 @@
 {
-  "name": "Finanzas",
-  "short_name": "Finanzas",
+  "name": "Plata",
+  "short_name": "Plata",
   "description": "Finanzas personales: presupuesto, proyección, cuentas y ahorro",
   "start_url": "./",
   "scope": "./",
