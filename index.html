@@ -18,6 +18,7 @@
 :root{--bg:#F2F2F7;--ink:#1C1C1E;--mute:#6C6C70;--line:#ECECF0;--accent:#0A6CFF;--sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);--s:1}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;background:var(--bg);overscroll-behavior:none}
+body{position:fixed;inset:0;width:100%;overflow:hidden}
 body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-0.011em;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;-webkit-touch-callout:none;touch-action:manipulation}
 button{font:inherit;letter-spacing:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer}
 input{font:inherit;letter-spacing:inherit;color:inherit}
@@ -42,7 +43,7 @@ html.preview .only-frame{display:flex}
 .topfade{position:absolute;left:0;right:0;top:0;height:calc(var(--sat) + 4px);background:linear-gradient(to bottom,var(--bg) 72%,rgba(242,242,247,0));z-index:20;pointer-events:none}
 
 /* Pantallas */
-.screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding:calc(var(--sat) + 8px) 16px calc(var(--sab) + 124px);display:none;scrollbar-width:none}
+.screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding:calc(var(--sat) + 8px) 16px calc(var(--sab) + 116px);display:none;scrollbar-width:none}
 .screen::-webkit-scrollbar{display:none}
 .screen.active{display:block;animation:scrin .42s cubic-bezier(.2,.85,.25,1)}
 @keyframes scrin{from{opacity:0;transform:translateX(calc(var(--dir,1) * 26px))}to{opacity:1;transform:none}}
@@ -123,8 +124,9 @@ input[type=range]::-moz-range-thumb{width:28px;height:28px;border:0;border-radiu
 /* Barra de pestañas flotante (Liquid Glass, más tintada como en iOS 27) */
 .mini{width:96px;height:40px;border:0;outline:0;border-radius:12px;background:#F2F2F7;text-align:right;padding:0 12px;font-size:17px}
 
-.tabbar{--ph:56px;position:absolute;left:16px;right:16px;bottom:max(calc(var(--sab) - 8px),12px);height:68px;z-index:30;display:flex;align-items:stretch;padding:5px 6px;border-radius:999px;box-shadow:0 8px 30px rgba(0,0,0,.09);touch-action:none;user-select:none;-webkit-user-select:none;transform-origin:50% 100%;transition:left .42s cubic-bezier(.3,.9,.3,1),right .42s cubic-bezier(.3,.9,.3,1),height .42s cubic-bezier(.3,.9,.3,1),transform .38s cubic-bezier(.3,1.5,.5,1),box-shadow .3s}
+.tabbar{--ph:52px;position:absolute;left:20px;right:20px;bottom:max(calc(var(--sab) - 12px),10px);height:62px;z-index:30;display:flex;align-items:stretch;padding:5px 6px;border-radius:999px;box-shadow:0 8px 30px rgba(0,0,0,.09);touch-action:none;user-select:none;-webkit-user-select:none;transform-origin:50% 100%;transition:left .42s cubic-bezier(.3,.9,.3,1),right .42s cubic-bezier(.3,.9,.3,1),height .42s cubic-bezier(.3,.9,.3,1),transform .38s cubic-bezier(.3,1.5,.5,1),box-shadow .3s}
 .tabbar.compact{--ph:46px;left:58px;right:58px;height:56px}
+.botfade{position:absolute;left:0;right:0;bottom:0;height:calc(var(--sab) + 84px);background:linear-gradient(to top,rgba(242,242,247,.96) 0%,rgba(242,242,247,.75) 45%,rgba(242,242,247,0) 100%);z-index:20;pointer-events:none}
 .gearbtn{position:absolute;top:calc(var(--sat) + 8px);right:16px;z-index:25;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.08);transition:transform .3s cubic-bezier(.3,1.5,.5,1)}
 .gearbtn svg{position:relative;z-index:1}
 .gearbtn:active{transform:scale(1.08)}
@@ -153,8 +155,8 @@ input[type=range]::-moz-range-thumb{width:28px;height:28px;border:0;border-radiu
 /* Hoja para añadir movimientos */
 .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:opacity .4s cubic-bezier(.2,.8,.3,1);z-index:40}
 .backdrop.show{opacity:1;pointer-events:auto}
-.sheet{position:absolute;left:8px;right:8px;bottom:calc(var(--sab) - 18px + 8px);z-index:50;background:#F2F2F7;border-radius:34px;padding:12px 16px 16px;overflow-y:auto;max-height:calc(100% - var(--sat) - 20px);transform:translateY(120%);transition:transform .55s cubic-bezier(.2,.95,.25,1);box-shadow:0 20px 60px rgba(0,0,0,.25)}
-.sheet.show{transform:translateY(0)}
+.sheet{position:absolute;left:8px;right:8px;bottom:calc(var(--sab) - 18px + 8px);z-index:50;background:#F2F2F7;border-radius:34px;padding:12px 16px 16px;overflow-y:auto;max-height:calc(100% - var(--sat) - 20px);transform:translateY(calc(100% + 120px));visibility:hidden;transition:transform .55s cubic-bezier(.2,.95,.25,1),visibility 0s .55s;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.sheet.show{transform:translateY(0);visibility:visible;transition:transform .55s cubic-bezier(.2,.95,.25,1),visibility 0s}
 .grab{width:36px;height:5px;border-radius:3px;background:#D1D1D6;margin:0 auto 12px}
 .sheet h2{margin:0 0 12px;font-size:20px;font-weight:700;letter-spacing:-0.03em}
 .sheet.tall{top:calc(var(--sat) + 12px);max-height:none}
@@ -236,6 +238,7 @@ select.sinput{min-height:26px;color:#1C1C1E}
   <div class="island only-frame" aria-hidden="true"></div>
   <div class="statusbar only-frame" aria-hidden="true"><span>9:41</span><span style="display:flex;gap:6px;align-items:center"><svg width="18" height="12" viewBox="0 0 18 12" fill="#1C1C1E"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg width="27" height="13" viewBox="0 0 27 13"><rect x="0.5" y="0.5" width="23" height="12" rx="3.5" fill="none" stroke="#1C1C1E" opacity=".4"/><rect x="2" y="2" width="20" height="9" rx="2.5" fill="#1C1C1E"/><rect x="25" y="4" width="2" height="5" rx="1" fill="#1C1C1E" opacity=".4"/></svg></span></div>
   <div class="topfade"></div>
+  <div class="botfade"></div>
   <button class="gearbtn" id="gearbtn" data-act="settings" aria-label="Ajustes"><span class="barbg" aria-hidden="true"></span><div class="refract" aria-hidden="true"></div><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1C1C1E" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3h0a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v0a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
 
   <main>
@@ -946,6 +949,7 @@ function setTab(t) {
   document.documentElement.style.setProperty('--dir', TAB_ORDER.indexOf(t) >= TAB_ORDER.indexOf(ui.tab) ? '1' : '-1');
   ui.tab = t;
   TAB_ORDER.forEach((k) => $('#s-' + k).classList.toggle('active', k === t));
+  $('#s-' + t).scrollTop = 0;
   const hl = t === 'movimientos' ? 'resumen' : t;
   document.querySelectorAll('.tab').forEach((b) => b.classList.toggle('on', b.getAttribute('data-act') === 'tab:' + hl));
   if (typeof setMini === 'function') setMini(false);
@@ -1320,7 +1324,7 @@ document.addEventListener('click', (e) => {
       setTimeout(() => { if (ui.armed === a) { ui.armed = null; el.textContent = orig; } }, 3500); return;
     }
     ui.armed = null; data = migrate(clone(a === 'demo' ? SAMPLE : EMPTY)); ui.dirty = a === 'demo' ? 0 : (hasData() ? 1 : 0); ui.week = 8; ui.calMonth = 0; ui.calSel = null;
-    persist(); closeSheet(); renderAll(); toast(a === 'demo' ? 'Datos de ejemplo cargados' : 'Datos borrados'); if (a === 'demo') setTimeout(checkPending, 900);
+    persist(); closeSheet(); renderAll(); document.querySelectorAll('.screen').forEach((sc) => { sc.scrollTop = 0; }); toast(a === 'demo' ? 'Datos de ejemplo cargados' : 'Datos borrados'); if (a === 'demo') setTimeout(checkPending, 900);
   }
 });
 document.addEventListener('input', (e) => {
