@@ -49,7 +49,7 @@ html.preview .only-frame{display:flex}
 .topfade{position:absolute;left:0;right:0;top:0;height:calc(var(--sat) + 4px);background:linear-gradient(to bottom,var(--bg) 72%,rgba(242,242,247,0));z-index:20;pointer-events:none}
 
 /* Pantallas */
-.screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding:calc(var(--sat) + 8px) 16px calc(var(--sab) + 116px);display:none;scrollbar-width:none;-webkit-mask-image:linear-gradient(to bottom,transparent calc(var(--sat) - 6px),#000 calc(var(--sat) + 26px),#000 calc(100% - var(--sab) - 104px),transparent calc(100% - 4px));mask-image:linear-gradient(to bottom,transparent calc(var(--sat) - 6px),#000 calc(var(--sat) + 26px),#000 calc(100% - var(--sab) - 104px),transparent calc(100% - 4px))}
+.screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding:calc(var(--sat) + 8px) 16px calc(var(--sab) + 116px);display:none;scrollbar-width:none;-webkit-mask-image:linear-gradient(to bottom,transparent calc(var(--sat) - 8px),rgba(0,0,0,.35) calc(var(--sat) + 14px),#000 calc(var(--sat) + 64px),#000 calc(100% - var(--sab) - 150px),rgba(0,0,0,.4) calc(100% - var(--sab) - 56px),transparent calc(100% - 2px));mask-image:linear-gradient(to bottom,transparent calc(var(--sat) - 8px),rgba(0,0,0,.35) calc(var(--sat) + 14px),#000 calc(var(--sat) + 64px),#000 calc(100% - var(--sab) - 150px),rgba(0,0,0,.4) calc(100% - var(--sab) - 56px),transparent calc(100% - 2px))}
 .screen::-webkit-scrollbar{display:none}
 .screen.active{display:block;animation:scrin .42s cubic-bezier(.2,.85,.25,1)}
 @keyframes scrin{from{opacity:0;transform:translateX(calc(var(--dir,1) * 26px))}to{opacity:1;transform:none}}
@@ -159,9 +159,9 @@ input[type=range]::-moz-range-thumb{width:28px;height:28px;border:0;border-radiu
 .band.in.s-r{-webkit-mask-image:linear-gradient(to left,#000 35%,transparent);mask-image:linear-gradient(to left,#000 35%,transparent)}
 .ghost{position:absolute;left:0;top:0;transform-origin:0 0;padding:calc(var(--sat) + 8px) 16px 0;box-sizing:border-box;will-change:transform}
 /* Hoja para añadir movimientos */
-.backdrop{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 0,rgba(0,0,0,.3) calc(var(--sat) + 40px));opacity:0;pointer-events:none;transition:opacity .4s cubic-bezier(.2,.8,.3,1);z-index:40}
+.backdrop{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 0,rgba(0,0,0,.3) calc(var(--sat) + 150px));opacity:0;pointer-events:none;transition:opacity .4s cubic-bezier(.2,.8,.3,1);z-index:40}
 .backdrop.show{opacity:1;pointer-events:auto}
-.sheet{position:absolute;left:8px;right:8px;bottom:calc(var(--sab) - 18px + 8px);z-index:50;background:#F2F2F7;border-radius:34px;padding:12px 16px 16px;overflow-y:auto;max-height:calc(100% - var(--sat) - 20px);transform:translateY(calc(100% + 120px));visibility:hidden;transition:transform .55s cubic-bezier(.2,.95,.25,1),visibility 0s .55s;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.sheet{position:absolute;left:8px;right:8px;bottom:8px;z-index:50;background:#F2F2F7;border-radius:34px;padding:12px 16px calc(16px + var(--sab) / 2);overflow-y:auto;max-height:calc(100% - var(--sat) - 20px);transform:translateY(calc(100% + 120px));visibility:hidden;transition:transform .55s cubic-bezier(.2,.95,.25,1),visibility 0s .55s;box-shadow:0 20px 60px rgba(0,0,0,.25)}
 .sheet.show{transform:translateY(0);visibility:visible;transition:transform .55s cubic-bezier(.2,.95,.25,1),visibility 0s}
 .grab{width:36px;height:5px;border-radius:3px;background:#D1D1D6;margin:0 auto 12px}
 .sheet h2{margin:0 0 12px;font-size:20px;font-weight:700;letter-spacing:-0.03em}
@@ -274,7 +274,7 @@ select.sinput{min-height:26px;color:#1C1C1E}
   <div class="backdrop" id="backdrop" data-act="close"></div>
   <div class="sheet" id="sheet" role="dialog" aria-label="Nuevo movimiento"></div>
   <div class="toast" id="toast" role="status"></div>
-  <div class="splash" id="splash"><div class="sp-title">Plata</div><div class="sp-foot">Beta 33</div></div>
+  <div class="splash" id="splash"><div class="sp-title">Plata</div><div class="sp-foot">Beta 34</div></div>
   <div class="homebar only-frame" aria-hidden="true"></div>
 </div>
 </div>
