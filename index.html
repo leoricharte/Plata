@@ -41,7 +41,7 @@ html.preview{--sat:59px;--sab:34px}
 html.preview .only-frame{display:flex}
 .island{position:absolute;top:11px;left:50%;margin-left:-63px;width:126px;height:37px;border-radius:20px;background:#000;z-index:60;pointer-events:none}
 .statusbar{position:absolute;top:0;left:0;right:0;height:59px;z-index:55;padding:19px 34px 0 46px;justify-content:space-between;align-items:flex-start;font-size:17px;font-weight:600;pointer-events:none}
-.splash{position:absolute;inset:0;background:#000;z-index:200;display:flex;align-items:center;justify-content:center;transition:opacity .6s ease;cursor:default}
+.splash{position:absolute;inset:3px 0 0 0;background:#000;z-index:200;display:flex;align-items:center;justify-content:center;transition:opacity .6s ease;cursor:default}
 .splash.off{opacity:0;pointer-events:none}
 .splash .sp-title{font-family:'Inter',sans-serif;font-weight:700;font-size:64px;letter-spacing:-0.05em;color:#fff}
 .splash .sp-foot{position:absolute;left:0;right:0;bottom:calc(var(--sab) + 18px);text-align:center;font-size:13px;font-weight:500;letter-spacing:.04em;color:rgba(255,255,255,.45)}
@@ -274,7 +274,7 @@ select.sinput{min-height:26px;color:#1C1C1E}
   <div class="backdrop" id="backdrop" data-act="close"></div>
   <div class="sheet" id="sheet" role="dialog" aria-label="Nuevo movimiento"></div>
   <div class="toast" id="toast" role="status"></div>
-  <div class="splash" id="splash"><div class="sp-title">Plata</div><div class="sp-foot">Beta 1</div></div>
+  <div class="splash" id="splash"><div class="sp-title">Plata</div><div class="sp-foot">Beta 32</div></div>
   <div class="homebar only-frame" aria-hidden="true"></div>
 </div>
 </div>
@@ -1018,7 +1018,7 @@ function catsHTML() {
     : '';
 }
 const XSVG = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1C1C1E" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg>';
-const OKSVG = '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#0A6CFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12.5l5 5L19.5 7"/></svg>';
+const OKSVG = '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#1C1C1E" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12.5l5 5L19.5 7"/></svg>';
 function sheetHead(title, act, save) { return '<div class="shead"><button class="xbtn" data-act="' + (act || 'close') + '" aria-label="Cerrar">' + XSVG + '</button><div class="stitle">' + title + '</div>' + (save ? '<button class="okbtn" data-act="' + save + '" aria-label="Guardar">' + OKSVG + '</button>' : '') + '</div>'; }
 const GL = {
   pen: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/></svg>',
@@ -1617,8 +1617,7 @@ syncGhost();
 (function () {
   const sp = document.getElementById('splash'); if (!sp) return;
   if (/[?&]nosplash/.test(location.search)) { sp.remove(); return; }
-  const tc = document.querySelector('meta[name="theme-color"]'); if (tc) tc.setAttribute('content', '#000000');
-  const hide = () => { if (tc) tc.setAttribute('content', '#F2F2F7'); sp.classList.add('off'); setTimeout(() => sp.remove(), 700); };
+  const hide = () => { sp.classList.add('off'); setTimeout(() => sp.remove(), 700); };
   sp.addEventListener('click', hide); setTimeout(hide, 1500);
 })();
 if (/[?&]preview/.test(location.search)) document.documentElement.classList.add('preview');
