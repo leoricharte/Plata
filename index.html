@@ -41,10 +41,10 @@ html.preview{--sat:59px;--sab:34px}
 html.preview .only-frame{display:flex}
 .island{position:absolute;top:11px;left:50%;margin-left:-63px;width:126px;height:37px;border-radius:20px;background:#000;z-index:60;pointer-events:none}
 .statusbar{position:absolute;top:0;left:0;right:0;height:59px;z-index:55;padding:19px 34px 0 46px;justify-content:space-between;align-items:flex-start;font-size:17px;font-weight:600;pointer-events:none}
-.splash{position:absolute;inset:3px 0 0 0;background:#000;z-index:200;display:flex;align-items:center;justify-content:center;transition:opacity .6s ease;cursor:default}
+.splash{position:absolute;inset:0;background:var(--bg);z-index:200;display:flex;align-items:center;justify-content:center;transition:opacity .6s ease;cursor:default}
 .splash.off{opacity:0;pointer-events:none}
-.splash .sp-title{font-family:'Inter',sans-serif;font-weight:700;font-size:64px;letter-spacing:-0.05em;color:#fff}
-.splash .sp-foot{position:absolute;left:0;right:0;bottom:calc(var(--sab) + 18px);text-align:center;font-size:13px;font-weight:500;letter-spacing:.04em;color:rgba(255,255,255,.45)}
+.splash .sp-title{font-family:'Inter',sans-serif;font-weight:700;font-size:64px;letter-spacing:-0.05em;color:#1C1C1E}
+.splash .sp-foot{position:absolute;left:0;right:0;bottom:calc(var(--sab) + 18px);text-align:center;font-size:13px;font-weight:500;letter-spacing:.04em;color:rgba(28,28,30,.4)}
 .homebar{position:absolute;bottom:8px;left:50%;margin-left:-70px;width:140px;height:5px;border-radius:3px;background:#1C1C1E;z-index:60;pointer-events:none}
 .topfade{position:absolute;left:0;right:0;top:0;height:calc(var(--sat) + 4px);background:linear-gradient(to bottom,var(--bg) 72%,rgba(242,242,247,0));z-index:20;pointer-events:none}
 
@@ -274,7 +274,7 @@ select.sinput{min-height:26px;color:#1C1C1E}
   <div class="backdrop" id="backdrop" data-act="close"></div>
   <div class="sheet" id="sheet" role="dialog" aria-label="Nuevo movimiento"></div>
   <div class="toast" id="toast" role="status"></div>
-  <div class="splash" id="splash"><div class="sp-title">Plata</div><div class="sp-foot">Beta 32</div></div>
+  <div class="splash" id="splash"><div class="sp-title">Plata</div><div class="sp-foot">Beta 33</div></div>
   <div class="homebar only-frame" aria-hidden="true"></div>
 </div>
 </div>
