@@ -298,7 +298,7 @@ select.sinput{min-height:26px;color:#1C1C1E}
   <div class="backdrop" id="backdrop" data-act="close"></div>
   <div class="sheet" id="sheet" role="dialog" aria-label="Nuevo movimiento"></div>
   <div class="toast" id="toast" role="status"></div>
-  <div class="splash" id="splash"><div class="sp-title">Plata</div><div class="sp-foot">Beta 49</div></div>
+  <div class="splash" id="splash"><div class="sp-title">Plata</div><div class="sp-foot">Beta 50</div></div>
   <div class="homebar only-frame" aria-hidden="true"></div>
 </div>
 </div>
@@ -647,8 +647,8 @@ function pendingItems() {
 function nextIncome() { return data.expected_income.slice().sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0))[0]; }
 
 /* Simulador de pago de deudas: se paga el mínimo en todas y lo extra va a la de mayor interés */
-function payoff(extra) {
-  const ds = data.cards.map((k) => ({ b: usd(k.balance, k.cur), r: k.apr / 1200, apr: k.apr, p: k.payment > 0 ? usd(k.payment, k.cur) : Math.max(15, usd(k.balance, k.cur) * 0.02) })).filter((d) => d.b > 0);
+function payoff(extra, kind) {
+  const ds = data.cards.filter((k) => !kind || kind === 'all' || k.kind === kind).map((k) => ({ b: usd(k.balance, k.cur), r: k.apr / 1200, apr: k.apr, p: k.payment > 0 ? usd(k.payment, k.cur) : Math.max(15, usd(k.balance, k.cur) * 0.02) })).filter((d) => d.b > 0);
   if (!ds.length) return { months: 0, interest: 0, ok: true };
   const pool = sum(ds, (d) => d.p) + extra;
   let interest = 0, m = 0;
@@ -851,16 +851,17 @@ function renderPresupuesto() {
 function secHead(t, extra) { return '<div class="sechead"><h2>' + t + '</h2>' + (extra || '') + '</div>'; }
 function renderDeuda() {
   const c = calc();
-  const items = c.cards.filter((k) => k.ub > 0).map((k) => ({ v: k.ub, color: k.color }));
+  const rk = data.settings.ring_kind || 'all', fc = c.cards.filter((k) => rk === 'all' || k.kind === rk), fDebt = fc.reduce((t, k) => t + k.ub, 0), fInt = fc.reduce((t, k) => t + k.interest, 0);
+  const items = fc.filter((k) => k.ub > 0).map((k) => ({ v: k.ub, color: k.color }));
   const center =
-    '<text x="150" y="164" text-anchor="middle" font-size="46" font-weight="700" letter-spacing="-1.6" fill="#1C1C1E" font-family="inherit">' + fmt(c.debt) + '</text>' +
-    '<text x="150" y="200" text-anchor="middle" font-size="22" font-weight="600" fill="#B54708" font-family="inherit">' + fmt2(c.interest) + '</text>' +
-    '<text font-size="11" font-weight="500" letter-spacing="1.6" fill="#6C6C70" font-family="inherit"><textPath href="#dtop" startOffset="50%" text-anchor="middle">DEUDA TOTAL · ' + c.cards.length + ' CUENTAS</textPath></text>' +
+    '<text x="150" y="164" text-anchor="middle" font-size="46" font-weight="700" letter-spacing="-1.6" fill="#1C1C1E" font-family="inherit">' + fmt(fDebt) + '</text>' +
+    '<text x="150" y="200" text-anchor="middle" font-size="22" font-weight="600" fill="#B54708" font-family="inherit">' + fmt2(fInt) + '</text>' +
+    '<text font-size="11" font-weight="500" letter-spacing="1.6" fill="#6C6C70" font-family="inherit"><textPath href="#dtop" startOffset="50%" text-anchor="middle">' + ({ all: 'DEUDA TOTAL', card: 'DEUDA EN TARJETAS', loan: 'DEUDA EN PRÉSTAMOS' })[rk] + ' · ' + fc.length + (fc.length === 1 ? ' CUENTA' : ' CUENTAS') + '</textPath></text>' +
     '<text font-size="11" font-weight="500" letter-spacing="1.6" fill="#6C6C70" font-family="inherit"><textPath href="#dbot" startOffset="50%" text-anchor="middle">INTERESES ESTIMADOS AL MES</textPath></text>';
   const defs = '<defs><path id="dtop" d="M 62,150 A 88,88 0 0 1 238,150"/><path id="dbot" d="M 46,150 A 104,104 0 0 0 254,150"/></defs>';
   const ring = items.length ? ringSVG(items, 126, 30, 6, 300, center, defs) : '';
   const detail = ui.interest
-    ? '<div style="padding:4px 0 8px">' + c.cards.map((k) => '<div class="row" style="padding:8px 0"><span class="grow">' + esc(k.name) + ' <span class="sub">· ' + k.apr + '% anual</span></span><b>' + fmt2(k.interest) + '/mes</b></div>').join('') + '</div>'
+    ? '<div style="padding:4px 0 8px">' + fc.map((k) => '<div class="row" style="padding:8px 0"><span class="grow">' + esc(k.name) + ' <span class="sub">· ' + k.apr + '% anual</span></span><b>' + fmt2(k.interest) + '/mes</b></div>').join('') + '</div>'
     : '';
   const sm = (pf) => data.settings[pf + '_sort'] || 'name', sd = (pf) => data.settings[pf + '_dir'] === 'desc' ? -1 : 1, todayD = c.today.getDate(), dimN = c.dim;
   const byName = (x, y) => String(x.name).localeCompare(String(y.name), 'es');
@@ -881,7 +882,7 @@ function renderDeuda() {
     '<span class="amt">' + fmtC(k.balance, k.cur) + '</span>'); }).join('');
   const sortBtn = (pf) => { const sortOn = sm(pf) !== 'name' || sd(pf) < 0 || !!data.settings[pf + '_hide']; return '<button class="sortbtn' + (sortOn ? ' on' : '') + '" data-act="sortmenu:' + pf + '" aria-label="Ordenar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="' + (sortOn ? '#fff' : '#6C6C70') + '" stroke-width="2.4" stroke-linecap="round"><path d="M5 8h14M8 12.5h8M10.5 17h3"/></svg></button>'; };
   const hiddenNote = (pf, list) => { if (!data.settings[pf + '_hide']) return ''; const n = list.filter((o) => (pf === 'card' ? !(o.balance > 0) : o.balance === 0)).length; return n ? '<div class="sub" style="padding:8px 0 2px;text-align:center;font-size:13px">' + n + (n === 1 ? ' oculta' : ' ocultas') + ' por no estar en uso</div>' : ''; };
-  const base = payoff(0), net = c.balance - c.debt;
+  const base = payoff(0, rk), net = c.balance - c.debt;
   const lim = c.cards.filter((k) => k.kind === 'card' && k.limit > 0), creditLimit = lim.reduce((t, k) => t + usd(k.limit, k.cur), 0), creditAvail = lim.reduce((t, k) => t + Math.max(0, usd(k.limit - k.balance, k.cur)), 0);
   $('#s-deuda').innerHTML =
     '<div class="head"><div><div class="eyebrow">Débito, crédito e intereses</div><h1>Cuentas</h1></div></div>' +
@@ -889,8 +890,8 @@ function renderDeuda() {
       '<div class="stats" style="border:0;margin:14px 0 0;padding:14px 0 0;border-top:1px solid var(--line);gap:20px"><div><span class="sub">Crédito disponible</span><b style="color:#1E8E4E">' + fmt(creditAvail) + '</b></div><div><span class="sub">Límite total</span><b>' + fmt(creditLimit) + '</b></div></div>' +
       '<div class="sub" style="padding-top:8px">' + (creditLimit > 0 ? 'Usas ' + Math.round(((creditLimit - creditAvail) / creditLimit) * 100) + '% de tu crédito · ' : '') + 'Neto: <b style="color:' + (net < 0 ? '#D70015' : '#1C1C1E') + '">' + fmt(net) + '</b> · Los movimientos entran a la cuenta que elijas al añadirlos.</div></div>' +
     secHead('Cuentas de débito', sortBtn('acct')) + '<div class=\"card lst\">' + debitRows + hiddenNote('acct', data.accounts) + addRow('account', 'Añadir cuenta de débito') + '</div>' +
-    (c.cards.length ? '<div class="card"><div style="max-width:300px;margin:0 auto">' + (ring || '<div class="empty">Sin deuda registrada</div>') + '</div>' +
-      '<div style="padding-top:10px"><div class="name" style="font-size:17px">' + (!c.debt ? 'Sin deuda' : base.months && base.ok ? 'Libre de deuda en ' + monthYear(addMonths(c.today, base.months)) : 'Tu plan actual no liquida la deuda') + '</div><div class="sub" style="padding:2px 0 6px">Con tus pagos actuales. Mira cuánto cambia pagando un poco más.</div>' +
+    (c.cards.length ? '<div class="card" style="position:relative"><button class="sortbtn' + (rk !== 'all' ? ' on' : '') + '" style="position:absolute;top:14px;right:14px;z-index:2" data-act="sortmenu:ring" aria-label="Filtrar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="' + (rk !== 'all' ? '#fff' : '#6C6C70') + '" stroke-width="2.4" stroke-linecap="round"><path d="M5 8h14M8 12.5h8M10.5 17h3"/></svg></button><div style="max-width:300px;margin:0 auto">' + (ring || '<div class="empty">Sin deuda registrada</div>') + '</div>' +
+      '<div style="padding-top:10px"><div class="name" style="font-size:17px">' + (!fDebt ? 'Sin deuda' : base.months && base.ok ? 'Libre de deuda en ' + monthYear(addMonths(c.today, base.months)) : 'Tu plan actual no liquida la deuda') + '</div><div class="sub" style="padding:2px 0 6px">Con tus pagos actuales. Mira cuánto cambia pagando un poco más.</div>' +
       '<button class="linkrow" data-act="interest">' + ICON.info + (ui.interest ? 'Ocultar detalle de intereses' : 'Ver detalle de intereses') + '</button>' + detail +
       '<button class="linkrow" data-act="sim">' + ICON.sliders + 'Simular pago extra</button></div></div>' : '') +
     secHead('Tarjetas y préstamos', sortBtn('card')) + '<div class=\"card lst\">' + (creditRows || '<div class="empty">Aún no hay tarjetas ni préstamos</div>') + hiddenNote('card', c.cards) + addRow('debt', 'Añadir tarjeta o préstamo') + '</div>';
@@ -1058,7 +1059,7 @@ function toggleSortMenu(btn, pf) {
   const bk = document.createElement('div'); bk.id = 'menuback'; bk.className = 'menuback'; bk.setAttribute('data-act', 'menuclose');
   const m = document.createElement('div'); m.id = 'sortmenu'; m.className = 'popmenu';
   const fill = () => { const cm = data.settings[pf + '_sort'] || 'name', cd = data.settings[pf + '_dir'] === 'desc' ? 'desc' : 'asc', ck = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1C1C1E" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5L19.5 7"/></svg>', row = (act, key, on, t) => '<button class="pmi" data-act="' + act + ':' + pf + ':' + key + '"><span class="pck">' + (on ? ck : '') + '</span>' + t + '</button>'; m.innerHTML = [['name', 'Nombre'], ['amount', 'Monto'], ['due', 'Fecha de pago']].filter((it) => pf === 'card' || it[0] !== 'due').map((it) => row('asort', it[0], it[0] === cm, it[1])).join('') + '<div class="pmsep"></div>' + row('adir', 'asc', cd === 'asc', 'Ascendente') + row('adir', 'desc', cd === 'desc', 'Descendente') + '<div class="pmsep"></div>' + row('ahide', 'x', !!data.settings[pf + '_hide'], 'Ocultar sin uso').replace(':' + pf + ':x', ':' + pf); };
-  window.__sortFill = fill; fill();
+  if (pf === 'ring') { const fillR = () => { const rk = data.settings.ring_kind || 'all'; m.innerHTML = [['all', 'Tarjetas y préstamos'], ['card', 'Solo tarjetas'], ['loan', 'Solo préstamos']].map((it) => '<button class="pmi" data-act="ringk:' + it[0] + '"><span class="pck">' + (it[0] === rk ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1C1C1E" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5L19.5 7"/></svg>' : '') + '</span>' + it[1] + '</button>').join(''); }; window.__sortFill = fillR; fillR(); } else { window.__sortFill = fill; fill(); }
   dv.appendChild(bk); dv.appendChild(m);
   const top = (r.bottom - d.top) / k + 8, right = (d.right - r.right) / k;
   m.style.right = right + 'px'; const mh = m.offsetHeight || 220, devH = dv.offsetHeight; m.style.top = (top + mh > devH - 110 ? Math.max(70, (r.top - d.top) / k - mh - 8) : top) + 'px'; if (top + mh > devH - 110) m.style.transformOrigin = '100% 100%';
@@ -1503,6 +1504,7 @@ document.addEventListener('click', (e) => {
   else if (a === 'edit') { const q = arg.split(':'); if (q[0] === 'acct') openAcct(q[1]); else openForm(q[0], q[1]); }
   else if (a === 'sortmenu') toggleSortMenu(el, arg);
   else if (a === 'menuclose') closeSortMenu();
+  else if (a === 'ringk') { data.settings.ring_kind = arg; ui.dirty++; persist(); renderDeuda(); closeSortMenu(); }
   else if (a === 'ahide') { data.settings[arg + '_hide'] = !data.settings[arg + '_hide']; ui.dirty++; persist(); renderDeuda(); if (window.__sortFill && $('#sortmenu')) window.__sortFill(); }
   else if (a === 'asort' || a === 'adir') { const q = arg.split(':'); data.settings[q[0] + (a === 'asort' ? '_sort' : '_dir')] = q[1]; ui.dirty++; persist(); renderDeuda(); if (window.__sortFill && $('#sortmenu')) window.__sortFill(); }
   else if (a === 'acctback') setTab(ui.prevTab && ui.prevTab !== 'cuenta' ? ui.prevTab : 'deuda');
