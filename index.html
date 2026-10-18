@@ -2652,7 +2652,7 @@ function openForm(kind, id) {
   else if (kind === 'contrib') {
     if (!data.savings.length) { toast('Primero crea una meta de ahorro'); return; }
     o = { sav: data.savings[0].id, from: data.accounts[0].id, amount: 0 };
-  } else if (id) o = clone(data[F.coll].find((x) => x.id === id));
+  } else if (id) { const src = data[F.coll].find((x) => x.id === id); if (!src) return; o = clone(src); }
   else o = F.blank();
   if (!o) return;
   if (kind === 'sim' && !o.kind) o.kind = o.card ? 'pay' : 'out';
@@ -2706,6 +2706,7 @@ function evSave() {
 }
 function formDone(msg) { ui.dirty++; persist(); closeSheet(); ui.form = null; renderAll(); toast(msg); }
 function saveForm() {
+  if (!ui.form) return;
   syncForm();
   const f = ui.form, F = FORMS[f.kind], o = f.obj;
   if (f.kind === 'budget') {
@@ -2748,6 +2749,7 @@ function saveForm() {
   formDone('Guardado');
 }
 function deleteForm() {
+  if (!ui.form) return;
   const f = ui.form, F = FORMS[f.kind];
   if (!f.confirmDel) { askDelete('esto', () => { f.confirmDel = true; deleteForm(); }); return; }
   if (f.kind === 'budget') { data.cats = data.cats.filter((x) => x.name !== f.id); allBuds().forEach((b) => { delete b[f.id]; }); }
@@ -2978,8 +2980,9 @@ document.addEventListener('click', (e) => {
   else if (a === 'evseries') { const f = ui.ev.form, id = ui.ev.srcId; closeSheet(); setTimeout(() => openForm(f, id), 260); }
   else if (a === 'fsave') saveForm();
   else if (a === 'fdel') deleteForm();
-  else if (a === 'fpick') { const q = arg.split(':'), k = q[0], v = q.slice(1).join(':'); syncForm(); ui.form.obj[k] = v === 'auto' ? '' : v; el.parentNode.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b === el)); updPrev(); }
+  else if (a === 'fpick') { if (!ui.form) return; const q = arg.split(':'), k = q[0], v = q.slice(1).join(':'); syncForm(); ui.form.obj[k] = v === 'auto' ? '' : v; el.parentNode.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b === el)); updPrev(); }
   else if (a === 'fseg') {
+    if (!ui.form) return;
     const q = arg.split(':'), k = q[0]; let v = q.slice(1).join(':');
     syncForm(); const F = FORMS[ui.form.kind];
     if (k === 'repeat') v = v === 'm' ? 'm' : Number(v);
