@@ -75,6 +75,8 @@ h1{margin:2px 0 0;font-size:34px;line-height:1.1;font-weight:700;letter-spacing:
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
 .kpi{background:#fff;border-radius:26px;padding:16px;display:flex;flex-direction:column;gap:4px;min-width:0}
 .kpi .big{font-size:26px}
+.kpi.tap{cursor:pointer;transition:opacity .2s}
+.kpi.tap:active{opacity:.6}
 .link{color:var(--accent);font-size:15px;font-weight:500;text-align:left;margin-top:auto;padding-top:6px}
 .minibars{display:flex;gap:5px;height:54px;margin-top:8px}
 .minibars div{flex:1;border-radius:5px;background:#F3F3F5;display:flex;flex-direction:column;justify-content:flex-end}
@@ -300,7 +302,7 @@ select.sinput{min-height:26px;color:#1C1C1E}
   <div class="backdrop" id="backdrop" data-act="close"></div>
   <div class="sheet" id="sheet" role="dialog" aria-label="Nuevo movimiento"></div>
   <div class="toast" id="toast" role="status"></div>
-  <div class="splash" id="splash"><div class="sp-title">Plata</div><div class="sp-foot"><div>Alpha 57</div><div class="sp-note"><span class="sp-i" aria-hidden="true">i</span>Esta es una versión de pruebas por lo cual aún podrían haber errores.</div></div></div>
+  <div class="splash" id="splash"><div class="sp-title">Plata</div><div class="sp-foot"><div>Alpha 60</div><div class="sp-note"><span class="sp-i" aria-hidden="true">i</span>Esta es una versión de pruebas por lo cual aún podrían haber errores.</div></div></div>
   <div class="homebar only-frame" aria-hidden="true"></div>
 </div>
 </div>
@@ -405,6 +407,7 @@ function syncCats() {
   data.cats.forEach((c) => { CAT_ORDER.push(c.name); CAT_COLOR[c.name] = c.color || '#C9CBD1'; });
   if (CAT_ORDER.indexOf(ui.sheetCat) < 0) ui.sheetCat = CAT_ORDER[0] || 'Otros';
 }
+const PAY = 'Pago de crédito', isPay = (t) => t.category === PAY;
 function catGlyph(n) { const c = data.cats.find((x) => x.name === n); return c && c.icon && ICONS[c.icon] ? iconSVG(c.icon, '#fff', 20) : esc(n).charAt(0); }
 const CARD_COLORS = ['#B98AE6','#6D8BEA','#EDB03E','#F08FB0','#5CC8C0'];
 const MON = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
@@ -503,7 +506,7 @@ function migrate(o) {
   }));
   out.cats = (Array.isArray(o.cats) && o.cats.length ? o.cats : DEF_CATS).map((c) => ({ name: String(c.name), color: c.color || '#C9CBD1', icon: c.icon || '' }));
   if (!out.cats.some((c) => c.name === 'Otros')) out.cats.push({ name: 'Otros', color: '#C9CBD1', icon: '' });
-  out.transactions.forEach((t, i) => { if (!t.id) t.id = 1000 + i; });
+  out.transactions.forEach((t, i) => { if (!t.id) t.id = 1000 + i; if (t.amount > 0 && t.category === 'Ingreso' && out.cards.some((c) => c.id === t.acc)) t.category = 'Pago de crédito'; });
   if (old) { D.expected_income.forEach((e) => { if (!out.expected_income.some((x) => x.id === e.id) && e.id === 'proj') out.expected_income.push(e); }); }
   return out;
 }
@@ -512,7 +515,7 @@ function loadStored() {
 }
 let data = loadStored() || migrate(clone(EMPTY));
 const hasData = () => data.transactions.length + data.cards.length + data.savings.length + data.subs.length + data.expected_income.length + data.expected_expense.length + data.planned.length > 0 || Object.keys(data.budget).length > 0;
-const ui = { tab: 'resumen', week: 8, variable: true, mov: 'all', interest: false, sheetType: 'out', sheetCat: 'Comida', sheetAcc: 'bank', dirty: 0, extra: 100, skipPending: false, form: null, confirmId: null };
+const ui = { txId: null, txDel: false, tab: 'resumen', week: 8, variable: true, mov: 'all', interest: false, sheetType: 'out', sheetCat: 'Comida', sheetAcc: 'bank', dirty: 0, extra: 100, skipPending: false, form: null, confirmId: null };
 try { ui.dirty = Number(localStorage.getItem(KEY_DIRTY)) || 0; } catch (e) { /* sin almacenamiento */ }
 function persist() {
   try { localStorage.setItem(KEY, JSON.stringify(data)); localStorage.setItem(KEY_DIRTY, String(ui.dirty)); } catch (e) { /* sin almacenamiento */ }
@@ -530,11 +533,12 @@ function calc() {
   const mk = iso(today).slice(0, 7);
   const tx = data.transactions.slice().sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : (b.id || 0) - (a.id || 0)));
   const monthTx = tx.filter((t) => t.date.slice(0, 7) === mk);
-  const incTx = monthTx.filter((t) => t.amount > 0);
+  const flowTx = monthTx.filter((t) => !isPay(t));
+  const incTx = flowTx.filter((t) => t.amount > 0);
   const income = sum(incTx, txUSD);
-  const expense = -sum(monthTx.filter((t) => t.amount < 0), txUSD);
+  const expense = -sum(flowTx.filter((t) => t.amount < 0), txUSD);
   const catTot = {};
-  monthTx.filter((t) => t.amount < 0).forEach((t) => {
+  flowTx.filter((t) => t.amount < 0).forEach((t) => {
     const c = CAT_ORDER.indexOf(t.category) >= 0 ? t.category : 'Otros';
     catTot[c] = (catTot[c] || 0) - txUSD(t);
   });
@@ -775,7 +779,7 @@ function renderResumen() {
     const cur = accOf(nx.acc).cur, days = Math.round((pd(nx.date) - c.today) / 86400000);
     const due = pend.length > 0;
     nextCard = '<div class="card"><div class="lbl">' + (due ? 'Por confirmar' : 'Próximo ingreso') + '</div>' +
-      '<div class="row" style="border:0;padding:10px 0 0">' + tile('#4CC38A', esc(nx.name).charAt(0)) +
+      '<div class="row tap" data-act="nextitem:in:' + nx.id + '" style="border:0;padding:10px 0 0">' + tile('#4CC38A', esc(nx.name).charAt(0)) +
       '<div class="grow"><div class="name">' + esc(nx.name) + '</div><div class="sub" style="font-size:14px">' + (due ? (days < 0 ? 'esperado hace ' + (-days) + (days === -1 ? ' día' : ' días') : 'esperado hoy') : dlabel(pd(nx.date)) + (days > 0 ? ' · en ' + plural(days, 'día', 'días') : '')) + '</div></div>' +
       '<span class="amt" style="font-weight:600;color:#248A3D">+' + fmtC(nx.amount, cur) + '</span></div>' +
       (due ? '<button class="primary" style="margin-top:12px;height:48px;font-size:16px" data-act="pending">¿Llegó? Confirmar</button>' : '') + '</div>';
@@ -787,7 +791,7 @@ function renderResumen() {
     const cur = accOf(nxe.acc).cur, days = Math.round((pd(nxe.date) - c.today) / 86400000), dueX = pendingItems().some((x) => x.k === 'out');
     const ec = CAT_ORDER.indexOf(nxe.cat) >= 0 ? nxe.cat : 'Otros';
     nextCard += '<div class="card"><div class="lbl">' + (dueX ? 'Gasto por confirmar' : 'Próximo gasto') + '</div>' +
-      '<div class="row" style="border:0;padding:10px 0 0">' + tile(CAT_COLOR[ec], catGlyph(ec)) +
+      '<div class="row tap" data-act="nextitem:out:' + nxe.id + '" style="border:0;padding:10px 0 0">' + tile(CAT_COLOR[ec], catGlyph(ec)) +
       '<div class="grow"><div class="name">' + esc(nxe.name) + '</div><div class="sub" style="font-size:14px">' + (dueX ? (days < 0 ? 'previsto hace ' + (-days) + (days === -1 ? ' día' : ' días') : 'previsto hoy') : dlabel(pd(nxe.date)) + (days > 0 ? ' · en ' + plural(days, 'día', 'días') : '')) + '</div></div>' +
       '<span class="amt" style="font-weight:600">−' + fmtC(nxe.amount, cur) + '</span></div>' +
       (dueX ? '<button class="primary" style="margin-top:12px;height:48px;font-size:16px" data-act="pending">¿Se cobró? Confirmar</button>' : '') + '</div>';
@@ -807,10 +811,10 @@ function renderResumen() {
     (hasData() ? '' : '<div class="card"><div class="name" style="font-size:20px">Empieza aquí</div><div class="sub" style="padding:4px 0 6px">Tu app está vacía. Empieza en la pestaña Cuentas: ajusta tu saldo y añade tus tarjetas, añade movimientos o carga tu archivo.</div>' +
       '<button class="linkrow" data-act="add"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0A6CFF" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>Añadir un movimiento</button><button class="linkrow" data-act="load">' + ICON.folder.replace(/#1C1C1E/g, '#0A6CFF') + 'Cargar mi archivo</button><button class="linkrow" data-act="demo">' + ICON.info + 'Ver con datos de ejemplo</button></div>') +
     '<div class="grid2">' +
-      '<div class="kpi"><span class="lbl">Balance actual</span><span class="big">' + fmt(c.balance) + '</span><span class="sub">' + plural(data.accounts.length, 'cuenta', 'cuentas') + '</span></div>' +
-      '<div class="kpi"><span class="lbl">Ingresos del mes</span><span class="big">' + fmt(c.income) + '</span><span class="sub">' + plural(c.incomeCount, 'ingreso', 'ingresos') + '</span></div>' +
-      '<div class="kpi"><span class="lbl">Ahorro total</span><span class="big">' + fmt(c.saved) + '</span><button class="link" data-act="tab:ahorro">Ver ahorro</button></div>' +
-      '<div class="kpi"><span class="lbl">Deuda total</span><span class="big">' + fmt(c.debt) + '</span><button class="link" data-act="tab:deuda">Ver deuda</button></div>' +
+      '<div class="kpi tap" data-act="tab:deuda"><span class="lbl">Balance actual</span><span class="big">' + fmt(c.balance) + '</span><span class="sub">' + plural(data.accounts.length, 'cuenta', 'cuentas') + '</span></div>' +
+      '<div class="kpi tap" data-act="movin"><span class="lbl">Ingresos del mes</span><span class="big">' + fmt(c.income) + '</span><span class="sub">' + plural(c.incomeCount, 'ingreso', 'ingresos') + '</span></div>' +
+      '<div class="kpi tap" data-act="tab:ahorro"><span class="lbl">Ahorro total</span><span class="big">' + fmt(c.saved) + '</span><button class="link" data-act="tab:ahorro">Ver ahorro</button></div>' +
+      '<div class="kpi tap" data-act="tab:deuda"><span class="lbl">Deuda total</span><span class="big">' + fmt(c.debt) + '</span><button class="link" data-act="tab:deuda">Ver deuda</button></div>' +
     '</div>' + nextCard +
     secHead('Últimos movimientos') + '<div class=\"card lst\">' + movRows(3) +
       '<button class="linkrow moreRow" data-act="tab:movimientos" style="width:100%;border-top:1px solid var(--line)"><span class="grow">Ver todos los movimientos</span>' + ICON.chev + '</button></div>' + budgetCard +
@@ -1031,13 +1035,13 @@ function setSeg(btn) {
 function swapIn(el) { el.classList.remove('swap'); void el.offsetWidth; el.classList.add('swap'); }
 function movRows(limit, accId) {
   const c = calc();
-  const list = c.tx.filter((t) => accId ? (t.acc || data.accounts[0].id) === accId : limit || ui.mov === 'all' || (ui.mov === 'in' ? t.amount > 0 : t.amount < 0)).slice(0, limit || 40);
+  const list = c.tx.filter((t) => accId ? (t.acc || data.accounts[0].id) === accId : limit || ui.mov === 'all' || (ui.mov === 'in' ? t.amount > 0 && !isPay(t) : t.amount < 0 && !isPay(t))).slice(0, limit || 40);
   const rows = list.map((t) => {
-    const cat = t.amount > 0 ? 'Ingreso' : (CAT_ORDER.indexOf(t.category) >= 0 ? t.category : 'Otros');
+    const cat = isPay(t) ? PAY : t.amount > 0 ? 'Ingreso' : (CAT_ORDER.indexOf(t.category) >= 0 ? t.category : 'Otros');
     const d = pd(t.date), cur = accOf(t.acc).cur;
-    return '<div class="row"><span class="tile" style="background:' + CAT_COLOR[cat] + '" aria-hidden="true">' + catGlyph(cat) + '</span>' +
+    return '<div class="row tap" data-act="tx:' + t.id + '"><span class="tile" style="background:' + (cat === PAY ? '#B98AE6' : CAT_COLOR[cat]) + '" aria-hidden="true">' + (cat === PAY ? iconSVG('card', '#fff', 20) : catGlyph(cat)) + '</span>' +
       '<div class="grow"><div class="name" style="font-size:16px">' + esc(t.note || cat) + '</div><div class="sub" style="font-size:13px">' + cat + ' · ' + dshort(d) + (data.accounts.length + data.cards.length > 1 ? ' · ' + esc(accOf(t.acc).name) : '') + '</div></div>' +
-      '<span class="amt" style="color:' + (t.amount > 0 ? '#248A3D' : '#1C1C1E') + '">' + fmtSC2(t.amount, cur) + '</span>' + ICON.chev + '</div>';
+      '<span class="amt" style="color:' + (t.amount > 0 && !isPay(t) ? '#248A3D' : '#1C1C1E') + '">' + fmtSC2(t.amount, cur) + '</span>' + ICON.chev + '</div>';
   }).join('');
   return rows || '<div class="empty">Sin movimientos todavía</div>';
 }
@@ -1095,9 +1099,101 @@ function svChart(sv, g, today) {
     '<text x="' + x0 + '" y="' + (H - 10) + '" font-size="12" fill="#6C6C70">Hoy</text>' +
     '<text x="' + x1 + '" y="' + (H - 10) + '" text-anchor="end" font-size="12" font-weight="600" fill="#1C1C1E">' + lab + '</text></svg>';
 }
+/* ---------- Detalle de movimiento ---------- */
+const txById = (id) => data.transactions.find((t) => String(t.id) === String(id));
+function txBackNav() {
+  const b = ui.txBack || {}; ui.txId = null; ui.txDel = false;
+  if (b.tab === 'cuenta') { ui.acctId = b.acctId; ui.prevTab = b.prev; renderCuenta(); }
+  else { ui.prevTab = b.prev; setTab(b.tab || 'resumen'); }
+}
+function openTx(id) {
+  ui.txBack = { tab: ui.tab, acctId: ui.acctId, prev: ui.prevTab };
+  ui.prevTab = ui.tab === 'cuenta' ? ui.prevTab : ui.tab; ui.txId = id; ui.txDel = false;
+  renderCuenta(); setTab('cuenta');
+}
+function renderTx(el) {
+  const t = txById(ui.txId);
+  if (!t) { ui.txId = null; if (ui.tab === 'cuenta') txBackNav(); return false; }
+  const acc = accOf(t.acc), cur = acc.cur, pay = isPay(t), cat = pay ? PAY : t.amount > 0 ? 'Ingreso' : (CAT_ORDER.indexOf(t.category) >= 0 ? t.category : 'Otros');
+  const col = pay ? '#B98AE6' : CAT_COLOR[cat], glyph = pay ? iconSVG('card', '#fff', 30) : catGlyph(cat), d = pd(t.date);
+  const st = (l, v, c) => '<div><span class="sub">' + l + '</span><b' + (c ? ' style="color:' + c + '"' : '') + '>' + v + '</b></div>';
+  const kind = pay ? 'Pago de crédito' : t.amount > 0 ? 'Ingreso' : 'Gasto';
+  const pairT = t.pair ? data.transactions.find((x) => x.pair === t.pair && x !== t) : null;
+  let extra = '';
+  if (t.est > 0 && t.amount > 0) { const df = round2(t.amount - t.est); extra = '<div class="stats" style="margin-top:14px;gap:20px">' + st('Previsto', fmtC2(t.est, cur)) + st('Diferencia', (df >= 0 ? '+' : '−') + fmtC2(Math.abs(df), cur), df >= 0 ? '#248A3D' : '#D70015') + '</div>'; }
+  if (pairT) extra += '<div class="stats" style="margin-top:14px;gap:20px">' + st(pairT.amount < 0 ? 'Salió de' : 'Entró a', esc(accOf(pairT.acc).name)) + '</div>';
+  el.innerHTML =
+    '<div class="navrow"><button class="back" data-act="txback" aria-label="Regresar"><svg width="12" height="20" viewBox="0 0 14 22" fill="none" stroke="#1C1C1E" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 3L3 11l8 8"/></svg></button>' +
+    '<button class="editbtn" data-act="txedit" aria-label="Editar"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#1C1C1E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/></svg></button></div>' +
+    '<div class="acctop"><div class="ptile"><span class="tile" style="background:' + col + '" aria-hidden="true">' + glyph + '</span></div><h1 style="font-size:28px;margin:10px 0 2px">' + esc(t.note || cat) + '</h1><div class="sub">' + cat + '</div>' +
+    '<div class="big" style="font-size:40px;margin-top:12px;color:' + (t.amount > 0 && !pay ? '#248A3D' : '#1C1C1E') + '">' + fmtSC2(t.amount, cur) + '</div></div>' +
+    '<div class="card"><div class="stats" style="border:0;margin:0;padding:0;gap:20px">' + st('Cuenta', esc(acc.name)) + st('Fecha', dlabel(d) + ' ' + d.getFullYear()) + '</div>' +
+    '<div class="stats" style="margin-top:14px;gap:20px">' + st('Tipo', kind) + st('Categoría', cat) + '</div>' + extra + '</div>' +
+    '<button class="secbtn" data-act="txedit">Editar</button>' +
+    (pay ? '' : '<button class="secbtn" data-act="txpost">Posponer</button>') +
+    '<button class="delbtn" data-act="txdel">' + (ui.txDel ? 'Toca de nuevo para eliminar' : 'Eliminar') + '</button>';
+  return true;
+}
+function txRevert(t) { applyTo(accOf(t.acc), -t.amount); }
+function txEditHTML(t) {
+  const acc = accOf(t.acc), pay = isPay(t);
+  ui.sheetType = pay ? 'pay' : t.amount > 0 ? 'in' : 'out'; ui.sheetCat = pay ? '' : (CAT_ORDER.indexOf(t.category) >= 0 ? t.category : 'Otros'); ui.sheetAcc = acc.id; ui.txEditId = t.id;
+  return sheetHead('Editar movimiento', 'close', 'txsave') +
+    '<div class="amtblock"><div class="amtlabel">Monto</div><div class="amount"><span id="fSym">' + symOf(acc.cur).trim() + '</span><input id="fAmount" inputmode="decimal" autocomplete="off" value="' + Math.abs(t.amount) + '"></div></div>' +
+    (pay ? '' : segHTML('type', [{ k: 'out', label: 'Gasto', act: 'type:out' }, { k: 'in', label: 'Ingreso', act: 'type:in' }], ui.sheetType, ';margin-bottom:10px') + '<div id="catWrap">' + catsHTML() + '</div>') +
+    '<div class="scard">' +
+    '<label class="srow">' + fico(['#34C759', 'card']) + '<span class="grow"><span class="slabel">Cuenta</span><select class="sinput" id="fAcc">' + acctOpts(acc.id, true) + '</select></span></label>' +
+    '<label class="srow">' + fico(['#0A84FF', 'pen']) + '<span class="grow"><span class="slabel">Nota</span><input class="sinput" id="fNote" autocomplete="off" value="' + esc(t.note || '') + '"></span></label>' +
+    '<label class="srow">' + fico(['#FF9F0A', 'cal']) + '<span class="grow"><span class="slabel">Fecha</span><input class="sinput" id="fDate" type="date" value="' + esc(t.date) + '"></span></label></div>' +
+    '<button class="primary" data-act="txsave">Guardar</button>';
+}
+function txSave() {
+  const t = txById(ui.txEditId); if (!t) return closeSheet();
+  const v = readSheet(), amt = parseFloat(String(v.amount).replace(',', '.'));
+  if (!(amt > 0)) { toast('Escribe un monto'); return; }
+  const pay = isPay(t), old = { amount: t.amount, acc: t.acc }, d = v.date || t.date;
+  txRevert(t);
+  const out = pay ? t.amount < 0 : ui.sheetType === 'out';
+  t.amount = pay ? (old.amount < 0 ? -amt : amt) : (out ? -amt : amt);
+  t.acc = v.acc || t.acc; t.date = d; t.note = v.note.trim() || t.note;
+  if (!pay) { t.category = out ? ui.sheetCat : 'Ingreso'; if (out) delete t.est; }
+  applyTo(accOf(t.acc), t.amount);
+  const pr = t.pair ? data.transactions.find((x) => x.pair === t.pair && x !== t) : null;
+  if (pr) { txRevert(pr); const c1 = accOf(t.acc), c2 = accOf(pr.acc); pr.amount = (pr.amount < 0 ? -1 : 1) * round2(fromUSD(usd(amt, c1.cur), c2.cur)); pr.date = d; applyTo(c2, pr.amount); }
+  ui.dirty++; persist(); closeSheet(); renderAll(); toast('Movimiento actualizado');
+}
+function postponeHTML(t) {
+  const out = t.amount < 0, cur = accOf(t.acc).cur, tm = iso(addDays(getToday(), 1));
+  return sheetHead('Posponer', 'close') +
+    '<div class="amtblock"><div class="amtlabel">' + esc(t.note || t.category) + '</div><div class="amount" style="justify-content:center"><span>' + fmtSC2(t.amount, cur) + '</span></div></div>' +
+    '<div class="chips" style="margin-bottom:10px"><button class="chip" data-act="txpp:1">Mañana</button><button class="chip" data-act="txpp:7">En 1 semana</button><button class="chip" data-act="txpp:30">En 1 mes</button></div>' +
+    '<div class="scard"><label class="srow">' + fico(['#FF9F0A', 'cal']) + '<span class="grow"><span class="slabel">Nueva fecha</span><input class="sinput" id="fDate" type="date" min="' + tm + '" value="' + tm + '"></span></label></div>' +
+    '<div class="sub" style="font-size:13px;text-align:center;padding:0 8px 8px">Se quita de tus movimientos y pasa a ' + (out ? 'gastos previstos' : 'ingresos previstos') + ' en esa fecha. El saldo de la cuenta se corrige.</div>' +
+    '<button class="primary" data-act="txpdo">Posponer</button>';
+}
+function txPostpone() {
+  const t = txById(ui.txEditId); if (!t) return closeSheet();
+  const d = ($('#fDate') || {}).value || '', today = iso(getToday());
+  if (!d || d <= today) { toast('Elige una fecha futura'); return; }
+  const out = t.amount < 0, name = t.note || t.category, amt = Math.abs(t.amount);
+  txRevert(t); data.transactions = data.transactions.filter((x) => x !== t);
+  if (out) data.expected_expense.push({ id: uid(), name: name, amount: amt, acc: t.acc, date: d, repeat: 0, cat: CAT_ORDER.indexOf(t.category) >= 0 ? t.category : 'Otros' });
+  else data.expected_income.push({ id: uid(), name: name, amount: amt, acc: t.acc, date: d, repeat: 0 });
+  ui.dirty++; persist(); closeSheet(); ui.txId = null; renderAll(); txBackNav(); toast('Pospuesto al ' + dlabel(pd(d)));
+}
+function txDelete() {
+  const t = txById(ui.txId); if (!t) return;
+  if (!ui.txDel) { ui.txDel = true; renderCuenta(); return; }
+  const pr = t.pair ? data.transactions.find((x) => x.pair === t.pair && x !== t) : null;
+  [t, pr].forEach((x) => { if (x) txRevert(x); });
+  data.transactions = data.transactions.filter((x) => x !== t && x !== pr);
+  ui.dirty++; persist(); ui.txId = null; renderAll(); txBackNav(); toast('Movimiento eliminado');
+}
+
 function openAcct(id) { ui.acctId = id; ui.prevTab = ui.tab === 'cuenta' ? ui.prevTab : ui.tab; renderCuenta(); setTab('cuenta'); }
 function renderCuenta() {
   const el = $('#s-cuenta'); if (!el) return;
+  if (ui.txId != null) { if (renderTx(el)) return; }
   const a = data.accounts.find((x) => x.id === ui.acctId), k = a ? null : data.cards.find((x) => x.id === ui.acctId), sv = (a || k) ? null : data.savings.find((x) => x.id === ui.acctId);
   const o = a || k || sv;
   if (!o) { el.innerHTML = ''; if (ui.tab === 'cuenta') setTab(ui.prevTab && ui.prevTab !== 'cuenta' ? ui.prevTab : 'deuda'); return; }
@@ -1183,10 +1279,13 @@ function sheetHTML(keep) {
   const k = keep || {}, acc = accOf(ui.sheetAcc);
   return sheetHead('Nuevo movimiento', null, 'submit') +
     '<div class="amtblock"><div class="amtlabel">Monto</div><div class="amount"><span id="fSym">' + symOf(acc.cur).trim() + '</span><input id="fAmount" inputmode="decimal" placeholder="0.00" autocomplete="off" value="' + esc(k.amount || '') + '"></div></div>' +
-    segHTML('type', [{ k: 'out', label: 'Gasto', act: 'type:out' }, { k: 'in', label: 'Ingreso', act: 'type:in' }], ui.sheetType, ';margin-bottom:10px') +
+    segHTML('type', [{ k: 'out', label: 'Gasto', act: 'type:out' }, { k: 'in', label: 'Ingreso', act: 'type:in' }].concat(data.cards.length ? [{ k: 'pay', label: 'Pago de crédito', act: 'type:pay' }] : []), ui.sheetType, ';margin-bottom:10px') +
     '<div id="catWrap">' + catsHTML() + '</div>' +
     '<div class="scard">' +
-    '<label class="srow">' + fico(['#34C759', 'card']) + '<span class="grow"><span class="slabel">Cuenta</span><select class="sinput" id="fAcc">' + acctOpts(acc.id, true) + '</select></span></label>' +
+    (ui.sheetType === 'pay'
+      ? '<label class="srow">' + fico(['#B98AE6', 'card']) + '<span class="grow"><span class="slabel">Tarjeta o préstamo</span><select class="sinput" id="fAcc">' + data.cards.map((a) => '<option value="' + a.id + '"' + (a.id === acc.id ? ' selected' : '') + '>' + esc(a.name) + l4(a) + ' · ' + a.cur + '</option>').join('') + '</select></span></label>' +
+        '<label class="srow">' + fico(['#34C759', 'card']) + '<span class="grow"><span class="slabel">Pagar desde</span><select class="sinput" id="fFrom"><option value="">Sin descontar de una cuenta</option>' + data.accounts.map((a) => '<option value="' + a.id + '"' + (a.id === ui.sheetFrom ? ' selected' : '') + '>' + esc(a.name) + l4(a) + ' · ' + a.cur + '</option>').join('') + '</select></span></label>'
+      : '<label class="srow">' + fico(['#34C759', 'card']) + '<span class="grow"><span class="slabel">Cuenta</span><select class="sinput" id="fAcc">' + acctOpts(acc.id, true) + '</select></span></label>') +
     '<label class="srow">' + fico(['#0A84FF', 'pen']) + '<span class="grow"><span class="slabel">Nota</span><input class="sinput" id="fNote" placeholder="Opcional" autocomplete="off" value="' + esc(k.note || '') + '"></span></label>' +
     '<label class="srow">' + fico(['#FF9F0A', 'cal']) + '<span class="grow"><span class="slabel">Fecha</span><input class="sinput" id="fDate" type="date" value="' + esc(k.date || iso(getToday())) + '"></span></label></div>' +
     '<button class="primary" data-act="submit">Añadir</button>';
@@ -1217,13 +1316,22 @@ function quickHTML() {
 function openSettings() { ui.confirmId = null; ui.form = null; showSheet(settingsHTML()); }
 function closeSheet() { $('#sheet').classList.remove('show'); $('#backdrop').classList.remove('show'); ui.confirmId = null; }
 function readSheet() {
-  return { amount: ($('#fAmount') || {}).value || '', note: ($('#fNote') || {}).value || '', date: ($('#fDate') || {}).value || '', acc: ($('#fAcc') || {}).value || ui.sheetAcc };
+  return { from: ($('#fFrom') || {}).value || '', amount: ($('#fAmount') || {}).value || '', note: ($('#fNote') || {}).value || '', date: ($('#fDate') || {}).value || '', acc: ($('#fAcc') || {}).value || ui.sheetAcc };
 }
 function nextTxId() { return 1 + Math.max.apply(null, data.transactions.map((t) => t.id || 0).concat([0])); }
 function submitSheet() {
   const v = readSheet();
   const amt = parseFloat(String(v.amount).replace(',', '.'));
   if (!(amt > 0)) { toast('Escribe un monto'); return; }
+  if (ui.sheetType === 'pay') {
+    const card = data.cards.find((x) => x.id === v.acc); if (!card) { toast('Elige una tarjeta o préstamo'); return; }
+    const d = v.date || iso(getToday()), from = v.from ? data.accounts.find((x) => x.id === v.from) : null;
+    const pid = uid();
+    data.transactions.push({ id: nextTxId(), date: d, amount: amt, category: PAY, note: v.note.trim() || 'Pago de ' + card.name, acc: card.id, pair: from ? pid : undefined });
+    applyTo(card, amt);
+    if (from) { const a2 = round2(fromUSD(usd(amt, card.cur), from.cur)); data.transactions.push({ id: nextTxId(), date: d, amount: -a2, category: PAY, note: 'Pago a ' + card.name, acc: from.id, pair: pid }); applyTo(from, -a2); }
+    ui.dirty++; persist(); closeSheet(); renderAll(); toast('Pago registrado'); return;
+  }
   const out = ui.sheetType === 'out', cat = out ? ui.sheetCat : 'Ingreso', acc = accOf(v.acc);
   data.transactions.push({ id: nextTxId(), date: v.date || iso(getToday()), amount: out ? -amt : amt, category: cat, note: v.note.trim() || (out ? cat : 'Ingreso'), acc: acc.id });
   applyTo(acc, out ? -amt : amt);
@@ -1400,18 +1508,33 @@ function execSim(id) {
   ui.dirty++; persist(); closeSheet(); ui.form = null; renderAll(); toast('Gasto registrado');
 }
 
+/* --- Próximo ingreso / gasto: confirmar o adelantar --- */
+function openNextItem(k, id) {
+  const out = k === 'out', e = data[out ? 'expected_expense' : 'expected_income'].find((x) => x.id === id); if (!e) return;
+  const cur = accOf(e.acc).cur, today = iso(getToday()), days = Math.round((pd(e.date) - getToday()) / 86400000);
+  ui.form = null; ui.confirmId = null; ui.confirmPick = null;
+  const when = e.date <= today ? (days === 0 ? 'hoy' : 'venció hace ' + plural(-days, 'día', 'días')) : dlabel(pd(e.date)) + ' · en ' + plural(days, 'día', 'días');
+  showSheet('<div id="nxwrap">' + sheetHead(out ? 'Próximo gasto' : 'Próximo ingreso', 'close') +
+    '<div class="amtblock"><div class="amtlabel">' + esc(e.name) + '</div><div class="amount" style="justify-content:center"><span>' + (out ? '−' : '+') + fmtC2(e.amount, cur) + '</span></div><div class="deltachip">' + when + '</div></div>' +
+    '<div class="scard"><div class="srow"><span class="grow"><span class="slabel">Cuenta</span><div style="font-size:17px">' + esc(accOf(e.acc).name) + '</div></span><span class="slabel">' + (e.repeat ? 'Se repite ' + repLabel(e.repeat) : 'Una sola vez') + '</span></div></div>' +
+    '<button class="primary" data-act="nxconf:' + k + ':' + e.id + '">' + (out ? 'Confirmar: ya se cobró' : 'Confirmar: ya llegó') + '</button>' +
+    (e.date > today ? '<button class="secbtn" data-act="nxtoday:' + k + ':' + e.id + '">Adelantar a hoy</button>' : '') +
+    '<button class="secbtn" data-act="edit:' + (out ? 'expense' : 'income') + ':' + e.id + '">Editar</button></div>');
+}
+
 /* --- Confirmar ingresos previstos --- */
 function confirmHTML() {
-  const list = pendingItems(); if (!list.length) return null;
+  let list = pendingItems(); if (ui.confirmPick) { const pe = data[ui.confirmPick.k === 'out' ? 'expected_expense' : 'expected_income'].find((x) => x.id === ui.confirmPick.id); list = pe ? [{ k: ui.confirmPick.k, e: pe }] : []; }
+  if (!list.length) return null;
   const e = list[0].e, out = list[0].k === 'out', cur = accOf(e.acc).cur, late = Math.round((getToday() - pd(e.date)) / 864e5);
   ui.confirmId = e.id; ui.confirmKind = list[0].k;
-  const when = late <= 0 ? 'hoy' : late === 1 ? 'ayer' : 'hace ' + late + ' días';
+  const when = late < 0 ? 'para ' + dlabel(pd(e.date)) : late === 0 ? 'hoy' : late === 1 ? 'ayer' : 'hace ' + late + ' días';
   return '<div id="cwrap">' + sheetHead(out ? '¿Se cobró este gasto?' : '¿Llegó tu ingreso?', 'cclose', 'cok') +
     '<div class="amtblock"><div class="amtlabel">' + esc(e.name) + ' · ' + (out ? 'previsto ' : 'esperado ') + when + (list.length > 1 ? ' · 1 de ' + list.length : '') + '</div>' +
     '<div class="amount"><span id="fSym">' + symOf(cur).trim() + '</span><input id="fHero" inputmode="decimal" autocomplete="off" value="' + e.amount + '" style="width:' + amtW(e.amount) + '"></div>' +
     '<div class="deltachip" id="cDelta">Igual a lo previsto</div></div>' +
     '<div class="scard"><div class="srow"><span class="grow"><span class="slabel">Previsto</span><div style="font-size:17px">' + fmtC2(e.amount, cur) + '</div></span><span class="slabel">' + (e.repeat ? 'Se repite ' + repLabel(e.repeat) : 'Una sola vez') + '</span></div></div>' +
-    '<button class="primary" data-act="cok">Confirmar</button><button class="secbtn" data-act="clater">' + (out ? 'Aún no se cobró' : 'Aún no llegó') + '</button></div>';
+    '<button class="primary" data-act="cok">Confirmar</button><button class="secbtn" data-act="' + (ui.confirmPick ? 'cclose' : 'clater') + '">' + (ui.confirmPick ? 'Cancelar' : out ? 'Aún no se cobró' : 'Aún no llegó') + '</button></div>';
 }
 function confColl() { return ui.confirmKind === 'out' ? 'expected_expense' : 'expected_income'; }
 function updConfirmDelta() {
@@ -1429,17 +1552,17 @@ function doConfirm(ok) {
     if (!(amt > 0)) { toast('Escribe el monto'); return; }
     const acc = accOf(e.acc);
     if (out) {
-      data.transactions.push({ id: nextTxId(), date: e.date, amount: -amt, category: CAT_ORDER.indexOf(e.cat) >= 0 ? e.cat : 'Otros', note: e.name, acc: acc.id });
+      data.transactions.push({ id: nextTxId(), date: e.date <= iso(getToday()) ? e.date : iso(getToday()), amount: -amt, category: CAT_ORDER.indexOf(e.cat) >= 0 ? e.cat : 'Otros', note: e.name, acc: acc.id });
       applyTo(acc, -amt);
     } else {
-      data.transactions.push({ id: nextTxId(), date: e.date, amount: amt, category: 'Ingreso', note: e.name, acc: acc.id, est: e.amount });
+      data.transactions.push({ id: nextTxId(), date: e.date <= iso(getToday()) ? e.date : iso(getToday()), amount: amt, category: 'Ingreso', note: e.name, acc: acc.id, est: e.amount });
       acc.balance = round2(acc.balance + amt);
     }
     if (e.repeat) { e.date = iso(nextRep(pd(e.date), e.repeat)); delete e.snooze; }
     else data[coll] = data[coll].filter((x) => x !== e);
     toast(out ? 'Gasto confirmado' : 'Ingreso confirmado');
   } else { e.snooze = iso(addDays(getToday(), 1)); toast('Te pregunto mañana'); }
-  ui.dirty++; persist(); renderAll();
+  ui.dirty++; persist(); renderAll(); ui.confirmPick = null;
   const h = confirmHTML();
   if (h) { $('#sheet').innerHTML = h; swapIn($('#cwrap')); } else closeSheet();
 }
@@ -1532,7 +1655,7 @@ document.addEventListener('click', (e) => {
   else if (a === 'settings') openSettings();
   else if (a === 'quick') { ui.confirmId = null; ui.form = null; showSheet(quickHTML()); }
   else if (a === 'close') closeSheet();
-  else if (a === 'type') { ui.sheetType = arg; setSeg(el); const w = $('#catWrap'); w.innerHTML = catsHTML(); swapIn(w); }
+  else if (a === 'type') { const was = ui.sheetType; ui.sheetType = arg; if (was === 'pay' || arg === 'pay') { const kp = readSheet(); ui.sheetAcc = arg === 'pay' ? (data.cards[0] || {}).id : data.accounts[0].id; showSheet(sheetHTML(kp)); } else { setSeg(el); const w = $('#catWrap'); w.innerHTML = catsHTML(); swapIn(w); } }
   else if (a === 'cat') { ui.sheetCat = arg; el.parentNode.querySelectorAll('.chip').forEach((c) => c.classList.toggle('on', c === el)); }
   else if (a === 'submit') submitSheet();
   else if (a === 'load') $('#file').click();
@@ -1569,7 +1692,19 @@ document.addEventListener('click', (e) => {
   else if (a === 'pending') { ui.skipPending = false; openConfirm(); }
   else if (a === 'cok') doConfirm(true);
   else if (a === 'clater') doConfirm(false);
-  else if (a === 'cclose') { ui.skipPending = true; closeSheet(); }
+  else if (a === 'cclose') { if (ui.confirmPick) { ui.confirmPick = null; closeSheet(); } else { ui.skipPending = true; closeSheet(); } }
+  else if (a === 'tx') openTx(arg);
+  else if (a === 'txback') txBackNav();
+  else if (a === 'txedit') { const t = txById(ui.txId); if (t) { ui.confirmId = null; ui.form = null; showSheet(txEditHTML(t)); } }
+  else if (a === 'txsave') txSave();
+  else if (a === 'txpost') { const t = txById(ui.txId); if (t) { ui.txEditId = t.id; ui.form = null; ui.confirmId = null; showSheet(postponeHTML(t)); } }
+  else if (a === 'txpp') { const i = $('#fDate'); if (i) i.value = iso(addDays(getToday(), Number(arg))); }
+  else if (a === 'txpdo') txPostpone();
+  else if (a === 'txdel') txDelete();
+  else if (a === 'movin') { ui.mov = 'in'; renderMovimientos(); setTab('movimientos'); }
+  else if (a === 'nextitem') { const q = arg.split(':'); openNextItem(q[0], q[1]); }
+  else if (a === 'nxconf') { const q = arg.split(':'); ui.confirmPick = { k: q[0], id: q[1] }; ui.skipPending = false; const h = confirmHTML(); if (h) { showSheet(h); } }
+  else if (a === 'nxtoday') { const q = arg.split(':'), e = data[q[0] === 'out' ? 'expected_expense' : 'expected_income'].find((x) => x.id === q[1]); if (e) { e.date = iso(getToday()); delete e.snooze; ui.dirty++; persist(); renderAll(); closeSheet(); toast('Adelantado a hoy'); } }
   else if (a === 'toggle') { if (swSwallow) { swSwallow = false; return; } setVariable(!ui.variable, el); }
   else if (a === 'demo' || a === 'wipe') {
     if (hasData() && ui.armed !== a) {
@@ -1593,6 +1728,7 @@ document.addEventListener('input', (e) => {
 });
 document.addEventListener('change', (e) => {
   const id = e.target && e.target.id;
+  if (id === 'fFrom') { ui.sheetFrom = e.target.value; return; }
   if (id === 'fAcc') { ui.sheetAcc = e.target.value; $('#fSym').textContent = symOf(accOf(ui.sheetAcc).cur).trim(); return; }
   if (e.target && e.target.getAttribute && e.target.getAttribute('data-f') && ui.form) {
     const k = e.target.getAttribute('data-f');
