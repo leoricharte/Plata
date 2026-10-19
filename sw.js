@@ -1,3 +1,4 @@
+/* Plata · © 2026 Estudio 22 y Leonardo Richarte. Todos los derechos reservados. Ver LICENSE. */
 /* Service worker: funciona sin conexión. Sube CACHE a v2, v3... cuando publiques cambios. */
 const CACHE = 'finanzas-v184';
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'icon-180.png', 'icon-192.png', 'icon-512.png'];
