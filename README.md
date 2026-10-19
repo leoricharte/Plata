@@ -4,17 +4,25 @@
 
 Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola app web que funciona sin servidor ni dependencias. Tus datos se quedan en tu dispositivo.
 
-**Versión:** Beta 1 · **Compilación:** 186
+**Versión:** Beta 1 · **Compilación:** 187
 
 ---
 
-## Novedades de la compilación 186
+## Novedades de la compilación 187
 
-Respecto a la 185:
+Respecto a la 186:
+
+- **Broche S+ / A+ del perfil:** ahora es un **círculo** con el mismo degradado dorado del laurel y de la foto, con un fino borde claro para que se vea como un broche.
+
+## Historial
+
+<details>
+<summary>Compilación 186</summary>
+
 
 - **Perfil con laurel:** ya no se muestran los puntajes históricos debajo de la foto. En su lugar, solo el **S+** (o **A+**) aparece como un broche en el centro inferior del laurel.
 
-## Historial
+</details>
 
 <details>
 <summary>Compilación 185</summary>
