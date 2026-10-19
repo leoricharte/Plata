@@ -4,17 +4,42 @@
 
 Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola app web que funciona sin servidor ni dependencias. Tus datos se quedan en tu dispositivo.
 
-**Versión:** Beta 1 · **Compilación:** 192
+**Versión:** Beta 1 · **Compilación:** 195
 
 ---
 
-## Novedades de la compilación 192
+## Novedades de la compilación 195
 
-Respecto a la 191:
+Respecto a la 194:
+
+- **Perfil con laurel:** los puntajes históricos (si los tienes activados en Editar) vuelven a mostrarse bajo el nombre también cuando hay laurel.
+
+## Historial
+
+<details>
+<summary>Compilación 194</summary>
+
+
+- **Perfil, tiers normales:** la bolita sobre la foto desaparece. Ahora la letra de tu puntaje (S, A, B, C, D, F, y con "-" si llevas racha negativa) se muestra bajo la foto y sigue el degradado del aro o del círculo del avatar.
+- **Tiers +:** laurel completo y dorado para S+ y A+; laurel platino, más discreto, para B+ y C+.
+
+</details>
+
+<details>
+<summary>Compilación 193</summary>
+
+
+- **Laurel platino:** si tienes un **B+** o **C+** (y ningún S+/A+), el perfil muestra un laurel más discreto, con menos y más pequeñas hojas en tono platino y la letra con el mismo degradado. El laurel dorado sigue siendo para S+ y A+.
+
+</details>
+
+<details>
+<summary>Compilación 192</summary>
+
 
 - **Perfil con laurel y foto:** arreglado el bug que mostraba la bolita con el S+ sobre la foto además de la letra bajo el laurel. Ahora, con laurel, solo se ve la letra.
 
-## Historial
+</details>
 
 <details>
 <summary>Compilación 191</summary>
