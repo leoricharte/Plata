@@ -1,24 +1,32 @@
 {
+  "id": "./",
   "name": "Plata",
   "short_name": "Plata",
-  "description": "Finanzas personales: presupuesto, proyección, cuentas y ahorro",
+  "description": "Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda.",
+  "lang": "es",
+  "dir": "ltr",
+  "categories": [
+    "finance",
+    "productivity"
+  ],
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#F2F2F7",
   "theme_color": "#F2F2F7",
-  "lang": "es",
   "icons": [
     {
       "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "icon-512.png",
