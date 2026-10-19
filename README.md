@@ -4,18 +4,26 @@
 
 Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola app web que funciona sin servidor ni dependencias. Tus datos se quedan en tu dispositivo.
 
-**Versión:** Beta 1 · **Compilación:** 183
+**Versión:** Beta 1 · **Compilación:** 184
 
 ---
 
-## Novedades de la compilación 183
+## Novedades de la compilación 184
 
-Respecto a la 182:
+Respecto a la 183:
+
+- **Pantalla "¿Cuánto ganas?" del recorrido inicial:** ahora tiene un selector **Ingreso / Trabajo**. En *Trabajo* usa la función de trabajos: pago por hora (o ingreso mensual según el país), horas por semana, impuestos retenidos, frecuencia y primer pago. Al terminar, Plata crea el trabajo y prevé su pago neto en tus ingresos.
+
+## Historial
+
+<details>
+<summary>Compilación 183</summary>
+
 
 - **Engranaje:** arreglado el bug que lo dejaba sin responder si salías de Ajustes usando la barra inferior.
 - **Alerta de "sin guardar":** ahora se actualiza en todas las pantallas (incluido Ajustes y el puntito del engranaje) apenas guardas el archivo de perfil.
 
-## Historial
+</details>
 
 <details>
 <summary>Compilación 182</summary>
