@@ -4,17 +4,26 @@
 
 Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola app web que funciona sin servidor ni dependencias. Tus datos se quedan en tu dispositivo.
 
-**Versión:** Beta 1 · **Compilación:** 193
+**Versión:** Beta 1 · **Compilación:** 194
 
 ---
 
-## Novedades de la compilación 193
+## Novedades de la compilación 194
 
-Respecto a la 192:
+Respecto a la 193:
+
+- **Perfil, tiers normales:** la bolita sobre la foto desaparece. Ahora la letra de tu puntaje (S, A, B, C, D, F, y con "-" si llevas racha negativa) se muestra bajo la foto y sigue el degradado del aro o del círculo del avatar.
+- **Tiers +:** laurel completo y dorado para S+ y A+; laurel platino, más discreto, para B+ y C+.
+
+## Historial
+
+<details>
+<summary>Compilación 193</summary>
+
 
 - **Laurel platino:** si tienes un **B+** o **C+** (y ningún S+/A+), el perfil muestra un laurel más discreto, con menos y más pequeñas hojas en tono platino y la letra con el mismo degradado. El laurel dorado sigue siendo para S+ y A+.
 
-## Historial
+</details>
 
 <details>
 <summary>Compilación 192</summary>
