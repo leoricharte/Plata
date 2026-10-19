@@ -4,18 +4,66 @@
 
 Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola app web que funciona sin servidor ni dependencias. Tus datos se quedan en tu dispositivo.
 
-**Versión:** Beta 1 · **Compilación:** 185
+**Versión:** Beta 1 · **Compilación:** 191
 
 ---
 
-## Novedades de la compilación 185
+## Novedades de la compilación 191
 
-Respecto a la 184:
+Respecto a la 190:
+
+- **Perfil con laurel:** la letra **S+** / **A+** ahora continúa el degradado del final del laurel (dorado oscuro), para que se vea como parte del mismo conjunto.
+
+## Historial
+
+<details>
+<summary>Compilación 190</summary>
+
+
+- **Perfil con laurel:** la letra **S+** / **A+** baja un poco más para quedar más centrada bajo el laurel.
+
+</details>
+
+<details>
+<summary>Compilación 189</summary>
+
+
+- **Perfil con laurel:** la letra **S+** / **A+** ahora es más pequeña y queda encajada en el hueco del laurel; el conjunto se ve más compacto.
+
+</details>
+
+<details>
+<summary>Compilación 188</summary>
+
+
+- **Perfil con laurel:** se quitó el par de hojas inferior y el círculo del broche. Ahora solo aparece la letra **S+** (o **A+**) con el degradado dorado, en el centro inferior del laurel.
+
+</details>
+
+<details>
+<summary>Compilación 187</summary>
+
+
+- **Broche S+ / A+ del perfil:** ahora es un **círculo** con el mismo degradado dorado del laurel y de la foto, con un fino borde claro para que se vea como un broche.
+
+</details>
+
+<details>
+<summary>Compilación 186</summary>
+
+
+- **Perfil con laurel:** ya no se muestran los puntajes históricos debajo de la foto. En su lugar, solo el **S+** (o **A+**) aparece como un broche en el centro inferior del laurel.
+
+</details>
+
+<details>
+<summary>Compilación 185</summary>
+
 
 - **Laurel dorado del perfil (A+ / S+):** rediseñado. Ahora son hojas simples, sin rama, que llegan hasta la mitad del círculo de la foto y usan el mismo degradado dorado del círculo.
 - **Licencia:** software propietario, todos los derechos reservados (ver `LICENSE`).
 
-## Historial
+</details>
 
 <details>
 <summary>Compilación 184</summary>
