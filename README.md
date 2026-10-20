@@ -4,17 +4,25 @@
 
 Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola app web que funciona sin servidor ni dependencias. Tus datos se quedan en tu dispositivo.
 
-**Versión:** Beta 1 · **Compilación:** 213
+**Versión:** Beta 1 · **Compilación:** 214
 
 ---
 
-## Novedades de la compilación 213
+## Novedades de la compilación 214
 
-Respecto a la 212:
+Respecto a la 213:
+
+- **Modo oscuro, perfil:** la hoja del perfil ahora se distingue del fondo (gris oscuro elevado, con tarjetas y campos más claros).
+- **Revisar novedades:** el enlace apunta al `CHANGELOG.md` de la rama principal.
+
+## Historial
+
+<details>
+<summary>Compilación 213</summary>
 
 - **Aviso de la B E T A 2:** textos nuevos. «La noche ha llegado» y «Conoce mejor Plata».
 
-## Historial
+</details>
 
 <details>
 <summary>Compilación 212</summary>
