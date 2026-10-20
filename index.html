@@ -643,6 +643,10 @@ html.web .welcome .wside .wdots{flex-direction:column;gap:9px;align-items:center
 html.web .welcome .wside .wdots i{width:9px;height:9px;transition:background .3s,transform .3s}
 html.web .welcome .wside .wdots i.on{transform:scale(1.35);background:#22B573}
 /* mapamundi de monedas */
+html.web .wtrow{display:flex;align-items:center;justify-content:space-between;gap:16px}html.web .wtrow h1{margin:0}
+html.web .wpills{display:flex;gap:10px;flex:none}
+html.web .wpill{display:inline-flex;align-items:center;gap:10px;height:44px;padding:0 20px 0 6px;border-radius:999px;background:#22B573;color:#fff;font-size:17px;font-weight:700;letter-spacing:.22em}
+html.web .wpill b{width:32px;height:32px;border-radius:50%;background:#fff;color:#0B3D27;display:flex;align-items:center;justify-content:center;font-size:15px;letter-spacing:0}
 html.web .wsplit{display:flex;gap:28px;align-items:center}
 html.web .wsplit .wlcol{flex:2.3;min-width:0}
 html.web .wsplit .wrcol{flex:1;min-width:0;width:0}
@@ -4416,7 +4420,7 @@ function curMapHTML(w, sel, one) {
   const list = reg ? CUR_REG[reg].filter((c) => CURRENCIES[c]).slice(0, 10) : rec;
   return '<div class="wsplit"><div class="wlcol">' + map + '</div><div class="wrcol">' +
     '<div class="ccyh">' + (reg ? REG_NAME[reg] : 'Recomendado') + '</div><div class="ccyg wreg">' + list.map(tile).join('') + '</div>' +
-    (sel.length ? '<div class="ccyh">Elegidas · ' + sel.join(' · ') + '</div>' : '') + '</div></div>';
+    '</div></div>';
 }
 function curGridHTML(w, sel, one) {
   const tile = (c) => { const i = sel.indexOf(c), dis = i < 0 && !one; return '<button class="ccy' + (i >= 0 ? ' on' : '') + (dis ? ' dis' : '') + '" data-act="wcur:' + c + '"' + (dis ? ' disabled' : '') + '><b>' + c + '</b><span>' + symOf(c).trim() + '</span>' + (i >= 0 && !one ? '<i>' + (i + 1) + '</i>' : '') + '</button>'; };
@@ -4538,7 +4542,7 @@ function welcomeHTML(dir) {
       note = '<div class="wnote">Esta información no es recopilada por Plata ni Estudio 22. Toda la información se maneja en tu archivo de perfil.</div>';
     } else if (sid === 'cur') {
       const sel = w.cur, one = sel.length < 2;
-      body = '<h1>¿Qué moneda usas?</h1><div class="wsub">Elige hasta 2 monedas. Puedes cambiarlo después en Ajustes.</div>' +
+      body = '<div class="wtrow"><h1>¿Qué moneda usas?</h1>' + (web ? '<div class="wpills">' + sel.map((c, i) => '<span class="wpill"><b>' + (i + 1) + '</b>' + c + '</span>').join('') + '</div>' : '') + '</div><div class="wsub">Elige hasta 2 monedas. Puedes cambiarlo después en Ajustes.</div>' +
         (web ? curMapHTML(w, sel, one) : curGridHTML(w, sel, one)) +
         (w.customOpen || w.custom ? '<div class="scard"><label class="srow"><span class="grow"><span class="slabel">Otras monedas del mundo</span><select class="mini" id="wOther" style="width:100%;text-align:left;padding:0 8px"><option value="">Elige una moneda…</option>' + CUR_OTHERS().filter((c) => !CURRENCIES[c].custom).map((c) => '<option value="' + c + '">' + c + ' · ' + CURRENCIES[c].name + '</option>').join('') + '</select></span></label>' +
           '<label class="srow"><span class="grow"><span class="slabel">¿No está? Escribe tu propio código (hasta 3 caracteres)</span><input class="sinput" id="wCust" maxlength="3" autocapitalize="characters" autocomplete="off" style="text-transform:uppercase" value="' + esc(w.custom || '') + '"></span></label></div>' : '') +
