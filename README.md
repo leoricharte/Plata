@@ -4,17 +4,24 @@
 
 Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola app web que funciona sin servidor ni dependencias. Tus datos se quedan en tu dispositivo.
 
-**Versión:** Beta 1 · **Compilación:** 221
+**Versión:** Beta 1 · **Compilación:** 222
 
 ---
 
-## Novedades de la compilación 221
+## Novedades de la compilación 222
 
-Respecto a la 220:
+Respecto a la 221:
+
+- **Presupuesto:** cuando gastas más que la suma de tus límites, el anillo ahora dice «Te pasaste» en vez de «Pasado».
+
+## Historial
+
+<details>
+<summary>Compilación 221</summary>
 
 - **Perfiles de demostración:** otro ajuste en los movimientos de ejemplo.
 
-## Historial
+</details>
 
 <details>
 <summary>Compilación 220</summary>
