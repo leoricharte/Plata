@@ -4652,7 +4652,7 @@ function welcomeHTML(dir) {
   const dots = (n) => '<div class="wdots">' + steps.map((x, i) => '<i class="' + (i === n ? 'on' : '') + '"></i>').join('') + '</div>';
   const isWeb = document.documentElement.classList.contains('web');
   const back = isWeb ? '<button class="back" data-act="whome" aria-label="Cerrar">' + RMI('close-line', 24, 'currentColor') + '</button>' : '<button class="back" data-act="wback" aria-label="Regresar">' + IC_BACK + '</button>';
-  if (w) { if (!w.cur || !w.cur.length) { const ci = wSteps(w).indexOf('cur'); if (!(isWebView() && (ci < 0 || w.step <= ci))) w.cur = ['USD']; } if (w.cur.indexOf(w.accCur) < 0) w.accCur = w.cur[0]; if (!(w.fx > 0) && w.cur[1]) w.fx = fxDefault(w.cur[0], w.cur[1]); }
+  if (w) { if (!w.cur || !w.cur.length) { const ci = wSteps(w).indexOf('cur'); if (!(isWebView() && ci >= 0 && w.step <= ci)) w.cur = ['USD']; } if (w.cur.indexOf(w.accCur) < 0) w.accCur = w.cur[0]; if (!(w.fx > 0) && w.cur[1]) w.fx = fxDefault(w.cur[0], w.cur[1]); }
   const sym = w ? symOf(w.accCur).trim() : '$';
   let top = '', body = '', foot = '';
   const fld = (label, id, val, extra) => '<label class="srow"><span class="grow"><span class="slabel">' + label + '</span><input class="sinput" data-w="' + id + '" ' + (extra || 'autocomplete="off"') + ' value="' + esc(val == null ? '' : val) + '"></span></label>';
