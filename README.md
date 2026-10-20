@@ -181,6 +181,7 @@ Respecto a la 225:
 - **Recorrido inicial** con scroll sin barras y desvanecido arriba y abajo.
 - **Luz ambiental** verde plata que late muy lento desde la esquina superior izquierda.
 - **Resumen** sigue el tema claro/oscuro; mejor legibilidad del texto atenuado.
+- **Perfiles de demostración (escritorio):** 4 tarjetas verticales, del tamaño de una captura de teléfono, centradas en pantalla.
 - **Bentos más pulidos:** 3 plantillas listas (Mi mes, Presupuesto y deuda, Perfil y evaluación) en el panel de edición; números y textos grandes con degradado sutil y tipografía más proporcionada. widgets con degradados sutiles (brillo verde en una esquina, toques azul y ámbar en algunos). el Resumen del mes centra sus valores, con etiquetas más grandes e ícono por estadística. los gráficos se ajustan al tamaño real de cada widget (barras con valores, sin huecos), números más grandes en el resumen y diseño inicial que llena todo el lienzo. Tres widgets nuevos: **Tu evaluación**, **Último insight** y **Perfil** (foto y nombre). Los íconos de la galería ya aparecen completos.
 - **Avisos de cierre y mes (escritorio):** vuelven al degradado como en móvil, con texto casi negro y botón oscuro. El Half-time queda en negro.
 - **Bentos:** la tabla se ajusta a ventanas bajas.

@@ -753,6 +753,16 @@ html.web .device,html.web .welcome,html.web .splash{background:radial-gradient(e
 @media (prefers-reduced-motion:reduce){html.web{animation:none;--gl:.7}}
 html.web .welcome .wmain:not(:has(.wbrand)){-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 40px,#000 calc(100% - 64px),transparent 100%);mask-image:linear-gradient(to bottom,transparent 0,#000 40px,#000 calc(100% - 64px),transparent 100%);padding-top:36px;padding-bottom:60px}
 html.web .wdemogrid .wdemo .tile{flex:none}
+html.web .welcome .wmain.wdm{width:min(1040px,calc(92vw / 1.4));max-width:none;align-self:center}
+html.web .wmain.wdm h1,html.web .wmain.wdm .wsub{text-align:center}
+html.web .wmain .wdemogrid{grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-top:14px}
+html.web .welcome .wdemogrid .wdemo{aspect-ratio:9/16;min-height:0;max-height:calc(78vh / 1.4);align-items:center!important;justify-content:flex-start!important;text-align:center;padding:96px 14px 18px;gap:16px;background:linear-gradient(170deg,color-mix(in srgb,var(--wtile) 88%,#fff 12%),var(--wtile) 60%)}
+html.web .wdemogrid .wdemo .tile{width:76px;height:76px;border-radius:24px;margin-top:6px}
+html.web .wdemogrid .wdemo>span{align-items:center;text-align:center;flex:none;width:100%}
+html.web .wdemogrid .wdemo .dt b{font-size:24px}
+html.web .wdemogrid .wdemo .dsub{display:flex;gap:8px;justify-content:center}
+html.web .wdemogrid .wdemo .dl{margin-top:14px;font-size:15px}
+html.web .wdemogrid .wdemo>svg{align-self:center;margin-top:8px!important}html.web .wdemogrid .wdemo>span{flex:none!important}
 /* ---- pulido de color y controles (web) ---- */
 html.web .screen .eyebrow{color:#22B573;font-weight:600}
 html.web .seg{background:rgba(34,181,115,.12)}
@@ -4605,7 +4615,7 @@ function welcomeHTML(dir) {
       '<div class="wopts">' + oc('#22B573', 'flashlight-line', 'Inicio rápido', 'Adelanta el recorrido inicial.', 'wquick') + oc('#B98AE6', 'bar-chart-line', 'Datos de demostración', 'Revisa un ejemplo de alguien usando Plata.', 'wdemo') + '</div></div></div>';
   } else if (w.demo) {
     top = '<div class="wtop">' + back + '<span></span><span style="width:44px"></span></div>';
-    body = '<div class="wmain" style="justify-content:flex-start;padding-top:18px"><h1>Perfiles de demostración</h1><div class="wsub">Elige uno para ver Plata con datos de ejemplo.</div><div class="wdemogrid">' + demoCards('wdemopick') + '</div></div>';
+    body = '<div class="wmain wdm" style="justify-content:flex-start;padding-top:18px"><h1>Perfiles de demostración</h1><div class="wsub">Elige uno para ver Plata con datos de ejemplo.</div><div class="wdemogrid">' + demoCards('wdemopick') + '</div></div>';
   } else if (!w.level) {
     top = '<div class="wtop">' + back + '<span></span><span style="width:44px"></span></div>';
     const lv = (k, t, d, m, rec, ic, col) => '<button class="wopt wlvl" data-act="wlevel:' + k + '">' + tile(col, RMI(ic, 24, '#fff')) + '<span style="flex:1"><b>' + t + (rec ? '<i>Recomendado</i>' : '') + '</b><span class="s">' + d + '</span></span><em>' + m + '</em></button>';
