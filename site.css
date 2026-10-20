@@ -76,3 +76,6 @@ footer a{text-decoration:none;border-bottom:1px solid var(--line)}
 .sheet .ghost{background:none;border:0;color:var(--mute);font:500 15px/1 Inter,sans-serif;padding:12px;cursor:pointer}
 @media (min-width:600px){.ov{align-items:center}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.cr span{display:block}
+.cr .dsg{margin-top:2px}

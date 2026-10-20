@@ -21,6 +21,7 @@ Respecto a la Beta 1. El detalle completo está en [CHANGELOG.md](CHANGELOG.md).
 - **Aviso de novedades:** la primera vez que abres Resumen tras actualizar, y desde Ajustes › Novedades.
 - **Edición de eventos previstos:** el monto y la fecha que editas en Proyección ahora se ven en Resumen, al confirmarlos y en el detalle.
 - **Navegadores integrados:** aviso para abrir Plata en Safari o Chrome si la abres desde Instagram u otra app con navegador propio.
+- **Pie del sitio:** crédito «Diseñado por Estudio 2² en Nueva York» en el landing; los pies del sitio ahora dicen Beta 2.
 
 ## Historial
 
