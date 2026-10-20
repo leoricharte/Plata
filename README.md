@@ -4,17 +4,25 @@
 
 Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola app web que funciona sin servidor ni dependencias. Tus datos se quedan en tu dispositivo.
 
-**Versión:** Beta 1 · **Compilación:** 215
+**Versión:** Beta 1 · **Compilación:** 216
 
 ---
 
-## Novedades de la compilación 215
+## Novedades de la compilación 216
 
-Respecto a la 214:
+Respecto a la 215:
+
+- **Cambio de tema:** si cambias la apariencia con la app abierta, aparece un aviso: «Abre la app nuevamente para cambiar el color de la barra de arriba».
+- **Pantalla de inicio en oscuro:** el texto de «Beta 2» y el aviso de versión de pruebas ahora se leen.
+
+## Historial
+
+<details>
+<summary>Compilación 215</summary>
 
 - **Modo oscuro, franja del iPhone:** el estilo de la barra de estado ahora cambia junto con el tema (negra en oscuro, clara en claro). Se aplica al abrir la app.
 
-## Historial
+</details>
 
 <details>
 <summary>Compilación 214</summary>
