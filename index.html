@@ -4000,6 +4000,7 @@ document.addEventListener('click', (e) => {
   else if (a === 'history') showSheet(historySheetHTML());
   else if (a === 'wdbg') wDebugPick(arg);
   else if (a === 'wdbgclose') wDebugClose();
+  else if (a === 'wdbgtheme') { window.__applyTheme(arg); try { if (data && data.settings) { data.settings.theme = arg === 'auto' ? '' : arg; persist(); } } catch (e) { /* sin perfil */ } document.querySelectorAll('#wdbg [data-act^="wdbgtheme:"]').forEach((bt) => { const on = bt.getAttribute('data-act') === 'wdbgtheme:' + arg; bt.style.background = on ? '#22B573' : 'rgba(120,120,128,.16)'; bt.style.color = on ? '#fff' : 'var(--ink)'; }); }
   else if (a === 'wgsel') { wSel = arg; const box = document.getElementById('wstreak'); if (box) { box.innerHTML = wStreakInner(); } document.querySelectorAll('[data-act^="wgsel:"]').forEach((b) => { b.style.opacity = b.dataset.act === 'wgsel:' + arg ? '' : '.55'; }); }
   else if (a === 'wgrade') { wDebugClose(); loadDemo('g_' + arg); renderAll(); setTab('resumen'); hideWelcome(); toast('Perfil de prueba cargado'); }
   else if (a.indexOf('bn') === 0 && BW_ACTS.indexOf(a) >= 0) bentoAct(a, arg);
@@ -4710,8 +4711,8 @@ function wDebug() {
   bk.style.cssText = 'position:absolute;inset:0;z-index:180;background:rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;transition:opacity .2s';
   const card = document.createElement('div'); card.setAttribute('data-act', 'wdbgstay');
   card.style.cssText = 'width:100%;max-width:340px;background:var(--card);border-radius:28px;padding:20px 8px 10px;box-shadow:0 20px 60px rgba(0,0,0,.25)';
-  card.innerHTML = '<div style="padding:0 16px 4px;font-size:20px;font-weight:700;letter-spacing:-.4px">Debug</div><div style="padding:0 16px 10px;font-size:14px;color:var(--mute)">Idioma de la pantalla de inicio</div>' +
-    LANG_LIST.map((x) => '<button class="pmi" data-act="wdbg:' + x[0] + '" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:13px 16px;font-size:17px;border-radius:16px;text-align:left"><span>' + x[1] + '</span>' + (cur === x[0] ? RMI('check-line', 22, '#22B573') : '') + '</button>').join('') + wDebugGradesHTML();
+  card.innerHTML = '<div style="padding:0 16px 4px;font-size:20px;font-weight:700;letter-spacing:-.4px">Debug</div><div style="padding:0 16px 8px;font-size:14px;color:var(--mute)">Apariencia</div>' +
+    '<div style="padding:0 16px 12px;display:flex;gap:6px">' + [['auto', 'Auto'], ['light', 'Claro'], ['dark', 'Oscuro']].map((t) => '<button data-act="wdbgtheme:' + t[0] + '" style="flex:1;height:38px;border-radius:999px;font-size:15px;font-weight:600;' + (window.__themePref() === t[0] ? 'background:#22B573;color:#fff' : 'background:var(--fill, rgba(120,120,128,.16));color:var(--ink)') + '">' + t[1] + '</button>').join('') + '</div><div style="padding:0 16px 10px;font-size:14px;color:var(--mute)">Idioma de la pantalla de inicio</div>' + LANG_LIST.map((x) => '<button class="pmi" data-act="wdbg:' + x[0] + '" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:13px 16px;font-size:17px;border-radius:16px;text-align:left"><span>' + x[1] + '</span>' + (cur === x[0] ? RMI('check-line', 22, '#22B573') : '') + '</button>').join('') + wDebugGradesHTML();
   bk.appendChild(card); w.appendChild(bk); requestAnimationFrame(() => { bk.style.opacity = '1'; });
 }
 function wDebugGradesHTML() {
