@@ -4,17 +4,24 @@
 
 Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola app web que funciona sin servidor ni dependencias. Tus datos se quedan en tu dispositivo.
 
-**Versión:** Beta 1 · **Compilación:** 199
+**Versión:** Beta 1 · **Compilación:** 200
 
 ---
 
-## Novedades de la compilación 199
+## Novedades de la compilación 200
 
-Respecto a la 198:
+Respecto a la 199:
+
+- **Navegadores integrados:** si abres Plata desde Instagram, Facebook, TikTok u otra app con navegador propio, aparece un aviso para abrirla en Safari o Chrome, porque ahí tus datos pueden no guardarse.
+
+## Historial
+
+<details>
+<summary>Compilación 199</summary>
 
 - **Perfil:** el botón «Editar» ahora tiene el mismo estilo que el botón de cerrar.
 
-## Historial
+</details>
 
 <details>
 <summary>Compilación 198</summary>
