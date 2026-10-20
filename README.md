@@ -4,18 +4,25 @@
 
 Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola app web que funciona sin servidor ni dependencias. Tus datos se quedan en tu dispositivo.
 
-**Versión:** Beta 1 · **Compilación:** 219
+**Versión:** Beta 1 · **Compilación:** 220
 
 ---
 
-## Novedades de la compilación 219
+## Novedades de la compilación 220
 
-Respecto a la 218:
+Respecto a la 219:
+
+- **Perfiles de demostración:** ajustes en los movimientos de ejemplo.
+
+## Historial
+
+<details>
+<summary>Compilación 219</summary>
 
 - **Apariencia en el arranque:** ahora es el último paso, justo antes de «Tus datos son tuyos».
 - **Vista previa:** una nota (i) aclara que el perfil de ejemplo también está disponible como demostración.
 
-## Historial
+</details>
 
 <details>
 <summary>Compilación 218</summary>
