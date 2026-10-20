@@ -4,17 +4,33 @@
 
 Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola app web que funciona sin servidor ni dependencias. Tus datos se quedan en tu dispositivo.
 
-**Versión:** Beta 1 · **Compilación:** 195
+**Versión:** Beta 1 · **Compilación:** 197
 
 ---
 
-## Novedades de la compilación 195
+## Novedades de la compilación 197
 
-Respecto a la 194:
+Respecto a la 196:
+
+- **Perfiles de demostración actualizados.**
+
+## Historial
+
+<details>
+<summary>Compilación 196</summary>
+
+- **Laurel por tier:** cada nivel tiene ahora su propio laurel, de más a menos hojas: **S+** (el más lleno), **A+**, **B+** y **C+** (platino, cada vez más discretos).
+- **S sin "+":** recibe un laurel pequeño, más chico que el platino, con el degradado de su aro.
+
+</details>
+
+<details>
+<summary>Compilación 195</summary>
+
 
 - **Perfil con laurel:** los puntajes históricos (si los tienes activados en Editar) vuelven a mostrarse bajo el nombre también cuando hay laurel.
 
-## Historial
+</details>
 
 <details>
 <summary>Compilación 194</summary>
