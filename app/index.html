@@ -2532,13 +2532,13 @@ function renderItem(el) {
   if (kind === 'income' || kind === 'expense') {
     const out = kind === 'expense'; o = data[out ? 'expected_expense' : 'expected_income'].find((x) => x.id === id);
     if (o) {
-      const cur = accOf(o.acc).cur, days = Math.round((pd(o.date) - getToday()) / 86400000), ec = CAT_ORDER.indexOf(o.cat) >= 0 ? o.cat : 'Otros', d = pd(o.date);
+      const oe = effItem(out ? 'exp' : 'in', o), cur = accOf(o.acc).cur, days = Math.round((pd(oe.date) - getToday()) / 86400000), ec = CAT_ORDER.indexOf(o.cat) >= 0 ? o.cat : 'Otros', d = pd(oe.date);
       const pcd = out ? payOf(o) : null;
       col = pcd ? '#B98AE6' : out ? CAT_COLOR[ec] : '#22B573'; glyph = pcd ? iconSVG('card', '#fff', 24) : out ? catGlyph(ec) : esc(o.name || '?').charAt(0); title = o.name;
-      sub = pcd ? 'Pago de crédito previsto' : out ? 'Gasto previsto' : 'Ingreso previsto'; big = (out ? '−' : '+') + fmtC2(o.amount, cur); bigCol = out ? '#1C1C1E' : '#138A55';
-      const when = o.date < today ? 'Venció hace ' + plural(-days, 'día', 'días') : days === 0 ? 'Es hoy' : 'En ' + plural(days, 'día', 'días');
+      sub = pcd ? 'Pago de crédito previsto' : out ? 'Gasto previsto' : 'Ingreso previsto'; big = (out ? '−' : '+') + fmtC2(oe.amount, cur); bigCol = out ? '#1C1C1E' : '#138A55';
+      const when = oe.date < today ? 'Venció hace ' + plural(-days, 'día', 'días') : days === 0 ? 'Es hoy' : 'En ' + plural(days, 'día', 'días');
       rows = '<div class="stats" style="border:0;margin:0;padding:0;gap:20px">' + st('Cuenta', esc(accOf(o.acc).name)) + st('Fecha', dlabel(d) + ' ' + d.getFullYear()) + '</div>' +
-        '<div class="stats" style="margin-top:14px;gap:20px">' + st('Cuándo', when, o.date < today ? '#D70015' : '') + st('Se repite', o.repeat ? repLabel(o.repeat) : 'Una vez') + (o.repeat && o.until ? st('Termina', dlabel(pd(o.until))) : '') + '</div>' +
+        '<div class="stats" style="margin-top:14px;gap:20px">' + st('Cuándo', when, oe.date < today ? '#D70015' : '') + st('Se repite', o.repeat ? repLabel(o.repeat) : 'Una vez') + (o.repeat && o.until ? st('Termina', dlabel(pd(o.until))) : '') + '</div>' +
         (pcd ? '<div class="stats" style="margin-top:14px;gap:20px">' + st(pcd.kind === 'loan' ? 'Préstamo' : 'Tarjeta', esc(pcd.name)) + '</div>' : out ? '<div class="stats" style="margin-top:14px;gap:20px">' + st('Categoría', esc(ec)) + '</div>' : '');
       btns = '<button class="primary" data-act="itconf">' + (pcd ? 'Confirmar pago' : out ? 'Confirmar gasto' : 'Confirmar ingreso') + '</button>' +
         (o.date > today ? '<button class="secbtn" data-act="ittoday">Adelantar a hoy</button>' : '');
