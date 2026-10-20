@@ -4,17 +4,24 @@
 
 Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola app web que funciona sin servidor ni dependencias. Tus datos se quedan en tu dispositivo.
 
-**Versión:** Beta 1 · **Compilación:** 198
+**Versión:** Beta 1 · **Compilación:** 199
 
 ---
 
-## Novedades de la compilación 198
+## Novedades de la compilación 199
 
-Respecto a la 197:
+Respecto a la 198:
+
+- **Perfil:** el botón «Editar» ahora tiene el mismo estilo que el botón de cerrar.
+
+## Historial
+
+<details>
+<summary>Compilación 198</summary>
 
 - **Pantalla de bienvenida:** el lema ahora es «Finanzas simples. Tu plata a tu modo.», traducido a todos los idiomas.
 
-## Historial
+</details>
 
 <details>
 <summary>Compilación 197</summary>
