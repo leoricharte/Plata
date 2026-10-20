@@ -568,9 +568,9 @@ html[data-theme=dark] .bgi .gi{background:#1A3427}
 .bgi em{margin-left:auto;font-style:normal;font-size:12px;font-weight:650;color:#22B573;white-space:nowrap}
 .bslot{border:2px dashed var(--wline);border-radius:1.7cqw;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5em;color:var(--mute);font-size:clamp(10px,1.05cqw,18px);font-weight:600;transition:border-color .2s,color .2s,background .2s}.bslot:hover{border-color:#22B573;color:#22B573;background:rgba(34,181,115,.06)}
 .bemp{margin:auto;color:var(--mute);text-align:center;font-size:1em}
-.bkpi{flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:1.2em;align-items:center;align-content:center}.bkpi>div{padding-left:1.2em;border-left:1px solid rgba(255,255,255,.12)}.bkpi>div:first-child{border-left:0;padding-left:0}
+.bkpi{flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:1.2em;align-items:center;align-content:center}.bkpi>div{text-align:center;display:flex;flex-direction:column;align-items:center;border-left:1px solid rgba(255,255,255,.12)}.bkpi>div:first-child{border-left:0}.bkpi .ki{display:flex;align-items:center;justify-content:center;width:2.6em;height:2.6em;border-radius:50%;background:rgba(255,255,255,.09);color:#fff;margin-bottom:.7em}.bkpi.two .ki{width:2.2em;height:2.2em;margin-bottom:.4em}.bkpi .ki.pos{color:var(--gt);background:rgba(61,214,140,.14)}.bkpi .ki.neg{color:var(--rt);background:rgba(255,105,97,.14)}
 .bkpi.two{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
-.bkpi span{display:block;color:var(--mute);font-size:1.15em}
+.bkpi span{display:block;color:var(--mute);font-size:1.4em;font-weight:550}
 .bkpi b{display:block;font-size:min(5.4em,5.4cqw);font-weight:700;letter-spacing:-.04em;margin-top:.1em}
 .bkpi.two b{font-size:min(3em,3.4cqw)}
 .pos{color:var(--gt)}.neg{color:var(--rt)}
@@ -1011,7 +1011,9 @@ const RMX = {
   'percent-line': { d: 'M17.5049 21.0027C15.5719 21.0027 14.0049 19.4357 14.0049 17.5027C14.0049 15.5697 15.5719 14.0027 17.5049 14.0027C19.4379 14.0027 21.0049 15.5697 21.0049 17.5027C21.0049 19.4357 19.4379 21.0027 17.5049 21.0027ZM17.5049 19.0027C18.3333 19.0027 19.0049 18.3312 19.0049 17.5027C19.0049 16.6743 18.3333 16.0027 17.5049 16.0027C16.6765 16.0027 16.0049 16.6743 16.0049 17.5027C16.0049 18.3312 16.6765 19.0027 17.5049 19.0027ZM6.50488 10.0027C4.57189 10.0027 3.00488 8.43574 3.00488 6.50275C3.00488 4.56975 4.57189 3.00275 6.50488 3.00275C8.43788 3.00275 10.0049 4.56975 10.0049 6.50275C10.0049 8.43574 8.43788 10.0027 6.50488 10.0027ZM6.50488 8.00275C7.33331 8.00275 8.00488 7.33117 8.00488 6.50275C8.00488 5.67432 7.33331 5.00275 6.50488 5.00275C5.67646 5.00275 5.00488 5.67432 5.00488 6.50275C5.00488 7.33117 5.67646 8.00275 6.50488 8.00275ZM19.076 3.51747L20.4902 4.93168L4.93382 20.488L3.5196 19.0738L19.076 3.51747Z', b: [3, 3, 18, 18] },
   'pie-chart-2-line': { d: 'M12 0.5C18.3513 0.5 23.5 5.64873 23.5 12C23.5 12.3369 23.4855 12.6704 23.4571 13H21.9506C21.4489 18.0533 17.1853 22 12 22C6.47715 22 2 17.5228 2 12C2 6.81465 5.94668 2.5511 11 2.04938V0.542876C11.3296 0.514488 11.6631 0.5 12 0.5ZM11 4.06189C7.05369 4.55399 4 7.92038 4 12C4 16.4183 7.58172 20 12 20C16.0796 20 19.446 16.9463 19.9381 13H11V4.06189ZM13 2.552V11H21.448C20.9827 6.55197 17.448 3.01732 13 2.552Z', b: [2, 0.5, 21.5, 21.5] },
   'repeat-line': { d: 'M6 4H21C21.5523 4 22 4.44772 22 5V12H20V6H6V9L1 5L6 1V4ZM18 20H3C2.44772 20 2 19.5523 2 19V12H4V18H18V15L23 19L18 23V20Z', b: [1, 1, 22, 22] },
-  'trophy-line': { d: 'M13.0049 16.9409V19.0027H18.0049V21.0027H6.00488V19.0027H11.0049V16.9409C7.05857 16.4488 4.00488 13.0824 4.00488 9.00275V3.00275H20.0049V9.00275C20.0049 13.0824 16.9512 16.4488 13.0049 16.9409ZM6.00488 5.00275V9.00275C6.00488 12.3165 8.69117 15.0027 12.0049 15.0027C15.3186 15.0027 18.0049 12.3165 18.0049 9.00275V5.00275H6.00488ZM1.00488 5.00275H3.00488V9.00275H1.00488V5.00275ZM21.0049 5.00275H23.0049V9.00275H21.0049V5.00275Z', b: [1, 3, 22, 18] }
+  'trophy-line': { d: 'M13.0049 16.9409V19.0027H18.0049V21.0027H6.00488V19.0027H11.0049V16.9409C7.05857 16.4488 4.00488 13.0824 4.00488 9.00275V3.00275H20.0049V9.00275C20.0049 13.0824 16.9512 16.4488 13.0049 16.9409ZM6.00488 5.00275V9.00275C6.00488 12.3165 8.69117 15.0027 12.0049 15.0027C15.3186 15.0027 18.0049 12.3165 18.0049 9.00275V5.00275H6.00488ZM1.00488 5.00275H3.00488V9.00275H1.00488V5.00275ZM21.0049 5.00275H23.0049V9.00275H21.0049V5.00275Z', b: [1, 3, 22, 18] },
+  'arrow-down-circle-line': { d: 'M12 2C17.52 2 22 6.48 22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2ZM12 20C16.42 20 20 16.42 20 12C20 7.58 16.42 4 12 4C7.58 4 4 7.58 4 12C4 16.42 7.58 20 12 20ZM13 12H16L12 16L8 12H11V8H13V12Z', b: [2, 2, 20, 20] },
+  'arrow-up-circle-line': { d: 'M12 2C17.52 2 22 6.48 22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2ZM12 20C16.42 20 20 16.42 20 12C20 7.58 16.42 4 12 4C7.58 4 4 7.58 4 12C4 16.42 7.58 20 12 20ZM13 12V16H11V12H8L12 8L16 12H13Z', b: [2, 2, 20, 20] }
 };
 /* RMI(nombre, px, color, ajustado): ajustado=true recorta el viewBox a la figura (alto = px) para chevrones/signos pequeños */
 function RMI(n, px, col, tight) {
@@ -4927,8 +4929,8 @@ function bDonut(items, total, label) {
 function bLast() { try { if (!insOn()) return null; const m = insightsModel(prevMkOf(iso(getToday()).slice(0, 7))); return insLocked(m) ? null : m; } catch (e) { return null; } }
 const BW = {
   kpi: { t: 'Resumen del mes', d: 'Balance, ingresos, gastos y ahorro neto.', ic: 'dashboard-line', sizes: ['W', 'M'], dk: true, r: (c, w) => {
-    const net = c.income - c.expense, it = [['Balance actual', fmt(c.balance), ''], ['Ingresos del mes', fmt(c.income), 'pos'], ['Gastos del mes', fmt(c.expense), ''], ['Ahorro neto', (net >= 0 ? '+' : '') + fmt(net), net >= 0 ? 'pos' : 'neg']];
-    return '<div class="bkpi' + (w < 4 ? ' two' : '') + '">' + it.map((x) => '<div><span>' + x[0] + '</span><b class="' + x[2] + '">' + x[1] + '</b></div>').join('') + '</div>';
+    const net = c.income - c.expense, it = [['Balance actual', fmt(c.balance), '', 'wallet-3-line'], ['Ingresos del mes', fmt(c.income), 'pos', 'arrow-down-circle-line'], ['Gastos del mes', fmt(c.expense), '', 'arrow-up-circle-line'], ['Ahorro neto', (net >= 0 ? '+' : '') + fmt(net), net >= 0 ? 'pos' : 'neg', 'seedling-line']], two = w < 4;
+    return '<div class="bkpi' + (two ? ' two' : '') + '">' + it.map((x) => '<div><i class="ki ' + x[2] + '">' + RMI(x[3], two ? 22 : 30, 'currentColor') + '</i><span>' + x[0] + '</span><b class="' + x[2] + '">' + x[1] + '</b></div>').join('') + '</div>';
   } },
   cats: { t: 'Gasto por categoría', d: 'En qué se va tu plata este mes.', ic: 'pie-chart-2-line', sizes: ['S', 'T', 'L'], r: (c, w, h) => {
     if (!c.cats.length) return bemp('Sin gastos este mes');
