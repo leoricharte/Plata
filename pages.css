@@ -130,4 +130,4 @@ p.closer{text-align:center;font-size:18px;color:var(--mute);margin:48px auto 0}
 @media (prefers-reduced-motion:reduce){.ok.show{animation:none;opacity:1;transform:translateX(-50%)}.try.nudge .tk li.now{animation:none}}
 .tk,.pf{min-width:0}.pw{max-width:100%}
 .grid3 .nt{font-size:14px;font-weight:600;color:var(--g,#1FA67A);margin-top:10px}
-.sm{display:block;margin-top:4px;font-size:.78em;font-style:italic;font-weight:400;opacity:.75}
+.cha{display:block;margin-top:4px;font-size:.78em;font-style:italic;font-weight:400;opacity:.75}
