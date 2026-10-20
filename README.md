@@ -4,7 +4,21 @@
 
 Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola app web que funciona sin servidor ni dependencias. Tus datos se quedan en tu dispositivo.
 
-**Versión:** Beta 1 · **Compilación:** 225
+**Versión:** Beta 1 · **Compilación:** 226
+
+---
+
+## Novedades de la compilación 226
+
+Respecto a la 225:
+
+- **Escritorio, bienvenida:** «Empezar» ahora es el botón principal (verde, grande); debajo, «También disponible» con cargar perfil, inicio rápido y datos de demostración. Más aire alrededor de «Beta 2».
+- **Perfiles de demostración** en tarjetas verticales.
+- **Recorrido inicial** con scroll sin barras y desvanecido arriba y abajo.
+- **Luz ambiental** verde plata que late muy lento desde la esquina superior izquierda.
+- **Resumen** sigue el tema claro/oscuro; mejor legibilidad del texto atenuado.
+- **Bentos:** la tabla se ajusta a ventanas bajas.
+- La apariencia (Auto/Claro/Oscuro) también se guarda en el perfil; en escritorio ya no sale el aviso de la barra superior.
 
 ---
 
