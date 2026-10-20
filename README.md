@@ -171,17 +171,6 @@ Respecto a la 198:
 
 Abre la URL en **Safari** → botón Compartir → **Añadir a pantalla de inicio**.
 
-## Publicar en GitHub Pages
-
-1. Crea un repositorio (puede ser público; los datos **no** se suben).
-2. Sube **todo el contenido de esta carpeta** a la raíz, incluido `.nojekyll`.
-3. **Settings → Pages**: Source = *Deploy from a branch*, Branch = `main`, carpeta `/ (root)` → Save.
-4. En 1–2 minutos queda en `https://TU-USUARIO.github.io/NOMBRE-DEL-REPO/`.
-
-## Actualizar
-
-Reemplaza los archivos del repo por los del nuevo zip y reabre la app. Si no ves el cambio, cierra la app por completo y vuelve a abrirla (el número de caché en `sw.js` ya viene subido en cada compilación).
-
 ## Tus datos
 
 - Se guardan en el navegador de **ese dispositivo y ese dominio**.
