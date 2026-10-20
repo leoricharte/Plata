@@ -663,6 +663,8 @@ html.web .welcome .wside{position:fixed;z-index:5;display:flex;flex-direction:co
 html.web .welcome .wside.r{left:min(calc(50% + 510px),calc(100% - 190px));bottom:56px}
 html.web .welcome .wside.l{right:min(calc(50% + 510px),calc(100% - 190px));top:96px;align-items:flex-end;text-align:right;flex-direction:column}
 html.web .welcome .whint{display:inline-flex;flex-direction:column;align-items:center;gap:8px;font-size:16px;font-weight:600;line-height:1.3;color:var(--mute);animation:whint 2.2s ease-in-out infinite}
+html.web .welcome .wlockmsg{position:absolute;right:calc(100% - 36px);bottom:12px;width:230px;text-align:right;font-size:16px;font-weight:600;line-height:1.3;color:#fff;animation:wlm .35s ease both;transition:opacity .4s;pointer-events:none}
+@keyframes wlm{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}
 html.web .welcome .whint.up{align-items:flex-end;animation-name:whintup}
 @keyframes whint{0%,100%{transform:translateY(0);opacity:.75}50%{transform:translateY(4px);opacity:1}}
 @keyframes whintup{0%,100%{transform:translateY(0);opacity:.75}50%{transform:translateY(-4px);opacity:1}}
@@ -4748,9 +4750,8 @@ function welcomeHTML(dir) {
 const wLocked = () => !!(ui.w && ui.w.level && isWebView() && wSid(ui.w) === 'cur' && !(ui.w.cur && ui.w.cur.length));
 function wBlock() {
   const now = Date.now(); if (now - (ui.wBlk || 0) < 900) return; ui.wBlk = now;
-  toast('Elige una moneda para continuar.');
-  const tt = document.getElementById('toast'), mp = document.querySelector('.welcome .wlcol svg') || document.querySelector('.welcome .wlcol');
-  if (tt && mp) { const r = mp.getBoundingClientRect(); tt.classList.add('wmap'); tt.style.right = 'auto'; tt.style.width = 'max-content'; tt.style.left = Math.round(r.left + r.width / 2) + 'px'; tt.style.top = Math.max(12, Math.round(r.top + 10)) + 'px'; clearTimeout(ui.wTT); ui.wTT = setTimeout(() => { tt.classList.remove('wmap'); tt.style.left = ''; tt.style.top = ''; tt.style.right = ''; tt.style.width = ''; }, 2600); }
+  const sd = document.querySelector('.welcome .wside.r');
+  if (sd) { const o = sd.querySelector('.wlockmsg'); if (o) o.remove(); const h = document.createElement('span'); h.className = 'wlockmsg'; h.textContent = 'Elige una moneda para continuar.'; sd.appendChild(h); setTimeout(() => { h.style.opacity = '0'; setTimeout(() => h.remove(), 400); }, 2800); }
   const m = document.querySelector('.welcome .wpage:not(.outl):not(.outr)') || document.querySelector('.welcome');
   if (m) { m.classList.remove('wshake'); void m.offsetWidth; m.classList.add('wshake'); setTimeout(() => m.classList.remove('wshake'), 500); }
 }
