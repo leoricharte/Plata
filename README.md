@@ -16,6 +16,7 @@ Respecto a la 244:
 - **Escritorio, moneda elegida:** las monedas elegidas aparecen como píldoras numeradas junto a la pregunta; al pasar el mouse la píldora se pone roja con una ✕ y un clic la quita. Al añadir la segunda sale un aviso breve en cursiva que lo explica.
 - **Escritorio, conversión:** el tipo de cambio, la línea «Principal / Segunda» y el botón para intercambiar monedas (ahora más grande y en verde) se colocan arriba del mapa, junto con el guiño peruano si eliges PEN.
 - **Novedades de la Beta 2:** el aviso de novedades suma dos diapositivas, «Plata llega a tu mesa» y «Bentos» (exclusivo para escritorio), con espacio reservado para sus imágenes.
+- **Escritorio, aviso de novedades:** rediseñado como tarjeta horizontal (imagen a la izquierda, texto a la derecha), con dos flechas verdes y las flechas ← → del teclado para moverse entre diapositivas.
 - **Escritorio, aviso de moneda:** el aviso al añadir la segunda moneda se ajusta al ancho disponible y ya no se corta.
 - **Escritorio, «Tus datos son tuyos»:** la pantalla se adapta a la paleta de escritorio (íconos y botón Aceptar en verde, alineada con el resto del asistente).
 - **Debug:** ahora incluye un selector de apariencia (Auto / Claro / Oscuro).
