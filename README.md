@@ -4,17 +4,24 @@
 
 Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola app web que funciona sin servidor ni dependencias. Tus datos se quedan en tu dispositivo.
 
-**Versión:** Beta 1 · **Compilación:** 202
+**Versión:** Beta 1 · **Compilación:** 203
 
 ---
 
-## Novedades de la compilación 202
+## Novedades de la compilación 203
 
-Respecto a la 201:
+Respecto a la 202:
+
+- **Modo oscuro:** nuevo ajuste «Apariencia» en Ajustes con Auto (sigue al sistema), Claro y Oscuro. La franja superior del iPhone también cambia de color.
+
+## Historial
+
+<details>
+<summary>Compilación 202</summary>
 
 - **Detalle de un ingreso o gasto previsto:** al abrirlo desde Resumen ahora muestra el monto y la fecha que editaste en Proyección, no los de la serie original.
 
-## Historial
+</details>
 
 <details>
 <summary>Compilación 201</summary>
