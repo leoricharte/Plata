@@ -549,10 +549,10 @@ html[data-theme=light] .bw{background:radial-gradient(120% 90% at 100% 0%,rgba(3
 .bw.sol *{--ink:#fff}
 .bw.sol b,.bw.sol .bw-h,.bw.sol span,.bw.sol div{color:inherit}
 .bw.sol .brow b.exp,.bw.sol .brow b.warn,.bw.sol .bkpi b,.bw.sol .bhead b,.bw.sol .bfoot b,.bw.sol .bup .dd b,.bw.sol [style*="background-clip"]{background:none!important;-webkit-text-fill-color:#fff!important;color:#fff!important}
-.bw.sol .bkpi .ki,.bw.sol .bkpi .ki.pos,.bw.sol .bkpi .ki.neg{background:rgba(255,255,255,.2);color:#fff}
+.bw.sol .bkpi .ki{color:#fff}
 .bw.sol .bkpi>div{border-color:rgba(255,255,255,.25)}
 .bw.sol .bbar i,.bw.sol .bleg i{background:#fff!important}
-.bw.sol svg rect[fill="#22B573"]{fill:#fff}.bw.sol svg rect[style*="--ink"]{fill:rgba(255,255,255,.55)!important}
+.bw.sol svg .gI{fill:#fff!important}.bw.sol svg .gX{fill:rgba(255,255,255,.55)!important}.bw.sol .bbar i::after{display:none}
 .bw.sol svg [stroke="#22B573"]{stroke:#fff}.bw.sol svg path[fill="#22B573"],.bw.sol svg circle[fill="#22B573"],.bw.sol svg polyline{fill:#fff}.bw.sol svg polyline{fill:none;stroke:#fff}.bw.sol svg text{fill:#fff!important}
 .bw.sol .dsvg circle[stroke]:not([stroke*="--track"]){stroke-opacity:.95}
 .bw.sol .bup b.a.pos,.bw.sol .pos,.bw.sol .neg{color:#fff!important}
@@ -586,7 +586,7 @@ html[data-theme=dark] .bgi .gi{background:#1A3427}
 .bgi em{margin-left:auto;font-style:normal;font-size:12px;font-weight:650;color:#22B573;white-space:nowrap}
 .bslot{border:2px dashed var(--wline);border-radius:1.7cqw;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5em;color:var(--mute);font-size:clamp(10px,1.05cqw,18px);font-weight:600;transition:border-color .2s,color .2s,background .2s}.bslot:hover{border-color:#22B573;color:#22B573;background:rgba(34,181,115,.06)}
 .bemp{margin:auto;color:var(--mute);text-align:center;font-size:1em}
-.bkpi{flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:1.2em;align-items:center;align-content:center}.bkpi>div{text-align:center;display:flex;flex-direction:column;align-items:center;border-left:1px solid rgba(255,255,255,.12)}.bkpi>div:first-child{border-left:0}.bkpi .ki{display:flex;align-items:center;justify-content:center;width:2.6em;height:2.6em;border-radius:50%;background:rgba(255,255,255,.09);color:#fff;margin-bottom:.7em}.bkpi.two .ki{display:none}.bkpi.two span{font-size:1.1em}
+.bkpi{flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:1.2em;align-items:center;align-content:center}.bkpi>div{text-align:center;display:flex;flex-direction:column;align-items:center;border-left:1px solid rgba(255,255,255,.12)}.bkpi>div:first-child{border-left:0}.bkpi .ki{display:flex;align-items:center;justify-content:center;width:auto;height:auto;background:none;color:#fff;margin-bottom:.6em}.bkpi.two .ki{display:none}.bkpi.two span{font-size:1.1em}
 .bkpi.two{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
 
 .bkpi b,.bhead b,.bfoot b,.bup .dd b{background:linear-gradient(180deg,#46E096 0%,#22B573 50%,#0B5F3B 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
@@ -620,7 +620,7 @@ html[data-theme=light] .bkpi b,html[data-theme=light] .bhead b,html[data-theme=l
 .brow>div:first-child b{font-weight:650;white-space:nowrap}
 .brow small{color:var(--mute);font-size:.88em}
 .bbar{height:.62em;border-radius:99px;background:var(--track);overflow:hidden}
-.bbar i{display:block;height:100%;border-radius:99px}
+.bbar i::after{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(180deg,rgba(255,255,255,.26),rgba(0,0,0,.24))}.bbar i{position:relative;display:block;height:100%;border-radius:99px}
 .bstack{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:space-around;gap:.5em}
 .bfoot{display:flex;justify-content:space-between;align-items:baseline;margin-top:.6em;padding-top:.6em;border-top:1px solid var(--line);color:var(--mute)}
 .bfoot b{color:var(--ink);font-size:1.3em;letter-spacing:-.02em}
@@ -4993,10 +4993,12 @@ function bvb(w, h, ex) {
   const cellW = (B - 42) / 4, cellH = (B * 9 / 16 - 28) / 3;
   return [Math.max(120, Math.round(cellW * w + (w - 1) * 14 - B * 0.032)), Math.max(60, Math.round(cellH * h + (h - 1) * 14 - B * 0.028 - fs * 2 - (ex || 0) * fs)), fs];
 }
+const bgd = (id, c) => '<linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:color-mix(in srgb,' + c + ',#fff 26%)"/><stop offset="1" style="stop-color:color-mix(in srgb,' + c + ',#000 36%)"/></linearGradient>';
+const BGDEFS = '<defs>' + bgd('bgG', '#22B573') + bgd('bgI', 'var(--ink)') + '<linearGradient id="bgA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#22B573" stop-opacity=".38"/><stop offset="1" stop-color="#22B573" stop-opacity=".02"/></linearGradient></defs>';
 function bDonut(items, total, label) {
-  const C = 2 * Math.PI * 38; let off = 0;
-  const arcs = total > 0 ? items.map((k) => { const f = k.v / total, len = Math.max(0, f * C - 1.4), o = '<circle cx="50" cy="50" r="38" fill="none" stroke="' + k.color + '" stroke-width="14" stroke-dasharray="' + len.toFixed(2) + ' ' + (C - len).toFixed(2) + '" stroke-dashoffset="' + (-off).toFixed(2) + '" transform="rotate(-90 50 50)"/>'; off += f * C; return o; }).join('') : '';
-  return '<svg class="dsvg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"><circle cx="50" cy="50" r="38" fill="none" stroke="var(--track)" stroke-width="14"/>' + arcs + '<text x="50" y="47" text-anchor="middle" font-size="6.5" style="fill:var(--mute)">' + label + '</text><defs><linearGradient id="egx" x1="0" x2="0" y1="0" y2="1"><stop offset="0" class="es0"/><stop offset=".55" class="es1"/><stop offset="1" class="es2"/></linearGradient><linearGradient id="dgx" x1="0" x2="0" y1="0" y2="1"><stop offset="0" class="gs0"/><stop offset=".55" class="gs1"/><stop offset="1" class="gs2"/></linearGradient></defs><text x="50" y="60" text-anchor="middle" font-size="13" font-weight="750" style="fill:url(#egx)">' + fmt(total) + '</text></svg>';
+  const C = 2 * Math.PI * 38; let off = 0; const dd = items.map((k) => bgd('bgd' + String(k.color).replace(/[^0-9a-fA-F]/g, ''), k.color)).join('');
+  const arcs = total > 0 ? items.map((k) => { const f = k.v / total, len = Math.max(0, f * C - 1.4), o = '<circle cx="50" cy="50" r="38" fill="none" stroke="url(#bgd' + String(k.color).replace(/[^0-9a-fA-F]/g, '') + ')" stroke-width="14" stroke-dasharray="' + len.toFixed(2) + ' ' + (C - len).toFixed(2) + '" stroke-dashoffset="' + (-off).toFixed(2) + '" transform="rotate(-90 50 50)"/>'; off += f * C; return o; }).join('') : '';
+  return '<svg class="dsvg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"><defs>' + dd + '</defs><circle cx="50" cy="50" r="38" fill="none" stroke="var(--track)" stroke-width="14"/>' + arcs + '<text x="50" y="47" text-anchor="middle" font-size="6.5" style="fill:var(--mute)">' + label + '</text><defs><linearGradient id="egx" x1="0" x2="0" y1="0" y2="1"><stop offset="0" class="es0"/><stop offset=".55" class="es1"/><stop offset="1" class="es2"/></linearGradient><linearGradient id="dgx" x1="0" x2="0" y1="0" y2="1"><stop offset="0" class="gs0"/><stop offset=".55" class="gs1"/><stop offset="1" class="gs2"/></linearGradient></defs><text x="50" y="60" text-anchor="middle" font-size="13" font-weight="750" style="fill:url(#egx)">' + fmt(total) + '</text></svg>';
 }
 function bLast() { try { if (!insOn()) return null; const m = insightsModel(prevMkOf(iso(getToday()).slice(0, 7))); return insLocked(m) ? null : m; } catch (e) { return null; } }
 const BW = {
@@ -5016,8 +5018,8 @@ const BW = {
     const dim = bvb(w, h, 1.8), vw = dim[0], vh = dim[1], fz = dim[2], H = vh - fz * 2.4 - fz * 1.5, gw = (vw - 8) / ms.length, bw = Math.min(gw * 0.3, fz * (ms.length < 3 ? 9 : 4.5)), mx = Math.max.apply(null, ms.map((m) => Math.max(m.income, m.expense, 1)));
     const vl = (x, y, v) => bw >= fz * 2.6 ? '<text x="' + x + '" y="' + (y - fz * 0.45) + '" text-anchor="middle" font-size="' + (fz * 0.85) + '" font-weight="650" style="fill:var(--ink)">' + fmt(v) + '</text>' : '';
     const T0 = fz * 1.5, HH = H;
-    const bars = ms.map((m, i) => { const gx = 4 + i * gw + gw / 2, hi = Math.max(2, m.income / mx * HH), he = Math.max(2, m.expense / mx * HH), yi = T0 + HH - hi, ye = T0 + HH - he; return '<rect x="' + (gx - bw - 2) + '" y="' + yi + '" width="' + bw + '" height="' + hi + '" rx="' + Math.min(6, bw / 4) + '" fill="#22B573"/>' + vl(gx - bw / 2 - 2, yi, m.income) + '<rect x="' + (gx + 2) + '" y="' + ye + '" width="' + bw + '" height="' + he + '" rx="' + Math.min(6, bw / 4) + '" style="fill:var(--ink)" opacity="' + (m.cur ? 1 : 0.8) + '"/>' + vl(gx + bw / 2 + 2, ye, m.expense) + '<text x="' + gx + '" y="' + (T0 + HH + fz * 1.5) + '" text-anchor="middle" font-size="' + fz * 0.9 + '" style="fill:var(--mute)">' + m.label + '</text>'; }).join('');
-    return '<div class="bleg"><span><i style="background:#22B573"></i>Ingresos</span><span><i style="background:var(--ink)"></i>Gastos</span></div><svg class="bsvg" viewBox="0 0 ' + vw + ' ' + vh + '" preserveAspectRatio="xMidYMid meet">' + bars + '</svg>';
+    const bars = ms.map((m, i) => { const gx = 4 + i * gw + gw / 2, hi = Math.max(2, m.income / mx * HH), he = Math.max(2, m.expense / mx * HH), yi = T0 + HH - hi, ye = T0 + HH - he; return '<rect x="' + (gx - bw - 2) + '" y="' + yi + '" width="' + bw + '" height="' + hi + '" rx="' + Math.min(6, bw / 4) + '" fill="#22B573" class="gI" style="fill:url(#bgG)"/>' + vl(gx - bw / 2 - 2, yi, m.income) + '<rect x="' + (gx + 2) + '" y="' + ye + '" width="' + bw + '" height="' + he + '" rx="' + Math.min(6, bw / 4) + '" class="gX" style="fill:url(#bgI)" opacity="' + (m.cur ? 1 : 0.8) + '"/>' + vl(gx + bw / 2 + 2, ye, m.expense) + '<text x="' + gx + '" y="' + (T0 + HH + fz * 1.5) + '" text-anchor="middle" font-size="' + fz * 0.9 + '" style="fill:var(--mute)">' + m.label + '</text>'; }).join('');
+    return '<div class="bleg"><span><i style="background:#22B573"></i>Ingresos</span><span><i style="background:var(--ink)"></i>Gastos</span></div><svg class="bsvg" viewBox="0 0 ' + vw + ' ' + vh + '" preserveAspectRatio="xMidYMid meet">' + BGDEFS + bars + '</svg>';
   } },
   daily: { t: 'Gasto acumulado del mes', d: 'Cómo avanza tu gasto día a día.', ic: 'line-chart-line', sizes: ['M', 'L', 'W'], r: (c, w, h) => {
     const flow = c.monthTx.filter((t) => !isPay(t) && t.amount < 0), td = c.today.getDate(), per = new Array(c.dim + 1).fill(0);
@@ -5064,7 +5066,7 @@ const BW = {
     c.tx.forEach((t) => { if (t.date >= from && t.amount < 0 && !isPay(t)) { per[(pd(t.date).getDay() + 6) % 7] += -txUSD(t); n++; } });
     if (!n) return bemp('Sin gastos recientes');
     const dim = bvb(w, h), vw = dim[0], vh = dim[1], fz = dim[2], H = vh - fz * 1.8, gw = (vw - 8) / 7, mx = Math.max.apply(null, per), top = per.indexOf(mx), lb = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
-    return '<svg class="bsvg" viewBox="0 0 ' + vw + ' ' + vh + '" preserveAspectRatio="xMidYMid meet">' + per.map((v, i) => { const bh = Math.max(1, v / mx * H), x = 4 + i * gw + gw * 0.18; return '<rect x="' + x + '" y="' + (H - bh) + '" width="' + (gw * 0.64) + '" height="' + bh + '" rx="3" fill="#22B573" opacity="' + (i === top ? 1 : 0.45) + '"/><text x="' + (4 + i * gw + gw / 2) + '" y="' + (vh - 3) + '" text-anchor="middle" font-size="' + (fz * 0.95) + '" style="fill:var(--mute)">' + lb[i] + '</text>'; }).join('') + '</svg>';
+    return '<svg class="bsvg" viewBox="0 0 ' + vw + ' ' + vh + '" preserveAspectRatio="xMidYMid meet">' + BGDEFS + per.map((v, i) => { const bh = Math.max(1, v / mx * H), x = 4 + i * gw + gw * 0.18; return '<rect x="' + x + '" y="' + (H - bh) + '" width="' + (gw * 0.64) + '" height="' + bh + '" rx="3" fill="#22B573" class="gI" style="fill:url(#bgG)" opacity="' + (i === top ? 1 : 0.5) + '"/><text x="' + (4 + i * gw + gw / 2) + '" y="' + (vh - 3) + '" text-anchor="middle" font-size="' + (fz * 0.95) + '" style="fill:var(--mute)">' + lb[i] + '</text>'; }).join('') + '</svg>';
   } },
   score: { t: 'Tu evaluación', d: 'La nota de tu último cierre de mes.', ic: 'medal-line', sizes: ['S', 'M', 'T'], r: (c, w, h) => {
     const m = bLast(); if (!m || !m.hasPrev || !scoreOn()) return bemp('Aún sin evaluación');
