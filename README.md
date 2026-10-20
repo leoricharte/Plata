@@ -4,7 +4,15 @@
 
 Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola app web que funciona sin servidor ni dependencias. Tus datos se quedan en tu dispositivo.
 
-**Versión:** Beta 1 · **Compilación:** 236
+**Versión:** Beta 1 · **Compilación:** 237
+
+---
+
+## Novedades de la compilación 237
+
+Respecto a la 236:
+
+- **Escritorio, asistente de inicio:** vuelve a ser paso por paso. Al girar la rueda del ratón hacia abajo avanza (con desvanecimiento) y hacia arriba retrocede un paso. En el primer paso aparece «Usa la rueda del ratón para seguir ↓» y en todos hay un botón redondo con flecha hacia abajo (en el último paso es el de finalizar, sin el botón «Terminar»). Interfaz más grande.
 
 ---
 
