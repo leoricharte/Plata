@@ -657,7 +657,10 @@ html.web .wpill b i,html.web .wpill b u{font-style:normal;text-decoration:none;g
 html.web .wpill b{display:grid;place-items:center}
 html.web .wpill b u{display:none;font-size:10px}
 html.web .wpill.rm:hover b i{display:none}html.web .wpill.rm:hover b u{display:block}
-html.web .wpill.rm:hover b{background:#FF453A;color:#fff}
+html.web .wpill{transition:background .18s,box-shadow .18s}
+html.web .wpill.rm:hover{background:#D4574F;box-shadow:none}
+html.web .wpill.rm:hover b{background:#fff;color:#D4574F}
+html.web .wpill b u{font-size:11px;font-weight:800}
 html.web .wpills{display:flex;gap:8px;flex:none}
 html.web .wpill{display:inline-flex;align-items:center;gap:7px;height:26px;padding:0 11px 0 3px;border-radius:999px;background:#22B573;color:#fff;font-size:12px;font-weight:700;letter-spacing:0}
 html.web .wpill b{width:20px;height:20px;border-radius:50%;background:#fff;color:#0B3D27;display:flex;align-items:center;justify-content:center;font-size:11px;letter-spacing:0}
