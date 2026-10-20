@@ -548,7 +548,7 @@ html[data-theme=light] .bw{background:radial-gradient(120% 90% at 100% 0%,rgba(3
 .bw.sol{color:#fff!important;--ink:#fff;--mute:rgba(255,255,255,.8);--track:rgba(255,255,255,.24);--gt:#fff;--rt:#fff;--line:rgba(255,255,255,.22);border-color:transparent;background-image:linear-gradient(150deg,var(--s1),var(--s2))!important;background-color:var(--s2)!important}
 .bw.sol *{--ink:#fff}
 .bw.sol b,.bw.sol .bw-h,.bw.sol span,.bw.sol div{color:inherit}
-.bw.sol .bkpi b,.bw.sol .bhead b,.bw.sol .bfoot b,.bw.sol .bup .dd b,.bw.sol [style*="background-clip"]{background:none!important;-webkit-text-fill-color:#fff!important;color:#fff!important}
+.bw.sol .brow b.exp,.bw.sol .brow b.warn,.bw.sol .bkpi b,.bw.sol .bhead b,.bw.sol .bfoot b,.bw.sol .bup .dd b,.bw.sol [style*="background-clip"]{background:none!important;-webkit-text-fill-color:#fff!important;color:#fff!important}
 .bw.sol .bkpi .ki,.bw.sol .bkpi .ki.pos,.bw.sol .bkpi .ki.neg{background:rgba(255,255,255,.2);color:#fff}
 .bw.sol .bkpi>div{border-color:rgba(255,255,255,.25)}
 .bw.sol .bbar i,.bw.sol .bleg i{background:#fff!important}
@@ -592,6 +592,9 @@ html[data-theme=dark] .bgi .gi{background:#1A3427}
 .bkpi b,.bhead b,.bfoot b,.bup .dd b{background:linear-gradient(180deg,#46E096 0%,#22B573 50%,#0B5F3B 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
 .bkpi b.pos,.bhead b.pos{background-image:linear-gradient(180deg,#46E096 0%,#22B573 50%,#0B5F3B 100%)}
 html[data-theme=light] .bkpi b,html[data-theme=light] .bhead b,html[data-theme=light] .bfoot b,html[data-theme=light] .bup .dd b{background-image:linear-gradient(180deg,#34C98A 0%,#14925A 55%,#0A5B38 100%)}
+.bkpi b.exp,.bhead b.exp,.bfoot b.exp,.brow b.exp{background-image:linear-gradient(180deg,#FF9A92 0%,#E5625A 50%,#8E2C28 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+.brow b.warn{background-image:linear-gradient(180deg,#FFD27A 0%,#F0A53A 50%,#9A5A12 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+.es0{stop-color:#FF9A92}.es1{stop-color:#E5625A}.es2{stop-color:#8E2C28}
 .bkpi b.neg{background-image:linear-gradient(180deg,#FFC2BD 0%,#FF6961 55%,#C23B34 100%)}
 .gs0{stop-color:#46E096}.gs1{stop-color:#22B573}.gs2{stop-color:#0B5F3B}html[data-theme=light] .gs0{stop-color:#2BC585}html[data-theme=light] .gs2{stop-color:#0A5B38}
 .bw-h{font-size:1.12em;font-weight:650;color:color-mix(in srgb,var(--mute) 80%,var(--ink));margin-bottom:.8em}
@@ -4993,12 +4996,12 @@ function bvb(w, h, ex) {
 function bDonut(items, total, label) {
   const C = 2 * Math.PI * 38; let off = 0;
   const arcs = total > 0 ? items.map((k) => { const f = k.v / total, len = Math.max(0, f * C - 1.4), o = '<circle cx="50" cy="50" r="38" fill="none" stroke="' + k.color + '" stroke-width="14" stroke-dasharray="' + len.toFixed(2) + ' ' + (C - len).toFixed(2) + '" stroke-dashoffset="' + (-off).toFixed(2) + '" transform="rotate(-90 50 50)"/>'; off += f * C; return o; }).join('') : '';
-  return '<svg class="dsvg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"><circle cx="50" cy="50" r="38" fill="none" stroke="var(--track)" stroke-width="14"/>' + arcs + '<text x="50" y="47" text-anchor="middle" font-size="6.5" style="fill:var(--mute)">' + label + '</text><defs><linearGradient id="dgx" x1="0" x2="0" y1="0" y2="1"><stop offset="0" class="gs0"/><stop offset=".55" class="gs1"/><stop offset="1" class="gs2"/></linearGradient></defs><text x="50" y="60" text-anchor="middle" font-size="13" font-weight="750" style="fill:url(#dgx)">' + fmt(total) + '</text></svg>';
+  return '<svg class="dsvg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"><circle cx="50" cy="50" r="38" fill="none" stroke="var(--track)" stroke-width="14"/>' + arcs + '<text x="50" y="47" text-anchor="middle" font-size="6.5" style="fill:var(--mute)">' + label + '</text><defs><linearGradient id="egx" x1="0" x2="0" y1="0" y2="1"><stop offset="0" class="es0"/><stop offset=".55" class="es1"/><stop offset="1" class="es2"/></linearGradient><linearGradient id="dgx" x1="0" x2="0" y1="0" y2="1"><stop offset="0" class="gs0"/><stop offset=".55" class="gs1"/><stop offset="1" class="gs2"/></linearGradient></defs><text x="50" y="60" text-anchor="middle" font-size="13" font-weight="750" style="fill:url(#egx)">' + fmt(total) + '</text></svg>';
 }
 function bLast() { try { if (!insOn()) return null; const m = insightsModel(prevMkOf(iso(getToday()).slice(0, 7))); return insLocked(m) ? null : m; } catch (e) { return null; } }
 const BW = {
   kpi: { t: 'Resumen del mes', d: 'Balance, ingresos, gastos y ahorro neto.', ic: 'dashboard-line', sizes: ['W', 'M'], dk: true, r: (c, w) => {
-    const net = c.income - c.expense, it = [['Balance actual', fmt(c.balance), '', 'wallet-3-line'], ['Ingresos del mes', fmt(c.income), 'pos', 'arrow-down-circle-line'], ['Gastos del mes', fmt(c.expense), '', 'arrow-up-circle-line'], ['Ahorro neto', (net >= 0 ? '+' : '') + fmt(net), net >= 0 ? 'pos' : 'neg', 'seedling-line']], two = w < 4;
+    const net = c.income - c.expense, it = [['Balance actual', fmt(c.balance), '', 'wallet-3-line'], ['Ingresos del mes', fmt(c.income), 'pos', 'arrow-down-circle-line'], ['Gastos del mes', fmt(c.expense), 'exp', 'arrow-up-circle-line'], ['Ahorro neto', (net >= 0 ? '+' : '') + fmt(net), net >= 0 ? 'pos' : 'neg', 'seedling-line']], two = w < 4;
     return '<div class="bkpi' + (two ? ' two' : '') + '">' + it.map((x) => '<div><i class="ki ' + x[2] + '">' + RMI(x[3], two ? 22 : 30, 'currentColor') + '</i><span>' + x[0] + '</span><b class="' + x[2] + '">' + x[1] + '</b></div>').join('') + '</div>';
   } },
   cats: { t: 'Gasto por categoría', d: 'En qué se va tu plata este mes.', ic: 'pie-chart-2-line', sizes: ['S', 'T', 'L'], r: (c, w, h) => {
@@ -5026,13 +5029,13 @@ const BW = {
     const pts = cum.map((v, i) => X(i + 1).toFixed(1) + ',' + Y(v).toFixed(1)).join(' ');
     const area = 'M' + X(1).toFixed(1) + ',' + H + ' L' + pts.replace(/ /g, ' L') + ' L' + X(td).toFixed(1) + ',' + H + ' Z';
     const ly = lim ? '<line x1="4" x2="' + (vw - 4) + '" y1="' + Y(lim).toFixed(1) + '" y2="' + Y(lim).toFixed(1) + '" stroke="#FF9500" stroke-width="1.2" stroke-dasharray="4 3"/>' : '';
-    return '<div class="bhead"><b>' + fmt(a) + '</b><span>' + (lim ? 'de ' + fmt(lim) + ' en límites' : 'gastado hasta hoy') + '</span></div><svg class="bsvg" viewBox="0 0 ' + vw + ' ' + vh + '" preserveAspectRatio="xMidYMid meet"><path d="' + area + '" fill="#22B573" opacity=".14"/><polyline points="' + pts + '" fill="none" stroke="#22B573" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>' + ly + '<circle cx="' + X(td).toFixed(1) + '" cy="' + Y(a).toFixed(1) + '" r="3.2" fill="#22B573"/><text x="4" y="' + (vh - 3) + '" font-size="'+(fz*0.9)+'" style="fill:var(--mute)">1</text><text x="' + (vw - 4) + '" y="' + (vh - 3) + '" text-anchor="end" font-size="' + (fz * 0.9) + '" style="fill:var(--mute)">' + c.dim + '</text></svg>';
+    return '<div class="bhead"><b class="exp">' + fmt(a) + '</b><span>' + (lim ? 'de ' + fmt(lim) + ' en límites' : 'gastado hasta hoy') + '</span></div><svg class="bsvg" viewBox="0 0 ' + vw + ' ' + vh + '" preserveAspectRatio="xMidYMid meet"><path d="' + area + '" fill="#22B573" opacity=".14"/><polyline points="' + pts + '" fill="none" stroke="#22B573" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>' + ly + '<circle cx="' + X(td).toFixed(1) + '" cy="' + Y(a).toFixed(1) + '" r="3.2" fill="#22B573"/><text x="4" y="' + (vh - 3) + '" font-size="'+(fz*0.9)+'" style="fill:var(--mute)">1</text><text x="' + (vw - 4) + '" y="' + (vh - 3) + '" text-anchor="end" font-size="' + (fz * 0.9) + '" style="fill:var(--mute)">' + c.dim + '</text></svg>';
   } },
   budget: { t: 'Presupuesto', d: 'Cuánto llevas contra cada límite.', ic: 'wallet-3-line', sizes: ['T', 'L', 'M'], r: (c, w, h) => {
     const lim = budOf(activeSet()) || {}, cap = bcap(h) - (w > 1 && h === 1 ? 1 : 0);
     const rows = CAT_ORDER.filter((k) => (lim[k] || 0) > 0).map((k) => ({ k: k, sp: c.catTot[k] || 0, lm: lim[k] }));
     if (!rows.length) { const top = c.cats.slice().sort((a, b) => b.v - a.v).slice(0, cap); if (!top.length) return bemp('Define límites en Presupuesto'); const mx = top[0].v; return '<div class="bstack">' + top.map((k) => '<div class="brow"><div><span>' + k.name + '</span><b>' + fmt(k.v) + '</b></div>' + bbar(k.v / mx * 100, k.color) + '</div>').join('') + '</div>'; }
-    return '<div class="bstack">' + rows.sort((a, b) => b.sp / b.lm - a.sp / a.lm).slice(0, cap).map((r) => { const p = r.sp / r.lm * 100; return '<div class="brow"><div><span>' + r.k + '</span><b>' + fmt(r.sp) + ' <small>/ ' + fmt(r.lm) + '</small></b></div>' + bbar(p, p > 100 ? 'var(--rt)' : p > 80 ? '#FF9500' : CAT_COLOR[r.k]) + '</div>'; }).join('') + '</div>';
+    return '<div class="bstack">' + rows.sort((a, b) => b.sp / b.lm - a.sp / a.lm).slice(0, cap).map((r) => { const p = r.sp / r.lm * 100; return '<div class="brow"><div><span>' + r.k + '</span><b' + (p > 100 ? ' class="exp"' : p > 80 ? ' class="warn"' : '') + '>' + fmt(r.sp) + ' <small>/ ' + fmt(r.lm) + '</small></b></div>' + bbar(p, p > 100 ? 'var(--rt)' : p > 80 ? '#FF9500' : CAT_COLOR[r.k]) + '</div>'; }).join('') + '</div>';
   } },
   top: { t: 'Mayores gastos', d: 'Lo que más dinero se llevó este mes.', ic: 'trophy-line', sizes: ['T', 'S', 'M'], r: (c, w, h) => {
     const g = {}; c.monthTx.filter((t) => !isPay(t) && t.amount < 0).forEach((t) => { const n = (t.note || t.category || 'Sin nombre').trim(), k = n.toLowerCase(); g[k] = g[k] || { n: n, v: 0 }; g[k].v += -txUSD(t); });
@@ -5046,7 +5049,7 @@ const BW = {
   } },
   debt: { t: 'Tarjetas y deuda', d: 'Cuánto debes y cuánto crédito usas.', ic: 'bank-card-line', sizes: ['S', 'M', 'T'], r: (c, w, h) => {
     if (!c.cards.length) return bemp('Sin tarjetas ni préstamos');
-    return '<div class="bstack">' + c.cards.slice(0, bcap(h) - 1).map((k) => '<div class="brow"><div><span>' + esc(k.name) + '</span><b>' + fmt(k.ub) + (k.limit > 0 ? ' <small>' + k.util + '%</small>' : '') + '</b></div>' + bbar(k.limit > 0 ? k.util : 100, k.util > 70 ? 'var(--rt)' : k.util > 40 ? '#FF9500' : '#22B573') + '</div>').join('') + '</div><div class="bfoot"><span>Deuda total</span><b>' + fmt(c.debt) + '</b></div>';
+    return '<div class="bstack">' + c.cards.slice(0, bcap(h) - 1).map((k) => '<div class="brow"><div><span>' + esc(k.name) + '</span><b>' + fmt(k.ub) + (k.limit > 0 ? ' <small>' + k.util + '%</small>' : '') + '</b></div>' + bbar(k.limit > 0 ? k.util : 100, k.util > 70 ? 'var(--rt)' : k.util > 40 ? '#FF9500' : '#22B573') + '</div>').join('') + '</div><div class="bfoot"><span>Deuda total</span><b class="exp">' + fmt(c.debt) + '</b></div>';
   } },
   goals: { t: 'Metas de ahorro', d: 'Qué tanto te falta para cada meta.', ic: 'seedling-line', sizes: ['S', 'M', 'T'], r: (c, w, h) => {
     if (!c.savings.length) return bemp('Aún no tienes metas');
