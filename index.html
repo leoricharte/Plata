@@ -17,7 +17,7 @@
 <meta name="theme-color" content="#F2F2F7">
 <script>(function(){var m=null;try{m=localStorage.getItem('plata.theme')}catch(e){}
 function dark(){return m==='dark'||(m!=='light'&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)}
-function apply(){var d=dark();document.documentElement.setAttribute('data-theme',d?'dark':'light');var t=document.querySelector('meta[name=theme-color]');if(t)t.setAttribute('content',d?'#000000':'#F2F2F7')}
+function apply(){var d=dark();document.documentElement.setAttribute('data-theme',d?'dark':'light');var t=document.querySelector('meta[name=theme-color]');if(t)t.setAttribute('content',d?'#000000':'#F2F2F7');if(window.__retint)window.__retint()}
 window.__applyTheme=function(v){m=v==='auto'?null:v;try{if(v==='auto')localStorage.removeItem('plata.theme');else localStorage.setItem('plata.theme',v)}catch(e){}apply()};
 window.__themePref=function(){return m||'auto'};
 apply();try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',apply)}catch(e){}})();</script>
@@ -3882,12 +3882,13 @@ function pillGeom(el) {
   return { w: w, x: cx - w / 2 };
 }
 let tabEls = null;
+window.__retint = function () { if (typeof tabEls !== 'undefined' && tabEls) tint(); };
 function tint() {
   if (!tabEls) tabEls = [].slice.call(tabbar.querySelectorAll('.tab'));
   const l = P.x, r = P.x + P.w;
   tabEls.forEach((t) => {
     const cx = tabX(t) + (t.offsetWidth || 1) / 2, on = cx > l && cx < r;
-    t.style.color = on ? '#1A9D63' : '#111';
+    t.style.color = on ? '#1A9D63' : (document.documentElement.dataset.theme === 'dark' ? '#F2F2F7' : '#111');
   });
 }
 function draw() {
