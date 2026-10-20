@@ -1,0 +1,33 @@
+.nav{position:relative}
+.logo{display:block;flex:0 0 auto}
+.menu{display:flex;align-items:center;gap:2px;margin-left:auto;margin-right:10px}
+.mi{position:relative;display:flex;align-items:center}
+.ml{font:500 15px/1 Inter,sans-serif;color:var(--ink);text-decoration:none;padding:10px 10px;border-radius:999px;opacity:.78;white-space:nowrap}
+.ml:hover,.ml[aria-current]{opacity:1}
+.ml[aria-current]{color:var(--accent)}
+.mt{background:none;border:0;color:var(--mute);padding:8px 6px 8px 0;margin-left:-6px;cursor:pointer;display:grid;place-items:center;border-radius:999px}
+.mt .ic{width:16px;height:16px;transition:transform .2s}
+.dd.open .mt .ic{transform:rotate(180deg)}
+.dsub{position:absolute;top:calc(100% + 6px);left:0;min-width:220px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:8px;box-shadow:var(--shadow);display:none;z-index:30}
+.dd.open .dsub{display:block}
+@media (hover:hover) and (pointer:fine){.dd:hover .dsub{display:block}.dd:hover .mt .ic{transform:rotate(180deg)}}
+.dsub a{display:block;font:500 15px/1.2 Inter,sans-serif;color:var(--ink);text-decoration:none;padding:11px 12px;border-radius:12px;border:0}
+.dsub a:hover,.dsub a:focus-visible{background:var(--soft);color:var(--accent)}
+.navr{display:flex;align-items:center;gap:8px}
+.navr .lgb{margin-right:0}
+.burger{display:none;background:none;border:1px solid var(--line);color:var(--ink);width:42px;height:42px;border-radius:999px;cursor:pointer;place-items:center;padding:0}
+.burger .ic{width:22px;height:22px}
+.burger .x{display:none}
+.nav.open .burger .x{display:block}.nav.open .burger .m{display:none}
+@media (max-width:900px){
+.burger{display:grid}
+.menu{display:none;position:absolute;top:100%;left:0;right:0;margin:0;flex-direction:column;align-items:stretch;gap:0;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:10px;box-shadow:var(--shadow);z-index:40}
+.nav.open .menu{display:flex}
+.mi{flex-wrap:wrap}
+.ml{flex:1;font-size:17px;padding:14px 12px;opacity:1}
+.mt{display:none}
+.dsub{position:static;display:block;width:100%;min-width:0;border:0;box-shadow:none;background:none;padding:0 0 6px 12px}
+.dsub a{font-size:15.5px;color:var(--mute);padding:9px 12px}
+.dd:hover .dsub{display:block}
+}
+@media (max-width:420px){.navr .btn.sm{padding:10px 14px;font-size:14px}.navr{gap:6px}.lgb{padding:8px 11px}}
