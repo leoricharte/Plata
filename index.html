@@ -1313,9 +1313,17 @@ const accType = { checking: 'Corriente', savings: 'Ahorros', cash: 'Efectivo' };
 const NEWS = { id: 'b2', title: 'Cambios en la ' + '<span class="betapill" style="display:inline-block;vertical-align:middle">B E T A 2</span>', items: [{ ic: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.35 15.35A9 9 0 0 1 8.65 3.65 9 9 0 1 0 20.35 15.35z"/></svg>', t: 'Modo oscuro', d: 'Elige Auto, Claro u Oscuro en tu perfil o al empezar.' }] };
 function newsSeen() { try { return localStorage.getItem('plata.news') === NEWS.id; } catch (e) { return true; } }
 function newsMark() { try { localStorage.setItem('plata.news', NEWS.id); } catch (e) { /* sin almacenamiento */ } }
-function newsSheetHTML() {
-  return sheetHead('Cambios en la ' + '<span class="betapill" style="display:inline-block;vertical-align:middle">B E T A 2</span>') + '<div class="sub" style="font-size:14px;padding:0 8px 6px;text-align:center">Lo nuevo respecto a la Beta 1</div><div class="newsbn" style="margin:8px 0 0">' +
+function newsPopup() {
+  const old = document.getElementById('alertback'); if (old) old.remove();
+  const bk = document.createElement('div'); bk.id = 'alertback'; bk.className = 'alertback';
+  const close = () => { bk.classList.remove('in'); setTimeout(() => bk.remove(), 220); };
+  const box = document.createElement('div'); box.className = 'alertbox newsbx'; box.setAttribute('role', 'alertdialog');
+  box.innerHTML = '<h4>' + NEWS.title + '</h4><p>Lo nuevo respecto a la Beta 1</p><div class="newsbn" style="margin:0 0 12px;padding:0;background:none;text-align:left">' +
     NEWS.items.map((i) => '<div class="ni"><span class="nic">' + i.ic + '</span><span class="grow"><b>' + i.t + '</b><span class="sub">' + i.d + '</span></span></div>').join('') + '</div>';
+  const bt = document.createElement('button'); bt.type = 'button'; bt.textContent = 'Entendido';
+  bt.addEventListener('click', (ev) => { ev.stopPropagation(); close(); }); box.appendChild(bt);
+  bk.appendChild(box); bk.addEventListener('click', (ev) => { if (ev.target === bk) close(); });
+  deviceEl.appendChild(bk); requestAnimationFrame(() => bk.classList.add('in'));
 }
 function newsBanner() {
   if (newsSeen() || !hasData()) return '';
@@ -3643,7 +3651,7 @@ document.addEventListener('click', (e) => {
   else if (a === 'wlevel') { const w = ui.w; w.level = arg; w.step = 0; if (arg === 'simple') { w.ins = false; w.score = false; } else { delete w.ins; delete w.score; } welcomeHTML('next'); }
   else if (a === 'wlogo') wLogoTap();
   else if (a === 'betainfo') betaInfo();
-  else if (a === 'news') showSheet(newsSheetHTML());
+  else if (a === 'news') newsPopup();
   else if (a === 'newsok') { newsMark(); renderAll(); }
   else if (a === 'wdbg') wDebugPick(arg);
   else if (a === 'wdbgclose') wDebugClose();
