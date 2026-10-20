@@ -1,4 +1,4 @@
-.nav{position:relative}
+.nav{position:sticky;top:0;z-index:40}.nav::before{content:"";position:absolute;top:0;bottom:0;left:50%;width:100vw;transform:translateX(-50%);z-index:-1;background:color-mix(in srgb,var(--bg) 90%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}html{overflow-x:clip}
 .logo{display:block;flex:0 0 auto}
 .menu{display:flex;align-items:center;gap:2px;margin-left:auto;margin-right:10px}
 .mi{position:relative;display:flex;align-items:center}
