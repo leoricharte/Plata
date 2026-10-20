@@ -12,7 +12,7 @@ Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola 
 
 Respecto a la 244:
 
-- **Escritorio, moneda:** el paso de moneda ahora tiene un mapamundi en verdes de la paleta, dividido solo por continentes (Norteamérica y Caribe, Sudamérica, Europa, África, Medio Oriente, Asia, Oceanía). Al elegir una región se listan sus monedas; además hay botones de región. La lupa a la derecha abre la búsqueda de cualquier otra moneda o un código propio.
+- **Escritorio, moneda:** el paso de moneda ahora muestra un mapamundi simplificado a la izquierda, solo con contornos por continente en verdes de la paleta; al elegir una región se rellena y a la derecha aparece la lista de sus monedas principales.
 
 ---
 
