@@ -643,7 +643,7 @@ html.web .welcome .wside .wdots{flex-direction:column;gap:9px;align-items:center
 html.web .welcome .wside .wdots i{width:9px;height:9px;transition:background .3s,transform .3s}
 html.web .welcome .wside .wdots i.on{transform:scale(1.35);background:#22B573}
 /* mapamundi de monedas */
-html.web .wtrow{display:flex;align-items:center;justify-content:flex-start;gap:22px;flex-wrap:nowrap;white-space:nowrap}html.web .wtrow h1{margin:0}
+html.web .wtrow{width:100%;box-sizing:border-box;display:flex;align-items:center;justify-content:flex-start;gap:22px;flex-wrap:nowrap}html.web .wtrow h1{margin:0}
 html.web .wegg{font-style:italic;color:var(--mute);font-size:14px;padding:6px 4px 0;text-align:left}
 html.web .wpill:nth-child(2){background:#111;box-shadow:0 0 0 1px rgba(255,255,255,.16)}
 html.web .wfxrow{display:flex;gap:12px;align-items:stretch;flex:none}
@@ -661,9 +661,16 @@ html.web .wpill{transition:background .18s,box-shadow .18s}
 html.web .wpill.rm:hover{background:#D4574F;box-shadow:none}
 html.web .wpill.rm:hover b{background:#fff;color:#D4574F}
 html.web .wpill b u{font-size:11px;font-weight:800}
-html.web .wrmhint{align-self:center;font-style:italic;font-size:13px;color:var(--mute);margin-left:6px;white-space:nowrap;line-height:1.3;animation:wrmh 4.5s ease forwards}
+html.web .wrmhint{align-self:center;font-style:italic;font-size:13px;color:var(--mute);margin-left:6px;flex:1 1 0;min-width:0;white-space:normal;line-height:1.25;animation:wrmh 4.5s ease forwards}
 @keyframes wrmh{0%{opacity:0;transform:translateX(-6px)}8%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0}}
-html.web .wpills{display:flex;gap:8px;flex:none;align-items:center}
+html.web .wpriv{justify-content:center}
+html.web .wprivfoot{margin:0 0 12px!important;text-align:center}
+html.web .welcome .primary[data-act=wpriv]{background:#22B573;color:#fff;height:60px;font-size:18px;font-weight:700;box-shadow:0 14px 34px -12px rgba(34,181,115,.75);transition:transform .15s,box-shadow .15s}
+html.web .welcome .primary[data-act=wpriv]:hover{transform:translateY(-2px)}
+html.web .wgear{background:rgba(34,181,115,.16)}
+html.web .wpills{display:flex;gap:8px;flex:1 1 0;min-width:0;align-items:center}
+html.web .wpill{flex:none}
+html.web .wtrow h1{flex:none}
 html.web .wpill{display:inline-flex;align-items:center;gap:7px;height:26px;padding:0 11px 0 3px;border-radius:999px;background:#22B573;color:#fff;font-size:12px;font-weight:700;letter-spacing:0}
 html.web .wpill b{width:20px;height:20px;border-radius:50%;background:#fff;color:#0B3D27;display:flex;align-items:center;justify-content:center;font-size:11px;letter-spacing:0}
 html.web .wsplit{display:flex;gap:28px;align-items:center}
@@ -4519,14 +4526,15 @@ function welcomeHTML(dir) {
   const fld = (label, id, val, extra) => '<label class="srow"><span class="grow"><span class="slabel">' + label + '</span><input class="sinput" data-w="' + id + '" ' + (extra || 'autocomplete="off"') + ' value="' + esc(val == null ? '' : val) + '"></span></label>';
   const numf = (label, id, val, ph) => fld(label, id, val, 'inputmode="decimal" placeholder="' + (ph || '0.00') + '" autocomplete="off"');
   if (ui.wpriv) {
-    const gear = '<button type="button" class="wgear" data-act="wgear" aria-label="Ajustes">' + RMI('settings-3-line', 20, '#3A3A3C') + '</button>';
+    const wb = document.documentElement.classList.contains('web');
+    const gear = '<button type="button" class="wgear" data-act="wgear" aria-label="Ajustes">' + RMI('settings-3-line', 20, wb ? '#0E7A4D' : '#3A3A3C') + '</button>';
     const blk = (col, ic, ttl, inner) => '<div style="display:flex;gap:14px;align-items:flex-start;margin-top:22px">' + tile(col, RMI(ic, 24, '#fff')) + '<div style="min-width:0"><div style="font-size:17px;font-weight:650;letter-spacing:-.02em;color:var(--ink)">' + ttl + '</div><div style="font-size:15px;line-height:1.4;color:var(--mute);margin-top:3px">' + inner + '</div></div></div>';
     top = '<div class="wtop"></div>';
-    body = '<div class="wmain" style="justify-content:flex-start;padding-top:48px;margin:0 14px"><div style="margin-bottom:20px">' + RMI('file-lock-line', 64, '#3A3A3C') + '</div><h1>Tus datos son tuyos.</h1>' +
+    body = '<div class="wmain wpriv"' + (wb ? '' : ' style="justify-content:flex-start;padding-top:48px;margin:0 14px"') + '><div style="margin-bottom:20px">' + RMI('file-lock-line', 64, wb ? '#22B573' : '#3A3A3C') + '</div><h1>Tus datos son tuyos.</h1>' +
       blk('#22B573', 'smartphone-line', 'Tus datos se almacenan localmente en tu teléfono.', 'Estudio 22 y Plata no recopilan tus datos.') +
-      blk('#8E8E93', 'settings-3-line', 'Respalda tus datos', 'Aunque por el momento cerrar y abrir la app mantiene tus datos, haz siempre una copia con el engranaje ' + gear + ' de la esquina derecha para mantenerla al día y segura.') +
+      blk(wb ? '#0E7A4D' : '#8E8E93', 'settings-3-line', 'Respalda tus datos', 'Aunque por el momento cerrar y abrir la app mantiene tus datos, haz siempre una copia con el engranaje ' + gear + ' de la esquina derecha para mantenerla al día y segura.') +
       (ui.wprivDemo ? '<div class="wnote" style="margin:22px 0 0;text-align:left">Los perfiles de demostración fueron creados usando estadísticas y no representan uso real de ningún usuario.</div>' : '') + '</div>';
-    foot = '<div class="wnote" style="margin:0 14px 12px">Plata está en una versión Beta. En el futuro, la gestión de datos podría pasar a ser en la nube.</div><button class="primary" data-act="wpriv">Aceptar</button>';
+    foot = '<div class="wnote wprivfoot" style="margin:0 14px 12px">Plata está en una versión Beta. En el futuro, la gestión de datos podría pasar a ser en la nube.</div><button class="primary" data-act="wpriv">Aceptar</button>';
   } else if (!w) {
     top = '<div class="wtop"></div>';
     const oc = (c, n, t, d, a) => '<button data-act="' + a + '">' + tile(c, RMI(n, 22, '#fff')) + '<span><b>' + t + '</b><span class="s">' + d + '</span></span></button>';
@@ -4570,7 +4578,7 @@ function welcomeHTML(dir) {
         '<div class="sub" style="padding:2px 4px 10px">' + (one ? 'Principal: ' + CURRENCIES[sel[0]].name + '.' : 'Principal: ' + sel[0] + ' · Segunda: ' + sel[1]) + '</div>' +
         (one ? '' : '<div class="wfxrow"><div class="scard"><label class="srow"><span class="grow"><span class="slabel">1 ' + sel[0] + ' en ' + sel[1] + '</span><input class="sinput" id="wFx" inputmode="decimal" value="' + w.fx + '"></span></label></div>' +
           '<button class="wswapb" data-act="wswap">' + RMI('arrow-left-right-line', 26, 'currentColor') + '<span>Usar ' + sel[1] + ' como principal</span></button></div>') + '</div>';
-      body = '<div class="wtrow"><h1>¿Qué moneda usas?</h1>' + (web ? '<div class="wpills">' + sel.map((c, i) => '<button class="wpill' + (sel.length > 1 ? ' rm' : '') + '" data-act="wcur:' + c + '"' + (sel.length > 1 ? ' title="Quitar ' + c + '"' : ' tabindex="-1"') + '><b><i>' + (i + 1) + '</i><u>✕</u></b>' + c + '</button>').join('') + (sel.length > 1 && w.rmHint && Date.now() - w.rmHint < 4500 ? '<span class="wrmhint" style="animation-delay:-' + ((Date.now() - w.rmHint) / 1000).toFixed(2) + 's">→ Haz clic en una moneda<br>para borrar la elección.</span>' : '') + '</div>' : '') + '</div><div class="wsub">Elige hasta 2 monedas. Puedes cambiarlo después en Ajustes.</div>' +
+      body = '<div class="wtrow"><h1>¿Qué moneda usas?</h1>' + (web ? '<div class="wpills">' + sel.map((c, i) => '<button class="wpill' + (sel.length > 1 ? ' rm' : '') + '" data-act="wcur:' + c + '"' + (sel.length > 1 ? ' title="Quitar ' + c + '"' : ' tabindex="-1"') + '><b><i>' + (i + 1) + '</i><u>✕</u></b>' + c + '</button>').join('') + (sel.length > 1 && w.rmHint && Date.now() - w.rmHint < 4500 ? '<span class="wrmhint" style="animation-delay:-' + ((Date.now() - w.rmHint) / 1000).toFixed(2) + 's">→ Haz clic en una moneda para borrar la elección.</span>' : '') + '</div>' : '') + '</div><div class="wsub">Elige hasta 2 monedas. Puedes cambiarlo después en Ajustes.</div>' +
         (web ? curMapHTML(w, sel, one, conv) : curGridHTML(w, sel, one)) +
         (w.customOpen || w.custom ? '<div class="scard"><label class="srow"><span class="grow"><span class="slabel">Otras monedas del mundo</span><select class="mini" id="wOther" style="width:100%;text-align:left;padding:0 8px"><option value="">Elige una moneda…</option>' + CUR_OTHERS().filter((c) => !CURRENCIES[c].custom).map((c) => '<option value="' + c + '">' + c + ' · ' + CURRENCIES[c].name + '</option>').join('') + '</select></span></label>' +
           '<label class="srow"><span class="grow"><span class="slabel">¿No está? Escribe tu propio código (hasta 3 caracteres)</span><input class="sinput" id="wCust" maxlength="3" autocapitalize="characters" autocomplete="off" style="text-transform:uppercase" value="' + esc(w.custom || '') + '"></span></label></div>' : '') +
