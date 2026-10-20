@@ -696,9 +696,11 @@ html.web .newsbx .nnav:disabled{opacity:.25;cursor:default}
 html.web .gearbtn svg{fill:#22B573!important}
 html.web .gdot{border:0!important;width:11px;height:11px}
 html.web .alertback{-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);background:rgba(0,20,10,.28)}
-html.web [data-act=inshalf]>span:last-child,html.web .wswapb,html.web .welcome .primary[data-act=wpriv],html.web .alertbox.newsbx > button:not(.nnav),html.web .newsbx .nnav,html.web .wland .wright .primary{color:#073D24!important}
+html.web .wswapb,html.web .welcome .primary[data-act=wpriv],html.web .alertbox.newsbx > button:not(.nnav),html.web .newsbx .nnav,html.web .wland .wright .primary{color:#073D24!important}
 html.web .wpill:first-child{color:#073D24}
 html.web .wdown{color:#073D24}
+html.web #s-cuenta,html.web .sheet,html.web .newsbx{box-shadow:0 36px 90px -12px rgba(8,30,20,.38),0 10px 28px -8px rgba(8,30,20,.22),0 0 0 1px var(--wline)}
+html.web[data-theme=dark] #s-cuenta,html.web[data-theme=dark] .sheet,html.web[data-theme=dark] .newsbx{box-shadow:0 36px 90px -10px rgba(0,0,0,.75),0 10px 28px -6px rgba(0,0,0,.5),0 0 0 1px var(--wline)}
 html.web .wpills{display:flex;gap:8px;flex:1 1 0;min-width:0;align-items:center}
 html.web .wpill{flex:none}
 html.web .wtrow h1{flex:none}
@@ -747,8 +749,9 @@ html.web .seg .thumb,html.web .seg.glass .thumb{background:#fff;box-shadow:0 1px
 html.web[data-theme=dark] .seg .thumb,html.web[data-theme=dark] .seg.glass .thumb{background:#22B573;box-shadow:0 1px 4px rgba(0,0,0,.3)}
 html.web .seg button{color:var(--mute)}html.web .seg button.on{color:#0E7A4D}
 html.web[data-theme=dark] .seg button{color:#B9D3C4}html.web[data-theme=dark] .seg button.on{color:#fff}
-html.web [data-act=inshalf]>span:last-child{background:#22B573!important;box-shadow:none!important;color:#fff!important}
-html.web .insban span[style*="height:50px"],html.web .insban span[style*="height:42px"]{background:#fff!important;color:#111!important;box-shadow:none!important}
+html.web .insban span[style*="height:50px"],html.web [data-act=inshalf]>span:last-child{background:linear-gradient(180deg,#2C2C2E,#0B0B0C)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.14)!important}
+.btg{font-weight:inherit}
+html.web .btg{background:var(--tg);-webkit-background-clip:text;background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent}
 html.web svg [stroke="#E5E5EA" i],html.web svg [stroke="#F3F3F5" i],html.web svg [stroke="#ECECF0" i]{stroke:#E1EEE6}
 html.web[data-theme=dark] svg [stroke="#E5E5EA" i],html.web[data-theme=dark] svg [stroke="#F3F3F5" i],html.web[data-theme=dark] svg [stroke="#ECECF0" i]{stroke:#24432F}
 html.web[data-theme=dark] .switch,html.web[data-theme=dark] .sw{--off:#24432F}
@@ -2583,7 +2586,7 @@ function halfBanner(m) {
     '<div style="display:flex;align-items:center;gap:14px"><div style="flex:none">' + ghostScore(m.hasPrev ? hl : '?', 56) + '</div><div class="grow" style="text-align:left;min-width:0">' +
     '<span style="display:inline-block;font-size:21px;font-weight:800;letter-spacing:-.4px;line-height:1.2;background:linear-gradient(135deg,' + hg[0] + ',' + hg[1] + ' 55%,' + hg[2] + ');-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent">' + hv[0] + '</span>' +
     '<div style="font-size:14px;font-weight:500;color:var(--mute);line-height:1.3;margin-top:2px">' + hv[1] + '</div></div></div>' +
-    '<span style="display:flex;align-items:center;justify-content:center;width:100%;height:42px;border-radius:999px;margin-top:12px;background:linear-gradient(180deg,#2C2C2E,#0B0B0C);color:#fff;font-size:16px;font-weight:600;box-shadow:inset 0 1px 0 rgba(255,255,255,.2)">Ver informe hasta ahora</span></div>';
+    '<span style="display:flex;align-items:center;justify-content:center;width:100%;height:42px;border-radius:999px;margin-top:12px;background:linear-gradient(180deg,#2C2C2E,#0B0B0C);color:#fff;font-size:16px;font-weight:600;box-shadow:inset 0 1px 0 rgba(255,255,255,.2)">' + '<b class="btg" style="--tg:linear-gradient(135deg,' + hg[0] + ',' + hg[1] + ' 55%,' + hg[2] + ')">Ver informe hasta ahora</b>' + '</span></div>';
 }
 function closeBanner(m, label, act) {
   const mes = MON_FULL[m.T.getMonth()], g = m.hasPrev ? (scoreOn() && m.plus ? plusGrad(m.letter) : GRAD[scoreOn() ? m.letter : 'B']) : ['#B9B9C6', '#7B7B93', '#3A3A52', '#D8D8E6'];
@@ -2592,7 +2595,7 @@ function closeBanner(m, label, act) {
     '<div style="position:relative"><div style="font-size:15px;font-weight:500;opacity:.92">' + label + ' ' + mes + '</div>' +
     '<div style="font-size:26px;font-weight:800;letter-spacing:-.6px;margin:2px 0 6px">' + (!scoreOn() ? 'Tus tendencias de ' + mes + '.' : m.hasPrev ? 'Tu evaluación fue ' + m.letter + (m.plus ? pch(m.letter) : '') + '.' : 'Aún sin evaluación.') + '</div>' +
     (scoreOn() ? '<div style="font-size:15px;line-height:1.3;opacity:.95;margin:0 6px 14px">' + esc(insPhrase(m)) + '</div>' : '<div style="height:8px"></div>') +
-    '<span style="display:flex;align-items:center;justify-content:center;width:100%;height:50px;border-radius:999px;background:var(--card);color:' + g[1] + ';font-size:17px;font-weight:600">Ver informe</span></div></div>';
+    '<span style="display:flex;align-items:center;justify-content:center;width:100%;height:50px;border-radius:999px;background:var(--card);color:' + g[1] + ';font-size:17px;font-weight:600">' + '<b class="btg" style="--tg:linear-gradient(135deg,' + g[0] + ',' + g[1] + ' 55%,' + g[2] + ')">Ver informe</b>' + '</span></div></div>';
 }
 function insightsBanner(pos) {
   if (!insOn()) return '';
@@ -2819,7 +2822,7 @@ function monthBanner() {
     '<div class="insgrain"></div><div style="position:relative">' +
     '<div style="font-size:26px;font-weight:800;letter-spacing:-.6px;margin:2px 0 6px">' + mes + ' hasta ahora.</div>' +
     '<div style="font-size:15px;line-height:1.3;opacity:.95;margin:0 6px 14px">Revisa tus movimientos del mes aquí.</div>' +
-    '<span style="display:flex;align-items:center;justify-content:center;width:100%;height:50px;border-radius:999px;background:var(--card);color:' + g[1] + ';font-size:17px;font-weight:600">Ver movimientos</span></div></div>';
+    '<span style="display:flex;align-items:center;justify-content:center;width:100%;height:50px;border-radius:999px;background:var(--card);color:' + g[1] + ';font-size:17px;font-weight:600">' + '<b class="btg" style="--tg:linear-gradient(135deg,' + g[0] + ',' + g[1] + ' 55%,' + g[2] + ')">Ver movimientos</b>' + '</span></div></div>';
 }
 const MM_PER = 10;
 function mmList() {

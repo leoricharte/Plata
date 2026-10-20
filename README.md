@@ -18,6 +18,8 @@ Respecto a la 244:
 - **Modo oscuro:** corregidos montos en negro sobre fondo oscuro (p. ej. «Deuda (crédito)» y «Neto» en $0 dentro de Cuentas). Los días de alerta del calendario también dejan de verse como cuadros claros en oscuro.
 - **Escritorio, cabecera:** los botones + y ajustes ahora son verdes, y el punto naranja de cambios sin guardar ya no tiene contorno blanco.
 - **Escritorio, botones verdes:** todos llevan texto e íconos en verde oscuro (Ver informe, Aceptar, flechas del asistente, intercambio de monedas, etc.).
+- **Escritorio, banners:** los botones «Ver informe», «Ver informe hasta ahora» y «Ver movimientos» pasan a degradado negro con el texto en el degradado de la evaluación o la estación.
+- **Escritorio, profundidad:** los paneles emergentes (detalle, ajustes, hojas y avisos) llevan una sombra suave que los separa del fondo.
 - **Novedades de la Beta 2:** el aviso de novedades suma dos diapositivas, «Plata llega a tu mesa» y «Bentos» (exclusivo para escritorio), con espacio reservado para sus imágenes.
 - **Escritorio, aviso de novedades:** rediseñado como tarjeta horizontal (imagen a la izquierda, texto a la derecha), con dos flechas verdes y las flechas ← → del teclado para moverse entre diapositivas.
 - **Escritorio, aviso de moneda:** el aviso al añadir la segunda moneda se ajusta al ancho disponible y ya no se corta.
