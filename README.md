@@ -4,7 +4,15 @@
 
 Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola app web que funciona sin servidor ni dependencias. Tus datos se quedan en tu dispositivo.
 
-**Versión:** Beta 1 · **Compilación:** 244
+**Versión:** Beta 1 · **Compilación:** 246
+
+---
+
+## Novedades de la compilación 246
+
+Respecto a la 244:
+
+- **Escritorio, moneda:** el paso de moneda ahora tiene un mapamundi en verdes de la paleta, dividido solo por continentes (Norteamérica y Caribe, Sudamérica, Europa, África, Medio Oriente, Asia, Oceanía). Al elegir una región se listan sus monedas; además hay botones de región. La lupa a la derecha abre la búsqueda de cualquier otra moneda o un código propio.
 
 ---
 
