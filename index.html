@@ -537,7 +537,7 @@ html[data-theme=dark] .bbtn.on{background:#1A3427;color:#3DD68C}
 html[data-theme=dark] .bbtn.pri{background:#22B573;border-color:#22B573}
 .bstage{flex:1;min-height:0;display:flex;gap:18px;padding:0 28px 28px}
 .bwrap{flex:1;min-width:0;display:flex;align-items:center;justify-content:center}
-.bcanvas{--bw:min(100cqw,calc((100cqh - 30px) * 16 / 9));width:var(--bw);height:calc(var(--bw) * 9 / 16);flex:none;overflow:hidden;container-type:inline-size;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:14px}
+.bcanvas{position:relative;--bw:min(100cqw,calc((100cqh - 30px) * 16 / 9));width:var(--bw);height:calc(var(--bw) * 9 / 16);flex:none;overflow:hidden;container-type:inline-size;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:14px}
 .bw{position:relative;background:var(--wtile);border:1px solid var(--wline);border-radius:1.7cqw;padding:1.4cqw 1.6cqw;display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;font-size:clamp(10px,1.05cqw,18px);line-height:1.25;color:var(--ink);animation:bwin .4s cubic-bezier(.2,.9,.25,1) both}
 @keyframes bwin{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
 .bw{background:radial-gradient(120% 90% at 100% 0%,rgba(34,181,115,.10),transparent 60%),linear-gradient(155deg,color-mix(in srgb,var(--wtile) 90%,#fff 10%),var(--wtile) 55%,color-mix(in srgb,var(--wtile) 92%,#22B573 8%))}
@@ -572,7 +572,7 @@ html[data-theme=light] .bw{background:radial-gradient(120% 90% at 100% 0%,rgba(3
 .bw.dk{background:radial-gradient(110% 100% at 100% 0%,rgba(61,214,140,.22),transparent 62%),linear-gradient(150deg,#1B3A2B,#12261C 55%,#0E1E16);color:#fff;border-color:transparent;--ink:#F2F2F7;--mute:#B3CABD;--gt:#3DD68C;--rt:#FF6961}
 .bw-h{font-size:1em;color:var(--mute);font-weight:600;margin:0 0 .7em;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:7em}
 .bw-b{flex:1;min-height:0;display:flex;flex-direction:column}
-.bctl.l{right:auto;left:.8em;top:auto;bottom:.8em}.bname{font-weight:800;letter-spacing:-.03em;line-height:1.08;padding:.08em .04em;background:linear-gradient(120deg,#7CF2B8 0%,#22B573 38%,#12805A 70%,#2EC4B6 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;white-space:nowrap}.bres{position:absolute;right:.5em;bottom:.5em;width:1.8em;height:1.8em;cursor:nwse-resize;opacity:0;transition:opacity .15s;z-index:4;touch-action:none;background:linear-gradient(135deg,transparent 52%,var(--mute) 52% 58%,transparent 58% 70%,var(--mute) 70% 76%,transparent 76%);border-radius:0 0 .9em 0}.bw:hover .bres{opacity:.85}.bres:hover{opacity:1!important}.bw.resizing{outline:2px solid #22B573;outline-offset:-2px}.bctl{position:absolute;top:.8em;right:.8em;display:flex;gap:.3em;z-index:3;opacity:0;transition:opacity .15s}
+.bctl.l{right:auto;left:.8em;top:auto;bottom:.8em}.bname{font-weight:800;letter-spacing:-.03em;line-height:1.08;padding:.08em .04em;background:linear-gradient(120deg,#7CF2B8 0%,#22B573 38%,#12805A 70%,#2EC4B6 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;white-space:nowrap}.bghost{position:absolute;z-index:6;pointer-events:none;border-radius:26px;border:2px dashed #22B573;background:rgba(34,181,115,.14);transition:left .18s cubic-bezier(.3,.9,.3,1),top .18s cubic-bezier(.3,.9,.3,1),width .18s cubic-bezier(.3,.9,.3,1),height .18s cubic-bezier(.3,.9,.3,1),background .15s,border-color .15s}.bghost.bad{border-color:#FF453A;background:rgba(255,69,58,.12)}.blive{position:absolute;z-index:7;pointer-events:none;border-radius:26px;border:2px solid rgba(255,255,255,.35);background:rgba(255,255,255,.04)}.bw.resizing{opacity:.85}.bres{position:absolute;right:.5em;bottom:.5em;width:1.8em;height:1.8em;cursor:nwse-resize;opacity:0;transition:opacity .15s;z-index:4;touch-action:none;background:linear-gradient(135deg,transparent 52%,var(--mute) 52% 58%,transparent 58% 70%,var(--mute) 70% 76%,transparent 76%);border-radius:0 0 .9em 0}.bw:hover .bres{opacity:.85}.bres:hover{opacity:1!important}.bw.resizing{outline:2px solid #22B573;outline-offset:-2px}.bctl{position:absolute;top:.8em;right:.8em;display:flex;gap:.3em;z-index:3;opacity:0;transition:opacity .15s}
 .bw:hover .bctl,.bw:focus-within .bctl{opacity:1}
 .bctl button{min-width:2.1em;height:2.1em;padding:0 .5em;border-radius:999px;font-size:.9em;font-weight:650;background:rgba(120,120,128,.16);color:var(--ink);display:inline-flex;align-items:center;justify-content:center}
 .bctl button:hover{background:rgba(120,120,128,.3)}
@@ -5149,21 +5149,36 @@ document.addEventListener('input', (e) => { const t = e.target; if (t && t.class
 document.addEventListener('keydown', (e) => { const t = e.target; if (t && t.classList && t.classList.contains('bname') && e.key === 'Enter') t.blur(); });
 (function () {
   let D = null;
+  const best = (e) => {
+    const w = (e.clientX - D.left + D.gap) / (D.cw + D.gap), hh = (e.clientY - D.top + D.gap) / (D.ch + D.gap); let b = D.it.s, bd = 1e9;
+    BW[D.it.id].sizes.forEach((k) => { const d = Math.pow(BSZ[k][0] - w, 2) + Math.pow(BSZ[k][1] - hh, 2); if (d < bd) { bd = d; b = k; } });
+    return b;
+  };
+  const place = (k) => {
+    const old = D.it.s; D.it.s = k; const lay = bentoLayout(ui.bento), me = lay.find((x) => x.id === D.it.id); D.it.s = old;
+    if (!me || me.off) return null; return me;
+  };
+  const show = (me, ok) => {
+    const g = D.ghost; g.style.left = (me.x * (D.cw + D.gap)) + 'px'; g.style.top = (me.y * (D.ch + D.gap)) + 'px'; g.style.width = (me.w * D.cw + (me.w - 1) * D.gap) + 'px'; g.style.height = (me.h * D.ch + (me.h - 1) * D.gap) + 'px'; g.classList.toggle('bad', !ok);
+  };
   document.addEventListener('pointerdown', (e) => {
     const h = e.target.closest && e.target.closest('.bres'); if (!h || !ui.bento) return;
     const cv = document.getElementById('bcanvas'), it = ui.bento.find((x) => x.id === h.getAttribute('data-bres')); if (!cv || !it) return;
-    const r = cv.getBoundingClientRect(), gap = 14, cw = (r.width - 3 * gap) / 4, ch = (r.height - 2 * gap) / 3, tile = h.parentElement.getBoundingClientRect();
-    D = { it: it, cv: cv, cw: cw, ch: ch, gap: gap, left: tile.left, top: tile.top, x0: e.clientX, y0: e.clientY }; e.preventDefault(); h.parentElement.classList.add('resizing');
+    const r = cv.getBoundingClientRect(), gap = 14, cw = (r.width - 3 * gap) / 4, ch = (r.height - 2 * gap) / 3, tile = h.parentElement, tr = tile.getBoundingClientRect();
+    const ghost = document.createElement('div'); ghost.className = 'bghost'; const live = document.createElement('div'); live.className = 'blive'; cv.appendChild(ghost); cv.appendChild(live);
+    D = { it: it, cv: cv, cw: cw, ch: ch, gap: gap, left: tr.left, top: tr.top, ox: tr.left - r.left, oy: tr.top - r.top, tile: tile, ghost: ghost, live: live, cur: it.s };
+    tile.classList.add('resizing'); const me = place(it.s); if (me) show(me, true); e.preventDefault();
+    try { h.setPointerCapture(e.pointerId); } catch (x) { /* sin captura */ }
   });
   document.addEventListener('pointermove', (e) => {
-    if (!D) return;
-    const w = (e.clientX - D.left + D.gap) / (D.cw + D.gap), hh = (e.clientY - D.top + D.gap) / (D.ch + D.gap), W = BW[D.it.id]; let best = D.it.s, bd = 1e9;
-    W.sizes.forEach((k) => { const d = Math.pow(BSZ[k][0] - w, 2) + Math.pow(BSZ[k][1] - hh, 2); if (d < bd) { bd = d; best = k; } });
-    if (best === D.it.s) return;
-    const old = D.it.s; D.it.s = best; if (bentoLayout(ui.bento).some((x) => x.off)) { D.it.s = old; return; }
-    const id = D.it.id; bentoSave(); bentoRender(); const t = document.querySelector('.bres[data-bres="' + id + '"]'); if (t) { D.left = t.parentElement.getBoundingClientRect().left; D.top = t.parentElement.getBoundingClientRect().top; t.parentElement.classList.add('resizing'); }
+    if (!D) return; const r = D.cv.getBoundingClientRect(), L = D.live.style;
+    L.left = D.ox + 'px'; L.top = D.oy + 'px'; L.width = Math.max(D.cw * .6, e.clientX - D.left) + 'px'; L.height = Math.max(D.ch * .6, e.clientY - D.top) + 'px';
+    const k = best(e), me = place(k); if (me) { D.cur = k; show(me, true); } else { const m0 = place(D.cur); if (m0) show(m0, false); }
   });
-  const end = () => { if (!D) return; D = null; document.querySelectorAll('.bw.resizing').forEach((x) => x.classList.remove('resizing')); };
+  const end = () => {
+    if (!D) return; const d = D; D = null; d.ghost.remove(); d.live.remove(); d.tile.classList.remove('resizing');
+    if (d.cur !== d.it.s) { d.it.s = d.cur; bentoSave(); bentoRender(); }
+  };
   document.addEventListener('pointerup', end); document.addEventListener('pointercancel', end);
 })();
 function bentoNav(d) {
