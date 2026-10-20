@@ -539,7 +539,11 @@ html[data-theme=dark] .bbtn.pri{background:#22B573;border-color:#22B573}
 .bcanvas{--bw:min(100cqw,calc((100cqh - 30px) * 16 / 9));width:var(--bw);height:calc(var(--bw) * 9 / 16);flex:none;overflow:hidden;container-type:inline-size;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:14px}
 .bw{position:relative;background:var(--wtile);border:1px solid var(--wline);border-radius:1.7cqw;padding:1.4cqw 1.6cqw;display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;font-size:clamp(10px,1.05cqw,18px);line-height:1.25;color:var(--ink);animation:bwin .4s cubic-bezier(.2,.9,.25,1) both}
 @keyframes bwin{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
-.bw.dk{background:#12261C;color:#fff;border-color:transparent;--ink:#F2F2F7;--mute:#B3CABD;--gt:#3DD68C;--rt:#FF6961}
+.bw{background:radial-gradient(120% 90% at 100% 0%,rgba(34,181,115,.10),transparent 60%),linear-gradient(155deg,color-mix(in srgb,var(--wtile) 90%,#fff 10%),var(--wtile) 55%,color-mix(in srgb,var(--wtile) 92%,#22B573 8%))}
+html[data-theme=light] .bw{background:radial-gradient(120% 90% at 100% 0%,rgba(34,181,115,.10),transparent 60%),linear-gradient(155deg,#fff,var(--wtile) 55%,color-mix(in srgb,var(--wtile) 94%,#22B573 6%))}
+.bw:nth-child(3n+2){background-image:radial-gradient(120% 90% at 0% 0%,rgba(110,140,255,.08),transparent 60%),linear-gradient(155deg,color-mix(in srgb,var(--wtile) 92%,#fff 8%),var(--wtile) 60%)}
+.bw:nth-child(3n){background-image:radial-gradient(120% 90% at 100% 100%,rgba(255,170,90,.07),transparent 60%),linear-gradient(155deg,color-mix(in srgb,var(--wtile) 92%,#fff 8%),var(--wtile) 60%)}
+.bw.dk{background:radial-gradient(110% 100% at 100% 0%,rgba(61,214,140,.22),transparent 62%),linear-gradient(150deg,#1B3A2B,#12261C 55%,#0E1E16);color:#fff;border-color:transparent;--ink:#F2F2F7;--mute:#B3CABD;--gt:#3DD68C;--rt:#FF6961}
 .bw-h{font-size:1em;color:var(--mute);font-weight:600;margin:0 0 .7em;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:7em}
 .bw-b{flex:1;min-height:0;display:flex;flex-direction:column}
 .bctl{position:absolute;top:.8em;right:.8em;display:flex;gap:.3em;z-index:3;opacity:0;transition:opacity .15s}
