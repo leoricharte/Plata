@@ -2,6 +2,8 @@
 
 ## Beta 2
 
+- **Plata llega a tu mesa:** la versión de escritorio ya está disponible. Entra a la web desde tu PC o Mac para verla.
+- **Bentos (exclusivo para escritorio):** crea un set de gráficos con tus finanzas, al estilo Bento.
 - **Modo oscuro:** nuevo ajuste de apariencia con Auto (sigue al sistema), Claro y Oscuro. Se elige al empezar y se cambia en el perfil. La franja superior del iPhone también cambia de color.
 - **Calendario:** en oscuro, el día de hoy se marca en verde Plata.
 - **Novedades:** aviso la primera vez que abres la app tras actualizar, y acceso desde Ajustes.
