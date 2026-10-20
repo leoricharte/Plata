@@ -645,10 +645,12 @@ html.web .welcome .wside .wdots i.on{transform:scale(1.35);background:#22B573}
 /* mapamundi de monedas */
 html.web .wtrow{display:flex;align-items:center;justify-content:flex-start;gap:22px;flex-wrap:wrap}html.web .wtrow h1{margin:0}
 html.web .wegg{font-style:italic;color:var(--mute);font-size:14px;padding:6px 4px 0;text-align:left}
-html.web .wghost.wswapb{flex:none;min-height:46px;display:flex;align-items:center;justify-content:center;background:rgba(34,181,115,.14);border:1px solid rgba(34,181,115,.4);color:#14935A;font-weight:650}
-html.web .wghost.wswapb:hover{background:#22B573;border-color:#22B573;color:#fff}
-html[data-theme=dark].web .wghost.wswapb,html.web[data-theme=dark] .wghost.wswapb{color:#5BE0A2}
 html.web .wpill:nth-child(2){background:#111;box-shadow:0 0 0 1px rgba(255,255,255,.16)}
+html.web .wfxrow{display:flex;gap:12px;align-items:stretch;flex:none}
+html.web .wfxrow .scard{flex:1;margin:0;min-width:0}
+html.web .wconv{margin-bottom:18px}
+html.web .wswapb{flex:none;width:150px;border:0;border-radius:24px;background:#22B573;color:#fff;font:inherit;font-size:15px;font-weight:700;line-height:1.2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:12px 16px;cursor:pointer;box-shadow:0 10px 24px -10px rgba(34,181,115,.7);transition:transform .15s,box-shadow .15s}
+html.web .wswapb:hover{transform:translateY(-2px);box-shadow:0 16px 30px -10px rgba(34,181,115,.8)}
 html.web .wpills{display:flex;gap:8px;flex:none}
 html.web .wpill{display:inline-flex;align-items:center;gap:7px;height:26px;padding:0 11px 0 3px;border-radius:999px;background:#22B573;color:#fff;font-size:12px;font-weight:700;letter-spacing:0}
 html.web .wpill b{width:20px;height:20px;border-radius:50%;background:#fff;color:#0B3D27;display:flex;align-items:center;justify-content:center;font-size:11px;letter-spacing:0}
@@ -884,6 +886,7 @@ const WORLD_REG = {"na":"M195,76L223,74L247,79L267,79L286,80L292,70L298,77L302,8
 /* Remix Icon v4.9.1 (Apache-2.0) — rutas 24×24; b = caja ajustada [x,y,w,h] */
 const RMX = {
   'search-line': { d: 'M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z' },
+  'arrow-left-right-line': { d: 'M16.0503 12.0498L21 16.9996L16.0503 21.9493L14.636 20.5351L17.172 17.9988L4 17.9996V15.9996L17.172 15.9988L14.636 13.464L16.0503 12.0498ZM7.94975 2.0498L9.36396 3.46402L6.828 5.9988L20 5.99955V7.99955L6.828 7.9988L9.36396 10.5351L7.94975 11.9493L3 6.99955L7.94975 2.0498Z' },
   'arrow-up-line': { d: 'M13.0001 7.82843V20H11.0001V7.82843L5.63614 13.1924L4.22192 11.7782L12.0001 4L19.7783 11.7782L18.3641 13.1924L13.0001 7.82843Z' },
   'arrow-down-line': { d: 'M13.0001 16.1716L18.3641 10.8076L19.7783 12.2218L12.0001 20L4.22192 12.2218L5.63614 10.8076L11.0001 16.1716V4H13.0001V16.1716Z' },
   'edit-line': { d: 'M6.41421 15.89L16.5563 5.74785L15.1421 4.33363L5 14.4758V15.89H6.41421ZM7.24264 17.89H3V13.6473L14.435 2.21231C14.8256 1.82179 15.4587 1.82179 15.8492 2.21231L18.6777 5.04074C19.0682 5.43126 19.0682 6.06443 18.6777 6.45495L7.24264 17.89ZM3 19.89H21V21.89H3V19.89Z' },
@@ -4416,14 +4419,14 @@ const CUR_REG = {
 };
 const REG_NAME = { na: 'Norteamérica y Caribe', sa: 'Sudamérica', eu: 'Europa', af: 'África', me: 'Medio Oriente', as: 'Asia', oc: 'Oceanía' };
 const REG_COL = { na: '#1AA566', sa: '#66DFA6', eu: '#0E7A4D', af: '#3DD68C', me: '#A6E8C8', as: '#22B573', oc: '#138A55' };
-function curMapHTML(w, sel, one) {
+function curMapHTML(w, sel, one, conv) {
   const tile = (c) => { const i = sel.indexOf(c), dis = i < 0 && !one; return '<button class="ccy' + (i >= 0 ? ' on' : '') + (dis ? ' dis' : '') + '" data-act="wcur:' + c + '"' + (dis ? ' disabled' : '') + '><b>' + c + '</b><span>' + symOf(c).trim() + '</span>' + (i >= 0 && !one ? '<i>' + (i + 1) + '</i>' : '') + '</button>'; };
   const reg = w.region || '', ks = Object.keys(WORLD_REG);
   const map = '<div class="wmapbox"><svg class="wmap" viewBox="0 0 960 500" role="img" aria-label="Mapamundi">' + ks.map((k) => '<path class="wrg' + (k === reg ? ' on' : '') + '" data-act="wreg:' + k + '" style="--c:' + REG_COL[k] + '" d="' + WORLD_REG[k] + '"><title>' + REG_NAME[k] + '</title></path>').join('') + '</svg></div>' +
     '';
   const rec = ['USD', 'EUR'], tz = curByTZ(); if (tz && rec.indexOf(tz) < 0 && CURRENCIES[tz]) rec.push(tz);
   const list = reg ? CUR_REG[reg].filter((c) => CURRENCIES[c]).slice(0, 10) : rec;
-  return '<div class="wsplit"><div class="wlcol">' + map + '</div><div class="wrcol">' +
+  return '<div class="wsplit"><div class="wlcol">' + (conv || '') + map + '</div><div class="wrcol">' +
     '<div class="ccyh">' + (reg ? REG_NAME[reg] : 'Recomendado') + '</div><div class="ccyg wreg">' + list.map(tile).join('') + '</div>' +
     '</div></div>';
 }
@@ -4547,13 +4550,16 @@ function welcomeHTML(dir) {
       note = '<div class="wnote">Esta información no es recopilada por Plata ni Estudio 22. Toda la información se maneja en tu archivo de perfil.</div>';
     } else if (sid === 'cur') {
       const sel = w.cur, one = sel.length < 2;
+      const conv = '<div class="wconv">' + (sel.indexOf('PEN') >= 0 ? '<div class="wnote wegg">¡Que viva el Perú ca****!</div>' : '') +
+        '<div class="sub" style="padding:2px 4px 10px">' + (one ? 'Principal: ' + CURRENCIES[sel[0]].name + '.' : 'Principal: ' + sel[0] + ' · Segunda: ' + sel[1]) + '</div>' +
+        (one ? '' : '<div class="wfxrow"><div class="scard"><label class="srow"><span class="grow"><span class="slabel">1 ' + sel[0] + ' en ' + sel[1] + '</span><input class="sinput" id="wFx" inputmode="decimal" value="' + w.fx + '"></span></label></div>' +
+          '<button class="wswapb" data-act="wswap">' + RMI('arrow-left-right-line', 26, 'currentColor') + '<span>Usar ' + sel[1] + ' como principal</span></button></div>') + '</div>';
       body = '<div class="wtrow"><h1>¿Qué moneda usas?</h1>' + (web ? '<div class="wpills">' + sel.map((c, i) => '<span class="wpill"><b>' + (i + 1) + '</b>' + c + '</span>').join('') + '</div>' : '') + '</div><div class="wsub">Elige hasta 2 monedas. Puedes cambiarlo después en Ajustes.</div>' +
-        (web ? curMapHTML(w, sel, one) : curGridHTML(w, sel, one)) +
+        (web ? curMapHTML(w, sel, one, conv) : curGridHTML(w, sel, one)) +
         (w.customOpen || w.custom ? '<div class="scard"><label class="srow"><span class="grow"><span class="slabel">Otras monedas del mundo</span><select class="mini" id="wOther" style="width:100%;text-align:left;padding:0 8px"><option value="">Elige una moneda…</option>' + CUR_OTHERS().filter((c) => !CURRENCIES[c].custom).map((c) => '<option value="' + c + '">' + c + ' · ' + CURRENCIES[c].name + '</option>').join('') + '</select></span></label>' +
           '<label class="srow"><span class="grow"><span class="slabel">¿No está? Escribe tu propio código (hasta 3 caracteres)</span><input class="sinput" id="wCust" maxlength="3" autocapitalize="characters" autocomplete="off" style="text-transform:uppercase" value="' + esc(w.custom || '') + '"></span></label></div>' : '') +
-        (web && sel.indexOf('PEN') >= 0 ? '<div class="wnote wegg">¡Que viva el Perú ca****!</div>' : '') +
-        '<div class="sub" style="padding:2px 4px 12px">' + (one ? 'Principal: ' + CURRENCIES[sel[0]].name + '.' : 'Principal: ' + sel[0] + ' · Segunda: ' + sel[1]) + '</div>' +
-        (one ? '' : '<div class="scard"><label class="srow"><span class="grow"><span class="slabel">1 ' + sel[0] + ' en ' + sel[1] + '</span><input class="sinput" id="wFx" inputmode="decimal" value="' + w.fx + '"></span></label></div><button class="wghost wswapb" data-act="wswap" style="height:46px;font-size:16px;margin-top:0">Usar ' + sel[1] + ' como principal</button>');
+        (web ? '' : '<div class="sub" style="padding:2px 4px 12px">' + (one ? 'Principal: ' + CURRENCIES[sel[0]].name + '.' : 'Principal: ' + sel[0] + ' · Segunda: ' + sel[1]) + '</div>' +
+        (one ? '' : '<div class="scard"><label class="srow"><span class="grow"><span class="slabel">1 ' + sel[0] + ' en ' + sel[1] + '</span><input class="sinput" id="wFx" inputmode="decimal" value="' + w.fx + '"></span></label></div><button class="wghost" data-act="wswap" style="height:46px;font-size:16px;margin-top:0">Usar ' + sel[1] + ' como principal</button>'));
       note = (!web && sel.indexOf('PEN') >= 0 ? '<div class="wnote" style="font-style:italic;color:#AEAEB2;font-size:13px">¡Que viva el Perú ca****!</div>' : '');
     } else if (sid === 'acc') {
       body = '<h1>Tu primera cuenta</h1><div class="wsub">Donde guardas o recibes tu dinero. Podrás añadir más.</div>' +
