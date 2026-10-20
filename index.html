@@ -480,6 +480,7 @@ html.web .sheet.show{transform:translate(-50%,-50%);opacity:1;transition:transfo
 html.web .sheet::before{display:none}
 html.web .toast{position:fixed;bottom:28px;z-index:300}
 html.web .toast.top{top:16px;bottom:auto}
+html.web .toast.wmap{background:#000!important;color:#fff;bottom:auto;z-index:400;box-shadow:0 10px 30px -8px rgba(0,0,0,.6)}
 html.web .splash{position:fixed}html.web .splash .sp-foot{color:var(--mute)}html.web .splash .sp-i{background:var(--mute);color:var(--wpage)}
 
 html.web *{scrollbar-width:thin;scrollbar-color:rgba(34,181,115,.45) transparent}
@@ -4748,6 +4749,8 @@ const wLocked = () => !!(ui.w && ui.w.level && isWebView() && wSid(ui.w) === 'cu
 function wBlock() {
   const now = Date.now(); if (now - (ui.wBlk || 0) < 900) return; ui.wBlk = now;
   toast('Elige una moneda para continuar.');
+  const tt = document.getElementById('toast'), mp = document.querySelector('.welcome .wlcol svg') || document.querySelector('.welcome .wlcol');
+  if (tt && mp) { const r = mp.getBoundingClientRect(); tt.classList.add('wmap'); tt.style.right = 'auto'; tt.style.width = 'max-content'; tt.style.left = Math.round(r.left + r.width / 2) + 'px'; tt.style.top = Math.max(12, Math.round(r.top + 10)) + 'px'; clearTimeout(ui.wTT); ui.wTT = setTimeout(() => { tt.classList.remove('wmap'); tt.style.left = ''; tt.style.top = ''; tt.style.right = ''; tt.style.width = ''; }, 2600); }
   const m = document.querySelector('.welcome .wpage:not(.outl):not(.outr)') || document.querySelector('.welcome');
   if (m) { m.classList.remove('wshake'); void m.offsetWidth; m.classList.add('wshake'); setTimeout(() => m.classList.remove('wshake'), 500); }
 }
