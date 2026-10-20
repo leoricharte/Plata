@@ -4,17 +4,24 @@
 
 Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola app web que funciona sin servidor ni dependencias. Tus datos se quedan en tu dispositivo.
 
-**Versión:** Beta 1 · **Compilación:** 217
+**Versión:** Beta 1 · **Compilación:** 218
 
 ---
 
-## Novedades de la compilación 217
+## Novedades de la compilación 218
 
-Respecto a la 216:
+Respecto a la 217:
+
+- **Historia de Plata:** al tocar «Compilación» al final de Créditos se abre una línea de tiempo con los hitos (primera versión, lanzamiento público de la Beta 1, compilación 200 y Beta 2), con su fecha.
+
+## Historial
+
+<details>
+<summary>Compilación 217</summary>
 
 - **Número de compilación:** el que se muestra al final de Ajustes ahora coincide con la compilación real (antes se quedaba en la 199).
 
-## Historial
+</details>
 
 <details>
 <summary>Compilación 216</summary>
