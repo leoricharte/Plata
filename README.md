@@ -4,18 +4,25 @@
 
 Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola app web que funciona sin servidor ni dependencias. Tus datos se quedan en tu dispositivo.
 
-**Versión:** Beta 1 · **Compilación:** 211
+**Versión:** Beta 1 · **Compilación:** 212
 
 ---
 
-## Novedades de la compilación 211
+## Novedades de la compilación 212
 
-Respecto a la 210:
+Respecto a la 211:
+
+- **Aviso de la B E T A 2:** ahora tiene dos pantallas que se cambian deslizando (o tocando los puntos). La segunda presenta las secciones nuevas del sitio web con una captura de la página de inicio.
+
+## Historial
+
+<details>
+<summary>Compilación 211</summary>
 
 - **Ajustes:** «Novedades» pasó al final, justo antes de los créditos.
 - **Aviso de la B E T A 2:** ahora también menciona las secciones nuevas del sitio web (Cómo usar, Prensa, Transparencia y Ayuda).
 
-## Historial
+</details>
 
 <details>
 <summary>Compilación 210</summary>
