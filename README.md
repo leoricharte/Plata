@@ -4,17 +4,24 @@
 
 Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola app web que funciona sin servidor ni dependencias. Tus datos se quedan en tu dispositivo.
 
-**Versión:** Beta 1 · **Compilación:** 201
+**Versión:** Beta 1 · **Compilación:** 202
 
 ---
 
-## Novedades de la compilación 201
+## Novedades de la compilación 202
 
-Respecto a la 200:
+Respecto a la 201:
+
+- **Detalle de un ingreso o gasto previsto:** al abrirlo desde Resumen ahora muestra el monto y la fecha que editaste en Proyección, no los de la serie original.
+
+## Historial
+
+<details>
+<summary>Compilación 201</summary>
 
 - **Proyección y Resumen:** si editas un solo evento (por ejemplo, el monto de un ingreso) en Proyección, ahora el cambio también se ve en «Próximo ingreso» y «Próximo gasto» de Resumen y al confirmarlo.
 
-## Historial
+</details>
 
 <details>
 <summary>Compilación 200</summary>
