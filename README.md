@@ -4,17 +4,25 @@
 
 Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola app web que funciona sin servidor ni dependencias. Tus datos se quedan en tu dispositivo.
 
-**Versión:** Beta 1 · **Compilación:** 218
+**Versión:** Beta 1 · **Compilación:** 219
 
 ---
 
-## Novedades de la compilación 218
+## Novedades de la compilación 219
 
-Respecto a la 217:
+Respecto a la 218:
+
+- **Apariencia en el arranque:** ahora es el último paso, justo antes de «Tus datos son tuyos».
+- **Vista previa:** una nota (i) aclara que el perfil de ejemplo también está disponible como demostración.
+
+## Historial
+
+<details>
+<summary>Compilación 218</summary>
 
 - **Historia de Plata:** al tocar «Compilación» al final de Créditos se abre una línea de tiempo con los hitos (primera versión, lanzamiento público de la Beta 1, compilación 200 y Beta 2), con su fecha.
 
-## Historial
+</details>
 
 <details>
 <summary>Compilación 217</summary>
