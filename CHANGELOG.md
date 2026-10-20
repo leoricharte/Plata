@@ -6,7 +6,7 @@
 - **Calendario:** en oscuro, el día de hoy se marca en verde Plata.
 - **Novedades:** aviso la primera vez que abres la app tras actualizar, y acceso desde Ajustes.
 - **Vista web:** en pantallas anchas la app se organiza como un bento con todas las secciones a la vez, con la paleta de Prensa.
-- **Armar Bento:** en escritorio, tablero 16:9 con widgets de tus datos; puedes crear varios Bentos con nombre propio.
+- **Bentos:** en escritorio, tablero 16:9 con widgets de tus datos; varios Bentos con nombre propio, vista con navegación, edición con + / − y captura en PNG.
 - **Sitio web:** plataapp.net ahora tiene secciones nuevas para conocer mejor Plata: Cómo usar, Prensa, Transparencia, Ayuda y Novedades.
 
 ## Beta 1

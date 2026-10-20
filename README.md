@@ -4,7 +4,18 @@
 
 Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola app web que funciona sin servidor ni dependencias. Tus datos se quedan en tu dispositivo.
 
-**Versión:** Beta 1 · **Compilación:** 224
+**Versión:** Beta 1 · **Compilación:** 225
+
+---
+
+## Novedades de la compilación 225
+
+Respecto a la 224:
+
+- **Bentos:** el botón de acceso ahora se llama solo «Bentos». Se abre en modo vista: avanzas con las flechas (o ← →) entre tus Bentos, con **Editar** y **Generar captura** (PNG) a la mano.
+- **Tamaños con + / −** en cada widget, en lugar de letras.
+- **Pulido de color en escritorio:** sliders de scroll y selectores (Todos/Ingresos/Gastos) en verde acento, botones de los banners coherentes, anillos y líneas teñidos de verde, etiquetas superiores y créditos en verde acento.
+- **BETA PARA ESCRITORIO** en la barra superior.
 
 ---
 
