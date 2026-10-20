@@ -644,6 +644,11 @@ html.web .welcome .wside .wdots i{width:9px;height:9px;transition:background .3s
 html.web .welcome .wside .wdots i.on{transform:scale(1.35);background:#22B573}
 /* mapamundi de monedas */
 html.web .wtrow{display:flex;align-items:center;justify-content:flex-start;gap:22px;flex-wrap:wrap}html.web .wtrow h1{margin:0}
+html.web .wegg{font-style:italic;color:var(--mute);font-size:14px;padding:6px 4px 0;text-align:left}
+html.web .wghost.wswapb{flex:none;min-height:46px;display:flex;align-items:center;justify-content:center;background:rgba(34,181,115,.14);border:1px solid rgba(34,181,115,.4);color:#14935A;font-weight:650}
+html.web .wghost.wswapb:hover{background:#22B573;border-color:#22B573;color:#fff}
+html[data-theme=dark].web .wghost.wswapb,html.web[data-theme=dark] .wghost.wswapb{color:#5BE0A2}
+html.web .wpill:nth-child(2){background:#111;box-shadow:0 0 0 1px rgba(255,255,255,.16)}
 html.web .wpills{display:flex;gap:8px;flex:none}
 html.web .wpill{display:inline-flex;align-items:center;gap:7px;height:26px;padding:0 11px 0 3px;border-radius:999px;background:#22B573;color:#fff;font-size:12px;font-weight:700;letter-spacing:0}
 html.web .wpill b{width:20px;height:20px;border-radius:50%;background:#fff;color:#0B3D27;display:flex;align-items:center;justify-content:center;font-size:11px;letter-spacing:0}
@@ -4546,9 +4551,10 @@ function welcomeHTML(dir) {
         (web ? curMapHTML(w, sel, one) : curGridHTML(w, sel, one)) +
         (w.customOpen || w.custom ? '<div class="scard"><label class="srow"><span class="grow"><span class="slabel">Otras monedas del mundo</span><select class="mini" id="wOther" style="width:100%;text-align:left;padding:0 8px"><option value="">Elige una moneda…</option>' + CUR_OTHERS().filter((c) => !CURRENCIES[c].custom).map((c) => '<option value="' + c + '">' + c + ' · ' + CURRENCIES[c].name + '</option>').join('') + '</select></span></label>' +
           '<label class="srow"><span class="grow"><span class="slabel">¿No está? Escribe tu propio código (hasta 3 caracteres)</span><input class="sinput" id="wCust" maxlength="3" autocapitalize="characters" autocomplete="off" style="text-transform:uppercase" value="' + esc(w.custom || '') + '"></span></label></div>' : '') +
+        (web && sel.indexOf('PEN') >= 0 ? '<div class="wnote wegg">¡Que viva el Perú ca****!</div>' : '') +
         '<div class="sub" style="padding:2px 4px 12px">' + (one ? 'Principal: ' + CURRENCIES[sel[0]].name + '.' : 'Principal: ' + sel[0] + ' · Segunda: ' + sel[1]) + '</div>' +
-        (one ? '' : '<div class="scard"><label class="srow"><span class="grow"><span class="slabel">1 ' + sel[0] + ' en ' + sel[1] + '</span><input class="sinput" id="wFx" inputmode="decimal" value="' + w.fx + '"></span></label></div><button class="wghost" data-act="wswap" style="height:46px;font-size:16px;margin-top:0">Usar ' + sel[1] + ' como principal</button>');
-      note = (sel.indexOf('PEN') >= 0 ? '<div class="wnote" style="font-style:italic;color:#AEAEB2;font-size:13px">¡Que viva el Perú ca****!</div>' : '');
+        (one ? '' : '<div class="scard"><label class="srow"><span class="grow"><span class="slabel">1 ' + sel[0] + ' en ' + sel[1] + '</span><input class="sinput" id="wFx" inputmode="decimal" value="' + w.fx + '"></span></label></div><button class="wghost wswapb" data-act="wswap" style="height:46px;font-size:16px;margin-top:0">Usar ' + sel[1] + ' como principal</button>');
+      note = (!web && sel.indexOf('PEN') >= 0 ? '<div class="wnote" style="font-style:italic;color:#AEAEB2;font-size:13px">¡Que viva el Perú ca****!</div>' : '');
     } else if (sid === 'acc') {
       body = '<h1>Tu primera cuenta</h1><div class="wsub">Donde guardas o recibes tu dinero. Podrás añadir más.</div>' +
         segHTML('wtype', [{ k: 'checking', label: 'Corriente', act: 'wset:accType:checking' }, { k: 'savings', label: 'Ahorros', act: 'wset:accType:savings' }, { k: 'cash', label: 'Efectivo', act: 'wset:accType:cash' }], w.accType) +
