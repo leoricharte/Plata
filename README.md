@@ -12,7 +12,7 @@ Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola 
 
 Respecto a la 244:
 
-- **Escritorio, moneda:** el paso de moneda ahora muestra un mapamundi simplificado a la izquierda, solo con contornos por continente en verdes de la paleta; al elegir una región se rellena y a la derecha una cuadrícula de 3×3 con sus monedas, con flechas para pasar de página.
+- **Escritorio, moneda:** el paso de moneda ahora muestra un mapamundi simplificado a la izquierda, solo con contornos por continente en verdes de la paleta; al elegir una región se rellena y a la derecha una lista con sus monedas principales (mapa más grande).
 
 ---
 

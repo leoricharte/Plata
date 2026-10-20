@@ -643,8 +643,8 @@ html.web .welcome .wside .wdots{flex-direction:column;gap:9px;align-items:center
 html.web .welcome .wside .wdots i{width:9px;height:9px;transition:background .3s,transform .3s}
 html.web .welcome .wside .wdots i.on{transform:scale(1.35);background:#22B573}
 /* mapamundi de monedas */
-html.web .wsplit{display:flex;gap:18px;align-items:center}
-html.web .wsplit .wlcol{flex:1.2;min-width:0}
+html.web .wsplit{display:flex;gap:28px;align-items:center}
+html.web .wsplit .wlcol{flex:2.3;min-width:0}
 html.web .wsplit .wrcol{flex:1;min-width:0;width:0}
 html.web .wmapbox{position:relative;margin:4px 0 0}
 html.web .wmap{width:100%;height:auto;display:block;overflow:visible}
@@ -655,7 +655,7 @@ html.web .wlegend{display:flex;align-items:center;gap:12px;margin-top:10px;min-h
 html.web .wlegend b{font-size:15px;flex:1}
 html.web .wlupa{width:44px;height:44px;border-radius:50%;background:var(--wtile);border:1px solid var(--wline);color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.18s;flex:none}
 html.web .wlupa:hover,html.web .wlupa.on{border-color:#22B573;color:#22B573;transform:scale(1.06)}
-html.web .ccyg.wreg{grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:70px;flex:1;min-width:0;margin:0}
+html.web .ccyg.wreg{grid-template-columns:repeat(2,minmax(0,1fr));margin:0}
 html.web .wpgrow{width:100%;display:flex;align-items:center;gap:6px}
 html.web .wpg{width:34px;height:60px;border:0;background:none;color:#22B573;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none;transition:.15s}
 html.web .wpg:hover{transform:scale(1.15)}html.web .wpg.off{opacity:.2;cursor:default;transform:none}
@@ -4413,13 +4413,9 @@ function curMapHTML(w, sel, one) {
   const map = '<div class="wmapbox"><svg class="wmap" viewBox="0 0 960 500" role="img" aria-label="Mapamundi">' + ks.map((k) => '<path class="wrg' + (k === reg ? ' on' : '') + '" data-act="wreg:' + k + '" style="--c:' + REG_COL[k] + '" d="' + WORLD_REG[k] + '"><title>' + REG_NAME[k] + '</title></path>').join('') + '</svg></div>' +
     '';
   const rec = ['USD', 'EUR'], tz = curByTZ(); if (tz && rec.indexOf(tz) < 0 && CURRENCIES[tz]) rec.push(tz);
-  const all = reg ? CUR_REG[reg].filter((c) => CURRENCIES[c]) : rec;
-  const pages = Math.max(1, Math.ceil(all.length / 9)), pg = Math.min(w.page || 0, pages - 1);
-  const list = all.slice(pg * 9, pg * 9 + 9);
-  const arrow = (d, on) => '<button class="wpg' + (on ? '' : ' off') + '" data-act="wpg:' + d + '"' + (on ? '' : ' disabled') + ' aria-label="' + (d < 0 ? 'Anterior' : 'Siguiente') + '">' + RMI(d < 0 ? 'arrow-left-s-line' : 'arrow-right-s-line', 26, 'currentColor') + '</button>';
+  const list = reg ? CUR_REG[reg].filter((c) => CURRENCIES[c]).slice(0, 10) : rec;
   return '<div class="wsplit"><div class="wlcol">' + map + '</div><div class="wrcol">' +
-    '<div class="ccyh">' + (reg ? REG_NAME[reg] : 'Recomendado') + (pages > 1 ? ' · ' + (pg + 1) + '/' + pages : '') + '</div>' +
-    '<div class="wpgrow">' + arrow(-1, pg > 0) + '<div class="ccyg wreg">' + list.map(tile).join('') + '</div>' + arrow(1, pg < pages - 1) + '</div>' +
+    '<div class="ccyh">' + (reg ? REG_NAME[reg] : 'Recomendado') + '</div><div class="ccyg wreg">' + list.map(tile).join('') + '</div>' +
     (sel.length ? '<div class="ccyh">Elegidas · ' + sel.join(' · ') + '</div>' : '') + '</div></div>';
 }
 function curGridHTML(w, sel, one) {
