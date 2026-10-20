@@ -454,10 +454,10 @@ html.web .webbar{display:flex;align-items:center;gap:14px;flex:none;height:76px;
 html.web .webbar{pointer-events:none}html.web .webbar .betapill{pointer-events:auto}html.web .gearbtn{z-index:27}
 html.web .webbar .plogo{width:104px;max-width:none;margin:0}
 html.web .webbar .wdate{font-size:14px;font-weight:600;color:var(--sec);text-transform:capitalize;letter-spacing:-.01em}
-html.web .webbar .betapill{margin-left:6px;height:26px;line-height:24px;padding:0 14px;font-size:10px;font-weight:650;letter-spacing:.06em;background:rgba(28,28,30,.07);color:#4A5A52;border:1px solid rgba(28,28,30,.12);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);transition:background .18s,color .18s}
-html.web .webbar .betapill:hover{background:rgba(28,28,30,.12);color:#1C1C1E}
-html.web[data-theme=dark] .webbar .betapill{background:rgba(255,255,255,.08);color:rgba(242,242,247,.7);border-color:rgba(255,255,255,.14)}
-html.web[data-theme=dark] .webbar .betapill:hover{background:rgba(255,255,255,.14);color:#F2F2F7}
+html.web .webbar .betapill{margin-left:6px;height:26px;line-height:26px;padding:0 14px;font-size:10px;font-weight:650;letter-spacing:.06em;background:#111;color:#fff;border:0;transition:background .18s}
+html.web .webbar .betapill:hover{background:#0E3B27}
+html.web[data-theme=dark] .webbar .betapill{background:#0B3D27;color:#CFF5E1}
+html.web[data-theme=dark] .webbar .betapill:hover{background:#0F5136}
 html.web .gearbtn{top:16px;right:28px}
 html.web #plusbtn{right:82px!important}
 html.web main{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:0 28px 32px;display:grid;gap:18px;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:max(440px,calc((100vh - 76px - 18px - 32px)/2));grid-template-areas:"res pre pro" "res pre aho" "cue mov mov";align-content:start;scrollbar-width:thin;scrollbar-color:rgba(14,122,77,.3) transparent}
@@ -694,6 +694,7 @@ html.web .newsbx .nnav:hover:not(:disabled){transform:scale(1.08)}
 html.web .newsbx .nnav:disabled{opacity:.25;cursor:default}
 html.web .gearbtn svg{fill:#22B573!important}
 html.web .gdot{border:0!important;width:11px;height:11px}
+html.web .alertback{-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);background:rgba(0,20,10,.28)}
 html.web .wpills{display:flex;gap:8px;flex:1 1 0;min-width:0;align-items:center}
 html.web .wpill{flex:none}
 html.web .wtrow h1{flex:none}
