@@ -1,4 +1,4 @@
-<p align="center"><b>Plata</b> · Beta 1</p>
+<p align="center"><b>Plata</b> · Beta 2</p>
 
 # Plata
 
@@ -6,17 +6,27 @@ Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola 
 
 **Probar:** [plataapp.net/app](https://plataapp.net/app/) · **Sitio:** [plataapp.net](https://plataapp.net)
 
-**Versión:** Beta 1 · **Compilación:** 197
+**Versión:** Beta 2 · **Compilación:** 214
 
 ---
 
-## Novedades de la compilación 197
+## Novedades de la compilación 214 (Beta 2)
 
-Respecto a la 196:
+Respecto a la Beta 1. El detalle completo está en [CHANGELOG.md](CHANGELOG.md).
+
+- **Modo oscuro:** ajuste de apariencia con Auto (sigue al sistema), Claro y Oscuro. Se elige al empezar y se cambia en el perfil. La franja superior del iPhone también cambia de color.
+- **Aviso de novedades:** la primera vez que abres Resumen tras actualizar, y desde Ajustes › Novedades.
+- **Edición de eventos previstos:** el monto y la fecha que editas en Proyección ahora se ven en Resumen, al confirmarlos y en el detalle.
+- **Navegadores integrados:** aviso para abrir Plata en Safari o Chrome si la abres desde Instagram u otra app con navegador propio.
+
+## Historial
+
+<details>
+<summary>Compilación 197</summary>
 
 - **Perfiles de demostración actualizados.**
 
-## Historial
+</details>
 
 <details>
 <summary>Compilación 196</summary>
