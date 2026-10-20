@@ -4,9 +4,19 @@
 
 Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola app web que funciona sin servidor ni dependencias. Tus datos se quedan en tu dispositivo.
 
-**Versión:** Beta 1 · **Compilación:** 223
+**Versión:** Beta 1 · **Compilación:** 224
 
 ---
+
+## Novedades de la compilación 224
+
+Respecto a la 223:
+
+- **Armar Bento (solo escritorio):** nuevo tablero 16:9 con widgets de tus datos (gasto por categoría, ingresos vs gastos, presupuesto, suscripciones, deuda, metas, próximos movimientos y más). Se añaden, quitan, achican y reordenan. Puedes crear varios Bentos, ponerles nombre (por defecto «Bento de tu nombre»; si se repite, queda «Bento 2», «Bento 3»…).
+- **Bienvenida en escritorio:** logo a la izquierda, botones a la derecha y las opciones extra a la vista. El recorrido inicial es un solo scroll continuo con formularios más angostos.
+- **Paleta clara de la vista web** corregida, scrollbars nuevos y sin el aviso de «Usa Plata como app» en escritorio.
+- **Sin Liquid Glass:** se quitaron los reflejos y brillos; se mantiene el vidrio esmerilado y las animaciones.
+- **Créditos:** debajo de la compilación dice Desktop o Móvil.
 
 ## Novedades de la compilación 223
 
