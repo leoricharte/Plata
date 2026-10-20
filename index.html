@@ -573,7 +573,7 @@ html[data-theme=light] .bw{background:radial-gradient(120% 90% at 100% 0%,rgba(3
 .bw-h{font-size:1em;color:var(--mute);font-weight:600;margin:0 0 .7em;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:7em}
 .bw-b{flex:1;min-height:0;display:flex;flex-direction:column}
 .bctl.l{right:auto;left:.8em;top:auto;bottom:.8em}.bname{font-weight:800;letter-spacing:-.03em;line-height:1.08;padding:.08em .04em;background:linear-gradient(120deg,#7CF2B8 0%,#22B573 38%,#12805A 70%,#2EC4B6 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;white-space:nowrap}.bghost{position:absolute;z-index:6;pointer-events:none;border-radius:26px;border:2px dashed #22B573;background:rgba(34,181,115,.14);transition:left .18s cubic-bezier(.3,.9,.3,1),top .18s cubic-bezier(.3,.9,.3,1),width .18s cubic-bezier(.3,.9,.3,1),height .18s cubic-bezier(.3,.9,.3,1),background .15s,border-color .15s}.bghost.bad{border-color:#FF453A;background:rgba(255,69,58,.12)}.blive{position:absolute;z-index:7;pointer-events:none;border-radius:26px;border:2px solid rgba(255,255,255,.35);background:rgba(255,255,255,.04)}.bw.resizing{opacity:.85}.bw.rm{opacity:.3;outline:2px dashed #FF453A;outline-offset:-2px;transition:opacity .15s}.bres{position:absolute;right:.5em;bottom:.5em;width:1.8em;height:1.8em;cursor:nwse-resize;opacity:0;transition:opacity .15s;z-index:4;touch-action:none;background:linear-gradient(135deg,transparent 52%,var(--mute) 52% 58%,transparent 58% 70%,var(--mute) 70% 76%,transparent 76%);border-radius:0 0 .9em 0}.bw:hover .bres{opacity:.85}.bres:hover{opacity:1!important}.bw.resizing{outline:2px solid #22B573;outline-offset:-2px}.bctl{position:absolute;top:.8em;right:.8em;display:flex;gap:.3em;z-index:3;opacity:0;transition:opacity .15s}
-.bw.bdrag{z-index:30;opacity:.92;box-shadow:0 24px 60px rgba(0,0,0,.45);transition:none!important;cursor:grabbing;pointer-events:none}.bw.bdrop{outline:3px solid #22B573;outline-offset:3px}.bstage:not(.view) .bw{cursor:grab}
+.bw.bdrag{z-index:30;opacity:.92;box-shadow:0 24px 60px rgba(0,0,0,.45);transition:none!important;cursor:grabbing;pointer-events:none}.bstage:not(.view) .bw{cursor:grab;-webkit-user-select:none;user-select:none}
 .bw:hover .bctl,.bw:focus-within .bctl{opacity:1}
 .bctl button{min-width:2.1em;height:2.1em;padding:0 .5em;border-radius:999px;font-size:.9em;font-weight:650;background:rgba(120,120,128,.16);color:var(--ink);display:inline-flex;align-items:center;justify-content:center}
 .bctl button:hover{background:rgba(120,120,128,.3)}
@@ -5005,17 +5005,16 @@ function bentoLoadAll() {
 }
 function bentoSave() { const c = bcur(); if (c) c.items = ui.bento; try { localStorage.setItem(bkey(), JSON.stringify(ui.bset)); } catch (e) { /* sin almacenamiento */ } }
 function bentoLayout(items) {
-  const occ = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]];
-  return items.map((it) => {
-    const w = BSZ[it.s][0], h = BSZ[it.s][1]; let pos = null;
-    for (let y = 0; y <= 3 - h && !pos; y++) for (let x = 0; x <= 4 - w && !pos; x++) {
-      let ok = true; for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) if (occ[y + j][x + i]) ok = false;
-      if (ok) pos = { x: x, y: y };
-    }
-    if (!pos) return Object.assign({}, it, { off: true });
-    for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) occ[pos.y + j][pos.x + i] = 1;
-    return Object.assign({}, it, { x: pos.x, y: pos.y, w: w, h: h });
+  const occ = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], res = new Array(items.length);
+  const free = (x, y, w, h) => { if (x < 0 || y < 0 || x + w > 4 || y + h > 3) return false; for (let b = 0; b < h; b++) for (let a = 0; a < w; a++) if (occ[y + b][x + a]) return false; return true; };
+  const put = (k, x, y) => { const w = BSZ[items[k].s][0], h = BSZ[items[k].s][1]; for (let b = 0; b < h; b++) for (let a = 0; a < w; a++) occ[y + b][x + a] = 1; res[k] = Object.assign({}, items[k], { x: x, y: y, w: w, h: h }); };
+  items.forEach((it, k) => { if (it.px != null && it.py != null && free(it.px, it.py, BSZ[it.s][0], BSZ[it.s][1])) put(k, it.px, it.py); });
+  items.forEach((it, k) => {
+    if (res[k]) return; const w = BSZ[it.s][0], h = BSZ[it.s][1]; let pos = null;
+    for (let y = 0; y <= 3 - h && !pos; y++) for (let x = 0; x <= 4 - w && !pos; x++) if (free(x, y, w, h)) pos = { x: x, y: y };
+    if (pos) put(k, pos.x, pos.y); else res[k] = Object.assign({}, it, { off: true });
   });
+  return res;
 }
 const bfits = (items) => bentoLayout(items).every((x) => !x.off);
 const bbar = (pct, col) => '<div class="bbar"><i style="width:' + Math.max(0, Math.min(100, pct)) + '%;background:' + col + '"></i></div>';
@@ -5217,24 +5216,38 @@ document.addEventListener('keydown', (e) => { const t = e.target; if (t && t.cla
 })();
 (function () {
   let G = null;
-  const clear = () => document.querySelectorAll('.bw.bdrop').forEach((x) => x.classList.remove('bdrop'));
-  const under = (x, y, skip) => { let f = null; document.querySelectorAll('#bcanvas .bw').forEach((el) => { if (el === skip) return; const r = el.getBoundingClientRect(); if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) f = el; }); return f; };
+  const trial = (cx, cy) => {
+    const items = ui.bento.map((x) => Object.assign({}, x)), me = items.find((x) => x.id === G.id), mw = BSZ[me.s][0], mh = BSZ[me.s][1]; me.px = cx; me.py = cy;
+    items.forEach((x) => { if (x !== me && x.px != null) { const w = BSZ[x.s][0], h = BSZ[x.s][1]; if (x.px < cx + mw && x.px + w > cx && x.py < cy + mh && x.py + h > cy) { delete x.px; delete x.py; } } });
+    return { items: items, lay: bentoLayout(items), w: mw, h: mh };
+  };
+  const mark = (t) => { document.querySelectorAll('.bw.rm').forEach((x) => x.classList.remove('rm')); const kills = t.lay.filter((x) => x.off).map((x) => x.id); document.querySelectorAll('#bcanvas .bw').forEach((el) => { if (kills.indexOf(el.getAttribute('data-bid')) >= 0) el.classList.add('rm'); }); return kills; };
   document.addEventListener('pointerdown', (e) => {
     if (!ui.bnEdit || !ui.bento || e.button) return; const t = e.target.closest && e.target.closest('#bcanvas .bw'); if (!t) return;
     if (e.target.closest('.bctl,.bres,input,button,a')) return;
-    G = { el: t, id: t.getAttribute('data-bid'), x: e.clientX, y: e.clientY, on: false, over: null, pid: e.pointerId };
+    const cv = document.getElementById('bcanvas'), r = cv.getBoundingClientRect(), tr = t.getBoundingClientRect(), gap = 14;
+    G = { el: t, id: t.getAttribute('data-bid'), x: e.clientX, y: e.clientY, on: false, pid: e.pointerId, cv: cv, r: r, tr: tr, gap: gap, cw: (r.width - 3 * gap) / 4, ch: (r.height - 2 * gap) / 3, cell: null, t: null };
   });
   document.addEventListener('pointermove', (e) => {
     if (!G) return; const dx = e.clientX - G.x, dy = e.clientY - G.y;
-    if (!G.on) { if (Math.abs(dx) + Math.abs(dy) < 8) return; G.on = true; G.el.classList.add('bdrag'); try { G.el.setPointerCapture(G.pid); } catch (x) { /* sin captura */ } }
-    G.el.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(1.03)';
-    const o = under(e.clientX, e.clientY, G.el); if (o !== G.over) { clear(); if (o) o.classList.add('bdrop'); G.over = o; }
+    if (!G.on) { if (Math.abs(dx) + Math.abs(dy) < 8) return; G.on = true; G.el.classList.add('bdrag'); G.ghost = document.createElement('div'); G.ghost.className = 'bghost'; G.cv.appendChild(G.ghost); try { G.el.setPointerCapture(G.pid); } catch (x) { /* sin captura */ } }
+    G.el.style.setProperty('transform', 'translate(' + dx + 'px,' + dy + 'px) scale(1.03)', 'important');
+    const it = ui.bento.find((x) => x.id === G.id), w = BSZ[it.s][0], h = BSZ[it.s][1];
+    const cx = Math.max(0, Math.min(4 - w, Math.round((G.tr.left + dx - G.r.left) / (G.cw + G.gap)))), cy = Math.max(0, Math.min(3 - h, Math.round((G.tr.top + dy - G.r.top) / (G.ch + G.gap))));
+    if (!G.cell || G.cell[0] !== cx || G.cell[1] !== cy) {
+      G.cell = [cx, cy]; G.t = trial(cx, cy); mark(G.t); const g = G.ghost.style;
+      g.left = cx * (G.cw + G.gap) + 'px'; g.top = cy * (G.ch + G.gap) + 'px'; g.width = (w * G.cw + (w - 1) * G.gap) + 'px'; g.height = (h * G.ch + (h - 1) * G.gap) + 'px';
+    }
   });
-  const end = (e) => {
-    if (!G) return; const g = G; G = null; if (!g.on) return; clear(); g.el.classList.remove('bdrag'); g.el.style.transform = '';
-    const tid = g.over && g.over.getAttribute('data-bid'); if (!tid || tid === g.id) { bentoRender(); return; }
-    const items = ui.bento, i = items.findIndex((x) => x.id === g.id), j = items.findIndex((x) => x.id === tid); if (i < 0 || j < 0) { bentoRender(); return; }
-    const before = JSON.stringify(ui.bset), it = items.splice(i, 1)[0]; items.splice(j, 0, it); bPush('orden', before); bentoSave(); bentoRender();
+  const end = () => {
+    if (!G) return; const g = G; G = null; if (!g.on) return;
+    document.querySelectorAll('.bw.rm').forEach((x) => x.classList.remove('rm')); g.ghost.remove(); g.el.classList.remove('bdrag'); g.el.style.removeProperty('transform');
+    if (!g.t) { bentoRender(); return; }
+    const before = JSON.stringify(ui.bset), kills = g.t.lay.filter((x) => x.off).map((x) => x.id);
+    const cur = ui.bento.find((x) => x.id === g.id); if (cur.px === g.cell[0] && cur.py === g.cell[1] && !kills.length) { bentoRender(); return; }
+    ui.bento = g.t.items.filter((x) => kills.indexOf(x.id) < 0); bcur().items = ui.bento;
+    if (kills.length) toast(kills.length === 1 ? 'Se quitó 1 widget para hacer espacio' : 'Se quitaron ' + kills.length + ' widgets para hacer espacio');
+    bPush('posición', before); bentoSave(); bentoRender();
   };
   document.addEventListener('pointerup', end); document.addEventListener('pointercancel', end);
 })();
@@ -5319,7 +5332,7 @@ function bentoAct0(a, arg) {
     if (!bfits(items)) { it.s = old; toast('No cabe: quita o achica otro widget'); return; }
     bentoSave(); bentoRender();
   } else if (a === 'bnmove') {
-    const i = items.findIndex((x) => x.id === q[0]), j = i + Number(q[1]); if (i < 0 || j < 0 || j >= items.length) return;
+    const i = items.findIndex((x) => x.id === q[0]), j = i + Number(q[1]); if (i < 0 || j < 0 || j >= items.length) return; items.forEach((x) => { delete x.px; delete x.py; });
     const t = items[i]; items[i] = items[j]; items[j] = t;
     if (!bfits(items)) { items[j] = items[i]; items[i] = t; toast('No cabe en ese orden'); return; }
     bentoSave(); bentoRender();
