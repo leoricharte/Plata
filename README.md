@@ -181,6 +181,8 @@ Respecto a la 225:
 - **Recorrido inicial** con scroll sin barras y desvanecido arriba y abajo.
 - **Luz ambiental** verde plata que late muy lento desde la esquina superior izquierda.
 - **Resumen** sigue el tema claro/oscuro; mejor legibilidad del texto atenuado.
+- **Bentos más pulidos:** los gráficos se ajustan al tamaño real de cada widget (barras con valores, sin huecos), números más grandes en el resumen y diseño inicial que llena todo el lienzo. Tres widgets nuevos: **Tu evaluación**, **Último insight** y **Perfil** (foto y nombre). Los íconos de la galería ya aparecen completos.
+- **Half-time (escritorio):** fondo negro como los demás avisos.
 - **Bentos:** la tabla se ajusta a ventanas bajas.
 - La apariencia (Auto/Claro/Oscuro) también se guarda en el perfil; en escritorio ya no sale el aviso de la barra superior.
 
