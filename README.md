@@ -4,18 +4,25 @@
 
 Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola app web que funciona sin servidor ni dependencias. Tus datos se quedan en tu dispositivo.
 
-**Versión:** Beta 1 · **Compilación:** 208
+**Versión:** Beta 1 · **Compilación:** 209
 
 ---
 
-## Novedades de la compilación 208
+## Novedades de la compilación 209
 
-Respecto a la 207:
+Respecto a la 208:
+
+- **Aviso de la B E T A 2:** la luna ahora es un círculo blanco amarillento luminoso, y «Revisar novedades» ya no va subrayado.
+
+## Historial
+
+<details>
+<summary>Compilación 208</summary>
 
 - **Aviso «La noche ha llegado.»:** pop-up central con la B E T A 2, una luna flotando sobre un cielo nocturno, los cambios y un enlace a «Revisar novedades» (registro de cambios en GitHub). Sale la primera vez que abres Resumen tras actualizar y también desde Ajustes › Novedades.
 - **Registro de cambios:** nuevo `CHANGELOG.md`.
 
-## Historial
+</details>
 
 <details>
 <summary>Compilación 207</summary>
