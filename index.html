@@ -1146,7 +1146,9 @@ function pendingItems() {
   const pays = data.cards.filter((c) => c.auto && apOK(c) && c.auto.next && c.auto.next <= t && !(c.auto.snooze && c.auto.snooze > t)).map((c) => ({ k: 'pay', e: { id: c.id, name: c.name, date: c.auto.next, card: c } }));
   return f(data.expected_income, 'in').concat(f(data.expected_expense, 'out'), pays).sort((a, b) => (a.e.date < b.e.date ? -1 : 1));
 }
-function nextIncome() { return data.expected_income.slice().sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0))[0]; }
+/* Un evento editado en Proyección (data.ovr) también cambia lo que se ve en Resumen y al confirmar */
+function effItem(kind, e) { const x = (data.ovr || {})[kind + ':' + e.id + ':' + e.date]; if (!x || x.skip) return e; const r = Object.assign({}, e); if (x.amt != null) r.amount = x.amt; if (x.date) r.date = x.date; return r; }
+function nextIncome() { return data.expected_income.map((e) => effItem('in', e)).sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0))[0]; }
 
 /* Simulador de pago de deudas: se paga el mínimo en todas y lo extra va a la de mayor interés */
 function payoff(extra, kind) {
@@ -1281,7 +1283,7 @@ function renderResumen() {
   } else {
     nextCard = '<div class="card"><div class="lbl">Próximo ingreso</div>' + addRow('income', 'Añadir ingreso previsto') + '</div>';
   }
-  const nxe = data.expected_expense.slice().sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0))[0];
+  const nxe = data.expected_expense.map((e) => effItem('exp', e)).sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0))[0];
   if (nxe) {
     const cur = accOf(nxe.acc).cur, days = Math.round((pd(nxe.date) - c.today) / 86400000), dueX = pendingItems().some((x) => x.k === 'out');
     const ec = CAT_ORDER.indexOf(nxe.cat) >= 0 ? nxe.cat : 'Otros';
@@ -3349,7 +3351,7 @@ function openNextItem(k, id) { openItem(k === 'out' ? 'expense' : 'income', id);
 function confirmHTML() {
   let list = pendingItems(); if (ui.confirmPick) { if (ui.confirmPick.k === 'pay') { const pc = data.cards.find((x) => x.id === ui.confirmPick.id); list = pc && pc.auto ? [{ k: 'pay', e: { id: pc.id, name: pc.name, date: pc.auto.next, card: pc } }] : []; } else { const pe = data[ui.confirmPick.k === 'out' ? 'expected_expense' : 'expected_income'].find((x) => x.id === ui.confirmPick.id); list = pe ? [{ k: ui.confirmPick.k, e: pe }] : []; } }
   if (!list.length) return null;
-  const e = list[0].e, out = list[0].k === 'out', isP = list[0].k === 'pay', cur = isP ? e.card.cur : accOf(e.acc).cur, late = Math.round((getToday() - pd(e.date)) / 864e5);
+  const e = list[0].k === 'pay' ? list[0].e : Object.assign({}, list[0].e, { amount: effItem(list[0].k === 'out' ? 'exp' : 'in', list[0].e).amount }), out = list[0].k === 'out', isP = list[0].k === 'pay', cur = isP ? e.card.cur : accOf(e.acc).cur, late = Math.round((getToday() - pd(e.date)) / 864e5);
   ui.confirmId = e.id; ui.confirmKind = list[0].k;
   const when = late < 0 ? 'para ' + dlabel(pd(e.date)) : late === 0 ? 'hoy' : late === 1 ? 'ayer' : 'hace ' + late + ' días';
   if (isP) {
@@ -3373,7 +3375,7 @@ function confirmHTML() {
 function confColl() { return ui.confirmKind === 'pay' ? 'cards' : ui.confirmKind === 'out' ? 'expected_expense' : 'expected_income'; }
 function updConfirmDelta() {
   const e = data[confColl()].find((x) => x.id === ui.confirmId), el = $('#cDelta'); if (!e || !el) return;
-  const v = parseFloat(String($('#fHero').value).replace(',', '.')) || 0, d = round2(v - e.amount), cur = accOf(e.acc).cur, out = ui.confirmKind === 'out';
+  const v = parseFloat(String($('#fHero').value).replace(',', '.')) || 0, d = round2(v - effItem(ui.confirmKind === 'out' ? 'exp' : 'in', e).amount), cur = accOf(e.acc).cur, out = ui.confirmKind === 'out';
   if (Math.abs(d) < 0.005) { el.textContent = 'Igual a lo previsto'; el.className = 'deltachip'; }
   else { el.textContent = (d > 0 ? '+' : '−') + fmtC2(d, cur) + ' vs. previsto'; el.className = 'deltachip ' + ((d > 0) !== out ? 'up' : 'neg'); }
 }
@@ -3408,7 +3410,7 @@ function doConfirm(ok) {
       data.transactions.push({ id: nextTxId(), date: e.date <= iso(getToday()) ? e.date : iso(getToday()), amount: -amt, category: CAT_ORDER.indexOf(e.cat) >= 0 ? e.cat : 'Otros', note: e.name, acc: acc.id });
       applyTo(acc, -amt);
     } else {
-      const jb = jobOf(e), tx = { id: nextTxId(), date: e.date <= iso(getToday()) ? e.date : iso(getToday()), amount: amt, category: 'Ingreso', note: e.name, acc: acc.id, est: e.amount };
+      const jb = jobOf(e), tx = { id: nextTxId(), date: e.date <= iso(getToday()) ? e.date : iso(getToday()), amount: amt, category: 'Ingreso', note: e.name, acc: acc.id, est: effItem('in', e).amount };
       if (jb) { tx.job = jb.id; if (jb.mode !== 's') { tx.rate = jb.rate; tx.hrs = parseFloat(String(($('#cHrs') || {}).value).replace(',', '.')) || jobHrs(jb); } }
       data.transactions.push(tx);
       acc.balance = round2(acc.balance + amt);
