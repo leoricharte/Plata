@@ -13,6 +13,8 @@ Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola 
 Respecto a la 244:
 
 - **Escritorio, moneda:** el paso de moneda ahora muestra un mapamundi simplificado a la izquierda, solo con contornos por continente en verdes de la paleta; al elegir una región se rellena y a la derecha una lista con sus monedas principales (mapa más grande); las monedas elegidas aparecen como píldoras numeradas junto a la pregunta.
+- **Escritorio, moneda elegida:** las monedas elegidas aparecen como píldoras numeradas junto a la pregunta; al pasar el mouse la píldora se pone roja con una ✕ y un clic la quita. Al añadir la segunda sale un aviso breve en cursiva que lo explica.
+- **Escritorio, conversión:** el tipo de cambio, la línea «Principal / Segunda» y el botón para intercambiar monedas (ahora más grande y en verde) se colocan arriba del mapa, junto con el guiño peruano si eliges PEN.
 - **Debug:** ahora incluye un selector de apariencia (Auto / Claro / Oscuro).
 
 ---
