@@ -149,7 +149,7 @@ Respecto a la 198:
 <summary>Compilación 182</summary>
 
 - Créditos: número de compilación al final y testers separados en **alpha** y **beta**.
-- Perfiles demo actualizados; Brunela muestra el banner de "días sin registrar movimientos".
+- Perfiles demo actualizados; uno de ellos muestra el banner de "días sin registrar movimientos".
 - Zips con el nombre `plata-beta-1-comp-N.zip`.
 
 </details>
