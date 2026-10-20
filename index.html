@@ -696,6 +696,9 @@ html.web .newsbx .nnav:disabled{opacity:.25;cursor:default}
 html.web .gearbtn svg{fill:#22B573!important}
 html.web .gdot{border:0!important;width:11px;height:11px}
 html.web .alertback{-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);background:rgba(0,20,10,.28)}
+html.web [data-act=inshalf]>span:last-child,html.web .wswapb,html.web .welcome .primary[data-act=wpriv],html.web .alertbox.newsbx > button:not(.nnav),html.web .newsbx .nnav,html.web .wland .wright .primary{color:#073D24!important}
+html.web .wpill:first-child{color:#073D24}
+html.web .wdown{color:#073D24}
 html.web .wpills{display:flex;gap:8px;flex:1 1 0;min-width:0;align-items:center}
 html.web .wpill{flex:none}
 html.web .wtrow h1{flex:none}
@@ -4667,7 +4670,7 @@ function welcomeHTML(dir) {
     else { const r = stepHTML(sid); body0 = r.body; note = r.note; }
     body = '<div class="wmain" style="justify-content:flex-start;padding-top:18px">' + body0 + '</div>';
     foot = cont ? '<div class="wnote" style="margin:12px 0">Todo es opcional: lo que dejes en blanco se puede añadir después.</div><button class="primary" data-act="wfin">Terminar</button>' : note + '<button class="primary" data-act="' + (last ? 'wfin' : 'wnext') + '">' + (last ? 'Terminar' : 'Continuar') + '</button>' + (opt ? '<button class="wghost" data-act="' + (last ? 'wfin:skip' : 'wnext:skip') + '">Omitir</button>' : '');
-    if (web) foot = '<div class="wdownrow"><div class="wside r">' + (w.step === 0 ? '<span class="whint">Usa la rueda del ratón para seguir' + RMI('arrow-down-line', 22, 'currentColor') + '</span>' : '') + dots(w.step) + '<button class="wdown" data-act="' + (last ? 'wfin' : 'wnext') + '" aria-label="' + (last ? 'Terminar' : 'Siguiente') + '">' + RMI(last ? 'check-line' : 'arrow-down-line', 28, '#fff') + '</button></div>' + (w.step >= 1 ? '<div class="wside l"><button class="wdown wup" data-act="wback" aria-label="Anterior">' + RMI('arrow-up-line', 28, '#22B573') + '</button>' + (w.step === 1 ? '<span class="whint up">¡Ups! ¿Te faltó algo? Usa la rueda del ratón para regresar.</span>' : '') + '</div>' : '') + (opt ? '<button class="wskip" data-act="' + (last ? 'wfin:skip' : 'wnext:skip') + '">Omitir</button>' : '') + '</div>';
+    if (web) foot = '<div class="wdownrow"><div class="wside r">' + (w.step === 0 ? '<span class="whint">Usa la rueda del ratón para seguir' + RMI('arrow-down-line', 22, 'currentColor') + '</span>' : '') + dots(w.step) + '<button class="wdown" data-act="' + (last ? 'wfin' : 'wnext') + '" aria-label="' + (last ? 'Terminar' : 'Siguiente') + '">' + RMI(last ? 'check-line' : 'arrow-down-line', 28, '#073D24') + '</button></div>' + (w.step >= 1 ? '<div class="wside l"><button class="wdown wup" data-act="wback" aria-label="Anterior">' + RMI('arrow-up-line', 28, '#22B573') + '</button>' + (w.step === 1 ? '<span class="whint up">¡Ups! ¿Te faltó algo? Usa la rueda del ratón para regresar.</span>' : '') + '</div>' : '') + (opt ? '<button class="wskip" data-act="' + (last ? 'wfin:skip' : 'wnext:skip') + '">Omitir</button>' : '') + '</div>';
   }
   const old = el.querySelector('.wpage'), stage = el.querySelector('.wstage'), scM = old && old.querySelector('.wmain'), scT = !dir && scM ? scM.scrollTop : 0;
   const pg = document.createElement('div'); pg.className = 'wpage'; pg.innerHTML = body + foot;
