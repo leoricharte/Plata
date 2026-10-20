@@ -4,17 +4,27 @@
 
 Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola app web que funciona sin servidor ni dependencias. Tus datos se quedan en tu dispositivo.
 
-**Versión:** Beta 1 · **Compilación:** 204
+**Versión:** Beta 1 · **Compilación:** 205
 
 ---
 
-## Novedades de la compilación 204
+## Novedades de la compilación 205
 
-Respecto a la 203:
+Respecto a la 204:
+
+- **Apariencia en el arranque:** primera pantalla propia con Auto, Claro y Oscuro y una vista previa con un perfil de ejemplo al azar (Brunela, Shawn o Andrea).
+- **Apariencia en el perfil:** el ajuste pasó de Ajustes al perfil.
+- **Calendario:** el día de hoy, en modo oscuro, se marca en verde Plata.
+- **Novedades de la Beta 2:** aviso en Resumen la primera vez que abres la app tras actualizar.
+
+## Historial
+
+<details>
+<summary>Compilación 204</summary>
 
 - **Modo oscuro:** los iconos y textos de la barra inferior ahora son claros en oscuro (antes se quedaban negros).
 
-## Historial
+</details>
 
 <details>
 <summary>Compilación 203</summary>
