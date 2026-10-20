@@ -5343,7 +5343,7 @@ function bentoAct0(a, arg) {
 (function(){ const b = $('#wbento'); if (b) b.innerHTML = RMI('layout-grid-line', 18, 'currentColor') + 'Bentos'; })();
 
 applyLang(); renderAll(); setTab('resumen'); movePill(true);
-if (!hasData() && !wSeen() && (!/[?&]nosplash/.test(location.search) || /[?&]welcome/.test(location.search))) { showWelcome(); maybeA2hs(); } else setTimeout(checkPending, 800);
+if (!hasData() && !wSeen() && (!/[?&]nosplash/.test(location.search) || /[?&]welcome/.test(location.search))) { showWelcome(); } else setTimeout(checkPending, 800);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { ui.skipPending = false; updatePendingDot(); checkPending(); } });
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => movePill(true));
 
