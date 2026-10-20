@@ -6,11 +6,11 @@ Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola 
 
 **Probar:** [plataapp.net/app](https://plataapp.net/app/) · **Sitio:** [plataapp.net](https://plataapp.net)
 
-**Versión:** Beta 2 · **Compilación:** 219
+**Versión:** Beta 2 · **Compilación:** 220
 
 ---
 
-## Novedades de la compilación 219 (Beta 2)
+## Novedades de la compilación 220 (Beta 2)
 
 Respecto a la Beta 1. El detalle completo está en [CHANGELOG.md](CHANGELOG.md).
 
