@@ -31,3 +31,9 @@
 .dd:hover .dsub{display:block}
 }
 @media (max-width:420px){.navr .btn.sm{padding:10px 14px;font-size:14px}.navr{gap:6px}.lgb{padding:8px 11px}}
+@media (min-width:901px){
+.dsub{display:block;visibility:hidden;opacity:0;transition:opacity .15s ease .3s,visibility 0s linear .45s}
+.dd.open .dsub{visibility:visible;opacity:1;transition-delay:0s}
+.dsub::before{content:"";position:absolute;left:-10px;right:-10px;top:-18px;height:18px}
+}
+@media (min-width:901px) and (hover:hover) and (pointer:fine){.dd:hover .dsub{visibility:visible;opacity:1;transition-delay:0s}}
