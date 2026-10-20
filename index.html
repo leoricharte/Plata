@@ -4954,6 +4954,11 @@ const BENTO_DEF = [{ id: 'kpi', s: 'W' }, { id: 'cats', s: 'T' }, { id: 'flow', 
 const isWebView = () => document.documentElement.classList.contains('web');
 function bentoLoad() { try { const j = JSON.parse(localStorage.getItem(BENTO_KEY)); if (Array.isArray(j) && j.length) { const k = j.filter((x) => BW[x.id] && BSZ[x.s]); if (k.length) return k; } } catch (e) { /* sin almacenamiento */ } return BENTO_DEF.map((x) => Object.assign({}, x)); }
 const BENTOS_KEY = 'plata.bentos';
+function bkey() {
+  const st = (data && data.settings) || {}, id = [st.first, st.last, st.nick].map((x) => String(x || '').trim().toLowerCase()).join('|').replace(/[^a-z0-9|ñáéíóú]/g, '');
+  return id.replace(/\|/g, '') ? BENTOS_KEY + '.' + id : BENTOS_KEY;
+}
+function bIsDemo() { const st = (data && data.settings) || {}; return DEMO_LIST.some((p) => String(p.name).toLowerCase() === String(st.nick || st.first || '').trim().toLowerCase()); }
 const bcur = () => ui.bset && ui.bset.sets.find((x) => x.id === ui.bset.cur);
 function bentoBase() { const st = data.settings || {}, n = String(st.nick || st.first || '').trim(); return n ? 'Bento de ' + n : 'Bento'; }
 function bentoUnique(name, ex) {
@@ -4962,14 +4967,14 @@ function bentoUnique(name, ex) {
   const root = nm.replace(/ \d+$/, ''); let k = 2; while (low.indexOf((root + ' ' + k).toLowerCase()) >= 0) k++; return root + ' ' + k;
 }
 function bentoLoadAll() {
-  let st = null; try { st = JSON.parse(localStorage.getItem(BENTOS_KEY)); } catch (e) { /* sin almacenamiento */ }
+  let st = null; try { st = JSON.parse(localStorage.getItem(bkey())); if (!st && bkey() !== BENTOS_KEY && !bIsDemo()) { st = JSON.parse(localStorage.getItem(BENTOS_KEY)); if (st) { localStorage.setItem(bkey(), JSON.stringify(st)); localStorage.removeItem(BENTOS_KEY); } } } catch (e) { /* sin almacenamiento */ }
   if (!st || !Array.isArray(st.sets) || !st.sets.length) st = { sets: [{ id: 'b1', name: '', items: bentoLoad() }], cur: 'b1' };
   st.sets.forEach((x) => { x.items = (x.items || []).filter((i) => BW[i.id] && BSZ[i.s]); });
   if (!st.sets.some((x) => x.id === st.cur)) st.cur = st.sets[0].id;
   ui.bset = st; st.sets.forEach((x) => { if (!String(x.name || '').trim()) x.name = bentoUnique(bentoBase(), x.id); });
   ui.bento = bcur().items;
 }
-function bentoSave() { const c = bcur(); if (c) c.items = ui.bento; try { localStorage.setItem(BENTOS_KEY, JSON.stringify(ui.bset)); } catch (e) { /* sin almacenamiento */ } }
+function bentoSave() { const c = bcur(); if (c) c.items = ui.bento; try { localStorage.setItem(bkey(), JSON.stringify(ui.bset)); } catch (e) { /* sin almacenamiento */ } }
 function bentoLayout(items) {
   const occ = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]];
   return items.map((it) => {
