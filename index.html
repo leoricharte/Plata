@@ -749,9 +749,12 @@ html.web .seg .thumb,html.web .seg.glass .thumb{background:#fff;box-shadow:0 1px
 html.web[data-theme=dark] .seg .thumb,html.web[data-theme=dark] .seg.glass .thumb{background:#22B573;box-shadow:0 1px 4px rgba(0,0,0,.3)}
 html.web .seg button{color:var(--mute)}html.web .seg button.on{color:#0E7A4D}
 html.web[data-theme=dark] .seg button{color:#B9D3C4}html.web[data-theme=dark] .seg button.on{color:#fff}
-html.web .insban span[style*="height:50px"],html.web [data-act=inshalf]>span:last-child{background:linear-gradient(180deg,#2C2C2E,#0B0B0C)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.14)!important}
+html.web .insban{background:linear-gradient(180deg,#232325,#0B0B0C)!important;box-shadow:0 10px 28px -10px rgba(0,0,0,.5)!important}
+html.web .insban .insgrain{display:none}
+html.web .insban span[style*="height:50px"],html.web [data-act=inshalf]>span:last-child{background:var(--tg)!important;box-shadow:none!important;color:#111!important}
 .btg{font-weight:inherit}
-html.web .btg{background:var(--tg);-webkit-background-clip:text;background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent}
+html.web .insban .btx{display:block;width:fit-content;margin-left:auto!important;margin-right:auto!important;background:var(--tg);-webkit-background-clip:text;background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent;opacity:1!important}
+html.web .btg{color:#111!important;-webkit-text-fill-color:#111}
 html.web svg [stroke="#E5E5EA" i],html.web svg [stroke="#F3F3F5" i],html.web svg [stroke="#ECECF0" i]{stroke:#E1EEE6}
 html.web[data-theme=dark] svg [stroke="#E5E5EA" i],html.web[data-theme=dark] svg [stroke="#F3F3F5" i],html.web[data-theme=dark] svg [stroke="#ECECF0" i]{stroke:#24432F}
 html.web[data-theme=dark] .switch,html.web[data-theme=dark] .sw{--off:#24432F}
@@ -2534,7 +2537,8 @@ function insPhrase(m) {
   const bien = L === 'es' ? (({ m: 'Bien hecho', f: 'Bien hecha' })[userGender()] || 'Buen trabajo') : BIEN_T[L][userGender()];
   return (nick ? v[0] : v[1]).replace(/\{n\}/g, nick).replace(/\{bien\}/g, bien).replace(/\{Mes\}/g, mes.charAt(0).toUpperCase() + mes.slice(1)).replace(/\{mes\}/g, mes);
 }
-const insBg = (g) => 'radial-gradient(110% 80% at 88% 0%,' + g[3] + 'cc 0%,transparent 60%),radial-gradient(90% 70% at 0% 100%,' + g[0] + '55 0%,transparent 60%),linear-gradient(180deg,' + g[0] + ' 0%,' + g[1] + ' 48%,' + g[2] + ' 100%)';
+const tGrad = (g) => 'linear-gradient(100deg,' + (g[3] || g[0]) + ',' + g[0] + ' 45%,' + g[1] + ')';
+const insBg = (g) => 'radial-gradient(110% 80% at 88% 0%,' + (g[3] || g[1]) + 'cc 0%,transparent 60%),radial-gradient(90% 70% at 0% 100%,' + g[0] + '55 0%,transparent 60%),linear-gradient(180deg,' + g[0] + ' 0%,' + g[1] + ' 48%,' + g[2] + ' 100%)';
 function insLocked(m) {
   if (m.hasPrev && m.cur.n + m.prev.n >= 10) return null;
   const dimC = m.dim || 30, left = Math.max(0, dimC - m.day), need = m.hasPrev ? 7 : left + 7;
@@ -2586,16 +2590,16 @@ function halfBanner(m) {
     '<div style="display:flex;align-items:center;gap:14px"><div style="flex:none">' + ghostScore(m.hasPrev ? hl : '?', 56) + '</div><div class="grow" style="text-align:left;min-width:0">' +
     '<span style="display:inline-block;font-size:21px;font-weight:800;letter-spacing:-.4px;line-height:1.2;background:linear-gradient(135deg,' + hg[0] + ',' + hg[1] + ' 55%,' + hg[2] + ');-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent">' + hv[0] + '</span>' +
     '<div style="font-size:14px;font-weight:500;color:var(--mute);line-height:1.3;margin-top:2px">' + hv[1] + '</div></div></div>' +
-    '<span style="display:flex;align-items:center;justify-content:center;width:100%;height:42px;border-radius:999px;margin-top:12px;background:linear-gradient(180deg,#2C2C2E,#0B0B0C);color:#fff;font-size:16px;font-weight:600;box-shadow:inset 0 1px 0 rgba(255,255,255,.2)">' + '<b class="btg" style="--tg:linear-gradient(135deg,' + hg[0] + ',' + hg[1] + ' 55%,' + hg[2] + ')">Ver informe hasta ahora</b>' + '</span></div>';
+    '<span style="display:flex;align-items:center;justify-content:center;width:100%;height:42px;--tg:' + tGrad(hg) + ';border-radius:999px;margin-top:12px;background:linear-gradient(180deg,#2C2C2E,#0B0B0C);color:#fff;font-size:16px;font-weight:600;box-shadow:inset 0 1px 0 rgba(255,255,255,.2)">' + '<b class="btg">Ver informe hasta ahora</b>' + '</span></div>';
 }
 function closeBanner(m, label, act) {
   const mes = MON_FULL[m.T.getMonth()], g = m.hasPrev ? (scoreOn() && m.plus ? plusGrad(m.letter) : GRAD[scoreOn() ? m.letter : 'B']) : ['#B9B9C6', '#7B7B93', '#3A3A52', '#D8D8E6'];
-  return '<div class="insban tap" data-act="' + act + '" role="button" style="position:relative;overflow:hidden;border-radius:26px;margin:0 0 14px;padding:18px;text-align:center;color:#fff;background:' + insBg(g) + ';box-shadow:0 8px 24px rgba(0,0,0,.12)">' +
+  return '<div class="insban tap" data-act="' + act + '" role="button" style="position:relative;overflow:hidden;border-radius:26px;margin:0 0 14px;padding:18px;text-align:center;color:#fff;--tg:' + tGrad(g) + ';background:' + insBg(g) + ';box-shadow:0 8px 24px rgba(0,0,0,.12)">' +
     '<div class="insgrain"></div>' +
-    '<div style="position:relative"><div style="font-size:15px;font-weight:500;opacity:.92">' + label + ' ' + mes + '</div>' +
-    '<div style="font-size:26px;font-weight:800;letter-spacing:-.6px;margin:2px 0 6px">' + (!scoreOn() ? 'Tus tendencias de ' + mes + '.' : m.hasPrev ? 'Tu evaluación fue ' + m.letter + (m.plus ? pch(m.letter) : '') + '.' : 'Aún sin evaluación.') + '</div>' +
-    (scoreOn() ? '<div style="font-size:15px;line-height:1.3;opacity:.95;margin:0 6px 14px">' + esc(insPhrase(m)) + '</div>' : '<div style="height:8px"></div>') +
-    '<span style="display:flex;align-items:center;justify-content:center;width:100%;height:50px;border-radius:999px;background:var(--card);color:' + g[1] + ';font-size:17px;font-weight:600">' + '<b class="btg" style="--tg:linear-gradient(135deg,' + g[0] + ',' + g[1] + ' 55%,' + g[2] + ')">Ver informe</b>' + '</span></div></div>';
+    '<div style="position:relative"><div class="btx" style="font-size:15px;font-weight:500;opacity:.92">' + label + ' ' + mes + '</div>' +
+    '<div class="btx" style="font-size:26px;font-weight:800;letter-spacing:-.6px;margin:2px 0 6px">' + (!scoreOn() ? 'Tus tendencias de ' + mes + '.' : m.hasPrev ? 'Tu evaluación fue ' + m.letter + (m.plus ? pch(m.letter) : '') + '.' : 'Aún sin evaluación.') + '</div>' +
+    (scoreOn() ? '<div class="btx" style="font-size:15px;line-height:1.3;opacity:.95;margin:0 6px 14px">' + esc(insPhrase(m)) + '</div>' : '<div style="height:8px"></div>') +
+    '<span style="display:flex;align-items:center;justify-content:center;width:100%;height:50px;border-radius:999px;background:var(--card);color:' + g[1] + ';font-size:17px;font-weight:600">' + '<b class="btg">Ver informe</b>' + '</span></div></div>';
 }
 function insightsBanner(pos) {
   if (!insOn()) return '';
@@ -2818,11 +2822,11 @@ function streakHTML(letter, n, plus) {
 }
 function monthBanner() {
   const T = getToday(), g = SEASON_GRAD[seasonKey(T)], mes = cap1(MON_FULL[T.getMonth()]);
-  return '<div class="insban tap" data-act="month" role="button" style="position:relative;overflow:hidden;border-radius:26px;margin:0 0 14px;padding:18px;text-align:center;color:#fff;background:' + insBg(g) + ';box-shadow:0 8px 24px rgba(0,0,0,.12)">' +
+  return '<div class="insban tap" data-act="month" role="button" style="position:relative;overflow:hidden;border-radius:26px;margin:0 0 14px;padding:18px;text-align:center;color:#fff;--tg:' + tGrad(g) + ';background:' + insBg(g) + ';box-shadow:0 8px 24px rgba(0,0,0,.12)">' +
     '<div class="insgrain"></div><div style="position:relative">' +
-    '<div style="font-size:26px;font-weight:800;letter-spacing:-.6px;margin:2px 0 6px">' + mes + ' hasta ahora.</div>' +
-    '<div style="font-size:15px;line-height:1.3;opacity:.95;margin:0 6px 14px">Revisa tus movimientos del mes aquí.</div>' +
-    '<span style="display:flex;align-items:center;justify-content:center;width:100%;height:50px;border-radius:999px;background:var(--card);color:' + g[1] + ';font-size:17px;font-weight:600">' + '<b class="btg" style="--tg:linear-gradient(135deg,' + g[0] + ',' + g[1] + ' 55%,' + g[2] + ')">Ver movimientos</b>' + '</span></div></div>';
+    '<div class="btx" style="font-size:26px;font-weight:800;letter-spacing:-.6px;margin:2px 0 6px">' + mes + ' hasta ahora.</div>' +
+    '<div class="btx" style="font-size:15px;line-height:1.3;opacity:.95;margin:0 6px 14px">Revisa tus movimientos del mes aquí.</div>' +
+    '<span style="display:flex;align-items:center;justify-content:center;width:100%;height:50px;border-radius:999px;background:var(--card);color:' + g[1] + ';font-size:17px;font-weight:600">' + '<b class="btg">Ver movimientos</b>' + '</span></div></div>';
 }
 const MM_PER = 10;
 function mmList() {
