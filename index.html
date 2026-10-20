@@ -636,7 +636,7 @@ html[data-theme=light] .bkpi b,html[data-theme=light] .bhead b,html[data-theme=l
 .bstack{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:space-around;gap:.5em}
 .bfoot{display:flex;justify-content:space-between;align-items:baseline;margin-top:.6em;padding-top:.6em;border-top:1px solid var(--line);color:var(--mute)}
 .bfoot b{color:var(--ink);font-size:1.3em;letter-spacing:-.02em}
-.bup{display:flex;align-items:center;gap:.8em}
+.bup{display:flex;align-items:center;gap:.8em}.bstack.bcp{display:grid;grid-template-columns:1fr 1fr;grid-auto-flow:row;gap:.5em 2.2em;align-content:center}.bstack.bcp .bup{gap:.6em;font-size:.92em}.bstack.bcp .bup .dd{width:2.4em}.bstack.bcp .bup .dd b{font-size:1.1em}
 .bup .dd{flex:none;width:3em;text-align:center;line-height:1.1}
 .bup .dd b{display:block;font-size:1.25em}.bup .dd small{color:var(--mute);font-size:.8em;text-transform:uppercase}
 .bup span.n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -5077,8 +5077,8 @@ const BW = {
     return '<div class="bstack">' + c.savings.slice(0, bcap(h) - 1).map((k) => { const p = k.goal > 0 ? k.balance / k.goal * 100 : 0; return '<div class="brow"><div><span>' + esc(k.name) + '</span><b>' + Math.round(p) + '%</b></div>' + bbar(p, k.color) + '</div>'; }).join('') + '</div><div class="bfoot"><span>Ahorrado</span><b>' + fmt(c.saved) + '</b></div>';
   } },
   upcoming: { t: 'Próximos movimientos', d: 'Lo que viene en los próximos días.', ic: 'calendar-event-line', sizes: ['T', 'M', 'L'], r: (c, w, h) => {
-    const lim = addDays(c.today, 45), ev = genEvents(c.today, {}).filter((e) => e.date <= lim).slice(0, h >= 2 ? 8 : 3); if (!ev.length) return bemp('Nada previsto por ahora');
-    return '<div class="bstack">' + ev.map((e) => '<div class="bup"><div class="dd"><b>' + e.date.getDate() + '</b><small>' + MON[e.date.getMonth()] + '</small></div><span class="n">' + esc(e.name) + '</span><b class="a ' + (e.amt >= 0 ? 'pos' : '') + '">' + (e.amt >= 0 ? '+' : '') + fmt(e.amt) + '</b></div>').join('') + '</div>';
+    const lim = addDays(c.today, 45), ev = genEvents(c.today, {}).filter((e) => e.date <= lim).slice(0, 6); if (!ev.length) return bemp('Nada previsto por ahora');
+    return '<div class="bstack' + (w > 1 ? ' bcp' : '') + '">' + ev.map((e) => '<div class="bup"><div class="dd"><b>' + e.date.getDate() + '</b><small>' + MON[e.date.getMonth()] + '</small></div><span class="n">' + esc(e.name) + '</span><b class="a ' + (e.amt >= 0 ? 'pos' : '') + '">' + (e.amt >= 0 ? '+' : '') + fmt(e.amt) + '</b></div>').join('') + '</div>';
   } },
   weekday: { t: 'Gasto por día', d: 'En qué días de la semana gastas más.', ic: 'calendar-2-line', sizes: ['S', 'M'], r: (c, w, h) => {
     const from = iso(addDays(c.today, -90)), per = [0, 0, 0, 0, 0, 0, 0]; let n = 0;
