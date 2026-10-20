@@ -4,7 +4,15 @@
 
 Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola app web que funciona sin servidor ni dependencias. Tus datos se quedan en tu dispositivo.
 
-**Versión:** Beta 1 · **Compilación:** 242
+**Versión:** Beta 1 · **Compilación:** 243
+
+---
+
+## Novedades de la compilación 243
+
+Respecto a la 242:
+
+- **Escritorio, asistente de inicio:** columna central más ancha (≈800 px) y elementos más grandes para aprovechar el espacio.
 
 ---
 
