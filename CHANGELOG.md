@@ -8,10 +8,9 @@
 - **Calendario:** en oscuro, el día de hoy se marca en verde Plata.
 - **Novedades:** aviso la primera vez que abres la app tras actualizar, y acceso desde Ajustes.
 - **Vista web:** en pantallas anchas la app se organiza como un bento con todas las secciones a la vez, con la paleta de Prensa.
-- **Bentos:** en escritorio, tablero 16:9 con widgets de tus datos; varios Bentos con nombre propio, vista con navegación, edición con + / − y captura en PNG.
+- **Bentos:** en escritorio, tablero 16:9 con widgets de tus datos; varios Bentos con nombre propio, vista con navegación, edición con + / − y captura en PNG con QR a plataapp.net y @plataapp.
 - **Asistente de inicio (escritorio):** el paso de moneda usa un mapamundi para elegir región y ver sus monedas, con las elegidas como píldoras junto a la pregunta, y el asistente avanza con la rueda del ratón o las flechas del teclado.
 - **Sitio web:** plataapp.net ahora tiene secciones nuevas para conocer mejor Plata: Cómo usar, Prensa, Transparencia, Ayuda y Novedades.
-- **Pie del sitio:** nuevo crédito «Diseñado por Estudio 2² en Nueva York» en el landing y versión Beta 2 en todos los pies.
 
 ## Beta 1
 
