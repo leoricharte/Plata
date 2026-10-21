@@ -2922,7 +2922,7 @@ function seasonSide(k, g, right) {
     spring: petal('translate(20 24) rotate(-35)', g[0], .95) + petal('translate(46 38) rotate(28)', g[1], .9) + petal('translate(60 14) rotate(-10) scale(.7)', g[3] || g[0], .9),
     summer: '<circle cx="20" cy="24" r="8.5" fill="' + g[0] + '"/><g stroke="' + g[0] + '" stroke-width="2.4" stroke-linecap="round"><path d="M20 8V11M20 37V40M4 24H7M33 24H36M8.5 12.5L10.6 14.6M31.5 35.5L29.4 33.4M8.5 35.5L10.6 33.4M31.5 12.5L29.4 14.6"/></g>' + L('M0 -9 Q1 -1 9 0 Q1 1 0 9 Q-1 1 -9 0 Q-1 -1 0 -9Z', 'translate(48 40)', g[1], .95) + L('M0 -9 Q1 -1 9 0 Q1 1 0 9 Q-1 1 -9 0 Q-1 -1 0 -9Z', 'translate(60 14) scale(.65)', g[3])
   };
-  if (k === 'summer' && right) { const sp = (tr, f) => L('M0 -9 Q1 -1 9 0 Q1 1 0 9 Q-1 1 -9 0 Q-1 -1 0 -9Z', tr, f); art.summer = sp('translate(24 38) scale(1.2)', g[1]) + sp('translate(48 22)', g[0]) + sp('translate(40 46) scale(.6)', g[3]) + sp('translate(60 8) scale(.7)', g[2]); }
+  if (k === 'summer' && right) { const sp = (tr, f) => L('M0 -9 Q1 -1 9 0 Q1 1 0 9 Q-1 1 -9 0 Q-1 -1 0 -9Z', tr, f); art.summer = ['M6 16 q5 -6 10 0 t10 0 t10 0 t10 0', 'M2 28 q5 -6 10 0 t10 0 t10 0 t10 0 t10 0', 'M8 40 q5 -6 10 0 t10 0 t10 0 t10 0'].map((d, n) => '<path d="' + d + '" fill="none" stroke="' + (n === 1 ? g[1] : g[0]) + '" stroke-width="2.6" stroke-linecap="round" opacity="' + (n === 1 ? 1 : .6) + '"/>').join('') + sp('translate(62 8) scale(.6)', g[3]); }
   return '<svg aria-hidden="true"' + (k === 'summer' && right ? ' class="nm"' : '') + ' viewBox="0 0 72 56" width="64" height="50">' + art[k] + '</svg>';
 }
 const SEASON_ES = { autumn: 'Otoño', winter: 'Invierno', spring: 'Primavera', summer: 'Verano' };
