@@ -4997,7 +4997,7 @@ window.addEventListener('resize', fitWeb); fitWeb();
 const BENTO_KEY = 'plata.bento';
 function bsorted(W) { return W.sizes.slice().sort((x, y) => BSZ[x][0] * BSZ[x][1] - BSZ[y][0] * BSZ[y][1]); }
 const BW_ACTS = ['bnnop', 'bundo', 'bredo', 'bnplus', 'bnpick', 'bncolor', 'bnpreset', 'bnset', 'bndelset', 'bnopen', 'bnclose', 'bngal', 'bnreset', 'bndel', 'bnadd', 'bnsize', 'bnmove', 'bnnav', 'bnedit', 'bnview', 'bnshot'];
-const BSZ = { S: [1, 1], M: [2, 1], T: [1, 2], L: [2, 2], W: [4, 1] };
+const BSZ = { S: [1, 1], M: [2, 1], T: [1, 2], L: [2, 2], W: [4, 1], V: [1, 3] };
 const BENTO_PRE = [
   { id: 'mes', n: 'Mi mes', tag: 'predeterminado', d: 'Resumen, categorías, flujo y gasto acumulado. Directo al grano.', ic: 'dashboard-line', items: [['kpi', 'W'], ['cats', 'T'], ['flow', 'M'], ['daily', 'M'], ['top', 'T']] },
   { id: 'deu', n: 'Presupuesto y deuda', d: 'Este se enfoca más en los límites. Para poder atacar los gastos en donde más fácil es.', ic: 'wallet-3-line', items: [['kpi', 'W'], ['budget', 'T'], ['debt', 'T'], ['upcoming', 'T'], ['top', 'T']] },
@@ -5087,6 +5087,19 @@ function bring(o) {
     '<text ' + tx + '><textPath href="#' + id + 't" startOffset="50%" text-anchor="middle">' + o.top + '</textPath></text>' +
     '<text ' + tx + '><textPath href="#' + id + 'b" startOffset="50%" text-anchor="middle">' + o.bot + '</textPath></text></svg>';
 }
+function bhalf(o) {
+  const pc = Math.max(0, Math.min(100, o.pct)), big = String(o.big), fs = Math.max(30, Math.min(58, 200 / (big.length * 0.58)));
+  const arc = 'M 30,175 A 140,140 0 0 1 310,175', pl = (x) => String(x || '').replace(/<[^>]*>/g, '');
+  let lab = (o.top || '') + '<tspan> · </tspan>' + (o.bot || ''), len = pl(o.top).length + 3 + pl(o.bot).length;
+  if (len > 34) { lab = o.top || ''; len = pl(o.top).length; }
+  const lf = Math.max(11, Math.min(16, 320 / (Math.max(8, len) * 0.78)));
+  return '<svg class="dsvg" viewBox="0 0 340 216" preserveAspectRatio="xMidYMid meet">' +
+    '<path d="' + arc + '" fill="none" stroke="var(--track)" stroke-width="28" stroke-linecap="round"/>' +
+    (pc > 0 ? '<path d="' + arc + '" fill="none" stroke="' + o.color + '" stroke-width="28" stroke-linecap="round" pathLength="100" stroke-dasharray="' + Math.max(1, pc).toFixed(1) + ' 100"/>' : '') +
+    '<text x="170" y="' + (o.sub ? 142 : 160) + '" text-anchor="middle" font-size="' + fs + '" font-weight="750" letter-spacing="-1.4" style="fill:currentColor">' + big + '</text>' +
+    (o.sub ? '<text x="170" y="172" text-anchor="middle" font-size="22" font-weight="600" style="fill:' + (o.subc || 'var(--mute)') + '">' + o.sub + '</text>' : '') +
+    '<text x="170" y="207" text-anchor="middle" font-size="' + lf.toFixed(1) + '" font-weight="650" letter-spacing="1.2" style="fill:var(--mute);text-transform:uppercase">' + lab + '</text></svg>';
+}
 function bpkData(kind, r, c) {
   const o = r.o;
   if (kind === 'card') { const lim = o.limit > 0, u = lim ? o.util : 100; return { pct: u, color: !lim ? 'color-mix(in srgb,var(--mute) 55%,transparent)' : u > 85 ? '#FF6961' : u > 60 ? '#FF9500' : '#22B573', big: fmt(o.ub), sub: o.interest > 0 ? '<tspan>≈ ' + fmt2(o.interest) + ' </tspan><tspan>/mes</tspan>' : '', top: '<tspan>' + esc(String(o.name).slice(0, 20)) + '</tspan>' + (lim ? '<tspan> · ' + u + '% </tspan><tspan>usado</tspan>' : ''), bot: '<tspan>Deuda actual</tspan>', rows: [['Debes', fmt(o.ub)], lim ? ['Disponible', fmt(Math.max(0, o.limit - o.balance))] : null, o.interest > 0 ? ['Interés estimado al mes', fmt2(o.interest)] : null, o.apr ? ['Tasa', o.apr + '% anual'] : null, o.due_day ? ['Pago', 'día ' + o.due_day] : null] }; }
@@ -5097,10 +5110,11 @@ function bpkData(kind, r, c) {
 }
 function bpkW(kind, slot) {
   const K = BPK[kind];
-  return { t: K.t + (slot ? ' ' + (slot + 1) : ''), d: K.d, ic: K.ic, sizes: ['S', 'T'], nh: 1,
+  return { t: K.t + (slot ? ' ' + (slot + 1) : ''), d: K.d, ic: K.ic, sizes: ['S', 'M', 'T'], nh: 1,
     tt: (x) => { const c = calc(), r = bpkOf(kind, x, c); if (!ui.bnEdit || !r || (x && x.pv)) return r ? esc(r.name) : K.t; return '<select class="bsel" data-bcard="' + (x ? x.id : '') + '" aria-label="Elegir">' + BPK[kind].list(c).map((q) => '<option value="' + esc(q.id) + '"' + (q.id === r.id ? ' selected' : '') + '>' + esc(q.name) + '</option>').join('') + '</select>'; },
     r: (c, w, h, x) => {
       const r = bpkOf(kind, x, c); if (!r) return bemp(K.ph); const d = bpkData(kind, r, c), ring = bring(Object.assign({ uid: 'bk' + (x ? x.id : kind) }, d));
+      if (h === 1 && w >= 2) return '<div class="bdon" style="flex-direction:column">' + bhalf(d) + '</div>';
       if (h === 1) return '<div class="bdon" style="flex-direction:column">' + ring + '</div>';
       return '<div style="display:flex;flex-direction:column;gap:.7em;flex:1;min-height:0"><div style="flex:1;min-height:0;display:flex">' + ring + '</div><div class="bstack" style="flex:none">' + d.rows.filter(Boolean).map((q) => '<div class="brow"><div><span>' + q[0] + '</span><b' + (q[2] ? ' class="' + q[2] + '"' : '') + ' style="color:var(--ink)">' + q[1] + '</b></div></div>').join('') + '</div></div>';
     } };
@@ -5199,10 +5213,10 @@ const BW = {
     const phrase2 = '<div style="font-size:' + Math.round(pf) + 'px;font-weight:750;letter-spacing:-.03em;line-height:1.2;background:' + tg + ';-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent">' + esc(txt) + '</div>';
     return '<div style="flex:1;display:flex;gap:1.8em;min-height:0"><div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:.5em">' + phrase2 + '<div style="display:grid;grid-template-columns:repeat(4,auto);justify-content:space-between;gap:0 1em;margin-top:' + Math.round(vf * 0.35) + 'px">' + st + '</div></div>' + kp + '</div>';
   } },
-  profile: { t: 'Perfil', d: 'Tu foto y tu nombre en grande.', ic: 'user-smile-line', sizes: ['M', 'S', 'T'], r: (c, w, h) => {
+  profile: { t: 'Perfil', d: 'Tu foto y tu nombre en grande.', ic: 'user-smile-line', sizes: ['M', 'S', 'T', 'V'], r: (c, w, h) => {
     const st = data.settings || {}, nm = [(st.first || '').trim(), (st.last || '').trim()].filter(Boolean).join(' '), name = (st.nick || '').trim() || nm;
     if (!name && !avatarPhoto()) return bemp('Añade tu nombre y foto en Perfil');
-    const d = bvb(w, h), col = w === 1, sz = Math.round(Math.max(48, Math.min(col ? d[0] * 0.5 : d[1] * 0.6, col ? d[1] * 0.3 : d[0] * 0.2, 190)));
+    const d = bvb(w, h), col = w === 1, tall = col && h >= 3, sz = Math.round(Math.max(48, Math.min(col ? d[0] * (tall ? 0.74 : 0.5) : d[1] * 0.6, col ? d[1] * (tall ? 0.42 : 0.3) : d[0] * 0.2, tall ? 260 : 190)));
     const avail = col ? d[0] - 50 : d[0] - sz - 120, fs = Math.round(Math.max(20, Math.min(d[1] * (col ? 0.26 : 0.5), avail / (Math.max(4, (col ? Math.ceil(name.length / 2) : name.length)) * 0.62))));
     return '<div style="flex:1;min-height:0;display:flex;' + (col ? 'flex-direction:column;' : '') + 'align-items:center;justify-content:center;gap:' + (col ? '.6em' : '1.2em') + ';text-align:' + (col ? 'center' : 'left') + ';overflow:hidden">' + bAvatar(sz) + (name ? '<b class="bname"' + (col ? '' : ' data-fit="1"') + ' style="' + bnameGrad() + 'font-size:' + fs + 'px;white-space:' + (col ? 'normal' : 'nowrap') + ';overflow-wrap:anywhere' + (col ? '' : ';flex:1;min-width:0') + '">' + esc(name) + '</b>' : '') + '</div>';
   } },
