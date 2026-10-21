@@ -3670,6 +3670,30 @@ function openSettings() { if (ui.tab === 'cuenta' && ui.itemKind === 'settings' 
 function navSlide(mode) { const e = $('#s-cuenta'); if (!e) return; e.classList.remove('nav-tab', 'nav-push', 'nav-pop'); void e.offsetWidth; e.classList.add('nav-' + mode); e.scrollTop = 0; }
 function leaveSettings() { if (ui.itemKind === 'settings' || ui.itemKind === 'credits' || ui.itemKind === 'profile') ui.itemId = null; }
 function closeSheet() { ui.profSheet = false; ui.profEdit = false; $('#sheet').classList.remove('show'); $('#backdrop').classList.remove('show'); ui.confirmId = null; }
+/* Arrastrar hacia abajo la parte superior de la hoja (rayita y título) para cerrarla */
+(function () {
+  const sh = $('#sheet'); if (!sh) return; let st = null;
+  const web = () => document.documentElement.classList.contains('web');
+  sh.addEventListener('touchstart', (ev) => {
+    if (web() || !sh.classList.contains('show') || ev.touches.length !== 1) return;
+    const t = ev.touches[0], r = sh.getBoundingClientRect();
+    if (t.clientY - r.top > 70 || ev.target.closest('button, input, select, textarea, a, label')) return;
+    st = { y: t.clientY, dy: 0, t: Date.now() }; sh.style.transition = 'none';
+  }, { passive: true });
+  sh.addEventListener('touchmove', (ev) => {
+    if (!st) return; const dy = Math.max(0, ev.touches[0].clientY - st.y); st.dy = dy;
+    sh.style.transform = 'translateY(' + dy + 'px)'; if (dy > 4 && ev.cancelable) ev.preventDefault();
+  }, { passive: false });
+  const end = () => {
+    if (!st) return; const d = st, v = d.dy / Math.max(1, Date.now() - d.t); st = null;
+    sh.style.transition = 'transform .28s cubic-bezier(.2,.9,.3,1)';
+    if (d.dy > 90 || (d.dy > 30 && v > 0.5)) {
+      sh.style.transform = 'translateY(115%)';
+      setTimeout(() => { closeSheet(); sh.style.transition = ''; sh.style.transform = ''; }, 260);
+    } else { sh.style.transform = ''; setTimeout(() => { sh.style.transition = ''; }, 300); }
+  };
+  sh.addEventListener('touchend', end); sh.addEventListener('touchcancel', end);
+})();
 function readSheet() {
   return { from: ($('#fFrom') || {}).value || '', amount: ($('#fAmount') || {}).value || '', note: ($('#fNote') || {}).value || '', date: ($('#fDate') || {}).value || '', acc: ($('#fAcc') || {}).value || ui.sheetAcc };
 }
