@@ -3410,7 +3410,8 @@ const GL = {
   card: ICON.card.replace('width="24" height="24"', 'width="19" height="19"')
 };
 const FICO = { pen: 'pencil-line', cal: 'calendar-line', card: 'bank-card-line', '#': 'hashtag-line', '%': 'percent-line', '$': 'coins-line', '◎': 'seedling-line', '▦': 'layout-grid-line', '▭': 'bank-card-line' };
-const fico = (ic) => '<span class="sico" aria-hidden="true">' + (FICO[ic[1]] ? RMI(FICO[ic[1]], 24, 'currentColor') : '<b class="glyph">' + ic[1] + '</b>') + '</span>';
+const NUMC = (n) => '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.25" fill="none" stroke="currentColor" stroke-width="2"/><text x="12" y="16.4" text-anchor="middle" font-size="12.5" font-weight="700" fill="currentColor" font-family="Inter,-apple-system,sans-serif">' + n + '</text></svg>';
+const fico = (ic) => '<span class="sico" aria-hidden="true">' + (ic[1] === 'n1' || ic[1] === 'n2' ? NUMC(ic[1].slice(1)) : FICO[ic[1]] ? RMI(FICO[ic[1]], 24, 'currentColor') : '<b class="glyph">' + ic[1] + '</b>') + '</span>';
 
 /* --- Nuevo movimiento --- */
 function sheetHTML(keep) {
@@ -3732,11 +3733,11 @@ const FORMS = {
   income: { coll: 'expected_income', hero: 'amount', heroLabel: () => 'Monto previsto', curFrom: 'acc', need: ['name'], pos: true, rebuild: ['repeat'], title: ['Ingreso previsto', 'Ingreso previsto'],
     fields: [{ k: 'name', t: 'text', label: 'Nombre', ic: ['#22B573', 'pen'] }, { t: 'seg', k: 'repeat', opts: [['0', 'Una vez'], ['7', 'Semanal'], ['14', '14 días'], ['q', 'Quincenal'], ['m', 'Mensual']] },
       { k: 'acc', t: 'select', label: 'Cuenta', ic: ['#22B573', 'card'] }, { k: 'date', t: 'date', label: 'Fecha', ic: ['#FF9F0A', 'cal'] },
-      { k: 'q1', t: 'num', label: 'Día del primer pago', ic: ['#22B573', '#'], show: (o) => o.repeat === 'q' }, { k: 'q2', t: 'num', label: 'Día del segundo pago', ic: ['#FF9F0A', '#'], show: (o) => o.repeat === 'q' }, { k: 'until', t: 'date', label: 'Termina el (opcional)', ic: ['#6D8BEA', 'cal'], show: (o) => !!o.repeat }],
+      { k: 'q1', t: 'num', label: 'Día del primer pago', ic: ['#22B573', 'n1'], show: (o) => o.repeat === 'q' }, { k: 'q2', t: 'num', label: 'Día del segundo pago', ic: ['#FF9F0A', 'n2'], show: (o) => o.repeat === 'q' }, { k: 'until', t: 'date', label: 'Termina el (opcional)', ic: ['#6D8BEA', 'cal'], show: (o) => !!o.repeat }],
     blank: () => ({ id: uid(), name: '', amount: 0, acc: data.accounts[0].id, date: iso(getToday()), repeat: 0, until: '' }) },
   job: { coll: 'jobs', hero: 'rate', heroLabel: (o) => (o && o.mode === 's' ? 'Ingreso mensual estimado' : 'Pago por hora'), curFrom: 'acc', need: ['name'], pos: true, rebuild: ['freq', 'sim', 'mode'], title: ['Nuevo trabajo', 'Trabajo'],
     fields: [{ t: 'seg', k: 'mode', get opts() { return jobModes(); }, show: () => jobModes().length > 1 }, { k: 'name', t: 'text', label: 'Nombre del trabajo', ic: ['#22B573', 'pen'] }, { t: 'seg', k: 'freq', opts: [['w', 'Semanal'], ['b', '14 días'], ['q', 'Quincenal'], ['m', 'Mensual']] },
-      { k: 'q1', t: 'num', label: 'Día del primer pago', ic: ['#22B573', '#'], show: (o) => o.freq === 'q' }, { k: 'q2', t: 'num', label: 'Día del segundo pago', ic: ['#FF9F0A', '#'], show: (o) => o.freq === 'q' },
+      { k: 'q1', t: 'num', label: 'Día del primer pago', ic: ['#22B573', 'n1'], show: (o) => o.freq === 'q' }, { k: 'q2', t: 'num', label: 'Día del segundo pago', ic: ['#FF9F0A', 'n2'], show: (o) => o.freq === 'q' },
       { k: 'hours', t: 'num', label: 'Horas por semana', ic: ['#FF9F0A', '#'], show: (o) => o.mode !== 's' }, { k: 'tax', t: 'num', label: 'Impuestos retenidos (%)', ic: ['#FF6B5E', '%'], show: (o) => o.mode !== 's' },
       { k: 'acc', t: 'select', label: 'Cuenta donde cae el pago', ic: ['#22B573', 'card'] }, { k: 'start', t: 'date', label: 'Primer pago', ic: ['#FF9F0A', 'cal'] },
       { k: 'until', t: 'date', label: 'Último pago (opcional)', ic: ['#6D8BEA', 'cal'] },
@@ -3745,7 +3746,7 @@ const FORMS = {
   expense: { coll: 'expected_expense', hero: 'amount', heroLabel: () => 'Monto previsto', curFrom: 'acc', need: ['name'], pos: true, rebuild: ['repeat'], title: ['Gasto previsto', 'Gasto previsto'],
     fields: [{ k: 'name', t: 'text', label: 'Nombre', ic: ['#22B573', 'pen'] }, { t: 'seg', k: 'repeat', opts: [['0', 'Una vez'], ['7', 'Semanal'], ['14', '14 días'], ['q', 'Quincenal'], ['m', 'Mensual']] },
       { k: 'acc', t: 'select', label: 'Cuenta o tarjeta', ic: ['#22B573', 'card'] }, { k: 'cat', t: 'select', label: 'Categoría', ic: ['#B98AE6', '▦'] }, { k: 'date', t: 'date', label: 'Fecha', ic: ['#FF9F0A', 'cal'] },
-      { k: 'q1', t: 'num', label: 'Día del primer pago', ic: ['#22B573', '#'], show: (o) => o.repeat === 'q' }, { k: 'q2', t: 'num', label: 'Día del segundo pago', ic: ['#FF9F0A', '#'], show: (o) => o.repeat === 'q' }, { k: 'until', t: 'date', label: 'Termina el (opcional)', ic: ['#6D8BEA', 'cal'], show: (o) => !!o.repeat }],
+      { k: 'q1', t: 'num', label: 'Día del primer pago', ic: ['#22B573', 'n1'], show: (o) => o.repeat === 'q' }, { k: 'q2', t: 'num', label: 'Día del segundo pago', ic: ['#FF9F0A', 'n2'], show: (o) => o.repeat === 'q' }, { k: 'until', t: 'date', label: 'Termina el (opcional)', ic: ['#6D8BEA', 'cal'], show: (o) => !!o.repeat }],
     blank: () => ({ id: uid(), name: '', amount: 0, acc: data.accounts[0].id, date: iso(getToday()), repeat: 0, until: '', cat: 'Otros' }) },
   sim: { coll: 'planned', hero: 'amount', heroLabel: (o) => (o && o.kind === 'pay' ? 'Pago simulado' : 'Gasto simulado'), need: ['name'], pos: true, rebuild: ['kind'], title: ['Simular gasto', 'Gasto simulado'],
     fields: [{ t: 'seg', k: 'kind', opts: [['out', 'Gasto'], ['pay', 'Pago de crédito']], show: () => data.cards.length > 0 },
@@ -3758,7 +3759,7 @@ const FORMS = {
   cardpay: { coll: 'expected_expense', hero: 'amount', heroLabel: () => 'Pago previsto', curFrom: 'acc', need: [], pos: true, rebuild: ['repeat'], title: ['Pago de crédito previsto', 'Pago de crédito previsto'],
     fields: [{ k: 'name', t: 'text', label: 'Nombre (opcional)', ic: ['#22B573', 'pen'] }, { t: 'seg', k: 'repeat', opts: [['0', 'Una vez'], ['7', 'Semanal'], ['14', '14 días'], ['q', 'Quincenal'], ['m', 'Mensual']] },
       { k: 'card', t: 'select', label: 'Tarjeta o préstamo', ic: ['#B98AE6', 'card'] }, { k: 'acc', t: 'select', label: 'Pagar desde', ic: ['#22B573', 'card'], pay: true }, { k: 'date', t: 'date', label: 'Fecha', ic: ['#FF9F0A', 'cal'] },
-      { k: 'q1', t: 'num', label: 'Día del primer pago', ic: ['#22B573', '#'], show: (o) => o.repeat === 'q' }, { k: 'q2', t: 'num', label: 'Día del segundo pago', ic: ['#FF9F0A', '#'], show: (o) => o.repeat === 'q' }, { k: 'until', t: 'date', label: 'Termina el (opcional)', ic: ['#6D8BEA', 'cal'], show: (o) => !!o.repeat }],
+      { k: 'q1', t: 'num', label: 'Día del primer pago', ic: ['#22B573', 'n1'], show: (o) => o.repeat === 'q' }, { k: 'q2', t: 'num', label: 'Día del segundo pago', ic: ['#FF9F0A', 'n2'], show: (o) => o.repeat === 'q' }, { k: 'until', t: 'date', label: 'Termina el (opcional)', ic: ['#6D8BEA', 'cal'], show: (o) => !!o.repeat }],
     blank: () => ({ id: uid(), name: '', amount: 0, acc: data.accounts[0].id, card: (data.cards[0] || {}).id, date: iso(getToday()), repeat: 0, until: '', cat: 'Otros' }) },
   budget: { hero: 'limit', heroLabel: () => 'Límite mensual (opcional)', curFrom: 'bud', need: ['name'], title: ['Nueva categoría', 'Categoría'], style: 'cat',
     fields: [{ k: 'name', t: 'text', label: 'Nombre', ic: ['#22B573', 'pen'] }] },
