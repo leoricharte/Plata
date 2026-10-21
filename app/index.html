@@ -1968,7 +1968,7 @@ function renderPresupuesto() {
 function bsetsHTML() {
   const act = activeSet(), vs = viewSet();
   const row = (id, nm, sub, isAct, isView) => '<div class="row tap" data-act="bsview:' + id + '"><div class="grow"><div class="name" style="font-size:16px">' + esc(nm) + (isAct ? ' <span class="badge" style="background:var(--gbg);color:var(--gt2);margin-left:4px">Activo</span>' : '') + '</div><div class="sub" style="font-size:13px">' + sub + '</div></div>' +
-    (id !== 'base' ? '<button class="calnav" data-act="bsedit:' + id + '" aria-label="Editar" style="width:34px;height:34px;margin-right:6px">' + RMI('pencil-line', 16, '#22B573') + '</button>' : '') + (isView ? '<span style="color:#22B573;font-weight:700">✓</span>' : '') + '</div>';
+    (id !== 'base' ? '<button class="calnav" data-act="bsedit:' + id + '" aria-label="Editar" style="width:34px;height:34px;margin-right:6px">' + RMI('pencil-line', 16, '#22B573') + '</button>' : '') + '<span style="flex:none;width:20px;text-align:center;color:#22B573;font-weight:700">' + (isView ? '✓' : '') + '</span></div>';
   const rows = row('base', 'Presupuesto base', 'Se usa cuando no hay otro set activo', !act, !vs) +
     bsets().slice().sort((a, b) => (a.from < b.from ? -1 : 1)).map((b) => row(b.id, b.name, 'Del ' + dshort(pd(b.from)) + ' al ' + dshort(pd(b.to)) + ' ' + pd(b.to).getFullYear(), act === b, vs === b)).join('');
   return sheetHead('Sets de presupuesto', null, null) + '<div class="sub" style="font-size:13px;padding:0 8px 10px">Cada set tiene sus propios límites y se activa solo entre sus fechas. Toca uno para verlo y editar sus límites.</div><div class="card lst" style="margin:0 0 12px">' + rows + '</div><button class="primary" data-act="bsnew">Nuevo set</button>';
