@@ -327,6 +327,11 @@ input[type=range]::-moz-range-thumb{width:38px;height:24px;border:0;border-radiu
 .card.lst{padding:2px 16px}
 .sechead{display:flex;align-items:center;justify-content:space-between;padding:4px 4px 12px}
 .sechead h2{font-size:22px;font-weight:700;letter-spacing:-.4px;color:var(--ink);margin:0}
+.mhead{display:flex;align-items:center;justify-content:center;gap:6px;padding:6px 0 12px;text-align:center}
+.mhead .mtx{flex:none}.mhead .msm{font-size:15px;font-weight:600;letter-spacing:-.1px;color:var(--s1)}
+.mhead .mbig{font-size:40px;font-weight:800;letter-spacing:-1.4px;line-height:1.05;background:linear-gradient(100deg,var(--s1),var(--s2));-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;padding:0 2px 3px}
+.mhead .ma{flex:1;display:flex;align-items:center;justify-content:flex-start;min-width:0;overflow:hidden}.mhead .ma.r{justify-content:flex-end}.mhead .ma.r svg{transform:scaleX(-1)}
+html[data-theme=dark] .mhead .msm{color:var(--d1)}html[data-theme=dark] .mhead .mbig{background:linear-gradient(100deg,var(--d1),var(--d2));-webkit-background-clip:text;background-clip:text}
 .sortrow{display:flex;align-items:center;justify-content:space-between;padding:0 4px 10px}
 .sortbtn.on{background:#22B573}
 .sortbtn{width:30px;height:30px;border-radius:50%;background:rgba(120,120,128,.2);display:flex;align-items:center;justify-content:center}
@@ -1929,7 +1934,7 @@ function renderResumen() {
       '<div class="kpi tap" data-act="tab:ahorro"><span class="lbl">Ahorro total</span><span class="big">' + fmt(c.saved) + '</span><button class="link" data-act="tab:ahorro">Ver ahorro</button></div>' +
       '<div class="kpi tap" data-act="tab:deuda"><span class="lbl">Deuda total</span><span class="big">' + fmt(sum(c.cards.filter((k) => !k.hid), (k) => k.ub)) + '</span><button class="link" data-act="tab:deuda">Ver deuda</button></div>' +
     '</div>' + nextCard + monthMovCard(c) + (hasData() ? insightsBanner('top') : '') +
-    (hasData() ? monthBanner() : '') + budgetCard +
+    budgetCard +
     '<div class="card"><div class="lbl">Gastos de ' + MON_FULL[c.today.getMonth()] + '</div><div class="big">' + fmt(c.expense) + '</div>' +
       '<div class="legend"><span><u style="background:#EDB03E"></u>Gastos</span><span><u style="background:#6D8BEA"></u>Ingresos</span></div>' + barsSVG(c.months) + '</div>' +
     '<div class="card"><div class="lbl" style="margin-bottom:10px">Por categoría</div><div class="ringrow"><div style="width:140px;flex:none">' + catRing + '</div>' + catList + '</div></div>' +
@@ -2900,14 +2905,31 @@ function txRow(t) {
       '<div class="grow"><div class="name" style="font-size:16px">' + esc(t.note || cat) + '</div><div class="sub" style="font-size:13px">' + cat + ' · ' + dshort(d) + (data.accounts.length + data.cards.length > 1 ? ' · ' + esc(accOf(t.acc).name) : '') + '</div></div>' +
       amtHrs(t, '<span class="amt" style="color:' + (t.amount > 0 && !isPay(t) ? 'var(--gt)' : 'var(--ink)') + '">' + fmtSC2(t.amount, cur) + '</span>') + ICON.chev + '</div>';
 }
+function seasonSide(k, g) {
+  const L = (d, tr, f, o) => '<path d="' + d + '" transform="' + tr + '" fill="' + f + '"' + (o ? ' opacity="' + o + '"' : '') + '/>';
+  const leaf = 'M0 -14 C10 -8 12 6 0 16 C-12 6 -10 -8 0 -14Z';
+  const flake = (tr, c) => '<g transform="' + tr + '" stroke="' + c + '" stroke-width="2.2" stroke-linecap="round" fill="none"><path d="M0 -9V9M-7.8 -4.5L7.8 4.5M-7.8 4.5L7.8 -4.5"/></g>';
+  const petal = (tr, f, o) => '<ellipse rx="11" ry="5.5" transform="' + tr + '" fill="' + f + '" opacity="' + o + '"/>';
+  const art = {
+    autumn: L(leaf, 'translate(18 22) rotate(-25) scale(1.15)', g[1], .95) + L(leaf, 'translate(46 38) rotate(32) scale(.85)', g[0]) + L(leaf, 'translate(60 12) rotate(62) scale(.6)', g[2], .75),
+    winter: flake('translate(18 24) scale(1.3)', g[1]) + flake('translate(46 40) scale(.9)', g[0]) + flake('translate(60 14) scale(.65)', g[2]),
+    spring: petal('translate(20 24) rotate(-35)', g[0], .95) + petal('translate(46 38) rotate(28)', g[1], .9) + petal('translate(60 14) rotate(-10) scale(.7)', g[3] || g[0], .9),
+    summer: '<circle cx="22" cy="24" r="9" fill="' + g[0] + '"/><g stroke="' + g[0] + '" stroke-width="2.4" stroke-linecap="round"><path d="M22 7V10M22 38V41M5 24H8M36 24H39M10 12L12 14M34 34L32 36M10 36L12 34M34 14L32 12"/></g><path d="M34 46 Q42 40 50 46 T66 46" stroke="' + g[1] + '" stroke-width="3" stroke-linecap="round" fill="none"/>'
+  };
+  return '<svg aria-hidden="true" viewBox="0 0 72 56" width="72" height="56">' + art[k] + '</svg>';
+}
+function monthHead(T) {
+  const k = seasonKey(T), g = SEASON_GRAD[k], mes = cap1(MON_FULL[T.getMonth()]), side = seasonSide(k, g);
+  return '<div class="mhead" style="--s1:' + g[1] + ';--s2:' + g[2] + ';--d1:' + g[0] + ';--d2:' + g[1] + '"><div class="ma">' + side + '</div><div class="mtx"><div class="msm">Movimientos de</div><div class="mbig">' + mes + '</div></div><div class="ma r">' + side + '</div></div>';
+}
 function monthMovCard(c) {
   const mk = iso(c.today).slice(0, 7), mes = MON_FULL[c.today.getMonth()], hs = hidSet();
   const list = c.tx.filter((t) => t.date.slice(0, 7) === mk && !(hs && hs.has(t.acc || data.accounts[0].id)));
   const ms = monthSums(mk, 0), net = ms.inc - ms.exp;
   const st = (l, v, col) => '<div><span class="sub">' + l + '</span><b' + (col ? ' style="color:' + col + '"' : '') + '>' + v + '</b></div>';
-  const sum = list.length ? '<div class="stats" style="margin:0;padding:14px 18px 12px;border:0;border-bottom:1px solid var(--line)">' + st('Ingresos', fmt(ms.inc), 'var(--gt)') + st('Gastos', fmt(ms.exp)) + st('Neto', (net < 0 ? '−' : '') + fmt(Math.abs(net)), net < 0 ? 'var(--rt)' : 'var(--gt)') + '</div>' : '';
+  const sum = list.length ? '<div class="stats" style="margin:0;padding:14px 12px 12px;border:0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:repeat(3,1fr);text-align:center">' + st('Ingresos', fmt(ms.inc), 'var(--gt)') + st('Gastos', fmt(ms.exp)) + st('Neto', (net < 0 ? '−' : '') + fmt(Math.abs(net)), net < 0 ? 'var(--rt)' : 'var(--gt)') + '</div>' : '';
   const rows = list.length ? list.slice(0, 5).map(txRow).join('') : '<div class="empty">Aún sin movimientos en ' + mes + '</div>';
-  return secHead('Movimientos de ' + mes) + '<div class="card lst">' + sum + rows +
+  return monthHead(c.today) + '<div class="card lst">' + sum + rows +
     '<button class="linkrow moreRow" data-act="month" style="width:100%;border-top:1px solid var(--line)"><span class="grow">Ver todo ' + mes + '</span>' + ICON.chev + '</button></div>';
 }
 function movRows(limit, accId) {
