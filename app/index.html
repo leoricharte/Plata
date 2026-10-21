@@ -282,6 +282,7 @@ input[type=range]::-moz-range-thumb{width:38px;height:24px;border:0;border-radiu
 .amtlabel{font-size:17px;color:var(--mute)}
 .amount{display:flex;align-items:baseline;justify-content:center;gap:3px;font-size:52px;font-weight:700;letter-spacing:-0.04em;line-height:1.15}
 .amount input{border:0;outline:0;background:transparent;font-size:52px;font-weight:700;letter-spacing:-0.04em;width:4ch;padding:0;text-align:center;min-width:0}
+.amount:has(input)::after{content:"";flex:none;width:20px;height:20px;margin:0 -24px 0 6px;align-self:center;background:currentColor;opacity:.34;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M15.7279 9.57627L14.3137 8.16206L5 17.4758V18.89H6.41421L15.7279 9.57627ZM17.1421 8.16206L18.5563 6.74785L17.1421 5.33363L15.7279 6.74785L17.1421 8.16206ZM7.24264 20.89H3V16.6473L16.435 3.21231C16.8256 2.82179 17.4587 2.82179 17.8492 3.21231L20.6777 6.04074C21.0682 6.43126 21.0682 7.06443 20.6777 7.45495L7.24264 20.89Z'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M15.7279 9.57627L14.3137 8.16206L5 17.4758V18.89H6.41421L15.7279 9.57627ZM17.1421 8.16206L18.5563 6.74785L17.1421 5.33363L15.7279 6.74785L17.1421 8.16206ZM7.24264 20.89H3V16.6473L16.435 3.21231C16.8256 2.82179 17.4587 2.82179 17.8492 3.21231L20.6777 6.04074C21.0682 6.43126 21.0682 7.06443 20.6777 7.45495L7.24264 20.89Z'/%3E%3C/svg%3E") center/contain no-repeat;pointer-events:none}
 .sheet .chip{background:var(--card)}
 .sheet .chip.on{background:#1C1C1E}
 .scard{background:var(--card);border-radius:22px;padding:4px 16px;margin:6px 0 14px}
@@ -3442,6 +3443,7 @@ function historySheetHTML() {
 }
 function showSheet(html) { const s = $('#sheet'); ui.profSheet = false; s.innerHTML = html; s.classList.remove('tall', 'prof'); s.classList.add('show'); $('#backdrop').classList.add('show'); }
 function openSheet() { ui.sheetAuto = false; ui.sheetType = 'out'; ui.sheetCat = CAT_ORDER[0] || 'Otros'; ui.sheetAcc = data.accounts[0].id; ui.confirmId = null; ui.form = null; showSheet(sheetHTML()); }
+document.addEventListener('click', (e) => { const a = e.target.closest && e.target.closest('.amount'); if (a && e.target.tagName !== 'INPUT') { const i = a.querySelector('input'); if (i) i.focus(); } });
 const APP_VERSION = 'Beta 2';
 const APP_BUILD = 251;
 const ALPHA_TESTERS = ['Rodrigo Espinoza', 'Mariana Richarte', 'Jeny Surichaqui', 'Carlos Flores'];
