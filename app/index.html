@@ -465,6 +465,7 @@ html.web .gearbtn{top:16px;right:28px}
 html.web #plusbtn{right:82px!important}
 html.web main{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:0 28px 32px;display:grid;gap:18px;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:max(440px,calc((100vh - 76px - 18px - 32px)/2));grid-template-areas:"res pre pro" "res pre aho" "cue mov mov";align-content:start;scrollbar-width:thin;scrollbar-color:rgba(14,122,77,.3) transparent}
 html.web .screen:not(#s-cuenta){position:relative;inset:auto;display:block!important;animation:none!important;transform:none!important;z-index:auto!important;background:var(--wtile);--card:var(--wcard);--inset:var(--wcard);border-radius:32px;border:1px solid var(--wline);padding:22px 20px 24px;overflow-y:auto;scrollbar-width:none;min-height:0;opacity:1}
+html.web .screen:not(#s-cuenta){transition:box-shadow .25s,border-color .25s}html.web .screen.wflash:not(#s-cuenta){animation:wfl 1.5s ease!important;border-color:var(--accent,#22B573)}@keyframes wfl{0%{box-shadow:0 0 0 0 rgba(34,181,115,.55)}25%{box-shadow:0 0 0 5px rgba(34,181,115,.45),0 0 44px rgba(34,181,115,.35)}100%{box-shadow:0 0 0 0 rgba(34,181,115,0)}}
 html.web #s-resumen{grid-area:res}html.web #s-presupuesto{grid-area:pre}html.web #s-proyeccion{grid-area:pro}html.web #s-ahorro{grid-area:aho}html.web #s-deuda{grid-area:cue}html.web #s-movimientos{grid-area:mov}
 html.web .screen h1{font-size:26px}
 html.web .sechead h2{color:var(--ink)}
@@ -3289,7 +3290,15 @@ function renderAll() { if (resolveLang() !== LANG) applyLang(); updatePendingDot
 
 /* ---------- Navegación ---------- */
 const TAB_ORDER = ['resumen', 'presupuesto', 'proyeccion', 'deuda', 'ahorro', 'movimientos', 'cuenta'];
+function webFocus(t) {
+  const e = $('#s-' + t); if (!e) return;
+  const m = document.querySelector('main');
+  if (m) { const top = e.offsetTop - 12, h = m.clientHeight; if (e.offsetTop < m.scrollTop || e.offsetTop + e.offsetHeight > m.scrollTop + h) m.scrollTo({ top: Math.max(0, top), behavior: 'smooth' }); }
+  e.classList.remove('wflash'); void e.offsetWidth; e.classList.add('wflash');
+  clearTimeout(e._wf); e._wf = setTimeout(() => e.classList.remove('wflash'), 1500);
+}
 function setTab(t) {
+  if (document.documentElement.classList.contains('web') && t !== 'cuenta' && ui.tab !== 'cuenta' && TAB_ORDER.indexOf(t) >= 0) { ui.tab = t; document.documentElement.setAttribute('data-tab', t); webFocus(t); return; }
   const prevT = ui.tab, mode = t === prevT ? 'tab' : t === 'cuenta' ? 'push' : prevT === 'cuenta' ? 'pop' : 'tab';
   ui.tab = t;
   clearTimeout(setTab._lt);
