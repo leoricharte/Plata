@@ -1925,12 +1925,11 @@ function renderResumen() {
       '<button class="linkrow" data-act="add">' + IC_ADD + 'Añadir un movimiento</button><button class="linkrow" data-act="load">' + ICON.folder.replace(/#1C1C1E/g, '#1A9D63') + 'Cargar mi archivo de perfil</button><button class="linkrow" data-act="demo">' + ICON.info + 'Ver con datos de ejemplo</button></div>') +
     '<div class="grid2">' +
       '<div class="kpi tap" data-act="tab:deuda"><span class="lbl">Balance actual</span><span class="big">' + fmt(sum(visAcc, (a) => usd(a.balance, a.cur))) + '</span><span class="sub">' + plural(visAcc.length, 'cuenta', 'cuentas') + '</span></div>' +
-      '<div class="kpi tap" data-act="movin"><span class="lbl">Ingresos del mes</span><span class="big">' + fmt(c.income) + '</span><span class="sub">' + plural(c.incomeCount, 'ingreso', 'ingresos') + '</span></div>' +
+      '<div class="kpi tap" data-act="mmin"><span class="lbl">Ingresos del mes</span><span class="big">' + fmt(c.income) + '</span><span class="sub">' + plural(c.incomeCount, 'ingreso', 'ingresos') + '</span></div>' +
       '<div class="kpi tap" data-act="tab:ahorro"><span class="lbl">Ahorro total</span><span class="big">' + fmt(c.saved) + '</span><button class="link" data-act="tab:ahorro">Ver ahorro</button></div>' +
       '<div class="kpi tap" data-act="tab:deuda"><span class="lbl">Deuda total</span><span class="big">' + fmt(sum(c.cards.filter((k) => !k.hid), (k) => k.ub)) + '</span><button class="link" data-act="tab:deuda">Ver deuda</button></div>' +
-    '</div>' + nextCard + (hasData() ? insightsBanner('top') : '') +
-    secHead('Últimos movimientos') + '<div class=\"card lst\">' + movRows(3) +
-      '<button class="linkrow moreRow" data-act="tab:movimientos" style="width:100%;border-top:1px solid var(--line)"><span class="grow">Ver todos los movimientos</span>' + ICON.chev + '</button></div>' + (hasData() ? monthBanner() : '') + budgetCard +
+    '</div>' + nextCard + monthMovCard(c) + (hasData() ? insightsBanner('top') : '') +
+    (hasData() ? monthBanner() : '') + budgetCard +
     '<div class="card"><div class="lbl">Gastos de ' + MON_FULL[c.today.getMonth()] + '</div><div class="big">' + fmt(c.expense) + '</div>' +
       '<div class="legend"><span><u style="background:#EDB03E"></u>Gastos</span><span><u style="background:#6D8BEA"></u>Ingresos</span></div>' + barsSVG(c.months) + '</div>' +
     '<div class="card"><div class="lbl" style="margin-bottom:10px">Por categoría</div><div class="ringrow"><div style="width:140px;flex:none">' + catRing + '</div>' + catList + '</div></div>' +
@@ -2900,6 +2899,16 @@ function txRow(t) {
     return '<div class="row tap" data-act="tx:' + t.id + '"><span class="tile" style="background:' + (cat === PAY ? '#B98AE6' : CAT_COLOR[cat]) + '" aria-hidden="true">' + (cat === PAY ? iconSVG('card', '#fff', 20) : catGlyph(cat)) + '</span>' +
       '<div class="grow"><div class="name" style="font-size:16px">' + esc(t.note || cat) + '</div><div class="sub" style="font-size:13px">' + cat + ' · ' + dshort(d) + (data.accounts.length + data.cards.length > 1 ? ' · ' + esc(accOf(t.acc).name) : '') + '</div></div>' +
       amtHrs(t, '<span class="amt" style="color:' + (t.amount > 0 && !isPay(t) ? 'var(--gt)' : 'var(--ink)') + '">' + fmtSC2(t.amount, cur) + '</span>') + ICON.chev + '</div>';
+}
+function monthMovCard(c) {
+  const mk = iso(c.today).slice(0, 7), mes = MON_FULL[c.today.getMonth()], hs = hidSet();
+  const list = c.tx.filter((t) => t.date.slice(0, 7) === mk && !(hs && hs.has(t.acc || data.accounts[0].id)));
+  const ms = monthSums(mk, 0), net = ms.inc - ms.exp;
+  const st = (l, v, col) => '<div><span class="sub">' + l + '</span><b' + (col ? ' style="color:' + col + '"' : '') + '>' + v + '</b></div>';
+  const sum = list.length ? '<div class="stats" style="margin:0;padding:14px 18px 12px;border:0;border-bottom:1px solid var(--line)">' + st('Ingresos', fmt(ms.inc), 'var(--gt)') + st('Gastos', fmt(ms.exp)) + st('Neto', (net < 0 ? '−' : '') + fmt(Math.abs(net)), net < 0 ? 'var(--rt)' : 'var(--gt)') + '</div>' : '';
+  const rows = list.length ? list.slice(0, 5).map(txRow).join('') : '<div class="empty">Aún sin movimientos en ' + mes + '</div>';
+  return secHead('Movimientos de ' + mes) + '<div class="card lst">' + sum + rows +
+    '<button class="linkrow moreRow" data-act="month" style="width:100%;border-top:1px solid var(--line)"><span class="grow">Ver todo ' + mes + '</span>' + ICON.chev + '</button></div>';
 }
 function movRows(limit, accId) {
   const c = calc();
@@ -4299,6 +4308,7 @@ document.addEventListener('click', (e) => {
   else if (a === 'itconf') { ui.confirmPick = { k: ui.itemKind === 'expense' ? 'out' : 'in', id: ui.itemId }; ui.skipPending = false; const h = confirmHTML(); if (h) showSheet(h); }
   else if (a === 'ittoday') { const e = data[ui.itemKind === 'expense' ? 'expected_expense' : 'expected_income'].find((x) => x.id === ui.itemId); if (e) { e.date = iso(getToday()); delete e.snooze; ui.dirty++; persist(); renderAll(); toast('Adelantado a hoy'); } }
   else if (a === 'tx') openTx(arg);
+  else if (a === 'mmin') { ui.mm = { mk: iso(getToday()).slice(0, 7), f: 'in', page: 0 }; openItem('month', 'x'); }
   else if (a === 'month') { ui.mm = { mk: iso(getToday()).slice(0, 7), f: 'all', page: 0 }; openItem('month', 'x'); }
   else if (a === 'mmf') { if (ui.mm) { ui.mm.f = arg; ui.mm.page = 0; setSeg(el); mmRefresh(); } }
   else if (a === 'mmp') { if (ui.mm) { ui.mm.page = (ui.mm.page || 0) + Number(arg); mmRefresh(); } }
@@ -5085,7 +5095,7 @@ function bsorted(W) { return W.sizes.slice().sort((x, y) => BSZ[x][0] * BSZ[x][1
 const BW_ACTS = ['bnnop', 'bundo', 'bredo', 'bnplus', 'bnpick', 'bncolor', 'bnpreset', 'bnset', 'bndelset', 'bnopen', 'bnclose', 'bngal', 'bnreset', 'bndel', 'bnadd', 'bnsize', 'bnmove', 'bnnav', 'bnedit', 'bnview', 'bnshot'];
 const BSZ = { S: [1, 1], M: [2, 1], T: [1, 2], L: [2, 2], W: [4, 1], V: [1, 3] };
 const BENTO_PRE = [
-  { id: 'mes', n: 'Mi mes', tag: 'predeterminado', d: 'Resumen, categorías, flujo y gasto acumulado. Directo al grano.', ic: 'dashboard-line', items: [['kpi', 'W'], ['cats', 'T'], ['flow', 'M'], ['daily', 'M'], ['top', 'T']] },
+  { id: 'mes', n: 'Mi mes', tag: 'predeterminado', d: 'Resumen, categorías, flujo y gasto acumulado. Directo al grano.', ic: 'dashboard-line', items: [['kpi', 'W'], ['cats', 'T'], ['flow', 'M'], ['daily', 'M'], ['monthtx', 'T']] },
   { id: 'deu', n: 'Presupuesto y deuda', d: 'Este se enfoca más en los límites. Para poder atacar los gastos en donde más fácil es.', ic: 'wallet-3-line', items: [['kpi', 'W'], ['budget', 'T'], ['debt', 'T'], ['upcoming', 'T'], ['top', 'T']] },
   { id: 'per', n: 'Perfil y evaluación', d: '¿Vas a flexear tus progresos de Plata? Este es para ti. No flexearía nada que fuese A o menos de todas maneras.', ic: 'user-smile-line', items: [['profile', 'M'], ['score', 'S'], ['rate', 'S'], ['insight', 'W'], ['weekday', 'M'], ['upcoming', 'M']] },
   { id: 'graf', n: 'Gráficos', d: 'Guaaaau que bonitoooos.', ic: 'bar-chart-grouped-line', items: [['cats', 'L'], ['flow', 'M'], ['daily', 'M'], ['weekday', 'M'], ['rate', 'S'], ['score', 'S']] },
@@ -5264,6 +5274,12 @@ const BW = {
   upcoming: { t: 'Próximos movimientos', d: 'Lo que viene en los próximos días.', ic: 'calendar-event-line', sizes: ['T', 'M', 'L'], r: (c, w, h) => {
     const lim = addDays(c.today, 45), ev = genEvents(c.today, {}).filter((e) => e.date <= lim).slice(0, 6); if (!ev.length) return bemp('Nada previsto por ahora');
     return '<div class="bstack' + (w > 1 ? ' bcp' : '') + '">' + ev.map((e) => '<div class="bup"><div class="dd"><b>' + e.date.getDate() + '</b><small>' + MON[e.date.getMonth()] + '</small></div><span class="n">' + esc(e.name) + '</span><b class="a ' + (e.amt >= 0 ? 'pos' : '') + '">' + (e.amt >= 0 ? '+' : '') + fmt(e.amt) + '</b></div>').join('') + '</div>';
+  } },
+  monthtx: { t: 'Movimientos del mes', d: 'Lo último que movió tu plata este mes.', ic: 'calendar-2-line', sizes: ['T', 'M', 'L'], r: (c, w, h) => {
+    const mk = iso(c.today).slice(0, 7), hs = hidSet(), list = c.tx.filter((t) => t.date.slice(0, 7) === mk && !(hs && hs.has(t.acc || data.accounts[0].id)));
+    if (!list.length) return bemp('Sin movimientos este mes');
+    const n = h > 1 ? (w > 1 ? 8 : 6) : 3;
+    return '<div class="bstack' + (w > 1 && h > 1 ? ' bcp' : '') + '" data-act="month">' + list.slice(0, n).map((t) => '<div class="bup"><div class="dd"><b>' + pd(t.date).getDate() + '</b><small>' + MON[pd(t.date).getMonth()] + '</small></div><span class="n">' + esc(t.note || (t.amount > 0 ? 'Ingreso' : t.category)) + '</span><b class="a ' + (t.amount > 0 && !isPay(t) ? 'pos' : '') + '">' + fmtSC2(t.amount, accOf(t.acc).cur) + '</b></div>').join('') + '</div>';
   } },
   weekday: { t: 'Gasto por día', d: 'En qué días de la semana gastas más.', ic: 'calendar-2-line', sizes: ['S', 'M'], r: (c, w, h) => {
     const from = iso(addDays(c.today, -90)), per = [0, 0, 0, 0, 0, 0, 0]; let n = 0;
