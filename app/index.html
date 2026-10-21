@@ -74,6 +74,7 @@ html.preview .only-frame{display:flex}
 .splash .sp-title{font-family:'Inter',sans-serif;font-weight:700;font-size:64px;letter-spacing:-0.05em;color:var(--ink)}
 .splash .sp-foot{position:absolute;left:0;right:0;bottom:calc(var(--sab) + 18px);text-align:center;font-size:13px;font-weight:500;letter-spacing:.04em;color:rgba(28,28,30,.4)}
 .splash .sp-note{display:flex;align-items:center;justify-content:center;gap:7px;margin:10px 32px 0;font-size:12px;font-weight:400;letter-spacing:0;line-height:1.35;text-align:left}
+.splash .sp-t{text-wrap:balance;max-width:21em}
 .splash .sp-i{flex:none;width:16px;height:16px;border-radius:50%;background:rgba(28,28,30,.4);color:#F2F2F7;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;font-style:normal}
 .homebar{position:absolute;bottom:8px;left:50%;margin-left:-70px;width:140px;height:5px;border-radius:3px;background:#1C1C1E;z-index:60;pointer-events:none}
 .topfade{display:none!important;position:absolute;left:0;right:0;top:0;opacity:var(--ta,0);height:calc(var(--sat) + 4px);background:linear-gradient(to bottom,var(--bg) 72%,rgba(242,242,247,0));z-index:20;pointer-events:none}
@@ -891,7 +892,7 @@ html.web[data-theme=dark] .switch,html.web[data-theme=dark] .sw{--off:#24432F}
   <div class="backdrop" id="backdrop" data-act="close"></div>
   <div class="sheet" id="sheet" role="dialog" aria-label="Nuevo movimiento"></div>
   <div class="toast" id="toast" role="status"></div>
-  <div class="splash" id="splash"><div class="plogo" role="img" aria-label="Plata"></div><div class="sp-foot"><div>Beta 2</div><div class="sp-note"><span class="sp-i" aria-hidden="true">i</span>Esta es una versión de pruebas por lo cual aún podrían haber errores.</div></div></div>
+  <div class="splash" id="splash"><div class="plogo" role="img" aria-label="Plata"></div><div class="sp-foot"><div>Beta 2</div><div class="sp-note"><span class="sp-i" aria-hidden="true">i</span><span class="sp-t">Esta es una versión de pruebas por lo cual aún podrían haber errores.</span></div></div></div>
   <div class="homebar only-frame" aria-hidden="true"></div>
 </div>
 </div>
