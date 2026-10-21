@@ -337,6 +337,8 @@ input[type=range]::-moz-range-thumb{width:38px;height:24px;border:0;border-radiu
 .mhead .ma:not(.r) svg{margin-right:-8px}
 .mhead .ma.r svg{margin-left:-8px}.mhead .ma.r svg{transform:scaleX(-1)}
 .mhead .ma.r svg.nm{transform:none;margin-left:2px}
+.mpick{position:relative;display:inline-flex;align-items:center;gap:4px;height:44px;padding:0 14px 0 18px;border-radius:22px;background:var(--card);box-shadow:0 2px 10px rgba(0,0,0,.08);font-size:16px;font-weight:700;color:var(--ink);cursor:pointer}
+.mpick select{position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:16px;cursor:pointer}
 html[data-theme=dark] .mhead .msm{color:var(--d1)}html[data-theme=dark] .mhead .mbig{background:linear-gradient(100deg,var(--d1),var(--d2));-webkit-background-clip:text;background-clip:text}
 .sortrow{display:flex;align-items:center;justify-content:space-between;padding:0 4px 10px}
 .sortbtn.on{background:#22B573}
@@ -2926,9 +2928,9 @@ function seasonSide(k, g, right) {
   return '<svg aria-hidden="true"' + '' + ' viewBox="0 0 72 56" width="64" height="50">' + art[k] + '</svg>';
 }
 const SEASON_ES = { autumn: 'Otoño', winter: 'Invierno', spring: 'Primavera', summer: 'Verano' };
-function monthHead(T) {
+function monthHead(T, small) {
   const k = seasonKey(T), g = SEASON_GRAD[k], mes = cap1(MON_FULL[T.getMonth()]), side = seasonSide(k, g);
-  return '<div class="mhead" style="--s1:' + g[1] + ';--s2:' + g[2] + ';--d1:' + g[0] + ';--d2:' + g[1] + '"><div class="ma">' + side + '</div><div class="mtx"><div class="msm"><span>' + SEASON_ES[k] + '</span> ' + T.getFullYear() + '</div><div class="mbig">' + mes + '</div></div><div class="ma r">' + (k === 'summer' ? seasonSide(k, g, true) : side) + '</div></div>';
+  return '<div class="mhead" style="--s1:' + g[1] + ';--s2:' + g[2] + ';--d1:' + g[0] + ';--d2:' + g[1] + '"><div class="ma">' + side + '</div><div class="mtx"><div class="msm">' + (small || '<span>' + SEASON_ES[k] + '</span> ' + T.getFullYear()) + '</div><div class="mbig">' + mes + '</div></div><div class="ma r">' + (k === 'summer' ? seasonSide(k, g, true) : side) + '</div></div>';
 }
 function monthMovCard(c) {
   const mk = iso(c.today).slice(0, 7), mes = MON_FULL[c.today.getMonth()], hs = hidSet();
@@ -3042,12 +3044,18 @@ function monthScreenHTML() {
   const openM = mm.mk >= iso(T).slice(0, 7);
   const pendRow = '<div class="card" style="padding:14px 16px"><div style="display:flex;align-items:center;gap:14px"><div style="flex:none">' + ghostScore('?', 52) + '</div><div class="grow" style="font-size:16px;font-weight:600;line-height:1.3;color:var(--ink2)">Aún estamos trabajando en tu puntaje de este mes.</div></div></div>';
   const scoreRow = sc && openM ? pendRow : sc ? '<div class="card" style="padding:14px 16px"><div style="display:flex;align-items:center;gap:14px"><div style="flex:none">' + scoreTile(sc.letter, 52, sc.plus) + '</div><div class="grow"><div class="sub" style="font-size:13px">Puntaje</div><div style="font-size:26px;font-weight:800;letter-spacing:-.5px;line-height:1.1">' + sc.score + '<span class="sub" style="font-size:15px;font-weight:600"> / 100</span></div></div></div>' + streakHTML(sc.letter, sc.streak, sc.plus) + '</div>' : '';
-  return '<div class="navrow"><button class="back" data-act="itback" aria-label="Regresar">' + IC_BACK + '</button></div>' +
-    '<div class="head"><div><div class="eyebrow">Movimientos</div><h1>' + cap1(MON_FULL[mo]) + ' ' + y + '</h1></div></div>' + scoreRow +
-    '<div class="card"><div class="stats" style="border:0;margin:0;padding:0">' + st('Ingresos', fmt(ms.inc), 'var(--gt)') + st('Gastos', fmt(ms.exp)) + st('Neto', (net < 0 ? '−' : '') + fmt(Math.abs(net)), net < 0 ? 'var(--rt)' : 'var(--gt)') + '</div></div>' +
-    segHTML('mmf', items, mm.f) + '<div id="mmBody">' + mmBodyHTML() + '</div>' +
-    '<div class="card" style="text-align:center;margin-top:6px"><div class="name" style="font-size:20px;font-weight:700;letter-spacing:-.3px;margin:4px 0">¿Dejaste algo en ' + MON_FULL[pm.getMonth()] + '?</div>' +
-    '<div class="sub" style="font-size:15px;line-height:1.35;margin-bottom:12px">Revisa aquí el mes pasado y anteriores.</div><button class="primary" data-act="mmpick">Cambiar mes</button></div>';
+  const mkNow = iso(T).slice(0, 7), cnt = {};
+  data.transactions.forEach((t) => { const k = t.date.slice(0, 7); if (k <= mkNow) cnt[k] = (cnt[k] || 0) + 1; });
+  const first = Object.keys(cnt).sort()[0] || mkNow, ks = [];
+  let dd = new Date(T.getFullYear(), T.getMonth(), 1);
+  while (iso(dd).slice(0, 7) >= first && ks.length < 60) { ks.push(iso(dd).slice(0, 7)); dd = new Date(dd.getFullYear(), dd.getMonth() - 1, 1); }
+  if (ks.indexOf(mm.mk) < 0) ks.push(mm.mk);
+  const opts = ks.map((k) => '<option value="' + k + '"' + (k === mm.mk ? ' selected' : '') + '>' + cap1(MON_FULL[Number(k.slice(5, 7)) - 1]) + ' ' + k.slice(0, 4) + '</option>').join('');
+  const pick = '<label class="mpick"><select data-mmsel aria-label="Cambiar mes">' + opts + '</select><span>' + cap1(MON_FULL[mo]).slice(0, 3) + ' ' + y + '</span>' + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>' + '</label>';
+  return '<div class="navrow" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><button class="back" data-act="itback" aria-label="Regresar">' + IC_BACK + '</button>' + pick + '</div>' + scoreRow +
+    monthHead(new Date(y, mo, 15), 'Movimientos · ' + y) +
+    '<div class="card"><div class="stats" style="border:0;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);text-align:center">' + st('Ingresos', fmt(ms.inc), 'var(--gt)') + st('Gastos', fmt(ms.exp)) + st('Neto', (net < 0 ? '−' : '') + fmt(Math.abs(net)), net < 0 ? 'var(--rt)' : 'var(--gt)') + '</div></div>' +
+    segHTML('mmf', items, mm.f) + '<div id="mmBody">' + mmBodyHTML() + '</div>';
 }
 function scoreTile(letter, sz, plus) {
   const g = plus ? plusGrad(letter) : (GRAD[letter] || GRAD.B);
@@ -3483,6 +3491,7 @@ function historySheetHTML() {
 function showSheet(html) { const s = $('#sheet'); ui.profSheet = false; s.innerHTML = html; s.classList.remove('tall', 'prof'); s.classList.add('show'); $('#backdrop').classList.add('show'); }
 function openSheet() { ui.sheetAuto = false; ui.sheetType = 'out'; ui.sheetCat = CAT_ORDER[0] || 'Otros'; ui.sheetAcc = data.accounts[0].id; ui.confirmId = null; ui.form = null; showSheet(sheetHTML()); }
 document.addEventListener('click', (e) => { const a = e.target.closest && e.target.closest('.amount'); if (a && e.target.tagName !== 'INPUT') { const i = a.querySelector('input'); if (i) i.focus(); } });
+document.addEventListener('change', (e) => { const el = e.target; if (el && el.matches && el.matches('select[data-mmsel]')) { ui.mm = { mk: el.value, f: 'all', page: 0 }; renderCuenta(); document.querySelectorAll('.screen').forEach((sc) => { sc.scrollTop = 0; }); } });
 const APP_VERSION = 'Beta 2';
 const APP_BUILD = 251;
 const ALPHA_TESTERS = ['Rodrigo Espinoza', 'Mariana Richarte', 'Jeny Surichaqui', 'Carlos Flores'];
