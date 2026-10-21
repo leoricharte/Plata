@@ -181,7 +181,7 @@ html[lang=ja] .grow,html[lang=ja] .sub,html[lang=ja] .name{text-wrap:balance;lin
 .seg.glass{--tsx:1.1;--tsy:1.42}
 .seg.glass .thumb{background:rgba(255,255,255,.34);box-shadow:.75px 0 0 -.5px #D6D6D6,-.75px 0 0 -.5px #D6D6D6,0 0 0 .35px #E6E6E6,0 5px 14px rgba(0,0,0,.14),inset 0 .6px .6px rgba(255,255,255,.9),inset 0 -.6px .6px rgba(255,255,255,.5)}
 .seg button{position:relative;z-index:1;flex:1;height:40px;border-radius:999px;font-size:15px;font-weight:550;color:var(--ink2);transition:color .25s}
-.seg button{white-space:nowrap;padding:0 2px}.seg:has(> button:nth-of-type(5)) button{font-size:13.5px}
+.seg button{white-space:nowrap;padding:0 2px;flex:1 1 0;min-width:0}.seg:has(> button:nth-of-type(5)) button{font-size:13px;letter-spacing:-.015em}
 .seg button.on{color:#000}
 input[type=range]{-webkit-appearance:none;appearance:none;background:transparent;width:100%;height:50px;margin:0}
 input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:radial-gradient(circle at calc(calc(19px + (100% - 38px) * var(--f,0.66)) - 3px) 50%,#22B573 3px,transparent 3.6px),linear-gradient(to right,#22B573 calc(calc(19px + (100% - 38px) * var(--f,0.66)) - 3px),rgba(120,120,120,.2) calc(calc(19px + (100% - 38px) * var(--f,0.66)) - 3px))}
@@ -1353,7 +1353,7 @@ const untilTxt = (e) => (e && e.repeat && e.until ? ' · hasta ' + dshort(pd(e.u
 const repLabel = (r) => (isQ(r) ? 'los días ' + qDays(r)[0] + ' y ' + qDays(r)[1] + ' de cada mes' : r === 'm' ? 'cada mes' : Number(r) === 7 ? 'cada semana' : Number(r) === 14 ? 'cada 2 semanas' : 'una vez');
 const addMonths = (d, n) => new Date(d.getFullYear(), d.getMonth() + n, 1);
 const monthYear = (d) => MON[d.getMonth()] + ' ' + d.getFullYear();
-const amtW = (v) => { const s = String(v || ''); const d = s.replace(/[.,]/g, '').length, dots = s.length - d; return Math.max(4, d + dots * 0.4 + 0.3) + 'ch'; };
+const amtW = (v, ph) => { const s = String(v || ph || '0'); const d = s.replace(/[.,]/g, '').length, dots = s.length - d; return Math.max(1.2, d + dots * 0.4 + 0.3) + 'ch'; };
 
 /* ---------- Estado ---------- */
 
@@ -3244,7 +3244,7 @@ function txEditHTML(t) {
   const acc = accOf(t.acc), pay = isPay(t);
   ui.sheetType = pay ? 'pay' : t.amount > 0 ? 'in' : 'out'; ui.sheetCat = pay ? '' : (CAT_ORDER.indexOf(t.category) >= 0 ? t.category : 'Otros'); ui.sheetAcc = acc.id; ui.txEditId = t.id;
   return sheetHead('Editar movimiento', 'close', 'txsave') +
-    '<div class="amtblock"><div class="amtlabel">Monto</div><div class="amount"><span id="fSym">' + symOf(acc.cur).trim() + '</span><input id="fAmount" inputmode="decimal" autocomplete="off" value="' + Math.abs(t.amount) + '"></div></div>' +
+    '<div class="amtblock"><div class="amtlabel">Monto</div><div class="amount"><span id="fSym">' + symOf(acc.cur).trim() + '</span><input id="fAmount" inputmode="decimal" autocomplete="off" value="' + Math.abs(t.amount) + '" style="width:' + amtW(Math.abs(t.amount)) + '"></div></div>' +
     (pay ? '' : segHTML('type', [{ k: 'out', label: 'Gasto', act: 'type:out' }, { k: 'in', label: 'Ingreso', act: 'type:in' }], ui.sheetType, ';margin-bottom:10px') + '<div id="catWrap">' + catsHTML() + '</div>') +
     '<div class="scard">' +
     (t.job && t.hrs > 0 ? '<label class="srow">' + fico(['#FF9F0A', '#']) + '<span class="grow"><span class="slabel">Horas trabajadas</span><input class="sinput" id="fHrs" inputmode="decimal" autocomplete="off" data-rate="' + t.rate + '" value="' + t.hrs + '"></span></label><div class="srow">' + fico(['#FF6B5E', '%']) + '<span class="grow"><span class="slabel">Impuestos descontados (calculado)</span><div id="taxOut" style="font-size:17px">' + taxPct(Math.abs(t.amount), t.rate, t.hrs) + '%</div></span></div>' : '') +
@@ -3419,7 +3419,7 @@ const fico = (ic) => '<span class="sico" aria-hidden="true">' + (ic[1] === 'n1' 
 function sheetHTML(keep) {
   const k = keep || {}, acc = accOf(ui.sheetAcc);
   return sheetHead('Nuevo movimiento', null, 'submit') +
-    '<div class="amtblock"><div class="amtlabel">Monto</div><div class="amount"><span id="fSym">' + symOf(acc.cur).trim() + '</span><input id="fAmount" inputmode="decimal" placeholder="' + (decOf(acc.cur) ? '0.00' : '0') + '" autocomplete="off" value="' + esc(k.amount || '') + '"></div></div>' +
+    '<div class="amtblock"><div class="amtlabel">Monto</div><div class="amount"><span id="fSym">' + symOf(acc.cur).trim() + '</span><input id="fAmount" inputmode="decimal" placeholder="' + (decOf(acc.cur) ? '0.00' : '0') + '" autocomplete="off" value="' + esc(k.amount || '') + '" style="width:' + amtW(k.amount, decOf(acc.cur) ? '0.00' : '0') + '"></div></div>' +
     segHTML('type', [{ k: 'out', label: 'Gasto', act: 'type:out' }, { k: 'in', label: 'Ingreso', act: 'type:in' }].concat(data.cards.length ? [{ k: 'pay', label: 'Pago de crédito', act: 'type:pay' }] : []), ui.sheetType, ';margin-bottom:10px') +
     '<div id="catWrap">' + catsHTML() + '</div>' +
     '<div class="scard">' +
@@ -3837,7 +3837,7 @@ function formHTML() {
     else rows += '<label class="srow">' + fico(fd.ic) + '<span class="grow"><span class="slabel">' + fd.label + '</span>' + fieldInput(fd, o) + '</span></label>';
   });
   return sheetHead(f.isNew ? F.title[0] : F.title[1], null, 'fsave') +
-    '<div class="amtblock">' + (F.style ? '<div class="ptile" id="fPrev">' + tile(o.color || SWATCH[0], glyphFor(o, F.style === 'debt' ? 'debt' : 'acc')) + '</div>' : '') + '<div class="amtlabel">' + esc(F.heroLabel(o)) + '</div><div class="amount"><span id="fSym">' + symOf(cur).trim() + '</span><input id="fHero" inputmode="decimal" placeholder="0" autocomplete="off" data-f="__hero" value="' + (hv || '') + '" style="width:' + amtW(hv) + '"></div></div>' +
+    '<div class="amtblock">' + (F.style ? '<div class="ptile" id="fPrev">' + tile(o.color || SWATCH[0], glyphFor(o, F.style === 'debt' ? 'debt' : 'acc')) + '</div>' : '') + '<div class="amtlabel">' + esc(F.heroLabel(o)) + '</div><div class="amount"><span id="fSym">' + symOf(cur).trim() + '</span><input id="fHero" inputmode="decimal" placeholder="0" autocomplete="off" data-f="__hero" value="' + (hv || '') + '" style="width:' + amtW(hv, '0') + '"></div></div>' +
     segs + (rows ? '<div class="scard">' + rows + '</div>' : '') + (F.style ? styleHTML(o, F) : '') +
     '<button class="primary" data-act="fsave">Guardar</button>' +
     (f.kind === 'sim' && !f.isNew ? '<button class="secbtn" data-act="exec:' + f.id + '">' + (o.kind === 'pay' ? 'Ejecutar: registrar como pago real' : 'Ejecutar: registrar como gasto real') + '</button>' : '') +
@@ -4036,7 +4036,7 @@ function confirmHTML() {
     const c = e.card;
     return '<div id="cwrap">' + sheetHead(c.kind === 'loan' ? '¿Pagaste tu préstamo?' : '¿Pagaste tu tarjeta?', 'cclose', 'cok') +
       '<div class="amtblock"><div class="amtlabel">' + esc(c.name) + ' · día de pago ' + when + (list.length > 1 ? ' · 1 de ' + list.length : '') + '</div>' +
-      '<div class="amount"><span id="fSym">' + symOf(cur).trim() + '</span><input id="fHero" inputmode="decimal" autocomplete="off" placeholder="' + (decOf(cur) ? '0.00' : '0') + '" value=""></div>' +
+      '<div class="amount"><span id="fSym">' + symOf(cur).trim() + '</span><input id="fHero" inputmode="decimal" autocomplete="off" placeholder="' + (decOf(cur) ? '0.00' : '0') + '" value="" style="width:' + amtW('', decOf(cur) ? '0.00' : '0') + '"></div>' +
       '<div class="deltachip">¿Cuánto pagaste?</div></div>' +
       '<div class="scard"><label class="srow">' + fico(['#22B573', 'card']) + '<span class="grow"><span class="slabel">Pagar desde</span><select class="sinput" id="cFrom"><option value="">Sin descontar de una cuenta</option>' + data.accounts.map((a) => '<option value="' + a.id + '"' + (a.id === c.auto.from ? ' selected' : '') + '>' + esc(a.name) + l4(a) + ' · ' + a.cur + '</option>').join('') + '</select></span></label></div>' +
       '<button class="primary" data-act="cok">Confirmar</button><button class="secbtn" data-act="' + (ui.confirmPick ? 'cclose' : 'clater') + '">' + (ui.confirmPick ? 'Cancelar' : 'Aún no pagué') + '</button></div>';
@@ -4348,7 +4348,7 @@ document.addEventListener('click', (e) => {
   }
 });
 document.addEventListener('input', (e) => {
-  if (e.target && (e.target.id === 'fAmount' || e.target.id === 'fHero')) { e.target.style.width = amtW(e.target.value); if (ui.confirmId) updConfirmDelta(); updTax(); }
+  if (e.target && (e.target.id === 'fAmount' || e.target.id === 'fHero')) { e.target.style.width = amtW(e.target.value, e.target.placeholder); if (ui.confirmId) updConfirmDelta(); updTax(); }
   if (e.target && (e.target.id === 'cHrs' || e.target.id === 'fHrs')) updTax();
   if (e.target && e.target.getAttribute && e.target.getAttribute('data-f') === 'name' && ui.form && FORMS[ui.form.kind].style) { ui.form.obj.name = e.target.value; updPrev(); }
   if (e.target && e.target.id === 'cpick' && ui.form) {
