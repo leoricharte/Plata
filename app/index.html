@@ -438,6 +438,7 @@ html[data-theme=dark] .pill{background:rgba(160,160,170,.2);box-shadow:none}
 html[data-theme=dark] .tabbar.pressing .pill{background:rgba(255,255,255,.18);box-shadow:none}
 .seg.glass .thumb{background:var(--card);box-shadow:0 1px 4px rgba(0,0,0,.14),0 4px 12px rgba(0,0,0,.06)}
 html[data-theme=dark] .seg.glass .thumb{background:#636366;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+html[data-theme=dark] input[type=range]::-webkit-slider-thumb,html[data-theme=dark] input[type=range].jel.rel::-webkit-slider-thumb{background:#636366;box-shadow:0 1px 4px rgba(0,0,0,.4)}html[data-theme=dark] input[type=range].jel::-webkit-slider-thumb{background:rgba(120,120,128,var(--ga,.5));box-shadow:0 0 0 .5px rgba(255,255,255,.18),0 4px 14px rgba(0,0,0,.35),inset 0 1px 1px rgba(255,255,255,.18)}html[data-theme=dark] input[type=range]::-moz-range-thumb{background:#636366}
 .sw2:active span,.switch:active span,.switch.press span,.sw2.fl-off span,.switch.fl-off span,.sw2.on:active span,.switch.on:active span,.switch.on.press span,.sw2.fl-on span,.switch.fl-on span{background:#fff;-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:0 1px 4px rgba(0,0,0,.25)}
 .sheet,.popmenu{box-shadow:0 0 0 .5px rgba(60,60,67,.14),0 8px 48px rgba(0,0,0,.25)}
 .primary{box-shadow:none}
@@ -1742,7 +1743,7 @@ function projSVG(series, sel) {
   const cur = { v: valAt(series, sel) };
   g += '<line x1="' + X(sel) + '" y1="' + top + '" x2="' + X(sel) + '" y2="' + bot + '" stroke="#8E8E93" stroke-dasharray="3 3"/>' +
     '<polyline points="' + pts + '" fill="none" stroke="#1A9D63" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>' +
-    '<circle cx="' + X(sel) + '" cy="' + Y(cur.v) + '" r="7" fill="#fff" stroke="' + (cur.v < 0 ? '#FF3B30' : '#1A9D63') + '" stroke-width="3.5"/>';
+    '<circle cx="' + X(sel) + '" cy="' + Y(cur.v) + '" r="7" fill="var(--card)" stroke="' + (cur.v < 0 ? '#FF3B30' : '#1A9D63') + '" stroke-width="3.5"/>';
   return '<svg viewBox="0 0 ' + W + ' 200" style="width:100%;height:auto;font-family:inherit" role="img" aria-label="Proyección semanal del balance">' + g + '</svg>';
 }
 
