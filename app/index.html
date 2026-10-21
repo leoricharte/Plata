@@ -3054,8 +3054,8 @@ function monthScreenHTML() {
   if (ks.indexOf(mm.mk) < 0) ks.push(mm.mk);
   const opts = ks.map((k) => '<option value="' + k + '"' + (k === mm.mk ? ' selected' : '') + '>' + cap1(MON_FULL[Number(k.slice(5, 7)) - 1]) + ' ' + k.slice(0, 4) + '</option>').join('');
   const pick = '<label class="mpick"><select data-mmsel aria-label="Cambiar mes">' + opts + '</select><span>' + cap1(MON_FULL[mo]).slice(0, 3) + ' ' + y + '</span>' + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>' + '</label>';
-  return '<div class="navrow" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><button class="back" data-act="itback" aria-label="Regresar">' + IC_BACK + '</button>' + pick + '</div>' + scoreRow +
-    monthHead(new Date(y, mo, 15), 'Movimientos · ' + y) +
+  return '<div class="navrow" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><button class="back" data-act="itback" aria-label="Regresar">' + IC_BACK + '</button>' + pick + '</div>' + monthHead(new Date(y, mo, 15)) + scoreRow +
+    '<div class="sechead"><h2>Movimientos</h2></div>' +
     '<div class="card"><div class="stats" style="border:0;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);text-align:center">' + st('Ingresos', fmt(ms.inc), 'var(--gt)') + st('Gastos', fmt(ms.exp)) + st('Neto', (net < 0 ? '−' : '') + fmt(Math.abs(net)), net < 0 ? 'var(--rt)' : 'var(--gt)') + '</div></div>' +
     segHTML('mmf', items, mm.f) + '<div id="mmBody">' + mmBodyHTML() + '</div>';
 }
