@@ -1447,7 +1447,7 @@ function migrate(o) {
     subs: pick('subs'),
     savings: pick('savings'),
     budget: o.budget && typeof o.budget === 'object' ? o.budget : (old ? D.budget : {}),
-    budgetSets: (Array.isArray(o.budgetSets) ? o.budgetSets : []).filter((b) => b && b.id && /^\d{4}-\d{2}-\d{2}$/.test(b.from || '') && /^\d{4}-\d{2}-\d{2}$/.test(b.to || '')).map((b) => ({ id: String(b.id), name: String(b.name || 'Set').slice(0, 40), from: b.from, to: b.to, budget: b.budget && typeof b.budget === 'object' ? b.budget : {} })),
+    budgetSets: (Array.isArray(o.budgetSets) ? o.budgetSets : []).filter((b) => b && b.id && /^\d{4}-\d{2}-\d{2}$/.test(b.from || '') && /^\d{4}-\d{2}-\d{2}$/.test(b.to || '')).map((b) => ({ id: String(b.id), name: String(b.name || 'Set').slice(0, 40), from: b.from, to: b.to, cur: typeof b.cur === 'string' ? b.cur : '', budget: b.budget && typeof b.budget === 'object' ? b.budget : {} })),
     expected_income: Array.isArray(o.expected_income) ? o.expected_income : [],
     planned: Array.isArray(o.planned) ? o.planned : [],
     jobs: (Array.isArray(o.jobs) ? o.jobs : []).filter((j) => j && j.id),
@@ -3870,7 +3870,7 @@ function saveForm() {
         allBuds().forEach((b) => { if (b[o.orig] != null) { b[nm] = b[o.orig]; delete b[o.orig]; } }); if (ui.sheetCat === o.orig) ui.sheetCat = nm;
       }
     } else data.cats.push({ name: nm, color: o.color, icon: o.icon || '' });
-    { const tb = budOf(viewSet()); if (o.limit > 0) tb[nm] = usd(o.limit, bsCurOf()); else delete tb[nm]; }
+    { const tb = budOf(viewSet()); if (o.limit > 0) tb[nm] = round2(usd(o.limit, bsCurOf())); else delete tb[nm]; }
     return formDone('Categoría guardada');
   }
   if (f.kind === 'cardpay') { const pc = data.cards.find((x) => x.id === o.card); if (!pc) { toast('Elige una tarjeta o préstamo'); return; } if (!String(o.name || '').trim()) o.name = 'Pago de ' + pc.name; }
