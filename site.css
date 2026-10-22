@@ -68,8 +68,8 @@ footer a{text-decoration:none;border-bottom:1px solid var(--line)}
 .sheet h2{font:800 24px/1.15 Inter,sans-serif;letter-spacing:-.025em;margin:0 0 8px}
 .sheet p{margin:0 0 16px;color:var(--mute);font-size:16px}
 .sheet ol{margin:0 0 16px;padding:0;list-style:none;display:grid;gap:10px;counter-reset:s}
-.sheet li{counter-increment:s;display:flex;gap:12px;align-items:flex-start;font-size:16px;line-height:1.4}
-.sheet li::before{content:counter(s);flex:0 0 26px;height:26px;border-radius:50%;background:var(--soft);color:var(--accent);font:700 14px/26px Inter,sans-serif;text-align:center}
+.sheet li{counter-increment:s;display:block;position:relative;padding-left:38px;min-height:26px;font-size:16px;line-height:1.4}
+.sheet li::before{content:counter(s);position:absolute;left:0;top:0;width:26px;height:26px;border-radius:50%;background:var(--soft);color:var(--accent);font:700 14px/26px Inter,sans-serif;text-align:center}
 .sheet .alt{font-size:14px;margin:0 0 20px}.dnote{display:none;font-size:14px;font-weight:500;margin:0 0 20px;padding:12px 14px;border-radius:14px;background:rgba(34,181,115,.12)}@media (hover:hover) and (pointer:fine) and (min-width:900px){.dnote{display:block}}
 .sheet .row{display:grid;gap:10px}
 .sheet .btn{width:100%}
