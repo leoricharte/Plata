@@ -37,3 +37,5 @@
 .dsub::before{content:"";position:absolute;left:-10px;right:-10px;top:-18px;height:18px}
 }
 @media (min-width:901px) and (hover:hover) and (pointer:fine){.dd:hover .dsub{visibility:visible;opacity:1;transition-delay:0s}}
+
+.mcl{display:inline-flex;align-items:center;opacity:1}.mcl svg{height:24px;width:auto;display:block;color:var(--ink)}.mcl[aria-current]{color:var(--ink)}@media (max-width:899px){.mcl svg{height:30px}}
