@@ -1,0 +1,12 @@
+name = "plata-cloud"
+main = "src/index.js"
+compatibility_date = "2025-01-01"
+
+# Ruta pública del servicio (el DNS de plataapp.net debe estar en Cloudflare)
+routes = [{ pattern = "api.plataapp.net", custom_domain = true }]
+
+[[kv_namespaces]]
+binding = "WAITLIST"
+id = "REEMPLAZA_CON_EL_ID_DE_KV"
+
+# Secretos (no van aquí): npx wrangler secret put ADMIN_TOKEN  y  npx wrangler secret put RL_SALT
