@@ -54,11 +54,10 @@ function smoke(el){var r=el.getBoundingClientRect(),cx=r.left+r.width*(.25+Math.
 var w=document.createElement('div');w.className='puffs';w.setAttribute('aria-hidden','true');
 w.style.cssText='position:fixed;left:'+(cx-W/2)+'px;top:'+(r.top-H+10)+'px;width:'+W+'px;height:'+H+'px;pointer-events:none;z-index:9';
 var cols=['#22B573','#3FD08F','#8AE6BC'],ps='';
-for(var i=0;i<3;i++)ps+='<path d="M8 '+(9+i*14)+' q7.5 -10 15 0 t15 0 t15 0" fill="none" stroke="'+cols[i]+'" stroke-width="5" stroke-linecap="round" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/>';
-ps+='<path class="sp" d="M8 36 Q9.2 42 15 43 Q9.2 44 8 50 Q6.8 44 1 43 Q6.8 42 8 36Z" fill="#22B573" style="transform-box:fill-box;transform-origin:center;transform:scale(0)"/>';
+for(var i=0;i<3;i++)ps+='<path d="M'+(14+i*18)+' '+(51-i*3)+' q-9 -8 0 -16 t0 -16 t0 -14" fill="none" stroke="'+cols[i]+'" stroke-width="5" stroke-linecap="round" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/>';
 w.innerHTML='<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" style="overflow:visible">'+ps+'</svg>';
 document.body.appendChild(w);
-[].forEach.call(w.querySelectorAll('path'),function(p,i){if(p.className.baseVal==='sp'){p.animate([{transform:'scale(0) rotate(-40deg)'},{transform:'scale(1.25) rotate(0deg)',offset:.4},{transform:'scale(0) rotate(40deg)'}],{duration:820,delay:140,easing:'ease-out',fill:'both'})}else{p.animate([{strokeDashoffset:100},{strokeDashoffset:0}],{duration:340,delay:i*90,easing:'ease-out',fill:'forwards'})}});
+[].forEach.call(w.querySelectorAll('path'),function(p,i){p.animate([{strokeDashoffset:100},{strokeDashoffset:0}],{duration:340,delay:i*90,easing:'ease-out',fill:'forwards'})});
 w.animate([{opacity:1,transform:'translateY(0)',offset:0},{opacity:1,transform:'translateY(-4px)',offset:.45},{opacity:0,transform:'translateY(-18px)',offset:1}],{duration:980,easing:'ease-out',fill:'forwards'});
 setTimeout(function(){w.remove()},1050)}
 document.addEventListener('click',function(e){var g=e.target.closest&&e.target.closest('.gr');if(!g){return}
