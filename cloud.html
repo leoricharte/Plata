@@ -49,7 +49,7 @@ function run(v){tx.setAttribute('data-v',v);[].forEach.call(tx.querySelectorAll(
 els.forEach(function(e,k){var to=e.getAttribute(v==='srv'?'data-e':'data-p'),n=0,tot=14;clearInterval(e._t);e._t=setInterval(function(){n++;var o='';for(var i=0;i<to.length;i++){o+=(i<to.length*n/tot||to[i]===' ')?to[i]:ch[Math.floor(Math.random()*ch.length)]}e.textContent=o;if(n>=tot){clearInterval(e._t);e.textContent=to}},34+k*6)})}
 [].forEach.call(tx.querySelectorAll('.txsw button'),function(b){b.addEventListener('click',function(){run(b.getAttribute('data-v'))})});
 if('IntersectionObserver' in window){var seen=false;new IntersectionObserver(function(es){if(!seen&&es[0].isIntersecting){seen=true;setTimeout(function(){run('srv');setTimeout(function(){run('you')},1800)},500)}},{threshold:.6}).observe(tx)}})();</script>
-<script>(function(){var last=0,count=0,stage=0,armed=false;
+<script>(function(){var last=0,count=0,stage=0,armed=false,open=false;
 function smoke(el){var r=el.getBoundingClientRect(),w=document.createElement('div');w.className='puffs';w.setAttribute('aria-hidden','true');
 w.style.cssText='position:fixed;left:'+r.left+'px;top:'+r.top+'px;width:'+r.width+'px;height:'+r.height+'px;pointer-events:none;z-index:9';
 for(var i=0;i<9;i++){var p=document.createElement('i'),x=Math.random()*r.width,d=18+Math.random()*26,sz=14+Math.random()*18;
@@ -58,7 +58,8 @@ w.appendChild(p);(function(p,d){p.animate([{opacity:.85,transform:'translate(0,0
 document.body.appendChild(w);setTimeout(function(){w.remove()},900)}
 document.addEventListener('click',function(e){var g=e.target.closest&&e.target.closest('.gr');if(!g){return}
 if(!armed){armed=true;document.documentElement.classList.add('egg-on');return}
+if(open){smoke(g);return}
 var now=Date.now(),gap=now-last;last=now;
 if(gap>450){if(count===4&&gap<4000)stage=1;else stage=0;count=1}else count++;
 if(stage===0&&count>4){count=1}
-if(stage===1&&count===2){smoke(g);count=0;stage=0}else if(stage===1&&count>2){stage=0;count=1}});})();</script><script src="inapp.js"></script><script src="nav.js"></script><script src="feedback.js"></script><script src="site.js"></script></body></html>
+if(stage===1&&count===2){smoke(g);open=true;count=0;stage=0}else if(stage===1&&count>2){stage=0;count=1}});})();</script><script src="inapp.js"></script><script src="nav.js"></script><script src="feedback.js"></script><script src="site.js"></script></body></html>
