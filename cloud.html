@@ -52,10 +52,11 @@ if('IntersectionObserver' in window){var seen=false;new IntersectionObserver(fun
 <script>(function(){var last=0,count=0,stage=0,armed=false,open=false;
 function smoke(el){var r=el.getBoundingClientRect(),w=document.createElement('div');w.className='puffs';w.setAttribute('aria-hidden','true');
 w.style.cssText='position:fixed;left:'+r.left+'px;top:'+r.top+'px;width:'+r.width+'px;height:'+r.height+'px;pointer-events:none;z-index:9';
-for(var i=0;i<9;i++){var p=document.createElement('i'),x=Math.random()*r.width,d=18+Math.random()*26,sz=14+Math.random()*18;
-p.style.cssText='position:absolute;left:'+(x-sz/2)+'px;top:'+(r.height/2-sz/2)+'px;width:'+sz+'px;height:'+sz+'px;border-radius:50%;background:radial-gradient(circle,rgba(150,150,158,.75),rgba(150,150,158,0) 70%);filter:blur(3px);opacity:0';
-w.appendChild(p);(function(p,d){p.animate([{opacity:.85,transform:'translate(0,0) scale(.6)'},{opacity:0,transform:'translate('+((Math.random()-.5)*30)+'px,-'+d+'px) scale(2.1)'}],{duration:520+Math.random()*180,easing:'ease-out',fill:'forwards'})})(p,d)}
-document.body.appendChild(w);setTimeout(function(){w.remove()},900)}
+var cols=['rgba(34,181,115,.8)','rgba(70,210,150,.7)','rgba(150,235,195,.65)'];
+for(var i=0;i<14;i++){var p=document.createElement('i'),x=Math.random()*r.width,sz=12+Math.random()*20,rise=34+Math.random()*52,sw=8+Math.random()*16,dir=Math.random()<.5?-1:1,dl=Math.random()*160,c=cols[i%3];
+p.style.cssText='position:absolute;left:'+(x-sz/2)+'px;top:'+(r.height/2-sz/2)+'px;width:'+sz+'px;height:'+(sz*(1+Math.random()*.6))+'px;border-radius:50%;background:radial-gradient(circle,'+c+','+c.replace(/[\d.]+\)$/,'0)')+' 70%);filter:blur('+(2+Math.random()*3)+'px);opacity:0';
+w.appendChild(p);p.animate([{opacity:0,transform:'translate(0,0) scale(.5) rotate(0deg)',offset:0},{opacity:.9,transform:'translate('+(dir*sw)+'px,-'+(rise*.35)+'px) scale(1) rotate('+(dir*25)+'deg)',offset:.25},{opacity:.6,transform:'translate('+(-dir*sw*.6)+'px,-'+(rise*.7)+'px) scale(1.6) rotate('+(-dir*30)+'deg)',offset:.6},{opacity:0,transform:'translate('+(dir*sw*.8)+'px,-'+rise+'px) scale(2.4) rotate('+(dir*50)+'deg)',offset:1}],{duration:700+Math.random()*350,delay:dl,easing:'ease-out',fill:'both'})}
+document.body.appendChild(w);setTimeout(function(){w.remove()},1400)}
 document.addEventListener('click',function(e){var g=e.target.closest&&e.target.closest('.gr');if(!g){return}
 if(!armed){armed=true;document.documentElement.classList.add('egg-on');return}
 if(open){smoke(g);return}
