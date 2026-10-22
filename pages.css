@@ -137,3 +137,4 @@ p.closer{text-align:center;font-size:18px;color:var(--mute);margin:48px auto 0}
 .roles .rc{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 14px 16px;display:flex;flex-direction:column;gap:6px}
 .roles .rc h3{font-size:15px;margin:0;color:var(--ink);line-height:1.25}
 .roles .rc p{font-size:13.5px!important;line-height:1.4;margin:0!important;color:var(--mute)}
+.roles .ri{width:26px;height:26px;color:var(--accent);margin-bottom:4px}
