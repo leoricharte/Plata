@@ -12,3 +12,24 @@ Dejará de aparecer en tus pagos futuros. Tu historial no cambia. ¦ It will no 
 Dejará de aparecer en tus ingresos futuros. Tu historial no cambia. ¦ It will no longer appear in your future income. Your history won’t change. ¦ 今後の収入に表示されなくなります。履歴は変わりません。 ¦ Non comparirà più nelle tue entrate future. Il tuo storico non cambia. ¦ Il n’apparaîtra plus dans vos revenus à venir. Votre historique ne change pas. ¦ Više se neće prikazivati u tvojim budućim prihodima. Tvoja povijest se ne mijenja.
 Dejará de aparecer en tus gastos futuros. Tu historial no cambia. ¦ It will no longer appear in your future expenses. Your history won’t change. ¦ 今後の支出に表示されなくなります。履歴は変わりません。 ¦ Non comparirà più nelle tue spese future. Il tuo storico non cambia. ¦ Il n’apparaîtra plus dans vos dépenses à venir. Votre historique ne change pas. ¦ Više se neće prikazivati u tvojim budućim troškovima. Tvoja povijest se ne mijenja.
 Dejará de generar ingresos futuros. Tu historial no cambia. ¦ It will stop generating future income. Your history won’t change. ¦ 今後の収入は発生しなくなります。履歴は変わりません。 ¦ Non genererà più entrate future. Il tuo storico non cambia. ¦ Il ne générera plus de revenus. Votre historique ne change pas. ¦ Više neće stvarati buduće prihode. Tvoja povijest se ne mijenja.
+Transferir ¦ Transfer ¦ 送金 ¦ Trasferisci ¦ Transférer ¦ Prebaci
+Entre tus cuentas ¦ Between your accounts ¦ 自分の口座間 ¦ Tra i tuoi conti ¦ Entre vos comptes ¦ Između tvojih računa
+Desde ¦ From ¦ 送金元 ¦ Da ¦ De ¦ Od
+A ¦ To ¦ 送金先 ¦ A ¦ Vers ¦ Na
+Recibes ¦ You receive ¦ 受取額 ¦ Ricevi ¦ Vous recevez ¦ Primaš
+Comisión (opcional) ¦ Fee (optional) ¦ 手数料（任意） ¦ Commissione (facoltativa) ¦ Frais (facultatif) ¦ Naknada (neobavezno)
+Tipo de cambio: ¦ Exchange rate: ¦ 為替レート: ¦ Tasso di cambio: ¦ Taux de change : ¦ Tečaj:
+Estimado con el cambio de la app. Corrígelo si recibiste otro monto. ¦ Estimated with the app’s rate. Correct it if you received a different amount. ¦ アプリのレートによる概算です。受取額が違う場合は修正してください。 ¦ Stima con il cambio dell’app. Correggila se hai ricevuto un altro importo. ¦ Estimation avec le taux de l’app. Corrigez si vous avez reçu un autre montant. ¦ Procjena prema tečaju aplikacije. Ispravi ako si primio drugi iznos.
+No cuenta como gasto ni ingreso. ¦ Doesn’t count as spending or income. ¦ 支出にも収入にも含まれません。 ¦ Non conta come spesa né come entrata. ¦ Ne compte ni comme dépense ni comme revenu. ¦ Ne računa se kao trošak ni prihod.
+Necesitas al menos dos cuentas ¦ You need at least two accounts ¦ 口座が2つ以上必要です ¦ Servono almeno due conti ¦ Il faut au moins deux comptes ¦ Trebaju ti barem dva računa
+Transferencia registrada ¦ Transfer recorded ¦ 送金を記録しました ¦ Trasferimento registrato ¦ Transfert enregistré ¦ Prijenos zabilježen
+Transferencia ¦ Transfer ¦ 送金 ¦ Trasferimento ¦ Transfert ¦ Prijenos
+Transferencias ¦ Transfers ¦ 送金 ¦ Trasferimenti ¦ Transferts ¦ Prijenosi
+Pagos y transf. ¦ Payments & transfers ¦ 返済・送金 ¦ Pagamenti e trasf. ¦ Paiements et transf. ¦ Plaćanja i prijenosi
+Comisión de transferencia ¦ Transfer fee ¦ 送金手数料 ¦ Commissione di trasferimento ¦ Frais de transfert ¦ Naknada za prijenos
+Dinero que entra. Suma a tus ingresos. ¦ Money in. Adds to your income. ¦ 口座に入ったお金です。今月の収入に加算されます。 ¦ Denaro entrato nel tuo conto. Si somma alle entrate del mese. ¦ Argent entré sur votre compte. S’ajoute à vos revenus du mois. ¦ Novac koji je ušao na tvoj račun. Dodaje se prihodima mjeseca.
+Pagas lo que debes. No es un gasto. ¦ You pay what you owe. Not an expense. ¦ 借入の一部を返済します。支出には含まれません。 ¦ Paghi una parte di ciò che devi. Non conta come spesa. ¦ Vous remboursez une partie de ce que vous devez. Ne compte pas comme dépense. ¦ Otplaćuješ dio onoga što duguješ. Ne računa se kao trošak.
+Compra con tarjeta. Aumenta tu deuda. ¦ Card purchase. Increases your debt. ¦ カードでの購入です。借入残高が増えます。 ¦ Un acquisto con la carta. Aumenta ciò che devi. ¦ Un achat avec votre carte. Augmente ce que vous devez. ¦ Kupnja karticom. Povećava ono što duguješ.
+Dinero que sale. Cuenta en tu presupuesto. ¦ Money out. Counts toward your budget. ¦ 口座から出たお金です。今月の予算に含まれます。 ¦ Denaro uscito dal tuo conto. Conta nel budget del mese. ¦ Argent sorti de votre compte. Compte dans votre budget du mois. ¦ Novac koji je izašao s tvog računa. Računa se u mjesečni proračun.
+Salida ¦ Outgoing ¦ 出金 ¦ Uscita ¦ Sortie ¦ Izlaz
+Entrada ¦ Incoming ¦ 入金 ¦ Entrata ¦ Entrée ¦ Ulaz
