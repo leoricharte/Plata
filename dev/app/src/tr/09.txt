@@ -1,0 +1,270 @@
+{0} año ¦ {0} {0?year:years} ¦ {0}年 ¦ {0} {0?anno:anni} ¦ {0} {0?an:ans} ¦ {0} {0?godina:godine}
+{0} año y {1} mes ¦ {0} {0?year:years} and {1} {1?month:months} ¦ {0}年{1}か月 ¦ {0} {0?anno:anni} e {1} {1?mese:mesi} ¦ {0} {0?an:ans} et {1} mois ¦ {0} {0?godina:godine} i {1} {1?mjesec:mjeseci}
+Secciones ¦ Sections ¦ セクション ¦ Sezioni ¦ Sections ¦ Odjeljci
+Ver informe hasta ahora ¦ See report so far ¦ ここまでのレポートを見る ¦ Vedi il report finora ¦ Voir le rapport jusqu'ici ¦ Prikaži izvještaj do sada
+Editar este evento ¦ Edit this event ¦ このイベントを編集 ¦ Modifica questo evento ¦ Modifier cet événement ¦ Uredi ovaj događaj
+Fecha de este evento ¦ Date of this event ¦ このイベントの日付 ¦ Data di questo evento ¦ Date de cet événement ¦ Datum ovog događaja
+Solo cambia este evento; el resto de la serie sigue igual. ¦ Only this event changes; the rest of the series stays the same. ¦ このイベントだけが変わり、シリーズの残りはそのままです。 ¦ Cambia solo questo evento; il resto della serie resta uguale. ¦ Seul cet événement change ; le reste de la série reste inchangé. ¦ Mijenja se samo ovaj događaj; ostatak serije ostaje isti.
+Omitir este evento ¦ Skip this event ¦ このイベントをスキップ ¦ Salta questo evento ¦ Ignorer cet événement ¦ Preskoči ovaj događaj
+Restaurar el original ¦ Restore the original ¦ 元に戻す ¦ Ripristina l'originale ¦ Restaurer l'original ¦ Vrati original
+Editar toda la serie del ingreso ¦ Edit the whole income series ¦ 収入シリーズ全体を編集 ¦ Modifica tutta la serie dell'entrata ¦ Modifier toute la série du revenu ¦ Uredi cijelu seriju prihoda
+Editar toda la serie del gasto ¦ Edit the whole expense series ¦ 支出シリーズ全体を編集 ¦ Modifica tutta la serie della spesa ¦ Modifier toute la série de la dépense ¦ Uredi cijelu seriju troškova
+Editar toda la suscripción ¦ Edit the whole subscription ¦ サブスク全体を編集 ¦ Modifica tutto l'abbonamento ¦ Modifier tout l'abonnement ¦ Uredi cijelu pretplatu
+Editar toda la tarjeta o préstamo ¦ Edit the whole card or loan ¦ カード/ローン全体を編集 ¦ Modifica tutta la carta o il prestito ¦ Modifier toute la carte ou le prêt ¦ Uredi cijelu karticu ili kredit
+Evento actualizado ¦ Event updated ¦ イベントを更新しました ¦ Evento aggiornato ¦ Événement mis à jour ¦ Događaj ažuriran
+Evento omitido ¦ Event skipped ¦ イベントをスキップしました ¦ Evento saltato ¦ Événement ignoré ¦ Događaj preskočen
+Evento restaurado ¦ Event restored ¦ イベントを元に戻しました ¦ Evento ripristinato ¦ Événement restauré ¦ Događaj vraćen
+Termina el (opcional) ¦ Ends on (optional) ¦ 終了日(任意) ¦ Termina il (facoltativo) ¦ Se termine le (facultatif) ¦ Završava se (neobavezno)
+El fin debe ser posterior a la fecha ¦ The end must be after the start date ¦ 終了日は開始日より後にしてください ¦ La fine deve essere successiva alla data ¦ La fin doit être postérieure à la date ¦ Kraj mora biti nakon datuma početka
+Omitido ¦ Skipped ¦ スキップ ¦ Saltato ¦ Ignoré ¦ Preskočeno
+Editado ¦ Edited ¦ 編集済み ¦ Modificato ¦ Modifié ¦ Uređeno
+Esto es lo que llevas hasta hoy. ¦ Here's where you stand so far. ¦ ここまでの状況はこちらです。 ¦ Ecco a che punto sei finora. ¦ Voici où vous en êtes jusqu'ici. ¦ Ovako stojiš do sada.
+Un adelanto de tu nota, con margen para mejorarla. ¦ A preview of your grade, with room to improve. ¦ 評価のプレビューです。改善の余地はまだあります。 ¦ Un'anteprima del tuo voto, con margine per migliorarlo. ¦ Un aperçu de votre note, avec de la marge pour progresser. ¦ Pregled tvoje ocjene, s prostorom za poboljšanje.
+Vas a mitad de mes. ¦ You're halfway through the month. ¦ 月の折り返しです。 ¦ Sei a metà mese. ¦ Vous êtes à la moitié du mois. ¦ Na pola si mjeseca.
+¡Half‑time! ¦ Half‑time! ¦ ハーフタイム! ¦ Half‑time! ¦ Half‑time ! ¦ Half‑time!
+Llegó el half‑time. ¦ Half‑time is here. ¦ ハーフタイムです。 ¦ È arrivato l'half‑time. ¦ C'est le half‑time. ¦ Stigao je half‑time.
+Este es tu half‑time: así va tu nota por ahora. ¦ This is your half‑time: here's your grade so far. ¦ これがあなたのハーフタイム。今の評価はこちら。 ¦ Questo è il tuo half‑time: ecco il voto per ora. ¦ Voici votre half‑time : votre note pour l'instant. ¦ Ovo je tvoj half‑time: ovako ti je ocjena do sada.
+Half‑time ¦ Half‑time ¦ ハーフタイム ¦ Half‑time ¦ Half‑time ¦ Half‑time
+Ritmo de primera. Mantenlo y cierra el mes con nota perfecta. ¦ Top-tier pace. Keep it up and close the month with a perfect grade. ¦ 最高のペースです。このまま続けて、満点で月を締めくくりましょう。 ¦ Ritmo da primo della classe. Mantienilo e chiudi il mese con il voto perfetto. ¦ Un rythme de premier de classe. Gardez-le et finissez le mois avec une note parfaite. ¦ Vrhunski tempo. Zadrži ga i zatvori mjesec s najboljom ocjenom.
+Muy buen ritmo. Un pequeño ajuste y cierras el mes en lo más alto. ¦ Very good pace. One small tweak and you close the month at the top. ¦ とても良いペースです。少し調整すれば、月末はトップで終えられます。 ¦ Ottimo ritmo. Un piccolo ritocco e chiudi il mese al top. ¦ Très bon rythme. Un petit ajustement et vous finissez le mois au sommet. ¦ Vrlo dobar tempo. Mala korekcija i mjesec zatvaraš na vrhu.
+Buen ritmo, con margen. Cuida tus gastos grandes y sube de nota. ¦ Good pace, with room to grow. Watch your big expenses and move up a grade. ¦ 良いペースで、まだ伸びしろがあります。大きな支出に気を配れば評価が上がります。 ¦ Buon ritmo, con margine. Tieni d'occhio le spese grandi e sali di voto. ¦ Bon rythme, avec de la marge. Surveillez vos grosses dépenses pour gagner une note. ¦ Dobar tempo, uz prostora za napredak. Pazi na velike troškove i popni se za ocjenu.
+Vas a medias. Aún estás a tiempo de mejorar antes de fin de mes. ¦ You're halfway there. There's still time to improve before the month ends. ¦ ちょうど折り返しです。月末までにまだ改善できます。 ¦ Sei a metà strada. C'è ancora tempo per migliorare prima della fine del mese. ¦ Vous êtes à mi-parcours. Il est encore temps de progresser avant la fin du mois. ¦ Na pola si puta. Još stižeš poboljšati prije kraja mjeseca.
+Mes cuesta arriba, pero hay tiempo. Empieza por tu mayor gasto. ¦ An uphill month, but there's time. Start with your biggest expense. ¦ 厳しい月ですが、まだ間に合います。まず最大の支出から見直しましょう。 ¦ Un mese in salita, ma c'è tempo. Parti dalla spesa più grande. ¦ Un mois difficile, mais il reste du temps. Commencez par votre plus grosse dépense. ¦ Mjesec uzbrdo, ali ima vremena. Počni od najvećeg troška.
+Toca frenar, pero aún queda mes. Un plan simple cambia el rumbo. ¦ Time to slow down, but there's still a month left. A simple plan turns it around. ¦ ブレーキをかける時ですが、まだ月は残っています。シンプルな計画で流れは変わります。 ¦ È ora di frenare, ma il mese non è finito. Un piano semplice cambia la rotta. ¦ Il faut freiner, mais le mois n'est pas fini. Un plan simple change la donne. ¦ Vrijeme je za kočenje, ali mjesec još traje. Jednostavan plan mijenja smjer.
+Insights y half‑time ¦ Insights & half‑time ¦ インサイトとハーフタイム ¦ Insight e half‑time ¦ Insights et half‑time ¦ Uvidi i half‑time
+Activar Insights y half‑time ¦ Turn on Insights & half‑time ¦ インサイトとハーフタイムをオンにする ¦ Attiva Insight e half‑time ¦ Activer les Insights et le half‑time ¦ Uključi uvide i half‑time
+Mostrar en el resumen ¦ Show in summary ¦ サマリーに表示 ¦ Mostra nel riepilogo ¦ Afficher dans le résumé ¦ Prikaži u pregledu
+Ocultar del resumen ¦ Hide from summary ¦ サマリーから隠す ¦ Nascondi dal riepilogo ¦ Masquer du résumé ¦ Sakrij iz pregleda
+Oculta del resumen ¦ Hidden from summary ¦ サマリーから非表示にしました ¦ Nascosta dal riepilogo ¦ Masqué du résumé ¦ Skriveno iz pregleda
+Visible en el resumen ¦ Visible in summary ¦ サマリーに表示しました ¦ Visibile nel riepilogo ¦ Visible dans le résumé ¦ Vidljivo u pregledu
+Cuentas ocultas del resumen. Actívalas para volver a mostrarlas. ¦ Accounts hidden from the summary. Turn them on to show them again. ¦ サマリーから非表示の口座。オンにすると再び表示されます。 ¦ Conti nascosti dal riepilogo. Attivali per mostrarli di nuovo. ¦ Comptes masqués du résumé. Activez-les pour les réafficher. ¦ Računi skriveni iz pregleda. Uključi ih da se ponovo prikažu.
+Debug ¦ Debug ¦ デバッグ ¦ Debug ¦ Debug ¦ Debug
+Gasto semanal estimado fuera de lo programado. ¦ Estimated weekly spending outside what's scheduled. ¦ 予定外の週あたりの推定支出。 ¦ Spesa settimanale stimata fuori da quella programmata. ¦ Dépenses hebdomadaires estimées hors prévisions. ¦ Procijenjena sedmična potrošnja izvan planiranog.
+Si tu saldo proyectado baja de aquí, te avisamos. ¦ If your projected balance drops below this, we'll let you know. ¦ 予測残高がこれを下回ると通知します。 ¦ Se il saldo previsto scende sotto questo valore, ti avvisiamo. ¦ Si votre solde prévu passe sous ce seuil, nous vous prévenons. ¦ Ako projicirano stanje padne ispod ovoga, javit ćemo ti.
+Pago de crédito previsto ¦ Scheduled credit payment ¦ 予定のクレジット支払い ¦ Pagamento carta previsto ¦ Paiement de crédit prévu ¦ Planirana uplata kredita
+Añadir pago de crédito previsto ¦ Add scheduled credit payment ¦ 予定のクレジット支払いを追加 ¦ Aggiungi pagamento carta previsto ¦ Ajouter un paiement de crédit prévu ¦ Dodaj planiranu uplatu kredita
+Pago simulado ¦ Simulated payment ¦ シミュレーションの支払い ¦ Pagamento simulato ¦ Paiement simulé ¦ Simulirana uplata
+Pago previsto ¦ Scheduled payment ¦ 予定の支払い ¦ Pagamento previsto ¦ Paiement prévu ¦ Planirana uplata
+Nombre (opcional) ¦ Name (optional) ¦ 名前(任意) ¦ Nome (facoltativo) ¦ Nom (facultatif) ¦ Ime (neobavezno)
+Pagar desde (monto en {0}) ¦ Pay from (amount in {0}) ¦ 支払い元(金額は{0}) ¦ Paga da (importo in {0}) ¦ Payer depuis (montant en {0}) ¦ Plati s (iznos u {0})
+Ejecutar: registrar como pago real ¦ Execute: record as an actual payment ¦ 実行:実際の支払いとして記録 ¦ Esegui: registra come pagamento reale ¦ Exécuter : enregistrer comme paiement réel ¦ Izvrši: evidentiraj kao stvarnu uplatu
+serie del pago ¦ payment series ¦ 支払いのシリーズ ¦ serie del pagamento ¦ série du paiement ¦ serija uplata
+Primero añade una tarjeta o préstamo ¦ Add a card or loan first ¦ 先にカードまたはローンを追加してください ¦ Aggiungi prima una carta o un prestito ¦ Ajoutez d’abord une carte ou un prêt ¦ Prvo dodaj karticu ili kredit
+Fecha del pago ¦ Payment date ¦ 支払い日 ¦ Data del pagamento ¦ Date du paiement ¦ Datum uplate
+Próximos 3 meses ¦ Next 3 months ¦ 今後3か月 ¦ Prossimi 3 mesi ¦ 3 prochains mois ¦ Sljedeća 3 mjeseca
+Próximos 6 meses ¦ Next 6 months ¦ 今後6か月 ¦ Prossimi 6 mesi ¦ 6 prochains mois ¦ Sljedećih 6 mjeseci
+Próximos 12 meses ¦ Next 12 months ¦ 今後12か月 ¦ Prossimi 12 mesi ¦ 12 prochains mois ¦ Sljedećih 12 mjeseci
+3 meses ¦ 3 months ¦ 3か月 ¦ 3 mesi ¦ 3 mois ¦ 3 mjeseca
+6 meses ¦ 6 months ¦ 6か月 ¦ 6 mesi ¦ 6 mois ¦ 6 mjeseci
+12 meses ¦ 12 months ¦ 12か月 ¦ 12 mesi ¦ 12 mois ¦ 12 mjeseci
+Set de presupuesto ¦ Budget set ¦ 予算セット ¦ Set di budget ¦ Jeu de budget ¦ Set budžeta
+Presupuesto base ¦ Base budget ¦ 基本の予算 ¦ Budget di base ¦ Budget de base ¦ Osnovni budžet
+Se usa cuando no hay otro set activo ¦ Used when no other set is active ¦ 他のセットが有効でないときに使われます ¦ Usato quando nessun altro set è attivo ¦ Utilisé quand aucun autre jeu n'est actif ¦ Koristi se kad nema drugog aktivnog seta
+Sets de presupuesto ¦ Budget sets ¦ 予算セット ¦ Set di budget ¦ Jeux de budget ¦ Setovi budžeta
+Cada set tiene sus propios límites y se activa solo entre sus fechas. Toca uno para verlo y editar sus límites. ¦ Each set has its own limits and turns on automatically between its dates. Tap one to view it and edit its limits. ¦ 各セットは独自の上限を持ち、期間中だけ自動で有効になります。タップして表示・編集できます。 ¦ Ogni set ha i suoi limiti e si attiva da solo tra le sue date. Tocca un set per vederlo e modificarne i limiti. ¦ Chaque jeu a ses propres plafonds et s'active tout seul entre ses dates. Touchez-en un pour le voir et modifier ses plafonds. ¦ Svaki set ima svoje limite i uključuje se automatski između svojih datuma. Dodirni jedan da ga vidiš i urediš njegove limite.
+Nuevo set ¦ New set ¦ 新しいセット ¦ Nuovo set ¦ Nouveau jeu ¦ Novi set
+Editar set ¦ Edit set ¦ セットを編集 ¦ Modifica set ¦ Modifier le jeu ¦ Uredi set
+Eliminar set ¦ Delete set ¦ セットを削除 ¦ Elimina set ¦ Supprimer le jeu ¦ Izbriši set
+Ej. Mes de rodaje ¦ e.g. Shoot month ¦ 例：撮影の月 ¦ Es. Mese di riprese ¦ Ex. Mois de tournage ¦ Npr. Mjesec snimanja
+Inicio ¦ Start ¦ 開始 ¦ Inizio ¦ Début ¦ Početak
+Fin ¦ End ¦ 終了 ¦ Fine ¦ Fin ¦ Kraj
+Activo ¦ Active ¦ 有効 ¦ Attivo ¦ Actif ¦ Aktivno
+Escribe un nombre ¦ Enter a name ¦ 名前を入力 ¦ Inserisci un nome ¦ Saisissez un nom ¦ Upiši ime
+Elige inicio y fin ¦ Pick a start and end ¦ 開始日と終了日を選択 ¦ Scegli inizio e fine ¦ Choisissez début et fin ¦ Odaberi početak i kraj
+El fin debe ser posterior al inicio ¦ The end must be after the start ¦ 終了は開始より後にしてください ¦ La fine deve essere dopo l'inizio ¦ La fin doit être après le début ¦ Kraj mora biti nakon početka
+Set guardado ¦ Set saved ¦ セットを保存しました ¦ Set salvato ¦ Jeu enregistré ¦ Set spremljen
+Set eliminado ¦ Set deleted ¦ セットを削除しました ¦ Set eliminato ¦ Jeu supprimé ¦ Set izbrisan
+este set ¦ this set ¦ このセット ¦ questo set ¦ ce jeu ¦ ovaj set
+Límite del set ¦ Set limit ¦ セットの上限 ¦ Limite del set ¦ Plafond du jeu ¦ Limit seta
+Límite {0} ¦ Limit {0} ¦ 上限 {0} ¦ Limite {0} ¦ Plafond {0} ¦ Limit {0}
+Sin límite ¦ No limit ¦ 上限なし ¦ Nessun limite ¦ Sans plafond ¦ Bez ograničenja
+¿Cómo quieres empezar? ¦ How do you want to start? ¦ どのように始めますか？ ¦ Come vuoi iniziare? ¦ Comment voulez-vous commencer ? ¦ Kako želiš početi?
+Elige cuánto quieres configurar ahora. Lo demás puedes añadirlo después. ¦ Choose how much to set up now. You can add the rest later. ¦ 今どこまで設定するか選んでください。残りは後から追加できます。 ¦ Scegli quanto configurare ora. Il resto puoi aggiungerlo dopo. ¦ Choisissez ce que vous configurez maintenant. Le reste pourra être ajouté plus tard. ¦ Odaberi koliko želiš postaviti sada. Ostalo možeš dodati kasnije.
+Simple ¦ Simple ¦ シンプル ¦ Semplice ¦ Simple ¦ Jednostavno
+Estándar ¦ Standard ¦ スタンダード ¦ Standard ¦ Standard ¦ Standardno
+Extendido ¦ Extended ¦ 拡張 ¦ Esteso ¦ Étendu ¦ Prošireno
+Recomendado ¦ Recommended ¦ おすすめ ¦ Consigliato ¦ Recommandé ¦ Preporučeno
+Lo esencial: tu nombre, moneda y una cuenta. Registra ingresos y gastos y listo. ¦ The essentials: your name, currency and an account. Log income and expenses and you're set. ¦ 基本だけ：名前、通貨、口座。収入と支出を記録するだけ。 ¦ L'essenziale: nome, valuta e un conto. Registra entrate e spese e sei pronto. ¦ L'essentiel : votre nom, la devise et un compte. Enregistrez revenus et dépenses, et c'est parti. ¦ Osnove: tvoje ime, valuta i jedan račun. Evidentiraj prihode i troškove i gotovo.
+Además: Insights y half‑time, tus ingresos y límites de presupuesto. ¦ Plus: Insights and half‑time, your income and budget limits. ¦ さらに：Insightsとハーフタイム、収入、予算の上限。 ¦ In più: Insights e half-time, le tue entrate e i limiti di budget. ¦ En plus : Insights et half-time, vos revenus et plafonds de budget. ¦ Uz to: uvidi i half‑time, tvoji prihodi i limiti budžeta.
+Todo desde el inicio: gastos fijos, suscripciones, deudas y una meta de ahorro. ¦ Everything from the start: fixed expenses, subscriptions, debts and a savings goal. ¦ 最初からすべて：固定費、サブスク、借入、貯蓄目標。 ¦ Tutto da subito: spese fisse, abbonamenti, debiti e un obiettivo di risparmio. ¦ Tout dès le départ : dépenses fixes, abonnements, dettes et un objectif d'épargne. ¦ Sve od početka: fiksni troškovi, pretplate, dugovi i cilj štednje.
+¿Tienes gastos fijos? ¦ Do you have fixed expenses? ¦ 固定費はありますか？ ¦ Hai spese fisse? ¦ Avez-vous des dépenses fixes ? ¦ Imaš li fiksne troškove?
+Renta, servicios… Opcional. Plata los suma a tu proyección; podrás añadir más. ¦ Rent, utilities… Optional. Plata adds them to your projection; you can add more later. ¦ 家賃、光熱費など。任意。Plataが予測に含めます。後から追加できます。 ¦ Affitto, bollette… Facoltativo. Plata li aggiunge alla proiezione; potrai aggiungerne altri. ¦ Loyer, charges… Facultatif. Plata les ajoute à votre projection ; vous pourrez en ajouter d'autres. ¦ Stanarina, komunalije… Neobavezno. Plata ih dodaje tvojoj projekciji; kasnije možeš dodati još.
+Renta ¦ Rent ¦ 家賃 ¦ Affitto ¦ Loyer ¦ Stanarina
+Próximo pago ¦ Next payment ¦ 次の支払い ¦ Prossimo pagamento ¦ Prochain paiement ¦ Sljedeća uplata
+Gasto fijo ¦ Fixed expense ¦ 固定費 ¦ Spesa fissa ¦ Dépense fixe ¦ Fiksni trošak
+Tu presupuesto ¦ Your budget ¦ あなたの予算 ¦ Il tuo budget ¦ Votre budget ¦ Tvoj budžet
+Cuánto quieres gastar al mes en cada categoría. Opcional; puedes dejarlo en blanco y definirlo después. ¦ How much you want to spend per month in each category. Optional; you can leave it blank and set it later. ¦ カテゴリごとの月の支出額。任意。空欄にして後で設定できます。 ¦ Quanto vuoi spendere al mese per ogni categoria. Facoltativo; puoi lasciarlo vuoto e definirlo dopo. ¦ Combien vous voulez dépenser par mois dans chaque catégorie. Facultatif ; vous pouvez laisser vide et le définir plus tard. ¦ Koliko želiš potrošiti mjesečno u svakoj kategoriji. Neobavezno; možeš ostaviti prazno i postaviti kasnije.
+Servicios y suscripciones ¦ Services & subscriptions ¦ サービスとサブスクリプション ¦ Servizi e abbonamenti ¦ Services et abonnements ¦ Usluge i pretplate
+Netflix, Spotify, gimnasio… Opcional. Añade una ahora y las demás después. ¦ Netflix, Spotify, gym… Optional. Add one now and the rest later. ¦ Netflix、Spotify、ジムなど。任意。まず1つ追加し、残りは後で。 ¦ Netflix, Spotify, palestra… Facoltativo. Aggiungine una ora e le altre dopo. ¦ Netflix, Spotify, salle de sport… Facultatif. Ajoutez-en un maintenant, les autres plus tard. ¦ Netflix, Spotify, teretana… Neobavezno. Dodaj jednu sada, a ostale kasnije.
+Monto por mes ({0}) ¦ Amount per month ({0}) ¦ 月額 ({0}) ¦ Importo al mese ({0}) ¦ Montant par mois ({0}) ¦ Iznos mjesečno ({0})
+Día de cobro ¦ Billing day ¦ 請求日 ¦ Giorno di addebito ¦ Jour de prélèvement ¦ Dan naplate
+Servicio o suscripción ¦ Service or subscription ¦ サービスまたはサブスクリプション ¦ Servizio o abbonamento ¦ Service ou abonnement ¦ Usluga ili pretplata
+Tarjetas y préstamos ¦ Cards and loans ¦ カードとローン ¦ Carte e prestiti ¦ Cartes et prêts ¦ Kartice i krediti
+Opcional. Añade una; Plata calcula intereses y cuándo quedarías libre de deuda. ¦ Optional. Add one; Plata calculates interest and when you'd be debt-free. ¦ 任意。1つ追加すると、Plataが利息と完済時期を計算します。 ¦ Facoltativo. Aggiungine una; Plata calcola gli interessi e quando saresti libero dai debiti. ¦ Facultatif. Ajoutez-en une ; Plata calcule les intérêts et la date de fin de dette. ¦ Neobavezno. Dodaj jedan; Plata izračunava kamate i kada bi bio/la bez duga.
+Saldo adeudado ({0}) ¦ Balance owed ({0}) ¦ 未払い残高 ({0}) ¦ Saldo dovuto ({0}) ¦ Solde dû ({0}) ¦ Dugovano stanje ({0})
+Límite de la tarjeta ({0}) ¦ Card limit ({0}) ¦ カードの限度額 ({0}) ¦ Limite della carta ({0}) ¦ Plafond de la carte ({0}) ¦ Limit kartice ({0})
+Pago mensual ({0}) ¦ Monthly payment ({0}) ¦ 月々の支払い ({0}) ¦ Pagamento mensile ({0}) ¦ Paiement mensuel ({0}) ¦ Mjesečna uplata ({0})
+Día de pago ¦ Payment day ¦ 支払日 ¦ Giorno di pagamento ¦ Jour de paiement ¦ Dan plaćanja
+Una meta de ahorro ¦ A savings goal ¦ 貯蓄目標 ¦ Un obiettivo di risparmio ¦ Un objectif d'épargne ¦ Cilj štednje
+Opcional. Por ejemplo, un fondo de emergencias o un viaje. ¦ Optional. For example, an emergency fund or a trip. ¦ 任意。例：緊急資金や旅行。 ¦ Facoltativo. Ad esempio, un fondo emergenze o un viaggio. ¦ Facultatif. Par exemple, un fonds d'urgence ou un voyage. ¦ Neobavezno. Na primjer, fond za hitne slučajeve ili putovanje.
+Meta ({0}) ¦ Goal ({0}) ¦ 目標 ({0}) ¦ Obiettivo ({0}) ¦ Objectif ({0}) ¦ Cilj ({0})
+Aporte mensual ({0}) ¦ Monthly contribution ({0}) ¦ 毎月の積立 ({0}) ¦ Contributo mensile ({0}) ¦ Apport mensuel ({0}) ¦ Mjesečna uplata ({0})
+Terminar ¦ Finish ¦ 完了 ¦ Fine ¦ Terminer ¦ Završi
+Perfiles de demostración ¦ Demo profiles ¦ デモプロフィール ¦ Profili demo ¦ Profils de démonstration ¦ Demo profili
+Elige uno para ver Plata con datos de ejemplo. ¦ Pick one to see Plata with sample data. ¦ サンプルデータでPlataを見るには、1つ選んでください。 ¦ Scegli un profilo per vedere Plata con dati di esempio. ¦ Choisissez-en un pour voir Plata avec des données d'exemple. ¦ Odaberi jedan da vidiš Platu s primjerom podataka.
+San Francisco, CA ¦ San Francisco, CA ¦ サンフランシスコ, CA ¦ San Francisco, CA ¦ San Francisco, CA ¦ San Francisco, CA
+Lima, PE ¦ Lima, PE ¦ リマ, PE ¦ Lima, PE ¦ Lima, PE ¦ Lima, PE
+Sueldo por hora y vida social activa ¦ Hourly pay and an active social life ¦ 時給で働き、社交的な生活 ¦ Paga oraria e vita sociale attiva ¦ Salaire horaire et vie sociale active ¦ Satnica i aktivan društveni život
+De EE. UU. a la universidad ¦ From the U.S. to college ¦ アメリカから大学へ ¦ Dagli USA all'università ¦ Des États-Unis à l'université ¦ Iz SAD-a na fakultet
+Primer empleo y vive con su familia ¦ First job, lives with family ¦ 初めての仕事、家族と同居 ¦ Primo lavoro, vive con la famiglia ¦ Premier emploi, vit en famille ¦ Prvi posao i živi s porodicom
+¿Cargar el perfil de Shawn? ¦ Load Shawn's profile? ¦ Shawnのプロフィールを読み込みますか？ ¦ Caricare il profilo di Shawn? ¦ Charger le profil de Shawn ? ¦ Učitati Shawnov profil?
+¿Cargar el perfil de Brunela? ¦ Load Brunela's profile? ¦ Brunelaのプロフィールを読み込みますか？ ¦ Caricare il profilo di Brunela? ¦ Charger le profil de Brunela ? ¦ Učitati Brunelin profil?
+¿Cargar el perfil de Alessandro? ¦ Load Alessandro's profile? ¦ Alessandroのプロフィールを読み込みますか？ ¦ Caricare il profilo di Alessandro? ¦ Charger le profil de Alessandro ? ¦ Učitati Alessandrov profil?
+¿Cargar el perfil de Andrea? ¦ Load Andrea's profile? ¦ Andreaのプロフィールを読み込みますか？ ¦ Caricare il profilo di Andrea? ¦ Charger le profil de Andrea ? ¦ Učitati Andreain profil?
+
+Lake Placid, NY ¦ Lake Placid, NY ¦ レイクプラシッド, NY ¦ Lake Placid, NY ¦ Lake Placid, NY ¦ Lake Placid, NY
+Dueña de un hotel con mucho capital ¦ Hotel owner with plenty of capital ¦ ホテルオーナー、豊富な資産 ¦ Proprietaria di un hotel, tanto capitale ¦ Propriétaire d'hôtel, beaucoup de capital ¦ Vlasnica hotela s mnogo kapitala
+Donaciones ¦ Donations ¦ 寄付 ¦ Donazioni ¦ Dons ¦ Donacije
+Idioma de la pantalla de inicio ¦ Welcome screen language ¦ ウェルカム画面の言語 ¦ Lingua della schermata iniziale ¦ Langue de l'écran d'accueil ¦ Jezik početnog ekrana
+Cuentas ocultas ¦ Hidden accounts ¦ 非表示の口座 ¦ Conti nascosti ¦ Comptes masqués ¦ Skriveni računi
+Monto por mes ¦ Amount per month ¦ 月額 ¦ Importo al mese ¦ Montant par mois ¦ Iznos mjesečno
+Usa Plata como app ¦ Use Plata as an app ¦ Plataをアプリとして使う ¦ Usa Plata come app ¦ Utilisez Plata comme une app ¦ Koristi Platu kao aplikaciju
+Abre este enlace desde un navegador (como Safari) y luego guarda Plata en tu pantalla de inicio para usarla en modo aplicación completa. ¦ Open this link in a browser (like Safari), then add Plata to your home screen to use it in full-screen app mode. ¦ このリンクをブラウザ(Safariなど)で開き、Plataをホーム画面に追加すると、フルスクリーンのアプリとして使えます。 ¦ Apri questo link in un browser (come Safari), poi aggiungi Plata alla schermata Home per usarla a schermo intero come un’app. ¦ Ouvrez ce lien dans un navigateur (comme Safari), puis ajoutez Plata à votre écran d’accueil pour l’utiliser en mode application plein écran. ¦ Otvori ovaj link u pregledniku (npr. Safari), a zatim dodaj Platu na početni ekran da je koristiš u načinu rada cijele aplikacije.
+Tus datos son tuyos. ¦ Your data is yours. ¦ あなたのデータはあなたのものです。 ¦ I tuoi dati sono tuoi. ¦ Vos données vous appartiennent. ¦ Tvoji podaci su tvoji.
+Estudio 22 y Plata no recopilan tus datos. Tus datos se almacenan localmente en tu teléfono. Los perfiles de demostración fueron creados usando estadísticas y no representan uso real de ningún usuario. ¦ Estudio 22 and Plata do not collect your data. Your data is stored locally on your phone. The demo profiles were created using statistics and do not represent the real usage of any user. ¦ Estudio 22とPlataはあなたのデータを収集しません。データはお使いの電話にローカルで保存されます。デモプロフィールは統計をもとに作成されたもので、実際のユーザーの利用状況を表すものではありません。 ¦ Estudio 22 e Plata non raccolgono i tuoi dati. I tuoi dati vengono salvati localmente sul tuo telefono. I profili demo sono stati creati usando statistiche e non rappresentano l’uso reale di nessun utente. ¦ Estudio 22 et Plata ne collectent pas vos données. Vos données sont stockées localement sur votre téléphone. Les profils de démonstration ont été créés à partir de statistiques et ne représentent l’usage réel d’aucun utilisateur. ¦ Estudio 22 i Plata ne prikupljaju tvoje podatke. Tvoji podaci se čuvaju lokalno na tvom telefonu. Demo profili su napravljeni na osnovu statistike i ne predstavljaju stvarnu upotrebu nijednog korisnika.
+Aunque por el momento cerrar y abrir la página o web app mantiene tus datos, recuerda siempre hacer una copia haciendo clic al engranaje ¦ Even though closing and reopening the page or web app currently keeps your data, always remember to make a backup by tapping the gear ¦ 現時点では、ページやウェブアプリを閉じて開き直してもデータは保持されますが、バックアップは必ず右上の歯車 ¦ Anche se per ora chiudere e riaprire la pagina o la web app mantiene i tuoi dati, ricorda sempre di fare una copia toccando l’ingranaggio ¦ Même si, pour le moment, fermer et rouvrir la page ou la web app conserve vos données, pensez toujours à faire une copie en cliquant sur l’engrenage ¦ Iako zatvaranje i ponovno otvaranje stranice ili web aplikacije trenutno zadržava tvoje podatke, uvijek napravi sigurnosnu kopiju dodirom na zupčanik
+en la esquina derecha para mantener tu copia al día y segura. ¦ in the right corner to keep your backup up to date and safe. ¦ をタップしてバックアップを作成し、常に最新かつ安全な状態に保ってください。 ¦ nell’angolo a destra per mantenere la tua copia aggiornata e al sicuro. ¦ dans le coin droit pour garder votre copie à jour et en sécurité. ¦ u desnom uglu da sigurnosna kopija bude ažurna i sigurna.
+Plata está en una versión Beta. En el futuro, la gestión de datos podría pasar a ser en la nube. ¦ Plata is in a Beta version. In the future, data management may move to the cloud. ¦ Plataはベータ版です。将来的には、データ管理がクラウドに移行する可能性があります。 ¦ Plata è in versione Beta. In futuro, la gestione dei dati potrebbe passare al cloud. ¦ Plata est en version bêta. À l’avenir, la gestion des données pourrait passer dans le cloud. ¦ Plata je u beta verziji. U budućnosti bi upravljanje podacima moglo preći u oblak.
+Tus datos se almacenan localmente en tu teléfono. ¦ Your data is stored locally on your phone. ¦ データはお使いの電話にローカルで保存されます。 ¦ I tuoi dati vengono salvati localmente sul tuo telefono. ¦ Vos données sont stockées localement sur votre téléphone. ¦ Tvoji podaci se čuvaju lokalno na tvom telefonu.
+Estudio 22 y Plata no recopilan tus datos. ¦ Estudio 22 and Plata don’t collect your data. ¦ Estudio 22とPlataはあなたのデータを収集しません。 ¦ Estudio 22 e Plata non raccolgono i tuoi dati. ¦ Estudio 22 et Plata ne collectent pas vos données. ¦ Estudio 22 i Plata ne prikupljaju tvoje podatke.
+Respalda tus datos ¦ Back up your data ¦ データをバックアップ ¦ Fai un backup dei tuoi dati ¦ Sauvegardez vos données ¦ Napravi sigurnosnu kopiju podataka
+Aunque por el momento cerrar y abrir la app mantiene tus datos, haz siempre una copia con el engranaje ¦ Even though closing and reopening the app currently keeps your data, always make a backup with the gear ¦ 現時点ではアプリを閉じて開き直してもデータは保持されますが、必ず右上の歯車 ¦ Anche se per ora chiudere e riaprire l’app mantiene i tuoi dati, fai sempre una copia con l’ingranaggio ¦ Même si, pour le moment, fermer et rouvrir l’app conserve vos données, faites toujours une copie avec l’engrenage ¦ Iako zatvaranje i ponovno otvaranje aplikacije trenutno zadržava tvoje podatke, uvijek napravi sigurnosnu kopiju pomoću zupčanika
+de la esquina derecha para mantenerla al día y segura. ¦ in the right corner to keep it up to date and safe. ¦ からバックアップを作成し、常に最新かつ安全な状態に保ってください。 ¦ nell’angolo a destra per tenerla aggiornata e al sicuro. ¦ dans le coin droit pour la garder à jour et en sécurité. ¦ u desnom uglu da bude ažurna i sigurna.
+Los perfiles de demostración fueron creados usando estadísticas y no representan uso real de ningún usuario. ¦ The demo profiles were created using statistics and do not represent the real usage of any user. ¦ デモプロフィールは統計をもとに作成されたもので、実際のユーザーの利用状況を表すものではありません。 ¦ I profili demo sono stati creati usando statistiche e non rappresentano l’uso reale di nessun utente. ¦ Les profils de démonstration ont été créés à partir de statistiques et ne représentent l’usage réel d’aucun utilisateur. ¦ Demo profili su napravljeni na osnovu statistike i ne predstavljaju stvarnu upotrebu nijednog korisnika.
+Toca Compartir ¦ Tap Share ¦ 共有をタップ ¦ Tocca Condividi ¦ Touchez Partager ¦ Dodirni Podijeli
+Elige «Añadir a pantalla de inicio» ¦ Choose “Add to Home Screen” ¦ 「ホーム画面に追加」を選択 ¦ Scegli «Aggiungi a Home» ¦ Choisissez « Sur l’écran d’accueil » ¦ Odaberi „Dodaj na početni ekran”
+Toca «Añadir» ¦ Tap “Add” ¦ 「追加」をタップ ¦ Tocca «Aggiungi» ¦ Touchez « Ajouter » ¦ Dodirni „Dodaj”
+Toca el menú ¦ Tap the menu ¦ メニューをタップ ¦ Tocca il menu ¦ Touchez le menu ¦ Dodirni meni
+Elige «Instalar app» o «Añadir a pantalla de inicio» ¦ Choose “Install app” or “Add to Home screen” ¦ 「アプリをインストール」または「ホーム画面に追加」を選択 ¦ Scegli «Installa app» o «Aggiungi a schermata Home» ¦ Choisissez « Installer l’application » ou « Ajouter à l’écran d’accueil » ¦ Odaberi „Instaliraj aplikaciju” ili „Dodaj na početni ekran”
+{M} hasta ahora. ¦ {M} so far. ¦ {M}ここまで。 ¦ {M} finora. ¦ {M} jusqu’ici. ¦ {M} do sada.
+Revisa tus movimientos del mes aquí. ¦ Review this month’s transactions here. ¦ 今月の取引はこちらで確認できます。 ¦ Rivedi qui i movimenti del mese. ¦ Consultez ici les mouvements du mois. ¦ Pregledaj transakcije ovog mjeseca ovdje.
+Ver movimientos ¦ View transactions ¦ 取引を見る ¦ Vedi i movimenti ¦ Voir les mouvements ¦ Prikaži transakcije
+Puntaje ¦ Score ¦ スコア ¦ Punteggio ¦ Score ¦ Ocjena
+Anterior ¦ Previous ¦ 前へ ¦ Precedente ¦ Précédent ¦ Prethodno
+Siguiente ¦ Next ¦ 次へ ¦ Successivo ¦ Suivant ¦ Sljedeće
+Página {0} de {1} ¦ Page {0} of {1} ¦ {0} / {1}ページ ¦ Pagina {0} di {1} ¦ Page {0} sur {1} ¦ Stranica {0} od {1}
+Pagos ¦ Payments ¦ 返済 ¦ Pagamenti ¦ Paiements ¦ Uplate
+Neto ¦ Net ¦ 差引 ¦ Netto ¦ Net ¦ Neto
+Sin movimientos en este mes ¦ No transactions this month ¦ 今月の取引はありません ¦ Nessun movimento questo mese ¦ Aucun mouvement ce mois-ci ¦ Nema transakcija ovaj mjesec
+¿Dejaste algo en {m}? ¦ Did you miss anything in {M}? ¦ {M}に見逃したものはありませんか？ ¦ Hai lasciato qualcosa a {m}? ¦ Avez-vous oublié quelque chose en {m} ? ¦ Jesi li nešto propustio/la za mjesec {m}?
+Revisa aquí el mes pasado y anteriores. ¦ Review last month and earlier here. ¦ 先月以前はこちらで確認できます。 ¦ Rivedi qui il mese scorso e quelli precedenti. ¦ Consultez ici le mois dernier et les précédents. ¦ Pregledaj prošli mjesec i ranije ovdje.
+Cambiar mes ¦ Change month ¦ 月を変更 ¦ Cambia mese ¦ Changer de mois ¦ Promijeni mjesec
+Elige un mes ¦ Choose a month ¦ 月を選択 ¦ Scegli un mese ¦ Choisir un mois ¦ Odaberi mjesec
+{M} {0} ¦ {M} {0} ¦ {0}年{M} ¦ {M} {0} ¦ {M} {0} ¦ {M} {0}
+Mantienes tu nivel. ¡Sigue así! ¦ You’re holding your level. Keep it up! ¦ レベルを維持中。この調子で！ ¦ Stai mantenendo il livello. Continua così! ¦ Vous gardez votre niveau. Continuez ! ¦ Držiš svoj nivo. Samo tako!
+Mantén la misma letra 3 meses seguidos y al cuarto sube a letra+ dorada. ¦ Keep the same letter for 3 months in a row and on the fourth it becomes a golden letter+. ¦ 同じ評価を3か月続けると、4か月目に金色の「+」に上がります。 ¦ Mantieni la stessa lettera per 3 mesi di fila e al quarto diventa una lettera+ dorata. ¦ Gardez la même lettre 3 mois d’affilée et au quatrième, elle devient une lettre+ dorée. ¦ Zadrži isto slovo 3 mjeseca zaredom i četvrti put postaje zlatno slovo+.
+Perfecto ¦ Perfect ¦ 完璧 ¦ Perfetto ¦ Parfait ¦ Savršeno
+Mantén la misma letra {0} meses seguidos y al cuarto sube a letra+ dorada. ¦ Keep the same letter for {0} months in a row and on the fourth it becomes a golden letter+. ¦ 同じ評価を{0}か月続けると、4か月目に金色の「+」に上がります。 ¦ Mantieni la stessa lettera per {0} mesi di fila e al quarto diventa una lettera+ dorata. ¦ Gardez la même lettre {0} mois d’affilée et au quatrième, elle devient une lettre+ dorée. ¦ Zadrži isto slovo {0} mjeseca zaredom i četvrti put postaje zlatno slovo+.
+Calificaciones (datos planos) ¦ Grades (flat data) ¦ 評価(簡易データ) ¦ Valutazioni (dati semplici) ¦ Notes (données simples) ¦ Ocjene (ravni podaci)
+Segunda fila: letra+ (racha de 4 meses) ¦ Second row: letter+ (4-month streak) ¦ 2行目:評価+(4か月連続) ¦ Seconda riga: lettera+ (serie di 4 mesi) ¦ Deuxième ligne : lettre+ (série de 4 mois) ¦ Drugi red: slovo+ (niz od 4 mjeseca)
+Perfil de prueba cargado ¦ Test profile loaded ¦ テストプロフィールを読み込みました ¦ Profilo di prova caricato ¦ Profil de test chargé ¦ Probni profil učitan
+Tu primer half‑time. ¦ Your first half‑time. ¦ 初めてのハーフタイム。 ¦ Il tuo primo half‑time. ¦ Votre premier half‑time. ¦ Tvoj prvi half‑time.
+Tu primer cierre de mes se acerca. Así vas hasta hoy. ¦ Your first month‑end is coming up. Here’s how you’re doing so far. ¦ 初めての月末が近づいています。ここまでの状況です。 ¦ La tua prima chiusura del mese si avvicina. Ecco come stai andando finora. ¦ Votre première clôture de mois approche. Voici où vous en êtes. ¦ Tvoje prvo zatvaranje mjeseca se bliži. Evo kako ti ide do sada.
+¡Primer half‑time! ¦ First half‑time! ¦ 初のハーフタイム! ¦ Primo half‑time! ¦ Premier half‑time ! ¦ Prvi half‑time!
+Falta poco para tu primer cierre de mes. ¦ Your first month‑end is almost here. ¦ 初めての月末まであと少しです。 ¦ Manca poco alla tua prima chiusura del mese. ¦ Votre première clôture de mois est proche. ¦ Još malo do tvog prvog zatvaranja mjeseca.
+Llegaste a mitad de mes. ¦ You’ve reached mid‑month. ¦ 月の半ばになりました。 ¦ Sei a metà mese. ¦ Vous voici à la mi‑mois. ¦ Stigao/la si do sredine mjeseca.
+Este es tu primer half‑time; tu primer cierre se acerca. ¦ This is your first half‑time; your first month‑end is coming up. ¦ これが初めてのハーフタイムです。初めての月末が近づいています。 ¦ Questo è il tuo primo half‑time; la tua prima chiusura si avvicina. ¦ C’est votre premier half‑time ; votre première clôture approche. ¦ Ovo je tvoj prvi half‑time; tvoje prvo zatvaranje se bliži.
+Tu primer cierre de mes se acerca ¦ Your first month‑end is coming up ¦ 初めての月末が近づいています ¦ La tua prima chiusura del mese si avvicina ¦ Votre première clôture de mois approche ¦ Tvoje prvo zatvaranje mjeseca se bliži
+Este es tu primer half‑time: una mirada a cómo vas a mitad de mes. Cuando el mes termine recibirás tu primera evaluación, de la F a la S. ¦ This is your first half‑time: a look at how you’re doing mid‑month. When the month ends you’ll get your first grade, from F to S. ¦ これが初めてのハーフタイムで、月の半ばの状況をお知らせします。月が終わると、FからSまでの最初の評価が届きます。 ¦ Questo è il tuo primo half‑time: uno sguardo a come stai andando a metà mese. Quando il mese finisce riceverai la tua prima valutazione, dalla F alla S. ¦ C’est votre premier half‑time : un aperçu de votre mi‑mois. À la fin du mois, vous recevrez votre première note, de F à S. ¦ Ovo je tvoj prvi half‑time: pogled na to kako ti ide sredinom mjeseca. Kad mjesec završi, dobit ćeš svoju prvu ocjenu, od F do S.
+Half‑time: a mitad de mes ves tu nota hasta ahora, antes del cierre. ¦ Half‑time: mid‑month you see your grade so far, before the month closes. ¦ ハーフタイム:月の半ばに、締め前のここまでの評価が見られます。 ¦ Half‑time: a metà mese vedi la tua valutazione finora, prima della chiusura. ¦ Half‑time : à la mi‑mois, vous voyez votre note à ce stade, avant la clôture. ¦ Half‑time: sredinom mjeseca vidiš svoju ocjenu do sada, prije zatvaranja.
+Tu primera evaluación llega al cerrar el mes ¦ Your first grade arrives when the month closes ¦ 最初の評価は月が終わると届きます ¦ La tua prima valutazione arriva alla chiusura del mese ¦ Votre première note arrive à la clôture du mois ¦ Tvoja prva ocjena stiže kad se mjesec zatvori
+Cierre de {m} ¦ {M} close ¦ {M}の締め ¦ Chiusura di {m} ¦ Clôture de {m} ¦ Zatvaranje {m}
+Cierre de ¦ Close of ¦ 締め: ¦ Chiusura di ¦ Clôture de ¦ Zatvaranje
+Hasta el día 15 ¦ Through day 15 ¦ 15日まで ¦ Fino al giorno 15 ¦ Jusqu’au 15 ¦ Do 15. dana
+Esto es lo que llevabas al día 15. ¦ This is where you stood on day 15. ¦ 15日時点の状況です。 ¦ Ecco a che punto eri il giorno 15. ¦ Voici où vous en étiez le 15. ¦ Ovako si stajao/la 15. dana.
+Este es tu half‑time: así iba tu nota el día 15. ¦ This is your half‑time: how your grade stood on day 15. ¦ これがハーフタイム:15日時点の評価です。 ¦ Questo è il tuo half‑time: com’era la tua valutazione il giorno 15. ¦ Voici votre half‑time : votre note au 15. ¦ Ovo je tvoj half‑time: kakva ti je bila ocjena 15. dana.
+Tu primer cierre de mes se acerca. Así ibas el día 15. ¦ Your first month‑end is coming up. Here’s how you stood on day 15. ¦ 初めての月末が近づいています。15日時点の状況です。 ¦ La tua prima chiusura del mese si avvicina. Ecco com’eri il giorno 15. ¦ Votre première clôture approche. Voici où vous en étiez le 15. ¦ Tvoje prvo zatvaranje mjeseca se bliži. Ovako si stajao/la 15. dana.
+Cierre vs. {m} ¦ Close vs. {M} ¦ 締めと{M}の比較 ¦ Chiusura vs. {m} ¦ Clôture vs {m} ¦ Zatvaranje naspram {m}
+Gastaste {0} menos que en {m} ¦ You spent {0} less than in {M} ¦ 支出は{M}より{0}少なかったです ¦ Hai speso il {0} in meno rispetto a {m} ¦ Vous avez dépensé {0} de moins qu’en {m} ¦ Potrošio/la si {0} manje u odnosu na {m}
+Gastaste {0} más que en {m} ¦ You spent {0} more than in {M} ¦ 支出は{M}より{0}多かったです ¦ Hai speso il {0} in più rispetto a {m} ¦ Vous avez dépensé {0} de plus qu’en {m} ¦ Potrošio/la si {0} više u odnosu na {m}
+Ahorraste el {0} de tus ingresos (antes {1}) ¦ You saved {0} of your income (before: {1}) ¦ 収入の{0}を貯蓄しました(以前は{1}) ¦ Hai risparmiato il {0} delle tue entrate (prima {1}) ¦ Vous avez épargné {0} de vos revenus (avant : {1}) ¦ Uštedio/la si {0} svojih prihoda (prije {1})
+Ahorraste el {0} de tus ingresos ¦ You saved {0} of your income ¦ 収入の{0}を貯蓄しました ¦ Hai risparmiato il {0} delle tue entrate ¦ Vous avez épargné {0} de vos revenus ¦ Uštedio/la si {0} svojih prihoda
+Half‑time: el día 15 ves cómo va tu nota. Al cerrar el mes recibes la final. ¦ Half‑time: on day 15 you see how your grade is going. When the month closes you get the final one. ¦ ハーフタイム:15日に評価の途中経過が見られます。月が終わると最終評価が届きます。 ¦ Half‑time: il giorno 15 vedi come va la tua valutazione. Alla chiusura del mese ricevi quella finale. ¦ Half‑time : le 15, vous voyez où en est votre note. À la clôture du mois, vous recevez la note finale. ¦ Half‑time: 15. dana vidiš kako ti ide ocjena. Kad se mjesec zatvori, dobiješ konačnu.
+Es momento de cambiar el rumbo. ¦ Time to change course. ¦ そろそろ流れを変えましょう。 ¦ È il momento di cambiare rotta. ¦ Il est temps de changer de cap. ¦ Vrijeme je da promijeniš smjer.
+Nivel estable. Un ajuste más y subes. ¦ Steady level. One more tweak and you move up. ¦ 安定しています。あと一歩で上がれます。 ¦ Livello stabile. Ancora un ritocco e sali. ¦ Niveau stable. Un ajustement de plus et vous montez. ¦ Stabilan nivo. Još jedna korekcija i penješ se.
+Misma letra 4 meses seguidos y se vuelve letra+: dorada (S, A), platino (B, C) o más roja (D, F). ¦ Same letter 4 months in a row and it becomes a letter+: gold (S, A), platinum (B, C) or deeper red (D, F). ¦ 同じ評価が4か月続くと「+」に:金(S・A)、プラチナ(B・C)、より濃い赤(D・F)。 ¦ Stessa lettera per 4 mesi di fila e diventa una lettera+: oro (S, A), platino (B, C) o rosso più intenso (D, F). ¦ Même lettre 4 mois d’affilée et elle devient une lettre+ : or (S, A), platine (B, C) ou rouge plus intense (D, F). ¦ Isto slovo 4 mjeseca zaredom i postaje slovo+: zlatno (S, A), platinasto (B, C) ili crvenije (D, F).
+Misma letra 4 meses seguidos y sube a letra+ dorada. ¦ Same letter 4 months in a row and it becomes a gold letter+. ¦ 同じ評価が4か月続くと金色の「+」に。 ¦ Stessa lettera per 4 mesi di fila e sale a lettera+ dorata. ¦ Même lettre 4 mois d’affilée et elle devient une lettre+ dorée. ¦ Isto slovo 4 mjeseca zaredom i postaje zlatno slovo+.
+Misma letra 4 meses seguidos y sube a letra+ platino. ¦ Same letter 4 months in a row and it becomes a platinum letter+. ¦ 同じ評価が4か月続くとプラチナの「+」に。 ¦ Stessa lettera per 4 mesi di fila e sale a lettera+ platino. ¦ Même lettre 4 mois d’affilée et elle devient une lettre+ platine. ¦ Isto slovo 4 mjeseca zaredom i postaje platinasto slovo+.
+Misma letra 4 meses seguidos y tu letra+ se vuelve más roja. ¦ Same letter 4 months in a row and your letter+ turns a deeper red. ¦ 同じ評価が4か月続くと「+」がより赤くなります。 ¦ Stessa lettera per 4 mesi di fila e la tua lettera+ diventa più rossa. ¦ Même lettre 4 mois d’affilée et votre lettre+ devient plus rouge. ¦ Isto slovo 4 mjeseca zaredom i tvoje slovo+ postaje crvenije.
+Insights y half‑time ¦ Insights & half‑time ¦ インサイトとハーフタイム ¦ Insight e half‑time ¦ Insights et half‑time ¦ Uvidi i half‑time
+Segunda fila: letra+ / letra- (racha de 4 meses) ¦ Second row: letter+ / letter- (4-month streak) ¦ 2行目:評価+/評価-(4か月連続) ¦ Seconda riga: lettera+ / lettera- (serie di 4 mesi) ¦ Deuxième ligne : lettre+ / lettre- (série de 4 mois) ¦ Drugi red: slovo+ / slovo- (niz od 4 mjeseca)
+Añadir foto (opcional) ¦ Add photo (optional) ¦ 写真を追加(任意) ¦ Aggiungi foto (facoltativo) ¦ Ajouter une photo (facultatif) ¦ Dodaj fotografiju (neobavezno)
+Añadir foto ¦ Add photo ¦ 写真を追加 ¦ Aggiungi foto ¦ Ajouter une photo ¦ Dodaj fotografiju
+Cambiar foto ¦ Change photo ¦ 写真を変更 ¦ Cambia foto ¦ Changer la photo ¦ Promijeni fotografiju
+Quitar ¦ Remove ¦ 削除 ¦ Rimuovi ¦ Retirer ¦ Ukloni
+Foto guardada ¦ Photo saved ¦ 写真を保存しました ¦ Foto salvata ¦ Photo enregistrée ¦ Fotografija spremljena
+Foto quitada ¦ Photo removed ¦ 写真を削除しました ¦ Foto rimossa ¦ Photo retirée ¦ Fotografija uklonjena
+Elige una imagen ¦ Choose an image ¦ 画像を選んでください ¦ Scegli un'immagine ¦ Choisissez une image ¦ Odaberi sliku
+No se pudo leer la imagen ¦ Couldn't read the image ¦ 画像を読み込めませんでした ¦ Impossibile leggere l'immagine ¦ Impossible de lire l'image ¦ Nije moguće pročitati sliku
+Aún estamos trabajando en tu puntaje de este mes. ¦ We’re still working on your score for this month. ¦ 今月のスコアはまだ集計中です。 ¦ Stiamo ancora lavorando al tuo punteggio di questo mese. ¦ Nous travaillons encore sur votre score de ce mois. ¦ Još radimo na tvojoj ocjeni za ovaj mjesec.
+Trabajos ¦ Jobs ¦ 仕事 ¦ Lavori ¦ Emplois ¦ Poslovi
+Sin trabajos ¦ No jobs ¦ 仕事なし ¦ Nessun lavoro ¦ Aucun emploi ¦ Nema poslova
+Añadir un trabajo ¦ Add a job ¦ 仕事を追加 ¦ Aggiungi un lavoro ¦ Ajouter un emploi ¦ Dodaj posao
+Nuevo trabajo ¦ New job ¦ 新しい仕事 ¦ Nuovo lavoro ¦ Nouvel emploi ¦ Novi posao
+Trabajo ¦ Job ¦ 仕事 ¦ Lavoro ¦ Emploi ¦ Posao
+Trabajo guardado ¦ Job saved ¦ 仕事を保存しました ¦ Lavoro salvato ¦ Emploi enregistré ¦ Posao spremljen
+Pago por hora ¦ Hourly pay ¦ 時給 ¦ Paga oraria ¦ Salaire horaire ¦ Plaća po satu
+Nombre del trabajo ¦ Job name ¦ 仕事の名前 ¦ Nome del lavoro ¦ Nom de l'emploi ¦ Naziv posla
+Horas por semana ¦ Hours per week ¦ 週あたりの時間 ¦ Ore a settimana ¦ Heures par semaine ¦ Sati tjedno
+Impuestos retenidos (%) ¦ Tax withheld (%) ¦ 源泉徴収税 (%) ¦ Tasse trattenute (%) ¦ Impôts retenus (%) ¦ Zadržani porez (%)
+Cuenta donde cae el pago ¦ Account that receives the pay ¦ 給料の入金口座 ¦ Conto di accredito ¦ Compte de versement ¦ Račun uplate
+Primer pago ¦ First payday ¦ 最初の給料日 ¦ Primo pagamento ¦ Premier paiement ¦ Prva isplata
+Último pago (opcional) ¦ Last payday (optional) ¦ 最後の給料日(任意) ¦ Ultimo pagamento (facoltativo) ¦ Dernier paiement (facultatif) ¦ Zadnja isplata (neobavezno)
+Real ¦ Real ¦ 実際 ¦ Reale ¦ Réel ¦ Stvarno
+Solo simular ¦ Simulate only ¦ シミュレーションのみ ¦ Solo simulazione ¦ Simulation seulement ¦ Samo simulacija
+Simulado ¦ Simulated ¦ シミュレーション ¦ Simulato ¦ Simulé ¦ Simulirano
+Escribe las horas por semana ¦ Enter the hours per week ¦ 週の時間を入力してください ¦ Inserisci le ore a settimana ¦ Saisissez les heures par semaine ¦ Upiši sate tjedno
+Elige la fecha del primer pago ¦ Pick the first payday ¦ 最初の給料日を選んでください ¦ Scegli la data del primo pagamento ¦ Choisissez la date du premier paiement ¦ Odaberi datum prve isplate
+El fin debe ser posterior al inicio ¦ The end must be after the start ¦ 終了は開始より後にしてください ¦ La fine deve essere dopo l'inizio ¦ La fin doit être après le début ¦ Kraj mora biti nakon početka
+Cada trabajo genera sus pagos previstos según horas, impuestos y frecuencia. En "Solo simular" aparecen únicamente en la gráfica. ¦ Each job creates its expected paydays from hours, taxes and frequency. "Simulate only" jobs appear just in the chart. ¦ 各仕事は時間・税・頻度から予定収入を作成します。「シミュレーションのみ」はグラフにだけ表示されます。 ¦ Ogni lavoro genera i pagamenti previsti da ore, tasse e frequenza. "Solo simulazione" appare solo nel grafico. ¦ Chaque emploi crée ses paiements prévus selon les heures, impôts et fréquence. « Simulation seulement » n'apparaît que dans le graphique. ¦ Svaki posao stvara očekivane isplate prema satima, porezu i učestalosti. „Samo simulacija” prikazuje se samo na grafikonu.
+Pago por hora, impuestos, frecuencia ¦ Hourly pay, taxes, frequency ¦ 時給・税・頻度 ¦ Paga oraria, tasse, frequenza ¦ Salaire horaire, impôts, fréquence ¦ Plaća po satu, porez, učestalost
+Últimos ingresos de trabajo ¦ Latest job income ¦ 最近の仕事の収入 ¦ Ultimi guadagni di lavoro ¦ Derniers revenus d'emploi ¦ Posljednji prihodi s posla
+Horas trabajadas ¦ Hours worked ¦ 勤務時間 ¦ Ore lavorate ¦ Heures travaillées ¦ Odrađeni sati
+Monto pagado ¦ Amount paid ¦ 支払額 ¦ Importo pagato ¦ Montant payé ¦ Plaćeni iznos
+Impuestos descontados ¦ Taxes withheld ¦ 差し引かれた税 ¦ Tasse trattenute ¦ Impôts retenus ¦ Odbijeni porez
+Impuestos descontados (calculado) ¦ Taxes withheld (calculated) ¦ 差し引かれた税(自動計算) ¦ Tasse trattenute (calcolate) ¦ Impôts retenus (calculés) ¦ Odbijeni porez (izračunato)
+EE.UU. · por hora ¦ U.S. · hourly ¦ 米国・時給 ¦ USA · orario ¦ É.-U. · horaire ¦ SAD · po satu
+Perú · sueldo ¦ Peru · salary ¦ ペルー・給与 ¦ Perù · stipendio ¦ Pérou · salaire ¦ Peru · plaća
+Ingreso mensual estimado ¦ Estimated monthly income ¦ 月収の目安 ¦ Reddito mensile stimato ¦ Revenu mensuel estimé ¦ Procijenjeni mjesečni prihod
+Ingreso mensual ¦ Monthly income ¦ 月収 ¦ Reddito mensile ¦ Revenu mensuel ¦ Mjesečni prihod
+Se cobra ¦ Paid ¦ 支払い ¦ Pagamento ¦ Versé ¦ Isplata
+Próximo pago ¦ Next payday ¦ 次の給料日 ¦ Prossimo pagamento ¦ Prochain paiement ¦ Sljedeća isplata
+Últimos ingresos ¦ Latest income ¦ 最近の収入 ¦ Ultimi guadagni ¦ Derniers revenus ¦ Posljednji prihodi
+Aún no hay ingresos confirmados ¦ No confirmed income yet ¦ 確認済みの収入はまだありません ¦ Nessun guadagno confermato ¦ Aucun revenu confirmé ¦ Još nema potvrđenih prihoda
+Impuestos ¦ Taxes ¦ 税金 ¦ Tasse ¦ Impôts ¦ Porez
+EE.UU. ¦ U.S. ¦ 米国 ¦ USA ¦ É.-U. ¦ SAD
+Perú ¦ Peru ¦ ペルー ¦ Perù ¦ Pérou ¦ Peru
+Versión beta ¦ Beta version ¦ ベータ版 ¦ Versione beta ¦ Version bêta ¦ Beta verzija
+Plata está en pruebas. Ten en cuenta: ¦ Plata is being tested. Keep in mind: ¦ Plataはテスト中です。ご注意ください： ¦ Plata è in fase di test. Tieni presente: ¦ Plata est en phase de test. À savoir : ¦ Plata je u testiranju. Imaj na umu:
+Pueden aparecer errores o cambios de una versión a otra. ¦ Errors may appear, and things can change between versions. ¦ エラーが出たり、バージョン間で変更されたりすることがあります。 ¦ Possono comparire errori o cambiamenti tra una versione e l’altra. ¦ Des erreurs ou des changements peuvent survenir d’une version à l’autre. ¦ Mogu se pojaviti greške ili promjene između verzija.
+Tus datos viven solo en este dispositivo: guarda tu archivo con frecuencia. ¦ Your data lives only on this device: save your file often. ¦ データはこのデバイスにのみ保存されます。ファイルをこまめに保存してください。 ¦ I tuoi dati restano solo su questo dispositivo: salva spesso il file. ¦ Vos données restent uniquement sur cet appareil : enregistrez souvent votre fichier. ¦ Tvoji podaci žive samo na ovom uređaju: često spremi svoju datoteku.
+No se conecta a tu banco; todo se registra a mano. ¦ It doesn’t connect to your bank; everything is entered by hand. ¦ 銀行とは連携せず、すべて手入力です。 ¦ Non si collega alla tua banca: tutto si registra a mano. ¦ Il ne se connecte pas à votre banque : tout se saisit à la main. ¦ Ne povezuje se s tvojom bankom; sve se unosi ručno.
+Aún no se ha probado en todos los dispositivos. ¦ It hasn’t been tested on every device yet. ¦ まだすべてのデバイスではテストされていません。 ¦ Non è ancora stato provato su tutti i dispositivi. ¦ Il n’a pas encore été testé sur tous les appareils. ¦ Još nije testirano na svim uređajima.
+Entendido ¦ Got it ¦ 了解 ¦ Ho capito ¦ Compris ¦ Razumijem
+Llevas {0} día sin registrar movimientos ¦ You haven’t logged any transactions in {0} {0?day:days} ¦ {0}日間、取引を記録していません ¦ Non registri movimenti da {0} {0?giorno:giorni} ¦ Aucun mouvement enregistré depuis {0} {0?jour:jours} ¦ Već {0} {0?dan:dana} nisi zabilježio/la nijednu transakciju
+© Estudio 22 y Leonardo Richarte, {0}. ¦ © Estudio 22 and Leonardo Richarte, {0}. ¦ © Estudio 22 と Leonardo Richarte、{0}。 ¦ © Estudio 22 e Leonardo Richarte, {0}. ¦ © Estudio 22 et Leonardo Richarte, {0}. ¦ © Estudio 22 i Leonardo Richarte, {0}.
+Editar perfil ¦ Edit profile ¦ プロフィールを編集 ¦ Modifica profilo ¦ Modifier le profil ¦ Uredi profil
+Mostrar puntuaciones ¦ Show grades ¦ 評価を表示 ¦ Mostra valutazioni ¦ Afficher les évaluations ¦ Prikaži ocjene
+Muestra tus puntajes históricos bajo tu foto. ¦ Shows your past scores below your photo. ¦ 写真の下に過去の評価を表示します。 ¦ Mostra i tuoi punteggi storici sotto la foto. ¦ Affiche vos scores passés sous votre photo. ¦ Prikazuje tvoje prošle rezultate ispod fotografije.
+Otros ¦ Other ¦ その他 ¦ Altre ¦ Autres ¦ Ostale
+Otras monedas ¦ Other currencies ¦ その他の通貨 ¦ Altre valute ¦ Autres devises ¦ Ostale valute
+Otras monedas del mundo ¦ Other currencies of the world ¦ 世界のその他の通貨 ¦ Altre valute del mondo ¦ Autres devises du monde ¦ Ostale svjetske valute
+Elige una moneda… ¦ Choose a currency… ¦ 通貨を選択… ¦ Scegli una valuta… ¦ Choisissez une devise… ¦ Odaberi valutu…
+¿No está? Escribe tu propio código (hasta 3 caracteres) ¦ Not there? Type your own code (up to 3 characters) ¦ 見つかりませんか？コードを入力(3文字まで) ¦ Non c’è? Scrivi il tuo codice (fino a 3 caratteri) ¦ Introuvable ? Saisissez votre code (3 caractères max.) ¦ Nema je? Upiši svoj kod (do 3 znaka)
+Américas ¦ Americas ¦ アメリカ大陸 ¦ Americhe ¦ Amériques ¦ Amerike
+Europa ¦ Europe ¦ ヨーロッパ ¦ Europa ¦ Europe ¦ Europa
+Asia ¦ Asia ¦ アジア ¦ Asia ¦ Asie ¦ Azija
+Testers de la alpha ¦ Alpha testers ¦ アルファテスター ¦ Tester dell’alpha ¦ Testeurs de l’alpha ¦ Alfa testeri
+Compilación {0} ¦ Build {0} ¦ ビルド {0} ¦ Build {0} ¦ Build {0} ¦ Build {0}
+Pronto ¦ Coming soon ¦ 近日公開 ¦ Presto ¦ Bientôt ¦ Pronto
+Opcional. Plata calcula tu pago neto y lo prevé en tus ingresos. ¦ Optional. Plata works out your net pay and forecasts it in your income. ¦ 任意。Plataが手取りを計算し、収入として予測します。 ¦ Facoltativo. Plata calcola il netto e lo prevede nelle tue entrate. ¦ Facultatif. Plata calcule ton net et le prévoit dans tes revenus. ¦ Neobavezno. Plata izračuna tvoj neto iznos i predviđa ga u prihodima.

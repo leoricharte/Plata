@@ -1,0 +1,30 @@
+Últimos {0} dígito (opcional) ¦ Last {0} digits (optional) ¦ 下{0}桁(任意) ¦ Ultime {0} cifre (facoltativo) ¦ {0} derniers chiffres (facultatif) ¦ Zadnjih {0} cifara (neobavezno)
+Próximas {0} semana ¦ Next {0} weeks ¦ 今後{0}週間 ¦ Prossime {0} settimane ¦ {0} prochaines semaines ¦ Sljedećih {0} sedmica
+Del {d} al {d} ¦ From {d} to {e} ¦ {d}〜{e} ¦ Dal {d} al {e} ¦ Du {d} au {e} ¦ Od {d} do {e}
+Del {d} al {d} · mínimo {0} el {d} (sin esto: {1}) ¦ From {d} to {e} · minimum {0} on {f} (without this: {1}) ¦ {d}〜{e} · 最低額 {0}({f})(これがない場合: {1}) ¦ Dal {d} al {e} · minimo {0} il {f} (senza questo: {1}) ¦ Du {d} au {e} · minimum {0} le {f} (sans cela : {1}) ¦ Od {d} do {e} · minimum {0} dana {f} (bez ovoga: {1})
+Esta información no es recopilada por Plata ni Estudio {0}. Toda la información se maneja en tu archivo de perfil. ¦ This information is not collected by Plata or Estudio {0}. All information is handled in your profile file. ¦ この情報はPlataおよびEstudio {0}によって収集されることはありません。すべての情報はプロフィールファイルで管理されます。 ¦ Queste informazioni non vengono raccolte da Plata né da Estudio {0}. Tutte le informazioni sono gestite nel tuo file del profilo. ¦ Ces informations ne sont collectées ni par Plata ni par Estudio {0}. Toutes les informations sont gérées dans votre fichier de profil. ¦ Plata i Estudio {0} ne prikupljaju ove informacije. Sve informacije se čuvaju u tvojoj datoteci profila.
+Elige hasta {0} monedas. Puedes cambiarlo después en Ajustes. ¦ Choose up to {0} currencies. You can change this later in Settings. ¦ 通貨は最大{0}つまで選べます。あとから設定で変更できます。 ¦ Scegli fino a {0} valute. Puoi cambiarlo più tardi nelle Impostazioni. ¦ Choisissez jusqu’à {0} devises. Vous pourrez les modifier plus tard dans Réglages. ¦ Odaberi do {0} valute. To možeš kasnije promijeniti u Postavkama.
+Puedes usar hasta {0} monedas a la vez. El tipo de cambio es tuyo: edítalo cuando cambie. ¦ You can use up to {0} currencies at once. The exchange rate is yours: edit it when it changes. ¦ 通貨は同時に最大{0}つまで使えます。為替レートは自分で設定します。変わったら編集してください。 ¦ Puoi usare fino a {0} valute contemporaneamente. Il tasso di cambio lo gestisci tu: modificalo quando cambia. ¦ Vous pouvez utiliser jusqu’à {0} devises à la fois. Le taux de change est le vôtre : modifiez-le quand il change. ¦ Možeš koristiti do {0} valute istovremeno. Kurs je tvoj: uredi ga kad se promijeni.
+Diseñado por Estudio {0} en Nueva York. ¦ Designed by Estudio {0} in New York. ¦ Estudio {0}(ニューヨーク)がデザインしました。 ¦ Progettato da Estudio {0} a New York. ¦ Conçu par Estudio {0} à New York. ¦ Dizajnirao Estudio {0} u New Yorku.
+© Estudio {0}, {1}. ¦ © Estudio {0}, {1}. ¦ © Estudio {0}, {1}. ¦ © Estudio {0}, {1}. ¦ © Estudio {0}, {1}. ¦ © Estudio {0}, {1}.
+Moneda personalizada (hasta {0} caracteres) ¦ Custom currency (up to {0} characters) ¦ カスタム通貨({0}文字まで) ¦ Valuta personalizzata (fino a {0} caratteri) ¦ Devise personnalisée ({0} caractères max.) ¦ Prilagođena valuta (do {0} znakova)
+Hasta {0} caracteres, p. ej. ARS ¦ Up to {0} characters, e.g. ARS ¦ {0}文字まで(例:ARS) ¦ Fino a {0} caratteri, es. ARS ¦ {0} caractères max., p. ex. ARS ¦ Do {0} znakova, npr. ARS
+{0} al año ¦ {0} a year ¦ 年{0} ¦ {0} all’anno ¦ {0} par an ¦ {0} godišnje
+{0}/mes ¦ {0}/mo ¦ {0}/月 ¦ {0}/mese ¦ {0}/mois ¦ {0}/mj.
+≈ {0}/mes ¦ ≈ {0}/mo ¦ 約{0}/月 ¦ ≈ {0}/mese ¦ ≈ {0}/mois ¦ ≈ {0}/mj.
+{0} mes ¦ {0} {0?month:months} ¦ {0}か月 ¦ {0} {0?mese:mesi} ¦ {0} mois ¦ {0} {0?mjesec:mjeseci}
+{0} día ¦ {0} {0?day:days} ¦ {0}日 ¦ {0} {0?giorno:giorni} ¦ {0} {0?jour:jours} ¦ {0} {0?dan:dana}
+{0} semana ¦ {0} {0?week:weeks} ¦ {0}週間 ¦ {0} {0?settimana:settimane} ¦ {0} {0?semaine:semaines} ¦ {0} {0?sedmica:sedmica}
+({0} ingreso confirmado) ¦ ({0} confirmed {0?income:incomes}) ¦ (確定した収入 {0}件) ¦ ({0} {0?entrata confermata:entrate confermate}) ¦ ({0} {0?revenu confirmé:revenus confirmés}) ¦ ({0} potvrđeno)
+({0} ingreso confirmados) ¦ ({0} confirmed {0?income:incomes}) ¦ (確定した収入 {0}件) ¦ ({0} {0?entrata confermata:entrate confermate}) ¦ ({0} {0?revenu confirmé:revenus confirmés}) ¦ ({0} potvrđeno)
+{0} frente a hoy ¦ {0} vs. today ¦ 今日との差 {0} ¦ {0} rispetto a oggi ¦ {0} par rapport à aujourd’hui ¦ {0} u odnosu na danas
+Mes anterior ¦ Previous month ¦ 前月 ¦ Mese precedente ¦ Mois précédent ¦ Prethodni mjesec
+Mes siguiente ¦ Next month ¦ 翌月 ¦ Mese successivo ¦ Mois suivant ¦ Sljedeći mjesec
+esperado para {d} ¦ expected for {d} ¦ {d}予定 ¦ atteso per {d} ¦ attendu pour le {d} ¦ očekivano za {d}
+previsto para {d} ¦ planned for {d} ¦ {d}予定 ¦ previsto per {d} ¦ prévu pour le {d} ¦ planirano za {d}
+Te recordamos el día {0} para que registres tu pago. ¦ We’ll remind you on day {0} so you can record your payment. ¦ {0}日にリマインドします。支払いを記録してください。 ¦ Ti ricordiamo il giorno {0} così registri il tuo pagamento. ¦ Nous vous rappelons le {0} pour que vous enregistriez votre paiement. ¦ Podsjetit ćemo te {0}. dana da evidentiraš svoju uplatu.
+Vuelve a revisar en unos días. ¦ Check back in a few days. ¦ 数日後にもう一度確認してください。 ¦ Ricontrolla tra qualche giorno. ¦ Revenez dans quelques jours. ¦ Provjeri opet za nekoliko dana.
+Vuelve a revisar en un par de semanas. ¦ Check back in a couple of weeks. ¦ 2週間ほどしてからもう一度確認してください。 ¦ Ricontrolla tra un paio di settimane. ¦ Revenez dans quelques semaines. ¦ Provjeri opet za par sedmica.
+Vuelve a revisar en alrededor de un mes. ¦ Check back in about a month. ¦ 1か月ほどしてからもう一度確認してください。 ¦ Ricontrolla tra circa un mese. ¦ Revenez dans environ un mois. ¦ Provjeri opet za otprilike mjesec dana.
+Pagar {0} ¦ Pay {0} ¦ {0}を支払う ¦ Paga {0} ¦ Payer {0} ¦ Plati {0}
+Principal: Personalizada. ¦ Primary: Custom. ¦ メイン通貨:カスタム。 ¦ Principale: personalizzata. ¦ Principale : personnalisée. ¦ Glavna: prilagođena.

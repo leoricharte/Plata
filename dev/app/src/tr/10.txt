@@ -1,0 +1,25 @@
+Apariencia ¦ Appearance ¦ 外観 ¦ Aspetto ¦ Apparence ¦ Izgled
+Auto ¦ Auto ¦ 自動 ¦ Auto ¦ Auto ¦ Auto
+Claro ¦ Light ¦ ライト ¦ Chiaro ¦ Clair ¦ Svijetlo
+Oscuro ¦ Dark ¦ ダーク ¦ Scuro ¦ Sombre ¦ Tamno
+Cambios en la ¦ Changes in ¦ 変更点： ¦ Novità della ¦ Changements de la ¦ Promjene u
+Modo oscuro ¦ Dark mode ¦ ダークモード ¦ Modalità scura ¦ Mode sombre ¦ Tamni način
+Elige Auto, Claro u Oscuro en tu perfil o al empezar. ¦ Choose Auto, Light or Dark in your profile or when you start. ¦ プロフィールまたは開始時に、自動・ライト・ダークから選べます。 ¦ Scegli Auto, Chiaro o Scuro nel profilo o all’avvio. ¦ Choisissez Auto, Clair ou Sombre dans votre profil ou au démarrage. ¦ Odaberi Auto, Svijetlo ili Tamno u profilu ili na početku.
+Entendido ¦ Got it ¦ OK ¦ Ho capito ¦ Compris ¦ Razumijem
+¿Cómo lo prefieres? ¦ How do you prefer it? ¦ どちらがお好みですか？ ¦ Come lo preferisci? ¦ Comment le préférez-vous ? ¦ Kako ti se više sviđa?
+Elige la apariencia de Plata. Auto sigue la del sistema. Puedes cambiarla después en tu perfil. ¦ Choose how Plata looks. Auto follows your system. You can change it later in your profile. ¦ Plataの外観を選びます。自動はシステムの設定に合わせます。あとでプロフィールで変更できます。 ¦ Scegli l’aspetto di Plata. Auto segue quello del sistema. Puoi cambiarlo dopo nel profilo. ¦ Choisissez l’apparence de Plata. Auto suit celle du système. Vous pourrez la changer plus tard dans votre profil. ¦ Odaberi izgled Plate. Auto prati sustav. Poslije ga možeš promijeniti u profilu.
+Vista previa ¦ Preview ¦ プレビュー ¦ Anteprima ¦ Aperçu ¦ Pregled
+Novedades ¦ What’s new ¦ 新機能 ¦ Novità ¦ Nouveautés ¦ Novosti
+Lo nuevo respecto a la Beta 1 ¦ What’s new since Beta 1 ¦ ベータ1からの新機能 ¦ Cosa c’è di nuovo rispetto alla Beta 1 ¦ Nouveautés depuis la bêta 1 ¦ Što je novo u odnosu na Betu 1
+La noche ha llegado. ¦ Night has arrived. ¦ 夜が来ました。 ¦ È arrivata la notte. ¦ La nuit est tombée. ¦ Noć je stigla.
+Cambios de la beta 2 ¦ Beta 2 changes ¦ ベータ2の変更点 ¦ Cambiamenti della beta 2 ¦ Changements de la bêta 2 ¦ Promjene u beti 2
+Revisar novedades ¦ See what’s new ¦ 新機能を見る ¦ Scopri le novità ¦ Voir les nouveautés ¦ Pogledaj novosti
+Nuevas secciones en la web ¦ New sections on the website ¦ ウェブサイトの新セクション ¦ Nuove sezioni sul sito ¦ Nouvelles sections sur le site ¦ Novi odjeljci na web-stranici
+En plataapp.net hay más para conocer Plata: Cómo usar, Prensa, Transparencia y Ayuda. ¦ At plataapp.net you can learn more about Plata: How to use it, Press, Transparency and Help. ¦ plataapp.netでPlataについてさらに知れます：使い方、プレス、透明性、ヘルプ。 ¦ Su plataapp.net puoi scoprire di più su Plata: Come usare, Stampa, Trasparenza e Aiuto. ¦ Sur plataapp.net, découvrez Plata : Mode d’emploi, Presse, Transparence et Aide. ¦ Na plataapp.net saznaj više o Plati: Kako koristiti, Press, Transparentnost i Pomoć.
+La noche ha llegado ¦ Night has arrived ¦ 夜が来ました ¦ È arrivata la notte ¦ La nuit est tombée ¦ Noć je stigla
+Lo sé, nosotros también nos quedábamos ciegos a las 3 am al ver la app. Ya no más. ¦ We know, we used to go blind looking at the app at 3 am too. Not anymore. ¦ わかります、私たちも午前3時にアプリを見て目がくらんでいました。もうそんなことはありません。 ¦ Lo sappiamo, anche noi restavamo accecati alle 3 di notte guardando l’app. Mai più. ¦ On sait, nous aussi on s’éblouissait à 3 h du matin devant l’appli. Plus maintenant. ¦ Znamo, i mi smo se zaslijepili u 3 ujutro gledajući aplikaciju. Više ne.
+Conoce mejor Plata ¦ Get to know Plata better ¦ Plataをもっと知ろう ¦ Conosci meglio Plata ¦ Mieux connaître Plata ¦ Upoznaj Platu bolje
+¡Nuestra web está online! Tenemos cositas para que conozcas mejor la app. ¦ Our website is online! We have a few things to help you get to know the app better. ¦ ウェブサイトを公開しました！アプリをもっと知ってもらうための情報を用意しています。 ¦ Il nostro sito è online! Abbiamo qualcosa per farti conoscere meglio l’app. ¦ Notre site est en ligne ! Nous avons de quoi mieux vous faire découvrir l’appli. ¦ Naša web-stranica je online! Imamo nešto da bolje upoznaš aplikaciju.
+Abre la app nuevamente para cambiar el color de la barra de arriba ¦ Reopen the app to change the color of the top bar ¦ 上部バーの色を変えるには、アプリを開き直してください ¦ Riapri l’app per cambiare il colore della barra in alto ¦ Rouvrez l’app pour changer la couleur de la barre du haut ¦ Ponovno otvori aplikaciju za promjenu boje gornje trake
+Este perfil está disponible como demostración también. ¦ This profile is also available as a demo. ¦ このプロフィールはデモとしても利用できます。 ¦ Questo profilo è disponibile anche come demo. ¦ Ce profil est aussi disponible en démo. ¦ Ovaj je profil dostupan i kao demo.
+Te pasaste ¦ Over by ¦ 超過 ¦ Sforato di ¦ Dépassé de ¦ Prekoračeno za

@@ -1,0 +1,177 @@
+Débito, crédito e intereses ¦ Debit, credit & interest ¦ デビット、クレジット、利息 ¦ Debito, credito e interessi ¦ Débit, crédit et intérêts ¦ Debitno, kreditno i kamate
+Cuentas de débito ¦ Debit accounts ¦ デビット口座 ¦ Conti di debito ¦ Comptes de débit ¦ Debitni računi
+Cuenta de débito ¦ Debit account ¦ デビット口座 ¦ Conto di debito ¦ Compte de débit ¦ Debitni račun
+Nueva cuenta de débito ¦ New debit account ¦ 新しいデビット口座 ¦ Nuovo conto di debito ¦ Nouveau compte de débit ¦ Novi debitni račun
+Añadir cuenta de débito ¦ Add debit account ¦ デビット口座を追加 ¦ Aggiungi conto di debito ¦ Ajouter un compte de débit ¦ Dodaj debitni račun
+Tarjetas y préstamos ¦ Cards & loans ¦ カードとローン ¦ Carte e prestiti ¦ Cartes et prêts ¦ Kartice i krediti
+Tarjeta o préstamo ¦ Card or loan ¦ カードまたはローン ¦ Carta o prestito ¦ Carte ou prêt ¦ Kartica ili kredit
+Nueva tarjeta o préstamo ¦ New card or loan ¦ 新しいカードまたはローン ¦ Nuova carta o prestito ¦ Nouvelle carte ou nouveau prêt ¦ Nova kartica ili kredit
+Añadir tarjeta o préstamo ¦ Add card or loan ¦ カードまたはローンを追加 ¦ Aggiungi carta o prestito ¦ Ajouter une carte ou un prêt ¦ Dodaj karticu ili kredit
+Tarjeta de crédito ¦ Credit card ¦ クレジットカード ¦ Carta di credito ¦ Carte de crédit ¦ Kreditna kartica
+Tarjeta ¦ Card ¦ カード ¦ Carta ¦ Carte ¦ Kartica
+Préstamo ¦ Loan ¦ ローン ¦ Prestito ¦ Prêt ¦ Kredit
+Crédito y préstamos ¦ Credit & loans ¦ クレジットとローン ¦ Credito e prestiti ¦ Crédit et prêts ¦ Krediti i zajmovi
+Créditos ¦ Credit ¦ クレジット ¦ Crediti ¦ Crédits ¦ Krediti
+Crédito ¦ Credit ¦ クレジット ¦ Credito ¦ Crédit ¦ Kredit
+Débito ¦ Debit ¦ デビット ¦ Debito ¦ Débit ¦ Debit
+Cuenta ¦ Account ¦ 口座 ¦ Conto ¦ Compte ¦ Račun
+Cuenta o tarjeta ¦ Account or card ¦ 口座またはカード ¦ Conto o carta ¦ Compte ou carte ¦ Račun ili kartica
+Cuenta principal ¦ Main account ¦ メイン口座 ¦ Conto principale ¦ Compte principal ¦ Glavni račun
+Tu primera cuenta ¦ Your first account ¦ 最初の口座 ¦ Il tuo primo conto ¦ Votre premier compte ¦ Tvoj prvi račun
+Desde la cuenta ¦ From account ¦ 出金元の口座 ¦ Dal conto ¦ Depuis le compte ¦ S računa
+Pagar desde ¦ Pay from ¦ 支払い元 ¦ Paga da ¦ Payer depuis ¦ Plati s
+Corriente ¦ Checking ¦ 普通預金 ¦ Corrente ¦ Courant ¦ Tekući
+Efectivo ¦ Cash ¦ 現金 ¦ Contanti ¦ Espèces ¦ Gotovina
+Disponible ¦ Available ¦ 利用可能 ¦ Disponibile ¦ Disponible ¦ Raspoloživo
+Disponible (débito) ¦ Available (debit) ¦ 利用可能額(デビット) ¦ Disponibile (debito) ¦ Disponible (débit) ¦ Raspoloživo (debit)
+Deuda (crédito) ¦ Debt (credit) ¦ 借入(クレジット) ¦ Debito (credito) ¦ Dette (crédit) ¦ Dug (kredit)
+Crédito disponible ¦ Available credit ¦ 利用可能なクレジット ¦ Credito disponibile ¦ Crédit disponible ¦ Raspoloživi kredit
+Deuda total ¦ Total debt ¦ 借入合計 ¦ Debito totale ¦ Dette totale ¦ Ukupni dug
+Libre de deuda ¦ Debt-free ¦ 完済 ¦ Libero da debiti ¦ Sans dette ¦ Bez duga
+Libre de deuda en {y} ¦ Debt-free in {y} ¦ 完済予定:{y} ¦ Libero da debiti a {y} ¦ Sans dette en {y} ¦ Bez duga u {y}
+Libre de deuda en ¦ Debt-free in ¦ 完済予定: ¦ Libero da debiti a ¦ Sans dette en ¦ Bez duga u
+Tu plan actual no liquida la deuda ¦ Your current plan doesn’t pay off the debt ¦ 現在の計画では完済できません ¦ Il tuo piano attuale non estingue il debito ¦ Votre plan actuel ne rembourse pas la dette ¦ Tvoj trenutni plan ne otplaćuje dug
+No se liquida ¦ Not paid off ¦ 完済できません ¦ Non si estingue ¦ Non remboursé ¦ Ne otplaćuje se
+Con tus pagos actuales. Mira cuánto cambia pagando un poco más. ¦ With your current payments. See how much it changes by paying a bit more. ¦ 現在の支払い額の場合です。少し多く支払うとどう変わるか見てみましょう。 ¦ Con i tuoi pagamenti attuali. Guarda quanto cambia pagando un po’ di più. ¦ Avec vos paiements actuels. Voyez ce que ça change en payant un peu plus. ¦ Uz tvoje trenutne uplate. Vidi koliko se promijeni ako plaćaš malo više.
+Ver detalle de intereses ¦ Show interest details ¦ 利息の詳細を見る ¦ Mostra dettaglio interessi ¦ Voir le détail des intérêts ¦ Prikaži detalje kamate
+Ocultar detalle de intereses ¦ Hide interest details ¦ 利息の詳細を隠す ¦ Nascondi dettaglio interessi ¦ Masquer le détail des intérêts ¦ Sakrij detalje kamate
+Simular pago extra ¦ Simulate extra payment ¦ 追加返済をシミュレート ¦ Simula pagamento extra ¦ Simuler un paiement supplémentaire ¦ Simuliraj dodatnu uplatu
+Pago extra mensual ¦ Monthly extra payment ¦ 毎月の追加返済 ¦ Pagamento extra mensile ¦ Paiement supplémentaire mensuel ¦ Dodatna mjesečna uplata
+Pago extra cada mes ¦ Extra payment each month ¦ 毎月の追加返済額 ¦ Pagamento extra ogni mese ¦ Paiement supplémentaire chaque mois ¦ Dodatna uplata svakog mjeseca
+El extra se aplica primero a la deuda con mayor interés. ¦ The extra goes first to the debt with the highest interest. ¦ 追加分は金利の高い借入から優先して充当されます。 ¦ L’extra viene applicato prima al debito con l’interesse più alto. ¦ Le supplément est d’abord appliqué à la dette au taux le plus élevé. ¦ Dodatni iznos ide prvo na dug s najvećom kamatom.
+Te libras antes ¦ You’re debt-free sooner ¦ 完済が早まります ¦ Ti liberi prima ¦ Vous êtes libéré plus tôt ¦ Oslobađaš se duga ranije
+Ahorras en intereses ¦ You save on interest ¦ 利息を節約 ¦ Risparmi sugli interessi ¦ Vous économisez des intérêts ¦ Štediš na kamati
+Intereses totales ¦ Total interest ¦ 利息合計 ¦ Interessi totali ¦ Intérêts totaux ¦ Ukupna kamata
+INTERESES ESTIMADOS AL MES ¦ ESTIMATED INTEREST PER MONTH ¦ 月あたりの推定利息 ¦ INTERESSI STIMATI AL MESE ¦ INTÉRÊTS ESTIMÉS PAR MOIS ¦ PROCIJENJENA KAMATA MJESEČNO
+DEUDA TOTAL · {0} CUENTA ¦ TOTAL DEBT · {0} {0?ACCOUNT:ACCOUNTS} ¦ 借入合計 · {0}件 ¦ DEBITO TOTALE · {0} {0?CONTO:CONTI} ¦ DETTE TOTALE · {0} {0?COMPTE:COMPTES} ¦ UKUPNI DUG · {0} {0?RAČUN:RAČUNA}
+DEUDA EN TARJETAS · {0} CUENTA ¦ CARD DEBT · {0} {0?ACCOUNT:ACCOUNTS} ¦ カード借入 · {0}件 ¦ DEBITO CARTE · {0} {0?CONTO:CONTI} ¦ DETTE CARTES · {0} {0?COMPTE:COMPTES} ¦ DUG NA KARTICAMA · {0} {0?RAČUN:RAČUNA}
+DEUDA EN PRÉSTAMOS · {0} CUENTA ¦ LOAN DEBT · {0} {0?ACCOUNT:ACCOUNTS} ¦ ローン借入 · {0}件 ¦ DEBITO PRESTITI · {0} {0?CONTO:CONTI} ¦ DETTE PRÊTS · {0} {0?COMPTE:COMPTES} ¦ DUG PO KREDITIMA · {0} {0?RAČUN:RAČUNA}
+Solo tarjetas ¦ Cards only ¦ カードのみ ¦ Solo carte ¦ Cartes uniquement ¦ Samo kartice
+Solo préstamos ¦ Loans only ¦ ローンのみ ¦ Solo prestiti ¦ Prêts uniquement ¦ Samo krediti
+Ascendente ¦ Ascending ¦ 昇順 ¦ Crescente ¦ Croissant ¦ Uzlazno
+Descendente ¦ Descending ¦ 降順 ¦ Decrescente ¦ Décroissant ¦ Silazno
+Ocultar sin uso ¦ Hide unused ¦ 未使用を隠す ¦ Nascondi inutilizzati ¦ Masquer les inutilisés ¦ Sakrij neiskorištene
+{0} oculta por no estar en uso ¦ {0} hidden because unused ¦ 未使用のため{0}件を非表示 ¦ {0} {0?nascosto:nascosti} perché inutilizzati ¦ {0} {0?masqué:masqués} car inutilisés ¦ {0} skriveno jer se ne koristi
+por no estar en uso ¦ because unused ¦ (未使用のため) ¦ perché inutilizzati ¦ car inutilisés ¦ jer se ne koristi
+oculta ¦ hidden ¦ 非表示 ¦ nascosto ¦ masqué ¦ skriveno
+{0} usado · disponible {1} ¦ {0} used · {1} available ¦ {0}使用 · 利用可能{1} ¦ {0} usato · {1} disponibili ¦ {0} utilisé · {1} disponible ¦ {0} iskorišteno · raspoloživo {1}
+{0} usado · disponible {1} de {2} ¦ {0} used · {1} of {2} available ¦ {0}使用 · {2}中{1}利用可能 ¦ {0} usato · {1} su {2} disponibili ¦ {0} utilisé · {1} sur {2} disponible ¦ {0} iskorišteno · {1} od {2} raspoloživo
+{0} anual ¦ {0} APR ¦ 年{0} ¦ {0} annuo ¦ {0} par an ¦ {0} godišnje
+{0} anual · ≈ {1}/mes · pago día {2} ¦ {0} APR · ≈ {1}/mo · pays on day {2} ¦ 年{0} · 約{1}/月 · {2}日払い ¦ {0} annuo · ≈ {1}/mese · pagamento giorno {2} ¦ {0} par an · ≈ {1}/mois · paiement le {2} ¦ {0} godišnje · ≈ {1}/mj. · plaća se {2}. dana
+· {0} anual ¦ · {0} APR ¦ · 年{0} ¦ · {0} annuo ¦ · {0} par an ¦ · {0} godišnje
+anual ¦ APR ¦ 年利 ¦ annuo ¦ par an ¦ godišnje
+% anual ¦ % APR ¦ %(年) ¦ % annuo ¦ % par an ¦ % godišnje
+Préstamo · {0} ¦ Loan · {0} ¦ ローン · {0} ¦ Prestito · {0} ¦ Prêt · {0} ¦ Kredit · {0}
+Interés anual ¦ Annual interest ¦ 年利 ¦ Interesse annuo ¦ Intérêt annuel ¦ Godišnja kamata
+Interés anual (%) ¦ Annual interest (%) ¦ 年利(%) ¦ Interesse annuo (%) ¦ Intérêt annuel (%) ¦ Godišnja kamata (%)
+Interés al mes ¦ Monthly interest ¦ 月の利息 ¦ Interesse mensile ¦ Intérêt mensuel ¦ Mjesečna kamata
+Rendimiento anual ¦ Annual yield ¦ 年間利回り ¦ Rendimento annuo ¦ Rendement annuel ¦ Godišnji prinos
+Rendimiento anual (%) — opcional ¦ Annual yield (%) — optional ¦ 年間利回り(%)— 任意 ¦ Rendimento annuo (%) — facoltativo ¦ Rendement annuel (%) — facultatif ¦ Godišnji prinos (%) — neobavezno
+Ganancia al mes ¦ Monthly earnings ¦ 月の収益 ¦ Guadagno mensile ¦ Gain mensuel ¦ Mjesečna zarada
+Pago mensual ¦ Monthly payment ¦ 毎月の支払い ¦ Pagamento mensile ¦ Paiement mensuel ¦ Mjesečna uplata
+Saldo ¦ Balance ¦ 残高 ¦ Saldo ¦ Solde ¦ Stanje
+Saldo adeudado ¦ Balance owed ¦ 未払い残高 ¦ Saldo dovuto ¦ Solde dû ¦ Dugovano stanje
+Saldo adeudado (lo que debes) ¦ Balance owed (what you owe) ¦ 未払い残高(借りている額) ¦ Saldo dovuto (quanto devi) ¦ Solde dû (ce que vous devez) ¦ Dugovano stanje (ono što duguješ)
+Balance actual ¦ Current balance ¦ 現在の残高 ¦ Saldo attuale ¦ Solde actuel ¦ Trenutno stanje
+Saldo actual ({0}) ¦ Current balance ({0}) ¦ 現在の残高({0}) ¦ Saldo attuale ({0}) ¦ Solde actuel ({0}) ¦ Trenutno stanje ({0})
+Monto ({0}) ¦ Amount ({0}) ¦ 金額({0}) ¦ Importo ({0}) ¦ Montant ({0}) ¦ Iznos ({0})
+· saldo {0} ¦ · balance {0} ¦ · 残高{0} ¦ · saldo {0} ¦ · solde {0} ¦ · stanje {0}
+· saldo ¦ · balance ¦ · 残高 ¦ · saldo ¦ · solde ¦ · stanje
+Venció hace {0} día ¦ Was due {0} {0?day:days} ago ¦ {0}日前が期日でした ¦ Scaduto {0} {0?giorno:giorni} fa ¦ Échu il y a {0} {0?jour:jours} ¦ Dospjelo prije {0} {0?dan:dana}
+Pago esperado ¦ Expected payment ¦ 支払い予定 ¦ Pagamento atteso ¦ Paiement attendu ¦ Očekivana uplata
+Añade el día de pago a la tarjeta ¦ Add the payment day to the card ¦ カードに支払日を追加してください ¦ Aggiungi il giorno di pagamento alla carta ¦ Ajoutez le jour de paiement à la carte ¦ Dodaj dan plaćanja na karticu
+Añade el día de pago de la tarjeta para activarlo. ¦ Add the card’s payment day to turn it on. ¦ オンにするには、カードの支払日を追加してください。 ¦ Aggiungi il giorno di pagamento della carta per attivarlo. ¦ Ajoutez le jour de paiement de la carte pour l’activer. ¦ Dodaj dan plaćanja kartice da to uključiš.
+Disponible si la tarjeta tiene día de pago. ¦ Available if the card has a payment day. ¦ カードに支払日がある場合に利用できます。 ¦ Disponibile se la carta ha un giorno di pagamento. ¦ Disponible si la carte a un jour de paiement. ¦ Dostupno ako kartica ima dan plaćanja.
+El día {0} de cada mes te preguntamos cuánto pagaste. ¦ On day {0} of each month we’ll ask how much you paid. ¦ 毎月{0}日に、いくら支払ったかをお尋ねします。 ¦ Il giorno {0} di ogni mese ti chiediamo quanto hai pagato. ¦ Le {0} de chaque mois, nous vous demandons combien vous avez payé. ¦ {0}. dana svakog mjeseca pitat ćemo te koliko si platio/la.
+El día ¦ On day ¦ 毎月 ¦ Il giorno ¦ Le ¦ Dana
+de cada mes te preguntamos cuánto pagaste. ¦ of each month we’ll ask how much you paid. ¦ 日に、いくら支払ったかをお尋ねします。 ¦ di ogni mese ti chiediamo quanto hai pagato. ¦ de chaque mois, nous vous demandons combien vous avez payé. ¦ svakog mjeseca pitat ćemo te koliko si platio/la.
+Te recordamos el día ¦ We’ll remind you on day ¦ リマインド日: ¦ Ti ricordiamo il giorno ¦ Nous vous rappelons le ¦ Podsjetit ćemo te dana
+para que registres tu pago. ¦ so you can record your payment. ¦ 支払いを記録するためです。 ¦ così registri il tuo pagamento. ¦ pour que vous enregistriez votre paiement. ¦ da evidentiraš svoju uplatu.
+Pago de crédito ¦ Credit payment ¦ 返済 ¦ Pagamento del credito ¦ Paiement de crédit ¦ Uplata kredita
+Pago de deuda ¦ Debt payment ¦ 借入の返済 ¦ Pagamento del debito ¦ Remboursement de dette ¦ Otplata duga
+Pago a ¦ Payment to ¦ 支払い先: ¦ Pagamento a ¦ Paiement à ¦ Uplata za
+Pago de ¦ Payment of ¦ 支払い: ¦ Pagamento di ¦ Paiement de ¦ Uplata za
+Salió de ¦ Paid from ¦ 支払い元: ¦ Uscito da ¦ Sorti de ¦ Plaćeno s
+Entró a ¦ Received in ¦ 入金先: ¦ Entrato in ¦ Entré sur ¦ Primljeno na
+Entró este mes ¦ In this month ¦ 今月の入金 ¦ Entrato questo mese ¦ Entré ce mois-ci ¦ Stiglo ovaj mjesec
+Salió este mes ¦ Out this month ¦ 今月の出金 ¦ Uscito questo mese ¦ Sorti ce mois-ci ¦ Otišlo ovaj mjesec
+Tus metas de ahorro ¦ Your savings goals ¦ 貯蓄目標 ¦ I tuoi obiettivi di risparmio ¦ Vos objectifs d’épargne ¦ Tvoji ciljevi štednje
+Metas ¦ Goals ¦ 目標 ¦ Obiettivi ¦ Objectifs ¦ Ciljevi
+Meta ¦ Goal ¦ 目標 ¦ Obiettivo ¦ Objectif ¦ Cilj
+Meta de ahorro ¦ Savings goal ¦ 貯蓄目標 ¦ Obiettivo di risparmio ¦ Objectif d’épargne ¦ Cilj štednje
+Nueva meta ¦ New goal ¦ 新しい目標 ¦ Nuovo obiettivo ¦ Nouvel objectif ¦ Novi cilj
+Añadir meta de ahorro ¦ Add savings goal ¦ 貯蓄目標を追加 ¦ Aggiungi obiettivo di risparmio ¦ Ajouter un objectif d’épargne ¦ Dodaj cilj štednje
+Meta de ahorro · {0} ¦ Savings goal · {0} ¦ 貯蓄目標 · {0} ¦ Obiettivo di risparmio · {0} ¦ Objectif d’épargne · {0} ¦ Cilj štednje · {0}
+Meta de ahorro · ¦ Savings goal · ¦ 貯蓄目標 · ¦ Obiettivo di risparmio · ¦ Objectif d’épargne · ¦ Cilj štednje ·
+Meta {0} ¦ Goal {0} ¦ 目標 {0} ¦ Obiettivo {0} ¦ Objectif {0} ¦ Cilj {0}
+Meta en {0} mes ¦ Goal in {0} {0?month:months} ¦ 目標まであと{0}か月 ¦ Obiettivo tra {0} {0?mese:mesi} ¦ Objectif dans {0} mois ¦ Cilj za {0} {0?mjesec:mjeseci}
+Meta en ¦ Goal in ¦ 目標まで ¦ Obiettivo tra ¦ Objectif dans ¦ Cilj za
+Meta de ahorro · USD ¦ Savings goal · USD ¦ 貯蓄目標 · USD ¦ Obiettivo di risparmio · USD ¦ Objectif d’épargne · USD ¦ Cilj štednje · USD
+¡Meta cumplida! ¦ Goal reached! ¦ 目標達成! ¦ Obiettivo raggiunto! ¦ Objectif atteint ! ¦ Cilj ostvaren!
+¡Vamos! Ya llegaste a {0}. ¦ Let’s go! You’ve hit {0}. ¦ やったね!{0}に到達しました。 ¦ Forza! Hai raggiunto {0}. ¦ Allez ! Vous avez atteint {0}. ¦ Idemo! Dostigao/la si {0}.
+¡Vamos! Ya llegaste a ¦ Let’s go! You’ve hit ¦ やったね!到達額: ¦ Forza! Hai raggiunto ¦ Allez ! Vous avez atteint ¦ Idemo! Dostigao/la si
+¡Cumplida! ¦ Done! ¦ 達成! ¦ Raggiunto! ¦ Atteint ! ¦ Ostvareno!
+Sin aporte mensual ¦ No monthly contribution ¦ 毎月の積立なし ¦ Nessun versamento mensile ¦ Aucun versement mensuel ¦ Bez mjesečne uplate
+Aporte mensual ¦ Monthly contribution ¦ 毎月の積立 ¦ Versamento mensile ¦ Versement mensuel ¦ Mjesečna uplata
+Aporte ¦ Contribution ¦ 積立 ¦ Versamento ¦ Versement ¦ Uplata
+Aportar ¦ Contribute ¦ 積み立てる ¦ Versa ¦ Verser ¦ Uplati
+Aportar a esta meta ¦ Contribute to this goal ¦ この目標に積み立てる ¦ Versa su questo obiettivo ¦ Verser pour cet objectif ¦ Uplati na ovaj cilj
+Aportar a una meta ¦ Contribute to a goal ¦ 目標に積み立てる ¦ Versa su un obiettivo ¦ Verser pour un objectif ¦ Uplati na cilj
+Aportas unos ¦ You contribute about ¦ 毎月の積立額は約 ¦ Versi circa ¦ Vous versez environ ¦ Uplaćuješ oko
+Aportas unos {0} al mes ¦ You contribute about {0} a month ¦ 毎月の積立額は約{0} ¦ Versi circa {0} al mese ¦ Vous versez environ {0} par mois ¦ Uplaćuješ oko {0} mjesečno
+Se llena en ¦ Fills in ¦ 達成まで ¦ Si riempie in ¦ Atteint dans ¦ Napuni se za
+Se llena en {0} mes ¦ Fills in {0} {0?month:months} ¦ 達成まで{0}か月 ¦ Si riempie in {0} {0?mese:mesi} ¦ Atteint dans {0} mois ¦ Napuni se za {0} {0?mjesec:mjeseci}
+Cuándo se llena ¦ When it fills ¦ 達成時期 ¦ Quando si riempie ¦ Quand il sera atteint ¦ Kada se napuni
+Falta ¦ Remaining ¦ 残り ¦ Manca ¦ Reste ¦ Preostaje
+A la meta ¦ To goal ¦ 目標まで ¦ All’obiettivo ¦ Vers l’objectif ¦ Do cilja
+Proyección de la meta ¦ Goal projection ¦ 目標の見通し ¦ Proiezione dell’obiettivo ¦ Projection de l’objectif ¦ Projekcija cilja
+Proyección semanal del balance ¦ Weekly balance projection ¦ 週ごとの残高予測 ¦ Proiezione settimanale del saldo ¦ Projection hebdomadaire du solde ¦ Sedmična projekcija stanja
+Semana de la proyección ¦ Projection week ¦ 予測の週 ¦ Settimana della proiezione ¦ Semaine de la projection ¦ Sedmica projekcije
+Ingresos y gastos por mes ¦ Income & expenses by month ¦ 月ごとの収入と支出 ¦ Entrate e spese per mese ¦ Revenus et dépenses par mois ¦ Prihodi i troškovi po mjesecima
+Gráfico de anillo ¦ Ring chart ¦ リングチャート ¦ Grafico ad anello ¦ Graphique en anneau ¦ Prstenasti grafikon
+Incluir gasto variable ¦ Include variable spending ¦ 変動費を含める ¦ Includi spesa variabile ¦ Inclure les dépenses variables ¦ Uključi promjenjive troškove
+Incluir gasto variable estimado ¦ Include estimated variable spending ¦ 変動費の見込みを含める ¦ Includi spesa variabile stimata ¦ Inclure les dépenses variables estimées ¦ Uključi procijenjene promjenjive troškove
+Gasto variable por semana ¦ Variable spending per week ¦ 週あたりの変動費 ¦ Spesa variabile a settimana ¦ Dépenses variables par semaine ¦ Promjenjivi troškovi sedmično
+({0} por semana) ¦ ({0} per week) ¦ (週{0}) ¦ ({0} a settimana) ¦ ({0} par semaine) ¦ ({0} sedmično)
+por semana) ¦ per week) ¦ 週あたり) ¦ a settimana) ¦ par semaine) ¦ sedmično)
+Balance proyectado ¦ Projected balance ¦ 予測残高 ¦ Saldo previsto ¦ Solde prévu ¦ Projicirano stanje
+¿Cuánto tendré el {d}? ¦ How much will I have on {d}? ¦ {d}にはいくらありますか? ¦ Quanto avrò il {d}? ¦ Combien aurai-je le {d} ? ¦ Koliko ću imati {d}?
+¿Cuánto tendré el ¦ How much will I have on ¦ いくらありますか? 日付: ¦ Quanto avrò il ¦ Combien aurai-je le ¦ Koliko ću imati
++{0} frente a hoy ¦ +{0} vs. today ¦ 今日より+{0} ¦ +{0} rispetto a oggi ¦ +{0} par rapport à aujourd’hui ¦ +{0} u odnosu na danas
+−{0} frente a hoy ¦ −{0} vs. today ¦ 今日より−{0} ¦ −{0} rispetto a oggi ¦ −{0} par rapport à aujourd’hui ¦ −{0} u odnosu na danas
+frente a hoy ¦ vs. today ¦ 今日との比較 ¦ rispetto a oggi ¦ par rapport à aujourd’hui ¦ u odnosu na danas
+Adelantar a hoy ¦ Jump to today ¦ 今日へ移動 ¦ Vai a oggi ¦ Aller à aujourd’hui ¦ Skoči na danas
+Adelantado a hoy ¦ Moved to today ¦ 今日へ移動済み ¦ Portato a oggi ¦ Avancé à aujourd’hui ¦ Pomjereno na danas
+Adelanta el recorrido inicial. ¦ Skip ahead to the starting point. ¦ 最初の位置まで進めます。 ¦ Salta al punto di partenza. ¦ Avancez jusqu’au point de départ. ¦ Preskoči na početnu tačku.
+· mínimo ¦ · minimum ¦ · 最低額 ¦ · minimo ¦ · minimum ¦ · minimum
+(sin esto: ¦ (without this: ¦ (これがない場合: ¦ (senza questo: ¦ (sans cela : ¦ (bez ovoga:
+, el ¦ , on ¦ 、 ¦ , il ¦ , le ¦ , dana
+al mes, el ¦ a month, on ¦ /月、 ¦ al mese, il ¦ par mois, le ¦ mjesečno, dana
+Total de ¦ Total of ¦ 合計: ¦ Totale di ¦ Total de ¦ Ukupno od
+Soles por {0} ¦ Soles per {0} ¦ 1あたりのソル: {0} ¦ Soles per {0} ¦ Soles pour {0} ¦ Sola po {0}
+En {0} día ¦ In {0} {0?day:days} ¦ {0}日後 ¦ Tra {0} {0?giorno:giorni} ¦ Dans {0} {0?jour:jours} ¦ Za {0} {0?dan:dana}
+En {0} mes ¦ In {0} {0?month:months} ¦ {0}か月後 ¦ Tra {0} {0?mese:mesi} ¦ Dans {0} mois ¦ Za {0} {0?mjesec:mjeseci}
+En {0} semana ¦ In {0} {0?week:weeks} ¦ {0}週間後 ¦ Tra {0} {0?settimana:settimane} ¦ Dans {0} {0?semaine:semaines} ¦ Za {0} {0?sedmicu:sedmica}
+en {0} día ¦ in {0} {0?day:days} ¦ {0}日後 ¦ tra {0} {0?giorno:giorni} ¦ dans {0} {0?jour:jours} ¦ za {0} {0?dan:dana}
+· en ¦ · in ¦ · あと ¦ · tra ¦ · dans ¦ · za
+Semana {0} de {1} ¦ Week {0} of {1} ¦ 第{0}週 / {1}週 ¦ Settimana {0} di {1} ¦ Semaine {0} sur {1} ¦ Sedmica {0} od {1}
+{0} de{1} ¦ {0} of {1} ¦ {1}中{0} ¦ {0} di {1} ¦ {0} sur {1} ¦ {0} od {1}
+{0} de {1} ¦ {0} of {1} ¦ {1}のうち{0} ¦ {0} di {1} ¦ {0} sur {1} ¦ {0} od {1}
+de {0} ¦ of {0} ¦ / {0} ¦ di {0} ¦ sur {0} ¦ od {0}
+de ¦ of ¦ / ¦ di ¦ sur ¦ od
+{0} cambio sin guardar ¦ {0} unsaved {0?change:changes} ¦ 未保存の変更 {0}件 ¦ {0} {0?modifica non salvata:modifiche non salvate} ¦ {0} {0?modification non enregistrée:modifications non enregistrées} ¦ {0} {0?nespremljena promjena:nespremljenih promjena}
+cambios sin guardar ¦ unsaved changes ¦ 未保存の変更 ¦ modifiche non salvate ¦ modifications non enregistrées ¦ nespremljenih promjena
+sin guardar ¦ unsaved ¦ 未保存 ¦ non salvate ¦ non enregistrées ¦ nespremljeno
+{0} cuenta ¦ {0} {0?account:accounts} ¦ {0}件の口座 ¦ {0} {0?conto:conti} ¦ {0} {0?compte:comptes} ¦ {0} {0?račun:računa}
+{0} cuenta · {1} ¦ {0} {0?account:accounts} · {1} ¦ {0}件の口座 · {1} ¦ {0} {0?conto:conti} · {1} ¦ {0} {0?compte:comptes} · {1} ¦ {0} {0?račun:računa} · {1}
+{0} registro ¦ {0} {0?record:records} ¦ {0}件の記録 ¦ {0} {0?registro:registri} ¦ {0} {0?enregistrement:enregistrements} ¦ {0} {0?zapis:zapisa}
+{0} ingreso ¦ {0} {0?income:incomes} ¦ 収入{0}件 ¦ {0} {0?entrata:entrate} ¦ {0} {0?revenu:revenus} ¦ {0} {0?prihod:prihoda}
+Última vez guardado · nunca ¦ Last saved · never ¦ 最終保存 · なし ¦ Ultimo salvataggio · mai ¦ Dernier enregistrement · jamais ¦ Posljednje spremanje · nikad
+Última vez guardado ¦ Last saved ¦ 最終保存 ¦ Ultimo salvataggio ¦ Dernier enregistrement ¦ Posljednje spremanje
+Última vez guardado · hoy ¦ Last saved · today ¦ 最終保存 · 今日 ¦ Ultimo salvataggio · oggi ¦ Dernier enregistrement · aujourd’hui ¦ Posljednje spremanje · danas
+nunca ¦ never ¦ なし ¦ mai ¦ jamais ¦ nikad
+· Los movimientos entran a la cuenta que elijas al añadirlos. ¦ · Transactions go to the account you choose when adding them. ¦ · 取引は、追加時に選んだ口座に反映されます。 ¦ · I movimenti entrano nel conto che scegli quando li aggiungi. ¦ · Les transactions vont sur le compte que vous choisissez en les ajoutant. ¦ · Transakcije idu na račun koji odabereš pri dodavanju.
+Neto: ¦ Net: ¦ 純額: ¦ Netto: ¦ Net : ¦ Neto:
+Usas {0} de tu crédito · ¦ You use {0} of your credit · ¦ クレジットの{0}を使用中 · ¦ Usi il {0} del tuo credito · ¦ Vous utilisez {0} de votre crédit · ¦ Koristiš {0} svog kredita ·
+Usas {0} de tu crédito · Neto: ¦ You use {0} of your credit · Net: ¦ クレジットの{0}を使用中 · 純額: ¦ Usi il {0} del tuo credito · Netto: ¦ Vous utilisez {0} de votre crédit · Net : ¦ Koristiš {0} svog kredita · Neto:
+% de tu crédito · ¦ % of your credit · ¦ %(クレジット)· ¦ % del tuo credito · ¦ % de votre crédit · ¦ % tvog kredita ·

@@ -1,0 +1,9 @@
+# Nunca subir perfiles de usuario ni copias de datos reales
+*.json
+!manifest.webmanifest
+!package.json
+!dev/**/package.json
+dev/app/out/
+node_modules/
+__pycache__/
+*.bak

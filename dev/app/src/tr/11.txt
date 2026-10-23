@@ -1,0 +1,116 @@
+Bentos ¦ Bentos ¦ ベント ¦ Bento ¦ Bentos ¦ Bentoi
+Mi Bento ¦ My Bento ¦ マイベント ¦ Il mio Bento ¦ Mon Bento ¦ Moj Bento
+Vista 16:9 ¦ 16:9 view ¦ 16:9 ビュー ¦ Vista 16:9 ¦ Vue 16:9 ¦ Prikaz 16:9
+Añadir widgets ¦ Add widgets ¦ ウィジェットを追加 ¦ Aggiungi widget ¦ Ajouter des widgets ¦ Dodaj widgete
+Restablecer ¦ Reset ¦ リセット ¦ Ripristina ¦ Réinitialiser ¦ Vrati
+Listo ¦ Done ¦ 完了 ¦ Fatto ¦ Terminé ¦ Gotovo
+Widgets ¦ Widgets ¦ ウィジェット ¦ Widget ¦ Widgets ¦ Widgeti
+Elige qué quieres ver. Cada uno se puede achicar o agrandar pasando el cursor encima. ¦ Choose what you want to see. Each one can be shrunk or enlarged by hovering over it. ¦ 見たいものを選んでください。カーソルを重ねると、それぞれ縮小・拡大できます。 ¦ Scegli cosa vuoi vedere. Ognuno si può ridurre o ingrandire passandoci sopra il cursore. ¦ Choisissez ce que vous voulez voir. Chacun peut être réduit ou agrandi en le survolant. ¦ Odaberi što želiš vidjeti. Svaki se može smanjiti ili povećati prelaskom mišem preko njega.
+Añadido ¦ Added ¦ 追加済み ¦ Aggiunto ¦ Ajouté ¦ Dodano
+Añadir ¦ Add ¦ 追加 ¦ Aggiungi ¦ Ajouter ¦ Dodaj
+Resumen del mes ¦ Month summary ¦ 今月のまとめ ¦ Riepilogo del mese ¦ Résumé du mois ¦ Sažetak mjeseca
+Balance, ingresos, gastos y ahorro neto. ¦ Balance, income, expenses and net savings. ¦ 残高、収入、支出、純貯蓄。 ¦ Saldo, entrate, spese e risparmio netto. ¦ Solde, revenus, dépenses et épargne nette. ¦ Stanje, prihodi, rashodi i neto ušteda.
+Ahorro neto ¦ Net savings ¦ 純貯蓄 ¦ Risparmio netto ¦ Épargne nette ¦ Neto ušteda
+Gasto por categoría ¦ Spending by category ¦ カテゴリ別の支出 ¦ Spese per categoria ¦ Dépenses par catégorie ¦ Potrošnja po kategoriji
+En qué se va tu plata este mes. ¦ Where your money goes this month. ¦ 今月のお金の行き先。 ¦ Dove vanno i tuoi soldi questo mese. ¦ Où part votre argent ce mois-ci. ¦ Kamo ide tvoj novac ovaj mjesec.
+Ingresos vs gastos ¦ Income vs expenses ¦ 収入と支出 ¦ Entrate vs spese ¦ Revenus vs dépenses ¦ Prihodi i rashodi
+Comparación de los últimos meses. ¦ Comparison of recent months. ¦ 最近の月の比較。 ¦ Confronto degli ultimi mesi. ¦ Comparaison des derniers mois. ¦ Usporedba posljednjih mjeseci.
+Aún no hay meses para comparar ¦ No months to compare yet ¦ 比較できる月がまだありません ¦ Ancora nessun mese da confrontare ¦ Pas encore de mois à comparer ¦ Još nema mjeseci za usporedbu
+Gasto acumulado del mes ¦ Cumulative spending this month ¦ 今月の累計支出 ¦ Spesa cumulata del mese ¦ Dépenses cumulées du mois ¦ Kumulativna potrošnja mjeseca
+Cómo avanza tu gasto día a día. ¦ How your spending moves day by day. ¦ 支出が日ごとにどう進むか。 ¦ Come procede la tua spesa giorno per giorno. ¦ L'évolution de vos dépenses au jour le jour. ¦ Kako tvoja potrošnja napreduje iz dana u dan.
+gastado hasta hoy ¦ spent so far ¦ 今日までの支出 ¦ speso finora ¦ dépensé jusqu'ici ¦ potrošeno do danas
+Cuánto llevas contra cada límite. ¦ How much you've used against each limit. ¦ 各上限に対する使用額。 ¦ Quanto hai speso rispetto a ogni limite. ¦ Où vous en êtes face à chaque limite. ¦ Koliko si potrošio u odnosu na svaki limit.
+Define límites en Presupuesto ¦ Set limits in Budget ¦ 予算で上限を設定 ¦ Imposta i limiti in Budget ¦ Définissez des limites dans Budget ¦ Postavi limite u Proračunu
+Mayores gastos ¦ Top expenses ¦ 大きな支出 ¦ Spese maggiori ¦ Plus grosses dépenses ¦ Najveći rashodi
+Lo que más dinero se llevó este mes. ¦ What took the most money this month. ¦ 今月最もお金がかかったもの。 ¦ Ciò che ha richiesto più soldi questo mese. ¦ Ce qui a coûté le plus ce mois-ci. ¦ Što je ovaj mjesec odnijelo najviše novca.
+Lo que pagas cada mes sin pensarlo. ¦ What you pay every month without thinking. ¦ 毎月何気なく払っているもの。 ¦ Ciò che paghi ogni mese senza pensarci. ¦ Ce que vous payez chaque mois sans y penser. ¦ Ono što plaćaš svaki mjesec bez razmišljanja.
+No tienes servicios ni suscripciones ¦ You have no services or subscriptions ¦ サービスやサブスクリプションはありません ¦ Non hai servizi né abbonamenti ¦ Vous n’avez aucun service ni abonnement ¦ Nemaš usluga ni pretplata
+Total al mes ¦ Monthly total ¦ 月合計 ¦ Totale mensile ¦ Total par mois ¦ Ukupno mjesečno
+Tarjetas y deuda ¦ Cards and debt ¦ カードと負債 ¦ Carte e debito ¦ Cartes et dette ¦ Kartice i dug
+Cuánto debes y cuánto crédito usas. ¦ How much you owe and how much credit you use. ¦ 負債額とクレジット利用額。 ¦ Quanto devi e quanto credito usi. ¦ Combien vous devez et quel crédit vous utilisez. ¦ Koliko duguješ i koliko kredita koristiš.
+Sin tarjetas ni préstamos ¦ No cards or loans ¦ カードもローンもありません ¦ Nessuna carta né prestito ¦ Aucune carte ni prêt ¦ Nema kartica ni kredita
+Metas de ahorro ¦ Savings goals ¦ 貯蓄目標 ¦ Obiettivi di risparmio ¦ Objectifs d'épargne ¦ Ciljevi štednje
+Qué tanto te falta para cada meta. ¦ How far you are from each goal. ¦ 各目標までの進み具合。 ¦ Quanto manca a ogni obiettivo. ¦ Ce qu'il reste pour chaque objectif. ¦ Koliko ti još fali do svakog cilja.
+Aún no tienes metas ¦ You have no goals yet ¦ まだ目標がありません ¦ Non hai ancora obiettivi ¦ Vous n'avez pas encore d'objectifs ¦ Još nemaš ciljeva
+Próximos movimientos ¦ Upcoming transactions ¦ 今後の取引 ¦ Prossimi movimenti ¦ Prochains mouvements ¦ Nadolazeće transakcije
+Lo que viene en los próximos días. ¦ What's coming in the next few days. ¦ 今後数日の予定。 ¦ Cosa arriva nei prossimi giorni. ¦ Ce qui arrive dans les prochains jours. ¦ Što dolazi u sljedećim danima.
+Nada previsto por ahora ¦ Nothing scheduled for now ¦ 今のところ予定はありません ¦ Niente di previsto per ora ¦ Rien de prévu pour l'instant ¦ Zasad ništa nije planirano
+Gasto por día ¦ Spending by day ¦ 曜日別の支出 ¦ Spesa per giorno ¦ Dépenses par jour ¦ Potrošnja po danu
+En qué días de la semana gastas más. ¦ Which days of the week you spend most. ¦ 週のどの曜日に多く使うか。 ¦ In quali giorni della settimana spendi di più. ¦ Les jours de la semaine où vous dépensez le plus. ¦ Kojim danom u tjednu najviše trošiš.
+Sin gastos recientes ¦ No recent expenses ¦ 最近の支出はありません ¦ Nessuna spesa recente ¦ Aucune dépense récente ¦ Nema nedavnih rashoda
+Tasa de ahorro ¦ Savings rate ¦ 貯蓄率 ¦ Tasso di risparmio ¦ Taux d'épargne ¦ Stopa štednje
+Qué parte de tus ingresos te queda. ¦ How much of your income is left. ¦ 収入のうち残る割合。 ¦ Quanta parte delle tue entrate ti resta. ¦ La part de vos revenus qu'il vous reste. ¦ Koliki dio tvojih prihoda ti ostaje.
+Sin ingresos este mes ¦ No income this month ¦ 今月は収入がありません ¦ Nessuna entrata questo mese ¦ Aucun revenu ce mois-ci ¦ Nema prihoda ovaj mjesec
+Tu Bento está vacío. Añade widgets para empezar. ¦ Your Bento is empty. Add widgets to get started. ¦ ベントは空です。ウィジェットを追加して始めましょう。 ¦ Il tuo Bento è vuoto. Aggiungi widget per iniziare. ¦ Votre Bento est vide. Ajoutez des widgets pour commencer. ¦ Tvoj Bento je prazan. Dodaj widgete za početak.
+No cabe: quita o achica otro widget ¦ Doesn't fit: remove or shrink another widget ¦ 入りません。他のウィジェットを削除または縮小してください ¦ Non c'è spazio: rimuovi o riduci un altro widget ¦ Pas de place : retirez ou réduisez un autre widget ¦ Ne stane: ukloni ili smanji drugi widget
+No cabe en ese orden ¦ Doesn't fit in that order ¦ その順序では入りません ¦ Non entra in quest'ordine ¦ Ne tient pas dans cet ordre ¦ Ne stane tim redoslijedom
+Desktop ¦ Desktop ¦ デスクトップ ¦ Desktop ¦ Ordinateur ¦ Desktop
+Móvil ¦ Mobile ¦ モバイル ¦ Mobile ¦ Mobile ¦ Mobilni
+Nuevo Bento ¦ New Bento ¦ 新しいベント ¦ Nuovo Bento ¦ Nouveau Bento ¦ Novi Bento
+Eliminar Bento ¦ Delete Bento ¦ ベントを削除 ¦ Elimina Bento ¦ Supprimer le Bento ¦ Izbriši Bento
+Editar ¦ Edit ¦ 編集 ¦ Modifica ¦ Modifier ¦ Uredi
+Generar captura ¦ Save screenshot ¦ スクショを作成 ¦ Crea screenshot ¦ Créer une capture ¦ Izradi snimku
+Cerrar ¦ Close ¦ 閉じる ¦ Chiudi ¦ Fermer ¦ Zatvori
+Anterior ¦ Previous ¦ 前へ ¦ Precedente ¦ Précédent ¦ Prethodni
+Siguiente ¦ Next ¦ 次へ ¦ Successivo ¦ Suivant ¦ Sljedeći
+Captura guardada ¦ Screenshot saved ¦ スクショを保存しました ¦ Screenshot salvato ¦ Capture enregistrée ¦ Snimka spremljena
+No se pudo generar la captura ¦ Couldn't create the screenshot ¦ スクショを作成できませんでした ¦ Impossibile creare lo screenshot ¦ Impossible de créer la capture ¦ Snimku nije moguće izraditi
+Este Bento está vacío. Toca Editar para añadir widgets. ¦ This Bento is empty. Tap Edit to add widgets. ¦ このベントは空です。編集でウィジェットを追加しましょう。 ¦ Questo Bento è vuoto. Tocca Modifica per aggiungere widget. ¦ Ce Bento est vide. Touchez Modifier pour ajouter des widgets. ¦ Ovaj je Bento prazan. Dodirni Uredi za dodavanje widgeta.
+Más pequeño ¦ Smaller ¦ 小さく ¦ Più piccolo ¦ Plus petit ¦ Manji
+Más grande ¦ Larger ¦ 大きく ¦ Più grande ¦ Plus grand ¦ Veći
+También disponible ¦ Also available ¦ その他の方法 ¦ Disponibile anche ¦ Aussi disponible ¦ Također dostupno
+Usa la rueda del ratón para seguir ¦ Use your mouse wheel to continue ¦ マウスホイールで進みます ¦ Usa la rotellina del mouse per continuare ¦ Utilisez la molette de la souris pour continuer ¦ Koristi kotačić miša za nastavak
+¡Ups! ¿Te faltó algo? Usa la rueda del ratón para regresar. ¦ Oops! Missed something? Use your mouse wheel to go back. ¦ おっと、何か足りませんか？マウスホイールで戻れます。 ¦ Ops! Ti è sfuggito qualcosa? Usa la rotellina del mouse per tornare indietro. ¦ Oups ! Il vous manque quelque chose ? Utilisez la molette pour revenir. ¦ Ups! Nešto ti je promaklo? Koristi kotačić miša za povratak.
+Norteamérica y Caribe ¦ North America & Caribbean ¦ 北米・カリブ ¦ Nord America e Caraibi ¦ Amérique du Nord et Caraïbes ¦ Sjeverna Amerika i Karibi
+Sudamérica ¦ South America ¦ 南米 ¦ Sud America ¦ Amérique du Sud ¦ Južna Amerika
+Medio Oriente ¦ Middle East ¦ 中東 ¦ Medio Oriente ¦ Moyen-Orient ¦ Bliski istok
+Oceanía ¦ Oceania ¦ オセアニア ¦ Oceania ¦ Océanie ¦ Oceanija
+Elige una región en el mapa · Recomendado ¦ Pick a region on the map · Recommended ¦ 地図で地域を選択・おすすめ ¦ Scegli una regione sulla mappa · Consigliate ¦ Choisissez une région sur la carte · Recommandées ¦ Odaberi regiju na karti · Preporučeno
+Elegidas ¦ Selected ¦ 選択済み ¦ Selezionate ¦ Sélectionnées ¦ Odabrano
+Buscar otra moneda ¦ Search another currency ¦ 他の通貨を検索 ¦ Cerca un'altra valuta ¦ Chercher une autre devise ¦ Traži drugu valutu
+Mapamundi ¦ World map ¦ 世界地図 ¦ Mappamondo ¦ Planisphère ¦ Karta svijeta
+Elige una región en el mapa ¦ Pick a region on the map ¦ 地図で地域を選択 ¦ Scegli una regione sulla mappa ¦ Choisissez une région sur la carte ¦ Odaberi regiju na karti
+Recomendado ¦ Recommended ¦ おすすめ ¦ Consigliate ¦ Recommandées ¦ Preporučeno
+Haz clic en una moneda para borrar la elección. ¦ Click a currency to remove it. ¦ 通貨をクリックすると選択を解除できます。 ¦ Fai clic su una valuta per rimuovere la scelta. ¦ Cliquez sur une devise pour retirer la sélection. ¦ Klikni valutu da ukloniš odabir.
+Plata llega a tu mesa ¦ Plata comes to your desk ¦ Plataがデスクトップに登場 ¦ Plata arriva sulla tua scrivania ¦ Plata arrive sur ton bureau ¦ Plata stiže na tvoj stol
+La versión de escritorio ya está disponible. Échale un vistazo entrando a la web desde tu PC o Mac. ¦ The desktop version is now available. Check it out by visiting the website from your PC or Mac. ¦ デスクトップ版が登場しました。PCまたはMacからウェブサイトにアクセスしてご覧ください。 ¦ La versione desktop è ora disponibile. Dai un’occhiata visitando il sito da PC o Mac. ¦ La version de bureau est disponible. Découvre-la en visitant le site depuis ton PC ou Mac. ¦ Desktop verzija je sada dostupna. Pogledaj je posjetom web stranici s računala.
+Crea un set de gráficos con tus finanzas. Al estilo Bento. ¿Quién dijo que solo puede hacerlo cierta empresa en septiembre? ¦ Create a set of charts with your finances. Bento-style. Who said only a certain company can do it in September? ¦ あなたの家計をグラフのセットに。ベント風。9月にできるのは特定の会社だけだなんて誰が言ったの？ ¦ Crea un set di grafici con le tue finanze. Stile Bento. Chi ha detto che può farlo solo una certa azienda a settembre? ¦ Crée un ensemble de graphiques avec tes finances. Style Bento. Qui a dit que seule une certaine entreprise pouvait le faire en septembre ? ¦ Napravi set grafova sa svojim financijama. U Bento stilu. Tko kaže da to može samo određena tvrtka u rujnu?
+EXCLUSIVO PARA ESCRITORIO ¦ DESKTOP ONLY ¦ デスクトップ限定 ¦ SOLO PER DESKTOP ¦ EXCLUSIF AU BUREAU ¦ SAMO ZA RAČUNALA
+Tu evaluación ¦ Your grade ¦ あなたの評価 ¦ La tua valutazione ¦ Votre évaluation ¦ Tvoja ocjena
+La nota de tu último cierre de mes. ¦ The grade from your latest month close. ¦ 直近の月次締めの評価です。 ¦ Il voto dell'ultima chiusura del mese. ¦ La note de votre dernière clôture. ¦ Ocjena zadnjeg zatvaranja mjeseca.
+Último insight ¦ Latest insight ¦ 最新のインサイト ¦ Ultimo insight ¦ Dernier insight ¦ Najnoviji uvid
+La lectura más reciente de tus finanzas. ¦ The most recent read on your finances. ¦ 家計の最新の読み解きです。 ¦ L'ultima lettura delle tue finanze. ¦ La lecture la plus récente de vos finances. ¦ Najnovije tumačenje tvojih financija.
+Tu foto y tu nombre. ¦ Your photo and name. ¦ あなたの写真と名前です。 ¦ La tua foto e il tuo nome. ¦ Votre photo et votre nom. ¦ Tvoja fotografija i ime.
+Aún sin evaluación ¦ No grade yet ¦ まだ評価がありません ¦ Ancora nessuna valutazione ¦ Pas encore de note ¦ Još nema ocjene
+Aún sin insights ¦ No insights yet ¦ まだインサイトがありません ¦ Ancora nessun insight ¦ Pas encore d'insights ¦ Još nema uvida
+Añade tu nombre y foto en Perfil ¦ Add your name and photo in Profile ¦ プロフィールで名前と写真を追加 ¦ Aggiungi nome e foto nel Profilo ¦ Ajoutez votre nom et photo dans Profil ¦ Dodaj ime i fotografiju u Profilu
+Plantillas ¦ Templates ¦ テンプレート ¦ Modelli ¦ Modèles ¦ Predlošci
+Empieza con un diseño listo. Reemplaza los widgets de este Bento. ¦ Start with a ready-made layout. It replaces this Bento's widgets. ¦ 用意されたレイアウトから始めます。このBentoのウィジェットが置き換わります。 ¦ Parti da un layout pronto. Sostituisce i widget di questo Bento. ¦ Partez d'une mise en page prête. Elle remplace les widgets de ce Bento. ¦ Kreni s gotovim rasporedom. Zamjenjuje widgete ovog Benta.
+Mi mes ¦ My month ¦ 今月 ¦ Il mio mese ¦ Mon mois ¦ Moj mjesec
+Resumen, categorías, flujo y gasto acumulado. ¦ Summary, categories, flow and cumulative spending. ¦ まとめ、カテゴリ、収支、累計支出。 ¦ Riepilogo, categorie, flussi e spesa cumulata. ¦ Résumé, catégories, flux et dépenses cumulées. ¦ Sažetak, kategorije, tok i skupna potrošnja.
+Presupuesto y deuda ¦ Budget and debt ¦ 予算と負債 ¦ Budget e debito ¦ Budget et dette ¦ Proračun i dug
+Límites, tarjetas, próximos movimientos y mayores gastos. ¦ Limits, cards, upcoming activity and top expenses. ¦ 上限、カード、今後の動き、大きな支出。 ¦ Limiti, carte, prossimi movimenti e spese maggiori. ¦ Limites, cartes, prochains mouvements et plus grosses dépenses. ¦ Limiti, kartice, nadolazeće stavke i najveći troškovi.
+Perfil y evaluación ¦ Profile and grade ¦ プロフィールと評価 ¦ Profilo e valutazione ¦ Profil et note ¦ Profil i ocjena
+Tu foto, tu nota, tu ahorro y lo que viene. ¦ Your photo, grade, savings and what's next. ¦ 写真、評価、貯蓄、これから。 ¦ La tua foto, il voto, i risparmi e cosa arriva. ¦ Votre photo, note, épargne et à venir. ¦ Tvoja fotografija, ocjena, ušteda i što slijedi.
+Usar ¦ Use ¦ 使う ¦ Usa ¦ Utiliser ¦ Koristi
+Color del widget ¦ Widget color ¦ ウィジェットの色 ¦ Colore del widget ¦ Couleur du widget ¦ Boja widgeta
+Estos perfiles se crearon con estadísticas de ejemplo. Los datos no son reales. ¦ These profiles were created with sample statistics. The data is not real. ¦ これらのプロフィールはサンプルの統計で作成されています。データは実在しません。 ¦ Questi profili sono stati creati con statistiche di esempio. I dati non sono reali. ¦ Ces profils ont été créés avec des statistiques d'exemple. Les données ne sont pas réelles. ¦ Ovi su profili izrađeni s primjerom statistike. Podaci nisu stvarni.
+Elige una moneda para continuar. ¦ Choose a currency to continue. ¦ 続けるには通貨を選んでください。 ¦ Scegli una valuta per continuare. ¦ Choisissez une devise pour continuer. ¦ Odaberi valutu za nastavak.
+Elige tu moneda principal. ¦ Choose your main currency. ¦ メインの通貨を選んでください。 ¦ Scegli la tua valuta principale. ¦ Choisissez votre devise principale. ¦ Odaberi glavnu valutu.
+Nuevo Bento ¦ New Bento ¦ 新しいBento ¦ Nuovo Bento ¦ Nouveau Bento ¦ Novi Bento
+Gráficos ¦ Charts ¦ グラフ ¦ Grafici ¦ Graphiques ¦ Grafikoni
+Cifras ¦ Figures ¦ 数字 ¦ Cifre ¦ Chiffres ¦ Brojke
+Todo a la vista ¦ Everything at a glance ¦ すべてを一目で ¦ Tutto a colpo d'occhio ¦ Tout en un coup d'œil ¦ Sve na jednom mjestu
+Nombre ¦ Name ¦ 名前 ¦ Nome ¦ Nom ¦ Ime
+Tu nombre en grande. ¦ Your name, big. ¦ あなたの名前を大きく。 ¦ Il tuo nome, in grande. ¦ Votre nom, en grand. ¦ Tvoje ime, veliko.
+Añade tu nombre en Perfil ¦ Add your name in Profile ¦ プロフィールに名前を追加 ¦ Aggiungi il tuo nome nel Profilo ¦ Ajoutez votre nom dans Profil ¦ Dodaj ime u Profil
+Arrastra para cambiar el tamaño ¦ Drag to resize ¦ ドラッグしてサイズ変更 ¦ Trascina per ridimensionare ¦ Glisser pour redimensionner ¦ Povuci za promjenu veličine
+Nuevo ¦ New ¦ 新規 ¦ Nuovo ¦ Nouveau ¦ Novo
+Plantillas de Bento ¦ Bento templates ¦ Bentoテンプレート ¦ Modelli Bento ¦ Modèles Bento ¦ Predlošci Bento
+Insight de septiembre ¦ September insight ¦ 9月のインサイト ¦ Insight di settembre ¦ Insight de septembre ¦ Uvid za rujan
+Puntos clave ¦ Key points ¦ ポイント ¦ Punti chiave ¦ Points clés ¦ Ključne točke
+Deshecho: ¦ Undone: ¦ 元に戻しました: ¦ Annullato: ¦ Annulé : ¦ Poništeno: 
+Rehecho: ¦ Redone: ¦ やり直しました: ¦ Ripristinato: ¦ Rétabli : ¦ Ponovljeno: 
+Se quitó 1 widget para hacer espacio ¦ 1 widget removed to make room ¦ スペースのため1個のウィジェットを削除しました ¦ 1 widget rimosso per fare spazio ¦ 1 widget retiré pour faire de la place ¦ Uklonjen 1 widget radi prostora
+No se sincroniza entre dispositivos ¦ Not synced between devices ¦ デバイス間では同期されません ¦ Non si sincronizza tra dispositivi ¦ Pas de synchronisation entre appareils ¦ Ne sinkronizira se između uređaja
+Para usar Plata en otro dispositivo, guarda tu archivo y cárgalo en la plataforma que vayas a usar en ese momento. ¦ To use Plata on another device, save your file and load it on the platform you will be using at that moment. ¦ 別のデバイスでPlataを使うには、ファイルを保存し、そのとき使うプラットフォームで読み込んでください。 ¦ Per usare Plata su un altro dispositivo, salva il tuo file e caricalo sulla piattaforma che userai in quel momento. ¦ Pour utiliser Plata sur un autre appareil, enregistrez votre fichier et chargez-le sur la plateforme que vous utiliserez à ce moment-là. ¦ Za korištenje Plate na drugom uređaju spremi svoju datoteku i učitaj je na platformi koju ćeš tada koristiti.

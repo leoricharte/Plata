@@ -1,0 +1,104 @@
+# Plata Cloud: cuenta y sincronización
+Sincroniza tus datos entre dispositivos, cifrados de extremo a extremo. Solo con invitación durante la marcha blanca. ¦ Sync your data across devices, end-to-end encrypted. Invitation only during the soft launch. ¦ データを端末間で同期できます。エンドツーエンドで暗号化されます。ソフトローンチ中は招待制です。 ¦ Sincronizza i tuoi dati tra dispositivi, con crittografia end-to-end. Solo su invito durante il lancio soft. ¦ Synchronise tes données entre appareils, chiffrées de bout en bout. Sur invitation uniquement pendant le lancement en douceur. ¦ Sinkroniziraj podatke između uređaja, uz end-to-end enkripciju. Samo uz pozivnicu tijekom meke lansiranja.
+Crear cuenta o entrar ¦ Create account or sign in ¦ アカウントを作成 / ログイン ¦ Crea un account o accedi ¦ Créer un compte ou se connecter ¦ Izradi račun ili se prijavi
+Más opciones ¦ More options ¦ その他のオプション ¦ Altre opzioni ¦ Plus d’options ¦ Više opcija
+Sincronizar ¦ Sync ¦ 同期 ¦ Sincronizza ¦ Synchroniser ¦ Sinkroniziraj
+Local ¦ Local ¦ ローカル ¦ Locale ¦ Local ¦ Lokalno
+Cloud ¦ Cloud ¦ クラウド ¦ Cloud ¦ Cloud ¦ Cloud
+Podrás cambiar de modo otra vez en {0} s. ¦ You can switch modes again in {0} s. ¦ {0}秒後にもう一度モードを切り替えられます。 ¦ Potrai cambiare di nuovo modalità tra {0} s. ¦ Tu pourras changer de mode à nouveau dans {0} s. ¦ Način možeš ponovno promijeniti za {0} s.
+Espera {0} s para volver a cambiar de modo ¦ Wait {0} s before switching modes again ¦ モードを再度切り替えるには{0}秒お待ちください ¦ Attendi {0} s prima di cambiare di nuovo modalità ¦ Attends {0} s avant de changer de mode ¦ Pričekaj {0} s prije ponovne promjene načina
+Modo local: este dispositivo no se sincroniza. ¦ Local mode: this device doesn’t sync. ¦ ローカルモード: この端末は同期されません。 ¦ Modalità locale: questo dispositivo non si sincronizza. ¦ Mode local : cet appareil ne se synchronise pas. ¦ Lokalni način: ovaj uređaj se ne sinkronizira.
+Hay un demo cargado: la sincronización está en pausa. ¦ A demo is loaded: syncing is paused. ¦ デモが読み込まれています: 同期は一時停止中です。 ¦ C’è una demo caricata: la sincronizzazione è in pausa. ¦ Une démo est chargée : la synchronisation est en pause. ¦ Učitan je demo: sinkronizacija je pauzirana.
+Sincronizando… ¦ Syncing… ¦ 同期中… ¦ Sincronizzazione… ¦ Synchronisation… ¦ Sinkronizacija…
+Sin conexión. Se reintenta solo. ¦ No connection. It will retry on its own. ¦ オフラインです。自動で再試行します。 ¦ Nessuna connessione. Riproverà da solo. ¦ Pas de connexion. Nouvelle tentative automatique. ¦ Nema veze. Pokušat će ponovno sam.
+No se pudo sincronizar. Se reintenta solo. ¦ Couldn’t sync. It will retry on its own. ¦ 同期できませんでした。自動で再試行します。 ¦ Sincronizzazione non riuscita. Riproverà da solo. ¦ Échec de la synchronisation. Nouvelle tentative automatique. ¦ Sinkronizacija nije uspjela. Pokušat će ponovno sam.
+Tu sesión venció. Inicia sesión de nuevo. ¦ Your session expired. Sign in again. ¦ セッションの有効期限が切れました。もう一度ログインしてください。 ¦ La tua sessione è scaduta. Accedi di nuovo. ¦ Ta session a expiré. Reconnecte-toi. ¦ Sesija je istekla. Prijavi se ponovno.
+Falta elegir qué conservar. ¦ You still need to choose what to keep. ¦ 残すデータをまだ選んでいません。 ¦ Devi ancora scegliere cosa conservare. ¦ Il reste à choisir quoi conserver. ¦ Još moraš odabrati što zadržati.
+Listo para sincronizar. ¦ Ready to sync. ¦ 同期の準備ができました。 ¦ Pronto per sincronizzare. ¦ Prêt à synchroniser. ¦ Spremno za sinkronizaciju.
+Sincronizado hace un momento ¦ Synced just now ¦ たった今同期しました ¦ Sincronizzato poco fa ¦ Synchronisé à l’instant ¦ Sinkronizirano upravo sada
+Sincronizado hace {0} min ¦ Synced {0} min ago ¦ {0}分前に同期しました ¦ Sincronizzato {0} min fa ¦ Synchronisé il y a {0} min ¦ Sinkronizirano prije {0} min
+Sincronizado hace {0} h ¦ Synced {0} h ago ¦ {0}時間前に同期しました ¦ Sincronizzato {0} h fa ¦ Synchronisé il y a {0} h ¦ Sinkronizirano prije {0} h
+Sincronizado hace {0} d ¦ Synced {0} d ago ¦ {0}日前に同期しました ¦ Sincronizzato {0} g fa ¦ Synchronisé il y a {0} j ¦ Sinkronizirano prije {0} d
+Sincronizado ¦ Synced ¦ 同期済み ¦ Sincronizzato ¦ Synchronisé ¦ Sinkronizirano
+Sin sincronizar ¦ Not synced ¦ 未同期 ¦ Non sincronizzato ¦ Non synchronisé ¦ Nije sinkronizirano
+Última sincronización ¦ Last sync ¦ 最終同期 ¦ Ultima sincronizzazione ¦ Dernière synchronisation ¦ Zadnja sinkronizacija
+Aún sin sincronizar ¦ Not synced yet ¦ まだ同期されていません ¦ Non ancora sincronizzato ¦ Pas encore synchronisé ¦ Još nije sinkronizirano
+hace un momento ¦ just now ¦ たった今 ¦ poco fa ¦ à l’instant ¦ upravo sada
+hace {0} min ¦ {0} min ago ¦ {0}分前 ¦ {0} min fa ¦ il y a {0} min ¦ prije {0} min
+hace {0} h ¦ {0} h ago ¦ {0}時間前 ¦ {0} h fa ¦ il y a {0} h ¦ prije {0} h
+hace {0} d ¦ {0} d ago ¦ {0}日前 ¦ {0} g fa ¦ il y a {0} j ¦ prije {0} d
+Guardar copia de archivo local ¦ Save a local file copy ¦ ローカルファイルのコピーを保存 ¦ Salva una copia in un file locale ¦ Enregistrer une copie en fichier local ¦ Spremi kopiju u lokalnu datoteku
+Ey, hay un demo cargado. ¿Quieres sincronizar con tu copia más reciente en la nube? ¦ Hey, a demo is loaded. Want to sync with your latest cloud copy? ¦ デモが読み込まれています。最新のクラウドのコピーと同期しますか? ¦ Ehi, c’è una demo caricata. Vuoi sincronizzare con la tua copia più recente nel cloud? ¦ Hé, une démo est chargée. Tu veux synchroniser avec ta copie la plus récente dans le cloud ? ¦ Hej, učitan je demo. Želiš li sinkronizirati s najnovijom kopijom u oblaku?
+Salir y sincronizar ¦ Exit and sync ¦ 終了して同期 ¦ Esci e sincronizza ¦ Quitter et synchroniser ¦ Izađi i sinkroniziraj
+# Pantallas de cuenta
+Plata Cloud ¦ Plata Cloud ¦ Plata Cloud ¦ Plata Cloud ¦ Plata Cloud ¦ Plata Cloud
+Escribe el correo con el que te invitamos. Te mandamos un código para entrar, sin contraseña. ¦ Enter the email we invited. We’ll send you a code to sign in, no password needed. ¦ 招待したメールアドレスを入力してください。ログイン用のコードをお送りします。パスワードは不要です。 ¦ Scrivi l’email con cui ti abbiamo invitato. Ti mandiamo un codice per accedere, senza password. ¦ Saisis l’e-mail avec laquelle nous t’avons invité. Nous t’envoyons un code pour te connecter, sans mot de passe. ¦ Upiši e-adresu s kojom smo te pozvali. Poslat ćemo ti kôd za prijavu, bez lozinke.
+Enviarme el código ¦ Send me the code ¦ コードを送信 ¦ Inviami il codice ¦ M’envoyer le code ¦ Pošalji mi kôd
+Revisa tu correo ¦ Check your email ¦ メールを確認してください ¦ Controlla la tua email ¦ Vérifie ta boîte mail ¦ Provjeri e-poštu
+Si tu correo tiene invitación a Plata Cloud, te enviamos un código. Vence en 10 minutos. Si no llega, revisa spam; si aún no tienes invitación, apúntate a la lista de espera. ¦ If your email has an invitation to Plata Cloud, we’ve sent you a code. It expires in 10 minutes. If it doesn’t arrive, check spam; if you don’t have an invitation yet, join the waitlist. ¦ このメールアドレスにPlata Cloudの招待がある場合、コードを送信しました。有効期限は10分です。届かない場合は迷惑メールをご確認ください。まだ招待がない場合は、順番待ちリストに登録してください。 ¦ Se la tua email ha un invito a Plata Cloud, ti abbiamo inviato un codice. Scade tra 10 minuti. Se non arriva, controlla lo spam; se non hai ancora un invito, iscriviti alla lista d’attesa. ¦ Si ton e-mail a une invitation à Plata Cloud, nous t’avons envoyé un code. Il expire dans 10 minutes. S’il n’arrive pas, vérifie tes spams ; si tu n’as pas encore d’invitation, inscris-toi sur la liste d’attente. ¦ Ako tvoja e-adresa ima pozivnicu za Plata Cloud, poslali smo ti kôd. Vrijedi 10 minuta. Ako ne stigne, provjeri neželjenu poštu; ako još nemaš pozivnicu, upiši se na listu čekanja.
+Entrar ¦ Sign in ¦ ログイン ¦ Accedi ¦ Se connecter ¦ Prijavi se
+Enviar otro código ¦ Send another code ¦ コードを再送信 ¦ Invia un altro codice ¦ Envoyer un autre code ¦ Pošalji novi kôd
+Te mandamos otro código ¦ We sent you another code ¦ 新しいコードを送信しました ¦ Ti abbiamo mandato un altro codice ¦ Nous t’avons envoyé un autre code ¦ Poslali smo ti novi kôd
+Tu frase de recuperación ¦ Your recovery phrase ¦ リカバリーフレーズ ¦ La tua frase di recupero ¦ Ta phrase de récupération ¦ Tvoja fraza za oporavak
+Estas 12 palabras son la llave de tus datos. ¦ These 12 words are the key to your data. ¦ この12個の単語が、あなたのデータの鍵です。 ¦ Queste 12 parole sono la chiave dei tuoi dati. ¦ Ces 12 mots sont la clé de tes données. ¦ Ovih 12 riječi ključ su tvojih podataka.
+Nadie más puede recuperarlas, ni nosotros. ¦ No one else can recover them, not even us. ¦ 他の誰も、私たちでさえも復元できません。 ¦ Nessun altro può recuperarle, nemmeno noi. ¦ Personne d’autre ne peut les récupérer, pas même nous. ¦ Nitko ih drugi ne može povratiti, čak ni mi.
+Anótalas en papel y guárdalas en un lugar seguro. Si pierdes tus dispositivos y la frase, tus datos de la nube no se podrán abrir. ¦ Write them down on paper and keep them somewhere safe. If you lose your devices and the phrase, your cloud data can’t be opened. ¦ 紙に書き写して、安全な場所に保管してください。端末とフレーズの両方を失うと、クラウドのデータは開けなくなります。 ¦ Scrivile su carta e conservale in un posto sicuro. Se perdi i tuoi dispositivi e la frase, i tuoi dati nel cloud non potranno essere aperti. ¦ Note-les sur papier et garde-les en lieu sûr. Si tu perds tes appareils et la phrase, tes données dans le cloud ne pourront pas être ouvertes. ¦ Zapiši ih na papir i čuvaj na sigurnom mjestu. Ako izgubiš uređaje i frazu, tvoji podaci u oblaku neće se moći otvoriti.
+Ya las guardé ¦ I’ve saved them ¦ 保存しました ¦ Le ho salvate ¦ Je les ai sauvegardés ¦ Spremio sam ih
+Ya las guardé ({0}) ¦ I’ve saved them ({0}) ¦ 保存しました ({0}) ¦ Le ho salvate ({0}) ¦ Je les ai sauvegardés ({0}) ¦ Spremio sam ih ({0})
+Confírmala ¦ Confirm it ¦ 確認してください ¦ Confermala ¦ Confirme-la ¦ Potvrdi je
+Para asegurarnos de que la anotaste, escribe estas palabras. ¦ To make sure you wrote it down, type these words. ¦ 書き留めたことを確認するため、次の単語を入力してください。 ¦ Per assicurarci che l’hai annotata, scrivi queste parole. ¦ Pour vérifier que tu l’as notée, saisis ces mots. ¦ Da provjerimo jesi li je zapisao, upiši ove riječi.
+Palabra {0} ¦ Word {0} ¦ {0}番目の単語 ¦ Parola {0} ¦ Mot {0} ¦ Riječ {0}
+Confirmar ¦ Confirm ¦ 確定 ¦ Conferma ¦ Confirmer ¦ Potvrdi
+Ver la frase otra vez ¦ See the phrase again ¦ フレーズをもう一度見る ¦ Rivedi la frase ¦ Revoir la phrase ¦ Ponovno prikaži frazu
+Escribe tu frase ¦ Enter your phrase ¦ フレーズを入力 ¦ Scrivi la tua frase ¦ Saisis ta phrase ¦ Upiši svoju frazu
+Esta cuenta ya existe. Escribe las 12 palabras de tu frase de recuperación para abrir tus datos en este dispositivo. ¦ This account already exists. Enter the 12 words of your recovery phrase to open your data on this device. ¦ このアカウントは既に存在します。この端末でデータを開くには、リカバリーフレーズの12個の単語を入力してください。 ¦ Questo account esiste già. Scrivi le 12 parole della tua frase di recupero per aprire i tuoi dati su questo dispositivo. ¦ Ce compte existe déjà. Saisis les 12 mots de ta phrase de récupération pour ouvrir tes données sur cet appareil. ¦ Ovaj račun već postoji. Upiši 12 riječi svoje fraze za oporavak kako bi otvorio podatke na ovom uređaju.
+palabra1 palabra2 palabra3 … ¦ word1 word2 word3 … ¦ 単語1 単語2 単語3 … ¦ parola1 parola2 parola3 … ¦ mot1 mot2 mot3 … ¦ riječ1 riječ2 riječ3 …
+Abrir mis datos ¦ Open my data ¦ データを開く ¦ Apri i miei dati ¦ Ouvrir mes données ¦ Otvori moje podatke
+Guárdala en papel y no la compartas con nadie. ¦ Keep it on paper and don’t share it with anyone. ¦ 紙に保管し、誰にも共有しないでください。 ¦ Conservala su carta e non condividerla con nessuno. ¦ Garde-la sur papier et ne la partage avec personne. ¦ Čuvaj je na papiru i ne dijeli ni s kim.
+Listo ¦ Done ¦ 完了 ¦ Fatto ¦ Terminé ¦ Gotovo
+Tu cuenta está lista. Tus datos se sincronizan cifrados entre tus dispositivos. ¦ Your account is ready. Your data syncs, encrypted, across your devices. ¦ アカウントの準備ができました。データは暗号化されて端末間で同期されます。 ¦ Il tuo account è pronto. I tuoi dati si sincronizzano, cifrati, tra i tuoi dispositivi. ¦ Ton compte est prêt. Tes données se synchronisent, chiffrées, entre tes appareils. ¦ Tvoj je račun spreman. Tvoji se podaci šifrirano sinkroniziraju među tvojim uređajima.
+Entendido ¦ Got it ¦ 了解 ¦ Ho capito ¦ Compris ¦ Razumijem
+Cerrar ¦ Close ¦ 閉じる ¦ Chiudi ¦ Fermer ¦ Zatvori
+¿Qué conservamos? ¦ What do we keep? ¦ どちらを残しますか? ¦ Cosa conserviamo? ¦ Que conservons-nous ? ¦ Što zadržavamo?
+Tu cuenta ya tiene datos en la nube y este dispositivo también. Elige cómo seguir. ¦ Your account already has data in the cloud and so does this device. Choose how to continue. ¦ アカウントにはクラウド上のデータがあり、この端末にもデータがあります。どう続けるか選んでください。 ¦ Il tuo account ha già dati nel cloud e anche questo dispositivo. Scegli come procedere. ¦ Ton compte a déjà des données dans le cloud et cet appareil aussi. Choisis comment continuer. ¦ Tvoj račun već ima podatke u oblaku, a i ovaj uređaj. Odaberi kako nastaviti.
+Combinar los dos ¦ Merge both ¦ 両方を統合 ¦ Unisci entrambi ¦ Fusionner les deux ¦ Spoji oboje
+Junta lo de este dispositivo y lo de la nube. Es lo más seguro. ¦ Combines this device’s data with the cloud’s. It’s the safest option. ¦ この端末とクラウドのデータを統合します。最も安全な方法です。 ¦ Unisce i dati di questo dispositivo e quelli del cloud. È l’opzione più sicura. ¦ Combine les données de cet appareil et celles du cloud. C’est le plus sûr. ¦ Spaja podatke ovog uređaja i oblaka. To je najsigurnije.
+Quedarme con la nube ¦ Keep the cloud copy ¦ クラウドを残す ¦ Tieni la copia nel cloud ¦ Garder la copie du cloud ¦ Zadrži kopiju u oblaku
+Reemplaza los datos de este dispositivo. ¦ Replaces this device’s data. ¦ この端末のデータを置き換えます。 ¦ Sostituisce i dati di questo dispositivo. ¦ Remplace les données de cet appareil. ¦ Zamjenjuje podatke na ovom uređaju.
+Quedarme con este dispositivo ¦ Keep this device’s data ¦ この端末を残す ¦ Tieni questo dispositivo ¦ Garder cet appareil ¦ Zadrži ovaj uređaj
+Reemplaza la copia de la nube. ¦ Replaces the cloud copy. ¦ クラウドのコピーを置き換えます。 ¦ Sostituisce la copia nel cloud. ¦ Remplace la copie du cloud. ¦ Zamjenjuje kopiju u oblaku.
+Listo, ya está sincronizado ¦ Done, it’s synced ¦ 完了しました。同期されました ¦ Fatto, è sincronizzato ¦ C’est fait, c’est synchronisé ¦ Gotovo, sinkronizirano je
+# Mensajes de error
+Escribe un correo válido. ¦ Enter a valid email. ¦ 有効なメールアドレスを入力してください。 ¦ Scrivi un’email valida. ¦ Saisis une adresse e-mail valide. ¦ Upiši ispravnu e-adresu.
+Demasiados intentos. Prueba en una hora. ¦ Too many attempts. Try again in an hour. ¦ 試行回数が多すぎます。1時間後にもう一度お試しください。 ¦ Troppi tentativi. Riprova tra un’ora. ¦ Trop de tentatives. Réessaie dans une heure. ¦ Previše pokušaja. Pokušaj ponovno za sat vremena.
+No pudimos conectar. Inténtalo más tarde. ¦ We couldn’t connect. Try again later. ¦ 接続できませんでした。後でもう一度お試しください。 ¦ Non siamo riusciti a connetterci. Riprova più tardi. ¦ Impossible de se connecter. Réessaie plus tard. ¦ Nismo se uspjeli povezati. Pokušaj ponovno kasnije.
+Escribe el código completo. ¦ Enter the full code. ¦ コードをすべて入力してください。 ¦ Scrivi il codice completo. ¦ Saisis le code complet. ¦ Upiši cijeli kôd.
+Código incorrecto o vencido. ¦ Wrong or expired code. ¦ コードが正しくないか、期限切れです。 ¦ Codice errato o scaduto. ¦ Code incorrect ou expiré. ¦ Kôd je netočan ili je istekao.
+Alguna palabra no coincide. Revisa tu frase. ¦ One of the words doesn’t match. Check your phrase. ¦ 一致しない単語があります。フレーズを確認してください。 ¦ Una parola non corrisponde. Controlla la tua frase. ¦ Un des mots ne correspond pas. Vérifie ta phrase. ¦ Neka riječ ne odgovara. Provjeri svoju frazu.
+No pudimos guardar la clave. Inténtalo otra vez. ¦ We couldn’t save the key. Try again. ¦ キーを保存できませんでした。もう一度お試しください。 ¦ Non siamo riusciti a salvare la chiave. Riprova. ¦ Impossible d’enregistrer la clé. Réessaie. ¦ Nismo uspjeli spremiti ključ. Pokušaj ponovno.
+La frase no es válida. Revisa que sean 12 palabras y que estén bien escritas. ¦ The phrase isn’t valid. Check that it’s 12 words and that they’re spelled correctly. ¦ フレーズが無効です。12個の単語で、綴りが正しいか確認してください。 ¦ La frase non è valida. Controlla che siano 12 parole scritte correttamente. ¦ La phrase n’est pas valide. Vérifie qu’il y a 12 mots bien orthographiés. ¦ Fraza nije valjana. Provjeri jesu li 12 riječi i jesu li ispravno napisane.
+Esa frase no corresponde a esta cuenta. ¦ That phrase doesn’t belong to this account. ¦ そのフレーズはこのアカウントのものではありません。 ¦ Quella frase non corrisponde a questo account. ¦ Cette phrase ne correspond pas à ce compte. ¦ Ta fraza ne pripada ovom računu.
+# Confirmaciones y menú
+¿Activar Plata Cloud? ¦ Turn on Plata Cloud? ¦ Plata Cloudを有効にしますか? ¦ Attivare Plata Cloud? ¦ Activer Plata Cloud ? ¦ Uključiti Plata Cloud?
+Los datos de este dispositivo se sincronizarán, cifrados, con tu cuenta. ¦ This device’s data will sync, encrypted, with your account. ¦ この端末のデータは暗号化されてアカウントと同期されます。 ¦ I dati di questo dispositivo si sincronizzeranno, cifrati, con il tuo account. ¦ Les données de cet appareil seront synchronisées, chiffrées, avec ton compte. ¦ Podaci ovog uređaja šifrirano će se sinkronizirati s tvojim računom.
+Activar ¦ Turn on ¦ 有効にする ¦ Attiva ¦ Activer ¦ Uključi
+¿Volver al modo local? ¦ Switch back to local mode? ¦ ローカルモードに戻しますか? ¦ Tornare alla modalità locale? ¦ Revenir au mode local ? ¦ Vratiti se na lokalni način?
+Este dispositivo deja de sincronizarse. Tus datos se quedan aquí y la copia de la nube se conserva. ¦ This device stops syncing. Your data stays here and the cloud copy is kept. ¦ この端末は同期されなくなります。データはここに残り、クラウドのコピーは保持されます。 ¦ Questo dispositivo smette di sincronizzarsi. I tuoi dati restano qui e la copia nel cloud viene conservata. ¦ Cet appareil cesse de se synchroniser. Tes données restent ici et la copie du cloud est conservée. ¦ Ovaj uređaj prestaje se sinkronizirati. Tvoji podaci ostaju ovdje, a kopija u oblaku se čuva.
+Pasar a local ¦ Switch to local ¦ ローカルに切り替え ¦ Passa a locale ¦ Passer en local ¦ Prijeđi na lokalno
+¿Cerrar sesión? ¦ Sign out? ¦ ログアウトしますか? ¦ Disconnettersi? ¦ Se déconnecter ? ¦ Odjaviti se?
+Este dispositivo deja de sincronizarse y olvida tu frase. Tus datos locales se quedan, y para volver a entrar necesitarás el código del correo y tu frase. ¦ This device stops syncing and forgets your phrase. Your local data stays, and to sign in again you’ll need the email code and your phrase. ¦ この端末は同期を停止し、フレーズを忘れます。ローカルのデータは残ります。再ログインにはメールのコードとフレーズが必要です。 ¦ Questo dispositivo smette di sincronizzarsi e dimentica la tua frase. I dati locali restano e, per rientrare, ti serviranno il codice via email e la tua frase. ¦ Cet appareil cesse de se synchroniser et oublie ta phrase. Tes données locales restent, et pour te reconnecter il te faudra le code reçu par e-mail et ta phrase. ¦ Ovaj uređaj prestaje se sinkronizirati i zaboravlja tvoju frazu. Lokalni podaci ostaju, a za ponovnu prijavu trebat će ti kôd iz e-pošte i tvoja fraza.
+Cerrar sesión ¦ Sign out ¦ ログアウト ¦ Esci ¦ Se déconnecter ¦ Odjavi se
+Sesión cerrada ¦ Signed out ¦ ログアウトしました ¦ Disconnesso ¦ Déconnecté ¦ Odjavljen
+¿Borrar tu cuenta? ¦ Delete your account? ¦ アカウントを削除しますか? ¦ Eliminare il tuo account? ¦ Supprimer ton compte ? ¦ Izbrisati svoj račun?
+Se borran tu cuenta y tu copia en la nube. Los datos de este dispositivo no se tocan. No se puede deshacer. ¦ Your account and your cloud copy are deleted. This device’s data isn’t touched. This can’t be undone. ¦ アカウントとクラウド上のコピーが削除されます。この端末のデータには影響しません。元に戻せません。 ¦ Il tuo account e la tua copia nel cloud vengono eliminati. I dati di questo dispositivo non vengono toccati. Non si può annullare. ¦ Ton compte et ta copie dans le cloud sont supprimés. Les données de cet appareil ne sont pas touchées. Action irréversible. ¦ Tvoj račun i kopija u oblaku bit će izbrisani. Podaci na ovom uređaju ostaju netaknuti. Ovo se ne može poništiti.
+Borrar cuenta ¦ Delete account ¦ アカウントを削除 ¦ Elimina account ¦ Supprimer le compte ¦ Izbriši račun
+Cuenta borrada ¦ Account deleted ¦ アカウントを削除しました ¦ Account eliminato ¦ Compte supprimé ¦ Račun izbrisan
+No se pudo borrar. Inténtalo de nuevo. ¦ Couldn’t delete. Try again. ¦ 削除できませんでした。もう一度お試しください。 ¦ Impossibile eliminare. Riprova. ¦ Suppression impossible. Réessaie. ¦ Brisanje nije uspjelo. Pokušaj ponovno.
+No pudimos conectar. ¦ We couldn’t connect. ¦ 接続できませんでした。 ¦ Non siamo riusciti a connetterci. ¦ Impossible de se connecter. ¦ Nismo se uspjeli povezati.
+Ver frase de recuperación ¦ View recovery phrase ¦ リカバリーフレーズを表示 ¦ Mostra la frase di recupero ¦ Afficher la phrase de récupération ¦ Prikaži frazu za oporavak
+Ver tu frase de recuperación ¦ View your recovery phrase ¦ リカバリーフレーズを表示 ¦ Mostra la tua frase di recupero ¦ Afficher ta phrase de récupération ¦ Prikaži svoju frazu za oporavak
+Asegúrate de que nadie más esté mirando tu pantalla. ¦ Make sure no one else is looking at your screen. ¦ 他の人に画面を見られていないことを確認してください。 ¦ Assicurati che nessun altro stia guardando il tuo schermo. ¦ Assure-toi que personne d’autre ne regarde ton écran. ¦ Provjeri da nitko drugi ne gleda tvoj zaslon.
+
+Conocer más ¦ Learn more ¦ 詳しく見る ¦ Scopri di più ¦ En savoir plus ¦ Saznaj više
+Conocer más › ¦ Learn more › ¦ 詳しく見る › ¦ Scopri di più › ¦ En savoir plus › ¦ Saznaj više ›
+correo@ejemplo.com ¦ email@example.com ¦ email@example.com ¦ email@esempio.it ¦ email@exemple.fr ¦ email@primjer.hr
