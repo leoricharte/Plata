@@ -22,8 +22,10 @@ label{display:block;font-size:13px;font-weight:700;color:var(--mute);margin:12px
 <h1>Panel</h1><p class="sub" id="sub">Herramientas privadas del equipo de Plata.</p>
 <div class="card scold"><span class="bdg" id="scb"></span><div class="t" id="sct"></div><div id="scp"></div><a id="sca" class="btnl" href="./"></a></div>
 <div class="card"><input id="tok" type="password" placeholder="Tu token de administrador" autocomplete="off"><button id="go">Entrar</button><div id="msg"></div></div>
-<div class="tabs" id="tabs" hidden><button id="tR" class="on" type="button">Copias recibidas</button><button id="tN" type="button">Novedades</button><button id="lo" class="g" type="button" style="margin-left:auto">Cerrar sesión</button></div>
+<div class="tabs" id="tabs" hidden><button id="tR" class="on" type="button">Copias recibidas</button><button id="tN" type="button">Novedades</button><button id="tW" type="button">Lista de espera</button><button id="lo" class="g" type="button" style="margin-left:auto">Cerrar sesión</button></div>
 <div id="pR" hidden><div id="list"></div></div>
+<div id="pW" hidden><div class="card"><div class="t">Lista de espera de Plata Cloud</div><p class="m" id="wsum" style="margin:6px 0 0"></p>
+<div class="row"><button id="wsel" class="g" type="button">Seleccionar pendientes</button><button id="wmail" type="button">Autorizar y enviar invitación</button><button id="wauth" class="g" type="button">Solo autorizar</button><button id="wrev" class="d" type="button">Quitar acceso</button></div><div id="wmsg" class="m" style="margin-top:10px"></div></div><div id="wl"></div></div>
 <div id="pN" hidden>
 <div class="card" id="ed"><div class="t" id="edt">Nuevo artículo</div>
 <label>TÍTULO</label><input id="ti" maxlength="160" placeholder="Un título claro">
@@ -89,8 +91,28 @@ function md(src){var out=[];String(src).replace(/\r/g,'').split(/\n{2,}/).forEac
 var editId=null,img=null,curImg='',posts=[];
 function today(){var d=new Date(),z=function(v){return String(v).padStart(2,'0')};return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())}
 function pv(){$('pv').innerHTML=($('ti').value.trim()?'<h3>'+esc($('ti').value)+'</h3>':'')+md($('bo').value)||'<small>La vista previa aparece aquí.</small>'}
-function tab(n){$('pR').hidden=n!=='R';$('pN').hidden=n!=='N';$('tR').classList.toggle('on',n==='R');$('tN').classList.toggle('on',n==='N')}
-$('tR').onclick=function(){tab('R')};$('tN').onclick=function(){tab('N')};
+function tab(n){$('pR').hidden=n!=='R';$('pN').hidden=n!=='N';$('pW').hidden=n!=='W';$('tR').classList.toggle('on',n==='R');$('tN').classList.toggle('on',n==='N');$('tW').classList.toggle('on',n==='W')}
+$('tR').onclick=function(){tab('R')};$('tN').onclick=function(){tab('N')};$('tW').onclick=function(){tab('W');loadW()};
+/* ---------- Lista de espera ---------- */
+var wl=[];
+function wdate(t){var d=new Date(t),z=function(v){return String(v).padStart(2,'0')};return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())}
+function loadW(){$('wmsg').textContent='Cargando…';call('/waitlist/export').then(function(r){wl=r.list||[];renderW();$('wmsg').textContent=''}).catch(function(e){$('wmsg').textContent='No se pudo cargar: '+e.message})}
+function renderW(){var n=wl.filter(function(x){return x.inv}).length;$('wsum').textContent=wl.length+' en la lista · '+n+' autorizados · '+(wl.length-n)+' pendientes.';
+ var box=$('wl');box.innerHTML='';wl.slice().sort(function(a,b){return (a.inv?1:0)-(b.inv?1:0)||a.t-b.t}).forEach(function(x){
+  var c=document.createElement('div');c.className='card';c.style.cssText='display:flex;align-items:center;gap:12px;padding:12px 16px';
+  c.innerHTML='<input type="checkbox" class="wk" style="width:20px;height:20px;margin:0" data-e="'+esc(x.email)+'"><div style="flex:1;min-width:0"><div class="t" style="overflow:hidden;text-overflow:ellipsis">'+esc(x.email)+'</div><div class="m">#'+(x.n||'?')+' · '+wdate(x.t)+' · '+esc((x.lang||'es').toUpperCase())+(x.mail?' · correo enviado '+wdate(x.mail):'')+'</div></div><span class="pill">'+(x.inv?'Autorizado':'Pendiente')+'</span>';
+  var p=c.querySelector('.pill');p.style.cssText=x.inv?'background:color-mix(in srgb,var(--accent) 16%,transparent);color:var(--accent)':'background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn)';
+  box.appendChild(c)})}
+function wsel(){return [].slice.call(document.querySelectorAll('.wk:checked')).map(function(i){return i.getAttribute('data-e')})}
+function wact(body,ask){var em=wsel();if(!em.length){$('wmsg').textContent='Marca al menos un correo.';return}
+ if(ask&&!confirm(ask.replace('N',em.length)))return;body.emails=em;$('wmsg').textContent='Procesando…';
+ call('/admin/invite','POST',body).then(function(r){var t=r.invited+' actualizados.';if(body.send)t+=(r.mailOn?' '+r.mailed+' correos enviados.':' El servidor no tiene el correo configurado (RESEND_API_KEY): se autorizó sin enviar.')+(r.mailFailed&&r.mailFailed.length?' Fallaron: '+r.mailFailed.join(', ')+'.':'');
+  loadW();setTimeout(function(){$('wmsg').textContent=t},400)}).catch(function(e){$('wmsg').textContent='No se pudo: '+e.message})}
+$('wsel').onclick=function(){var ks=[].slice.call(document.querySelectorAll('.wk'));ks.forEach(function(k){var x=wl.filter(function(w){return w.email===k.getAttribute('data-e')})[0];k.checked=!!x&&!x.inv})};
+$('wmail').onclick=function(){wact({send:true},'¿Autorizar a N personas y enviarles el correo de invitación?')};
+$('wauth').onclick=function(){wact({})};
+$('wrev').onclick=function(){wact({revoke:true},'¿Quitar el acceso a N personas?')};
+
 ['ti','bo'].forEach(function(i){$(i).addEventListener('input',pv)});
 $('en').onchange=function(){$('enb').hidden=!$('en').checked};
 document.querySelectorAll('.tb').forEach(function(tb){var ta=$(tb.getAttribute('data-for'));tb.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var s=ta.selectionStart,en=ta.selectionEnd,v=ta.value,sel=v.slice(s,en),m=b.getAttribute('data-m'),l=b.getAttribute('data-l');
