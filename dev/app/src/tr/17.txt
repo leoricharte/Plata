@@ -6,3 +6,5 @@ Usar otro tipo de cambio ¦ Use another exchange rate ¦ 別のレートを使�
 Convertir ¦ Convert ¦ 換算する ¦ Converti ¦ Convertir ¦ Pretvori
 Volver ¦ Back ¦ 戻る ¦ Indietro ¦ Retour ¦ Natrag
 Escribe un tipo de cambio válido ¦ Enter a valid exchange rate ¦ 有効なレートを入力してください ¦ Inserisci un cambio valido ¦ Saisissez un taux valide ¦ Unesite valjan tečaj
+Incluye ¦ Includes ¦ 含む ¦ Include ¦ Inclut ¦ Uključuje
+Original ¦ Original ¦ 元の金額 ¦ Originale ¦ Original ¦ Izvorno
