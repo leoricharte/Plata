@@ -21,7 +21,7 @@ Comisión (opcional) ¦ Fee (optional) ¦ 手数料（任意） ¦ Commissione (
 Tipo de cambio: ¦ Exchange rate: ¦ 為替レート: ¦ Tasso di cambio: ¦ Taux de change : ¦ Tečaj:
 Estimado con el cambio de la app. Corrígelo si recibiste otro monto. ¦ Estimated with the app’s rate. Correct it if you received a different amount. ¦ アプリのレートによる概算です。受取額が違う場合は修正してください。 ¦ Stima con il cambio dell’app. Correggila se hai ricevuto un altro importo. ¦ Estimation avec le taux de l’app. Corrigez si vous avez reçu un autre montant. ¦ Procjena prema tečaju aplikacije. Ispravi ako si primio drugi iznos.
 No cuenta como gasto ni ingreso. ¦ Doesn’t count as spending or income. ¦ 支出にも収入にも含まれません。 ¦ Non conta come spesa né come entrata. ¦ Ne compte ni comme dépense ni comme revenu. ¦ Ne računa se kao trošak ni prihod.
-Necesitas al menos dos cuentas ¦ You need at least two accounts ¦ 口座が2つ以上必要です ¦ Servono almeno due conti ¦ Il faut au moins deux comptes ¦ Trebaju ti barem dva računa
+Añade otra cuenta para transferir ¦ Add another account to transfer ¦ 送金するには口座をもう1つ追加してください ¦ Aggiungi un altro conto per trasferire ¦ Ajoutez un autre compte pour transférer ¦ Dodaj još jedan račun za prijenos
 Transferencia registrada ¦ Transfer recorded ¦ 送金を記録しました ¦ Trasferimento registrato ¦ Transfert enregistré ¦ Prijenos zabilježen
 Transferencia ¦ Transfer ¦ 送金 ¦ Trasferimento ¦ Transfert ¦ Prijenos
 Transferencias ¦ Transfers ¦ 送金 ¦ Trasferimenti ¦ Transferts ¦ Prijenosi
