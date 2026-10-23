@@ -156,3 +156,4 @@ p.closer{text-align:center;font-size:18px;color:var(--mute);margin:48px auto 0}
 .nvs{display:none;flex-wrap:wrap;gap:8px;align-items:center}.nvw.one .nvs{display:flex}.nvsl{font:700 12px/1 Inter,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin-right:4px}
 .nvs button{font:600 14px/1 Inter,sans-serif;background:var(--soft,#F2F2F7);color:var(--ink,#1C1C1E);border:1px solid var(--line);border-radius:999px;padding:10px 15px;cursor:pointer}.nvs button:hover{border-color:var(--accent,#22B573);color:var(--accent,#22B573)}.nvs button[hidden]{display:none}
 .nvbk[hidden],.nvar[hidden],.nva[hidden]{display:none!important}
+.nvs button{width:44px;height:44px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:50%}
