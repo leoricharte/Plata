@@ -3,7 +3,7 @@
 <style>
 :root{--bg:#f4f6f5;--card:#fff;--ink:#14201a;--mute:#66736b;--line:#e3e8e5;--accent:#1A9D63;--warn:#C23B2E}
 @media (prefers-color-scheme:dark){:root{--bg:#0b1a13;--card:#12261C;--ink:#eef5f1;--mute:#9db3a7;--line:#1f3a2b;--accent:#3FD08F;--warn:#FF8A80}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 Inter,system-ui,-apple-system,Segoe UI,sans-serif;padding:24px 16px 60px}
+*{box-sizing:border-box}[hidden]{display:none!important}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 Inter,system-ui,-apple-system,Segoe UI,sans-serif;padding:24px 16px 60px}
 .w{max-width:640px;margin:0 auto}h1{font-size:28px;letter-spacing:-.02em;margin:8px 0 4px}.sub{color:var(--mute);margin:0 0 20px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;margin:0 0 12px}
 input{width:100%;font:inherit;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);margin:0 0 10px}
@@ -22,8 +22,8 @@ label{display:block;font-size:13px;font-weight:700;color:var(--mute);margin:12px
 <h1>Panel</h1><p class="sub">Herramientas privadas del equipo de Plata.</p>
 <div class="card scold"><div class="t" id="sct"></div><p id="scp" style="margin:6px 0 10px"></p><a id="sca" href="./" style="color:var(--accent);font-weight:700;text-decoration:none"></a></div>
 <div class="card"><input id="tok" type="password" placeholder="Tu token de administrador" autocomplete="off"><button id="go">Entrar</button><div id="msg"></div></div>
-<div class="tabs"><button id="tR" class="on" type="button">Copias recibidas</button><button id="tN" type="button">Novedades</button></div>
-<div id="pR"><div id="list"></div></div>
+<div class="tabs" id="tabs" hidden><button id="tR" class="on" type="button">Copias recibidas</button><button id="tN" type="button">Novedades</button></div>
+<div id="pR" hidden><div id="list"></div></div>
 <div id="pN" hidden>
 <div class="card" id="ed"><div class="t" id="edt">Nuevo artículo</div>
 <label>TÍTULO</label><input id="ti" maxlength="160" placeholder="Un título claro">
@@ -62,6 +62,7 @@ function load(){
   tok=$('tok').value.trim();if(!tok){msg('Escribe tu token.');return}
   msg('Cargando…');$('go').disabled=true;
   call('/review/list').then(function(l){
+    unlock();
     var ids=l.ids.slice().reverse(),box=$('list');box.innerHTML='';
     if(!ids.length){msg('Todavía no hay copias.');return}
     msg(ids.length+(ids.length==1?' copia':' copias')+'.');
@@ -71,7 +72,8 @@ function load(){
         return call('/review/get?id='+encodeURIComponent(id)).then(function(r){return[id,st,r]})})
     })).then(function(rs){rs.forEach(function(x){box.appendChild(card(x[0],x[1],x[2]))})})
   }).catch(fail).then(function(){$('go').disabled=false})}
-function enter(){tok=$('tok').value.trim();load();loadPosts()}
+function unlock(){if(!$('tabs').hidden)return;$('tabs').hidden=false;tab('R');loadPosts()}
+function enter(){tok=$('tok').value.trim();load()}
 $('go').onclick=enter;$('tok').addEventListener('keydown',function(e){if(e.key==='Enter')enter()});
 
 /* ---------- Novedades ---------- */
