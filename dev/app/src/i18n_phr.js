@@ -64,7 +64,7 @@ function greetLine() {
 }
 function genderExampleL(g, nm) {
   const n = (nm || '').trim();
-  if (LANG === 'es') return 'Ejemplo: «' + ({ m: 'Bien hecho', f: 'Bien hecha' }[g] || 'Buen trabajo') + (n ? ', ' + n : '') + '. ' + ({ m: 'Bienvenido', f: 'Bienvenida' }[g] || 'Te damos la bienvenida') + '.»';
+  if (LANG === 'es') return 'Ejemplo: «' + ({ m: 'Bien hecho' }[g] || 'Buen trabajo') + (n ? ', ' + n : '') + '. ' + ({ m: 'Bienvenido', f: 'Bienvenida' }[g] || 'Te damos la bienvenida') + '.»';
   if (LANG === 'en') return 'Example: “Well done' + (n ? ', ' + n : '') + '. Welcome.”';
   if (LANG === 'ja') return '例:「よくできました' + (n ? '、' + n + 'さん' : '') + '。ようこそ。」';
   if (LANG === 'it') return 'Esempio: «' + ({ m: 'Bravo', f: 'Brava' }[g] || 'Ottimo lavoro') + (n ? ', ' + n : '') + '. ' + ({ m: 'Benvenuto', f: 'Benvenuta' }[g] || 'Ti diamo il benvenuto') + '.»';
