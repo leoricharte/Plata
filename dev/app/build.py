@@ -2,7 +2,7 @@
 Uso:  python3 dev/app/build.py        ->  dev/app/out/finanzas.html
       CHANNEL=alpha python3 ...        ->  icono blanco (finanzas-alpha.html)
 Después cópialo a app/index.html (ver dev/README.md)."""
-import base64, pathlib, json, os
+import base64, pathlib, json, os, re
 
 root = pathlib.Path(__file__).resolve().parent
 src, assets = root / "src", root / "assets"
@@ -21,6 +21,7 @@ for f in sorted((src / "tr").glob("*.txt")):
         rows.append(parts[:6])  # es ¦ en ¦ ja ¦ it ¦ fr ¦ hr
 i18n = (src / "i18n.js").read_text(encoding="utf-8").replace("__TR_DATA__", json.dumps(rows, ensure_ascii=False))
 i18n += "\n" + (src / "i18n_phr.js").read_text(encoding="utf-8") + "\n" + (src / "i18n_demo.js").read_text(encoding="utf-8")
+html = html.replace("__BUILD__", re.search(r"const APP_BUILD = (\d+)", html).group(1))  # el número de la pantalla de inicio sale de APP_BUILD
 for key, name in (("I18N", None), ("SF", "icons_sf.js"), ("DEMOS", "demo_profiles.js"), ("WORLD", "worldmap.js"), ("RMX", "icons_rmx.js")):
     html = html.replace("/*__%s__*/" % key, i18n if name is None else (src / name).read_text(encoding="utf-8"))
 html = html.replace("__INTER_B64__", b64(assets / "inter-latin-wght-normal.woff2"))
