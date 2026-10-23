@@ -1,0 +1,119 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#0b1a13"><title>Panel · Plata</title>
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<style>
+:root{--bg:#f4f6f5;--card:#fff;--ink:#14201a;--mute:#66736b;--line:#e3e8e5;--accent:#1A9D63;--warn:#C23B2E}
+@media (prefers-color-scheme:dark){:root{--bg:#0b1a13;--card:#12261C;--ink:#eef5f1;--mute:#9db3a7;--line:#1f3a2b;--accent:#3FD08F;--warn:#FF8A80}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 Inter,system-ui,-apple-system,Segoe UI,sans-serif;padding:24px 16px 60px}
+.w{max-width:640px;margin:0 auto}h1{font-size:28px;letter-spacing:-.02em;margin:8px 0 4px}.sub{color:var(--mute);margin:0 0 20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;margin:0 0 12px}
+input{width:100%;font:inherit;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);margin:0 0 10px}
+button{font:inherit;font-weight:600;border:0;border-radius:999px;padding:10px 16px;background:var(--accent);color:#fff;cursor:pointer}
+button.g{background:transparent;color:var(--accent);border:1px solid var(--line)}button.d{background:transparent;color:var(--warn);border:1px solid var(--line)}button:disabled{opacity:.5;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.t{font-weight:700}.m{color:var(--mute);font-size:14px}.pill{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:3px 9px;background:var(--line);margin-left:6px}.pill.ok{background:color-mix(in srgb,var(--accent) 22%,transparent);color:var(--accent)}.pill.del{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+#msg{margin:10px 0;color:var(--mute);min-height:20px}
+.tabs{display:flex;gap:6px;margin:0 0 14px}.tabs button{background:transparent;color:var(--mute);border:1px solid var(--line)}.tabs button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+label{display:block;font-size:13px;font-weight:700;color:var(--mute);margin:12px 0 6px;letter-spacing:.02em}textarea{width:100%;font:inherit;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);min-height:200px;resize:vertical;margin:0}
+.tb{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 6px}.tb button{padding:6px 12px;font-size:14px;background:var(--bg);color:var(--ink);border:1px solid var(--line)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media (max-width:520px){.two{grid-template-columns:1fr}}
+.prev{border:1px dashed var(--line);border-radius:14px;padding:12px 14px;margin-top:8px;font-size:16px}.prev h3{margin:0 0 6px;font-size:20px}.prev p,.prev li,.prev blockquote{margin:0 0 8px;color:var(--mute)}.prev blockquote{border-left:3px solid var(--accent);padding-left:10px}
+.cov{margin:8px 0;border-radius:14px;overflow:hidden;border:1px solid var(--line);aspect-ratio:16/9;background:var(--bg);display:grid;place-items:center;color:var(--mute);font-size:14px}.cov img{width:100%;height:100%;object-fit:cover;display:block}
+.chk{display:flex;align-items:center;gap:8px;margin:10px 0 0;font-size:15px}.chk input{width:auto;margin:0}small{color:var(--mute)}.scold{border-color:var(--accent)}.scold p{color:var(--mute);margin:0}
+</style></head><body><div class="w">
+<h1>Panel</h1><p class="sub">Herramientas privadas del equipo de Plata.</p>
+<div class="card scold"><div class="t" id="sct"></div><p id="scp" style="margin:6px 0 10px"></p><a id="sca" href="./" style="color:var(--accent);font-weight:700;text-decoration:none"></a></div>
+<div class="card"><input id="tok" type="password" placeholder="Tu token de administrador" autocomplete="off"><button id="go">Entrar</button><div id="msg"></div></div>
+<div class="tabs"><button id="tR" class="on" type="button">Copias recibidas</button><button id="tN" type="button">Novedades</button></div>
+<div id="pR"><div id="list"></div></div>
+<div id="pN" hidden>
+<div class="card" id="ed"><div class="t" id="edt">Nuevo artículo</div>
+<label>TÍTULO</label><input id="ti" maxlength="160" placeholder="Un título claro">
+<label>TEXTO</label><div class="tb" data-for="bo"><button type="button" data-m="**|**"><b>B</b></button><button type="button" data-m="*|*"><i>I</i></button><button type="button" data-m="[|](https://)">Enlace</button><button type="button" data-l="## ">Subtítulo</button><button type="button" data-l="- ">Lista</button><button type="button" data-l="> ">Cita</button></div>
+<textarea id="bo" placeholder="Escribe aquí. Deja una línea en blanco entre párrafos."></textarea>
+<div class="prev" id="pv"></div>
+<div class="chk"><input type="checkbox" id="en"><label for="en" style="margin:0;font-size:15px;color:var(--ink);font-weight:600">Añadir versión en inglés</label></div>
+<div id="enb" hidden><label>TITLE (ENGLISH)</label><input id="tie" maxlength="160"><label>TEXT (ENGLISH)</label><div class="tb" data-for="boe"><button type="button" data-m="**|**"><b>B</b></button><button type="button" data-m="*|*"><i>I</i></button><button type="button" data-m="[|](https://)">Link</button><button type="button" data-l="## ">Heading</button><button type="button" data-l="- ">List</button><button type="button" data-l="> ">Quote</button></div><textarea id="boe"></textarea></div>
+<label>IMAGEN (SE AJUSTA A 1920×1080)</label><div class="cov" id="cv">Sin imagen</div><input id="im" type="file" accept="image/*"><div class="row" style="margin-top:0"><button class="g" id="imx" type="button" hidden>Quitar imagen</button></div>
+<label>TEXTO ALTERNATIVO DE LA IMAGEN (OPCIONAL)</label><input id="alt" maxlength="200">
+<div class="two"><div><label>POR</label><input id="by" maxlength="60" placeholder="Nombre de quien firma"></div><div><label>FECHA</label><input id="dt" type="date"></div></div>
+<div class="chk"><input type="checkbox" id="vf"><label for="vf" style="margin:0;font-size:15px;color:var(--ink);font-weight:600">Mostrar verificado ✓ junto al nombre (solo equipo de Plata)</label></div>
+<label>ETIQUETA (OPCIONAL)</label><input id="tg" maxlength="30" placeholder="Ej. Beta 2">
+<div class="row"><button id="pub" type="button">Publicar</button><button class="g" id="cx" type="button" hidden>Cancelar edición</button></div><div id="msg2" class="m" style="margin-top:10px"></div></div>
+<div class="t" style="margin:18px 4px 8px">Artículos publicados</div><div id="plist"></div></div></div>
+<script>
+var API='https://plata-cloud.xleoricharte.workers.dev',tok='',$=function(i){return document.getElementById(i)};
+function msg(t){$('msg').textContent=t||''}
+function call(path,method,body){return fetch(API+path,{method:method||'GET',headers:Object.assign({Authorization:'Bearer '+tok},body?{'Content-Type':'application/json'}:{}),body:body?JSON.stringify(body):undefined}).then(function(r){return r.json().catch(function(){return{}}).then(function(j){if(!r.ok||j.ok===false){var e=new Error(j.error||('error '+r.status));e.code=r.status;throw e}return j})})}
+function when(id){var n=parseInt(id.split('-')[0],36);return n?new Date(n).toLocaleString([], {day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit'}):id}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function save(name,obj){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();a.remove()}
+function card(id,st,rec){
+  var del=st.deleted,rev=st.reviewed,d=rec&&rec.data||{};
+  var sum=del?'Datos eliminados de los servidores.':rec?((d.transactions||[]).length+' movimientos · '+(d.accounts||[]).length+' cuentas · '+(d.cards||[]).length+' tarjetas · '+esc(rec.plat||'plataforma desconocida')+' · build '+(rec.build||'?')):'';
+  var el=document.createElement('div');el.className='card';
+  el.innerHTML='<div class="t">'+when(id)+(del?'<span class="pill del">Eliminada</span>':rev?'<span class="pill ok">Revisada '+rev+'</span>':'<span class="pill">Pendiente</span>')+'</div><div class="m">'+sum+'</div><div class="row"></div>';
+  var row=el.querySelector('.row');
+  function btn(t,c,fn){var b=document.createElement('button');b.textContent=t;b.className=c;b.onclick=function(){b.disabled=true;fn(b)};row.appendChild(b)}
+  if(!del)btn('Descargar','',function(b){call('/review/get?id='+encodeURIComponent(id)).then(function(j){save('plata-revision-'+id+'.json',j.data);msg('Descargada.')}).catch(fail).then(function(){b.disabled=false})});
+  if(!del&&!rev)btn('Marcar como revisada','g',function(b){call('/review/mark?id='+encodeURIComponent(id),'POST').then(load).catch(fail)});
+  if(!del)btn('Eliminar del servidor','d',function(b){if(!confirm('¿Eliminar esta copia del servidor? Esto no se puede deshacer. Descárgala antes si la necesitas.')){b.disabled=false;return}call('/review/delete?id='+encodeURIComponent(id),'POST').then(load).catch(fail)});
+  return el}
+function fail(e){msg(e.code===401?'El token no es correcto.':'No se pudo: '+e.message)}
+function load(){
+  tok=$('tok').value.trim();if(!tok){msg('Escribe tu token.');return}
+  msg('Cargando…');$('go').disabled=true;
+  call('/review/list').then(function(l){
+    var ids=l.ids.slice().reverse(),box=$('list');box.innerHTML='';
+    if(!ids.length){msg('Todavía no hay copias.');return}
+    msg(ids.length+(ids.length==1?' copia':' copias')+'.');
+    return Promise.all(ids.map(function(id){
+      return call('/review/status?id='+encodeURIComponent(id)).then(function(st){
+        if(st.deleted)return[id,st,null];
+        return call('/review/get?id='+encodeURIComponent(id)).then(function(r){return[id,st,r]})})
+    })).then(function(rs){rs.forEach(function(x){box.appendChild(card(x[0],x[1],x[2]))})})
+  }).catch(fail).then(function(){$('go').disabled=false})}
+function enter(){tok=$('tok').value.trim();load();loadPosts()}
+$('go').onclick=enter;$('tok').addEventListener('keydown',function(e){if(e.key==='Enter')enter()});
+
+/* ---------- Novedades ---------- */
+function inl(t){t=esc(t);t=t.replace(/`([^`]+)`/g,'<code>$1</code>');t=t.replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>');t=t.replace(/\*([^*]+)\*/g,'<i>$1</i>');t=t.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+|mailto:[^\s)]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');return t}
+function md(src){var out=[];String(src).replace(/\r/g,'').split(/\n{2,}/).forEach(function(b){b=b.trim();if(!b)return;var ls=b.split('\n');
+ if(/^## /.test(b)&&ls.length===1)out.push('<h3>'+inl(b.slice(3))+'</h3>');
+ else if(ls.every(function(l){return /^- /.test(l)}))out.push('<ul>'+ls.map(function(l){return '<li>'+inl(l.slice(2))+'</li>'}).join('')+'</ul>');
+ else if(ls.every(function(l){return /^> ?/.test(l)}))out.push('<blockquote>'+ls.map(function(l){return inl(l.replace(/^> ?/,''))}).join('<br>')+'</blockquote>');
+ else out.push('<p>'+ls.map(inl).join('<br>')+'</p>')});return out.join('')}
+var editId=null,img=null,curImg='',posts=[];
+function today(){var d=new Date(),z=function(v){return String(v).padStart(2,'0')};return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())}
+function pv(){$('pv').innerHTML=($('ti').value.trim()?'<h3>'+esc($('ti').value)+'</h3>':'')+md($('bo').value)||'<small>La vista previa aparece aquí.</small>'}
+function tab(n){$('pR').hidden=n!=='R';$('pN').hidden=n!=='N';$('tR').classList.toggle('on',n==='R');$('tN').classList.toggle('on',n==='N')}
+$('tR').onclick=function(){tab('R')};$('tN').onclick=function(){tab('N')};
+['ti','bo'].forEach(function(i){$(i).addEventListener('input',pv)});
+$('en').onchange=function(){$('enb').hidden=!$('en').checked};
+document.querySelectorAll('.tb').forEach(function(tb){var ta=$(tb.getAttribute('data-for'));tb.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var s=ta.selectionStart,en=ta.selectionEnd,v=ta.value,sel=v.slice(s,en),m=b.getAttribute('data-m'),l=b.getAttribute('data-l');
+ if(m){var p=m.split('|');ta.value=v.slice(0,s)+p[0]+(sel||'texto')+p[1]+v.slice(en);ta.focus();ta.setSelectionRange(s+p[0].length,s+p[0].length+(sel||'texto').length)}
+ else{var a=v.lastIndexOf('\n',s-1)+1,z=v.indexOf('\n',en);if(z<0)z=v.length;var seg=v.slice(a,z).split('\n').map(function(x){return l+x}).join('\n');ta.value=v.slice(0,a)+seg+v.slice(z);ta.focus()}
+ pv()})});
+function showImg(src){$('cv').innerHTML=src?'<img alt="" src="'+src+'">':'Sin imagen';$('imx').hidden=!src}
+$('im').onchange=function(){var f=this.files[0];if(!f)return;var u=URL.createObjectURL(f),i=new Image();i.onload=function(){var c=document.createElement('canvas');c.width=1920;c.height=1080;var x=c.getContext('2d'),r=Math.max(1920/i.width,1080/i.height),w=i.width*r,h=i.height*r;x.fillStyle='#fff';x.fillRect(0,0,1920,1080);x.drawImage(i,(1920-w)/2,(1080-h)/2,w,h);
+ var q=.88,d=c.toDataURL('image/jpeg',q);while(d.length>2400000&&q>.4){q-=.08;d=c.toDataURL('image/jpeg',q)}img=d;showImg(d);URL.revokeObjectURL(u)};i.onerror=function(){$('msg2').textContent='No se pudo leer esa imagen.'};i.src=u};
+$('imx').onclick=function(){img=curImg?'remove':null;curImg='';$('im').value='';showImg('')};
+function resetForm(){editId=null;img=null;curImg='';['ti','bo','tie','boe','alt','tg'].forEach(function(i){$(i).value=''});$('en').checked=false;$('enb').hidden=true;$('dt').value=today();$('vf').checked=false;try{$('by').value=localStorage.getItem('plata.admin.by')||''}catch(e){$('by').value=''}$('im').value='';showImg('');$('edt').textContent='Nuevo artículo';$('pub').textContent='Publicar';$('cx').hidden=true;pv()}
+$('cx').onclick=function(){resetForm();$('msg2').textContent=''};
+function edit(p){editId=p.id;img=null;$('ti').value=p.title_es;$('bo').value=p.body_es;$('tie').value=p.title_en||'';$('boe').value=p.body_en||'';$('en').checked=!!(p.title_en&&p.body_en);$('enb').hidden=!$('en').checked;$('alt').value=p.alt||'';$('tg').value=p.tag||'';$('by').value=p.by;$('dt').value=p.date;$('vf').checked=!!p.vf;curImg=p.hasImg?API+'/posts/img?id='+p.id+'&v='+p.v:'';showImg(curImg);$('edt').textContent='Editando artículo';$('pub').textContent='Guardar cambios';$('cx').hidden=false;$('ed').scrollIntoView({behavior:'smooth'});pv()}
+$('pub').onclick=function(){
+ if(!tok){$('msg2').textContent='Escribe tu token arriba y pulsa Entrar.';return}
+ var b={id:editId,title_es:$('ti').value,body_es:$('bo').value,title_en:$('en').checked?$('tie').value:'',body_en:$('en').checked?$('boe').value:'',alt:$('alt').value,tag:$('tg').value,by:$('by').value,date:$('dt').value,vf:$('vf').checked};
+ if(img)b.img=img;
+ if(!b.title_es.trim()||!b.body_es.trim()||!b.by.trim()){$('msg2').textContent='Faltan el título, el texto o la firma.';return}
+ $('pub').disabled=true;$('msg2').textContent='Publicando…';
+ call('/posts','POST',b).then(function(){try{localStorage.setItem('plata.admin.by',b.by)}catch(e){}resetForm();$('msg2').textContent='Listo: publicado en Novedades.';loadPosts()}).catch(function(e){$('msg2').textContent=e.code===401?'El token no es correcto.':'No se pudo publicar: '+e.message}).then(function(){$('pub').disabled=false})};
+function loadPosts(){fetch(API+'/posts').then(function(r){return r.json()}).then(function(j){posts=j.posts||[];var box=$('plist');box.innerHTML='';
+ if(!posts.length){box.innerHTML='<div class="card m">Todavía no hay artículos creados desde aquí.</div>';return}
+ posts.forEach(function(p){var el=document.createElement('div');el.className='card';el.innerHTML='<div class="t">'+esc(p.title_es)+'</div><div class="m">'+esc(p.date)+' · por '+esc(p.by)+(p.title_en?' · ES/EN':' · ES')+'</div><div class="row"></div>';
+  var row=el.querySelector('.row');var e=document.createElement('button');e.className='g';e.textContent='Editar';e.onclick=function(){edit(p)};row.appendChild(e);
+  var d=document.createElement('button');d.className='d';d.textContent='Eliminar';d.onclick=function(){if(!confirm('¿Eliminar este artículo de Novedades? No se puede deshacer.'))return;call('/posts?id='+encodeURIComponent(p.id),'DELETE').then(loadPosts).catch(function(er){$('msg2').textContent=er.code===401?'El token no es correcto.':'No se pudo: '+er.message})};row.appendChild(d);box.appendChild(el)})}).catch(function(){})}
+resetForm();
+(function(){var es=/^es/i.test(navigator.language||'es');
+$('sct').textContent=es?'Alto ahí, curioso/a.':'Hold it right there, curious one.';
+$('scp').textContent=es?'Esta es la trastienda de Plata: aquí se guardan los cables sueltos, las ideas a medio cocinar y el café frío del equipo. Si no eres del equipo, ¿qué haces aquí? ¿Escribiste /devtools-admin a ver qué pasaba? Pues pasó esto: nada. No hay botón secreto, no hay descuentos y no, probar contraseñas al azar no va a funcionar (el token es más largo que tu lista de gastos hormiga). Anda, vuelve a la app, que tus movimientos no se van a registrar solos.':'This is Plata’s backstage: loose cables, half-baked ideas and the team’s cold coffee live here. If you’re not on the team, what are you doing here? Did you type /devtools-admin just to see what would happen? This is what happened: nothing. There’s no secret button, no discounts, and no, guessing passwords won’t work (the token is longer than your list of tiny daily expenses). Go back to the app, your transactions won’t log themselves.';
+$('sca').textContent=es?'Volver a Plata →':'Back to Plata →'})();
+</script></body></html>
