@@ -22,7 +22,7 @@ label{display:block;font-size:13px;font-weight:700;color:var(--mute);margin:12px
 <h1>Panel</h1><p class="sub" id="sub">Herramientas privadas del equipo de Plata.</p>
 <div class="card scold"><span class="bdg" id="scb"></span><div class="t" id="sct"></div><div id="scp"></div><a id="sca" class="btnl" href="./"></a></div>
 <div class="card"><input id="tok" type="password" placeholder="Tu token de administrador" autocomplete="off"><button id="go">Entrar</button><div id="msg"></div></div>
-<div class="tabs" id="tabs" hidden><button id="tR" class="on" type="button">Copias recibidas</button><button id="tN" type="button">Novedades</button></div>
+<div class="tabs" id="tabs" hidden><button id="tR" class="on" type="button">Copias recibidas</button><button id="tN" type="button">Novedades</button><button id="lo" class="g" type="button" style="margin-left:auto">Cerrar sesión</button></div>
 <div id="pR" hidden><div id="list"></div></div>
 <div id="pN" hidden>
 <div class="card" id="ed"><div class="t" id="edt">Nuevo artículo</div>
@@ -31,13 +31,14 @@ label{display:block;font-size:13px;font-weight:700;color:var(--mute);margin:12px
 <textarea id="bo" placeholder="Escribe aquí. Deja una línea en blanco entre párrafos."></textarea>
 <div class="prev" id="pv"></div>
 <div class="chk"><input type="checkbox" id="en"><label for="en" style="margin:0;font-size:15px;color:var(--ink);font-weight:600">Añadir versión en inglés</label></div>
-<div id="enb" hidden><label>TITLE (ENGLISH)</label><input id="tie" maxlength="160"><label>TEXT (ENGLISH)</label><div class="tb" data-for="boe"><button type="button" data-m="**|**"><b>B</b></button><button type="button" data-m="*|*"><i>I</i></button><button type="button" data-m="[|](https://)">Link</button><button type="button" data-l="## ">Heading</button><button type="button" data-l="- ">List</button><button type="button" data-l="> ">Quote</button></div><textarea id="boe"></textarea></div>
+<div id="enb" hidden><label>TITLE (ENGLISH)</label><input id="tie" maxlength="160"><label>BY (ENGLISH, OPTIONAL)</label><input id="bye" maxlength="60" placeholder="Ej. the Plata team"><label>TAGS (ENGLISH, OPTIONAL)</label><input id="tge" maxlength="100"><label>TEXT (ENGLISH)</label><div class="tb" data-for="boe"><button type="button" data-m="**|**"><b>B</b></button><button type="button" data-m="*|*"><i>I</i></button><button type="button" data-m="[|](https://)">Link</button><button type="button" data-l="## ">Heading</button><button type="button" data-l="- ">List</button><button type="button" data-l="> ">Quote</button></div><textarea id="boe"></textarea></div>
 <label>IMAGEN (SE AJUSTA A 1920×1080)</label><div class="cov" id="cv">Sin imagen</div><input id="im" type="file" accept="image/*"><div class="row" style="margin-top:0"><button class="g" id="imx" type="button" hidden>Quitar imagen</button></div>
 <label>TEXTO ALTERNATIVO DE LA IMAGEN (OPCIONAL)</label><input id="alt" maxlength="200">
 <div class="two"><div><label>POR</label><input id="by" maxlength="60" placeholder="Nombre de quien firma"></div><div><label>FECHA</label><input id="dt" type="date"></div></div>
 <div class="chk"><input type="checkbox" id="vf"><label for="vf" style="margin:0;font-size:15px;color:var(--ink);font-weight:600">Mostrar verificado ✓ junto al nombre (solo equipo de Plata)</label></div>
-<label>ETIQUETA (OPCIONAL)</label><input id="tg" maxlength="30" placeholder="Ej. Beta 2">
+<label>ETIQUETAS (OPCIONAL, SEPARADAS POR COMAS)</label><input id="tg" maxlength="100" placeholder="Ej. Beta 2, Lanzamiento">
 <div class="row"><button id="pub" type="button">Publicar</button><button class="g" id="cx" type="button" hidden>Cancelar edición</button></div><div id="msg2" class="m" style="margin-top:10px"></div></div>
+<div class="card" id="legacy" hidden><div class="t">Artículos anteriores</div><div class="m">Hay <span id="legacyn">2</span> artículos publicados antes de este panel. Impórtalos para poder editarlos y eliminarlos desde aquí.</div><div class="row"><button id="legacyb" type="button">Importar artículos existentes</button></div></div>
 <div class="t" style="margin:18px 4px 8px">Artículos publicados</div><div id="plist"></div></div></div>
 <p class="m" id="fn" style="margin:28px 4px 0;font-size:13px;text-align:center"></p>
 <script>
@@ -74,11 +75,12 @@ function load(){
     })).then(function(rs){rs.forEach(function(x){box.appendChild(card(x[0],x[1],x[2]))})})
   }).catch(fail).then(function(){$('go').disabled=false})}
 function unlock(){if(!$('tabs').hidden)return;$('tabs').hidden=false;tab('R');loadPosts()}
+$('lo').onclick=function(){tok='';try{$('tok').value=''}catch(e){}location.replace('./')};
 function enter(){tok=$('tok').value.trim();load()}
 $('go').onclick=enter;$('tok').addEventListener('keydown',function(e){if(e.key==='Enter')enter()});
 
 /* ---------- Novedades ---------- */
-function inl(t){t=esc(t);t=t.replace(/`([^`]+)`/g,'<code>$1</code>');t=t.replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>');t=t.replace(/\*([^*]+)\*/g,'<i>$1</i>');t=t.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+|mailto:[^\s)]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');return t}
+function inl(t){t=esc(t);t=t.replace(/`([^`]+)`/g,'<code>$1</code>');t=t.replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>');t=t.replace(/\*([^*]+)\*/g,'<i>$1</i>');t=t.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+|mailto:[^\s)]+|[A-Za-z0-9_\-.\/#?=&]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');return t}
 function md(src){var out=[];String(src).replace(/\r/g,'').split(/\n{2,}/).forEach(function(b){b=b.trim();if(!b)return;var ls=b.split('\n');
  if(/^## /.test(b)&&ls.length===1)out.push('<h3>'+inl(b.slice(3))+'</h3>');
  else if(ls.every(function(l){return /^- /.test(l)}))out.push('<ul>'+ls.map(function(l){return '<li>'+inl(l.slice(2))+'</li>'}).join('')+'</ul>');
@@ -99,22 +101,28 @@ function showImg(src){$('cv').innerHTML=src?'<img alt="" src="'+src+'">':'Sin im
 $('im').onchange=function(){var f=this.files[0];if(!f)return;var u=URL.createObjectURL(f),i=new Image();i.onload=function(){var c=document.createElement('canvas');c.width=1920;c.height=1080;var x=c.getContext('2d'),r=Math.max(1920/i.width,1080/i.height),w=i.width*r,h=i.height*r;x.fillStyle='#fff';x.fillRect(0,0,1920,1080);x.drawImage(i,(1920-w)/2,(1080-h)/2,w,h);
  var q=.88,d=c.toDataURL('image/jpeg',q);while(d.length>2400000&&q>.4){q-=.08;d=c.toDataURL('image/jpeg',q)}img=d;showImg(d);URL.revokeObjectURL(u)};i.onerror=function(){$('msg2').textContent='No se pudo leer esa imagen.'};i.src=u};
 $('imx').onclick=function(){img=curImg?'remove':null;curImg='';$('im').value='';showImg('')};
-function resetForm(){editId=null;img=null;curImg='';['ti','bo','tie','boe','alt','tg'].forEach(function(i){$(i).value=''});$('en').checked=false;$('enb').hidden=true;$('dt').value=today();$('vf').checked=false;try{$('by').value=localStorage.getItem('plata.admin.by')||''}catch(e){$('by').value=''}$('im').value='';showImg('');$('edt').textContent='Nuevo artículo';$('pub').textContent='Publicar';$('cx').hidden=true;pv()}
+function resetForm(){editId=null;img=null;curImg='';['ti','bo','tie','boe','alt','tg','bye','tge'].forEach(function(i){$(i).value=''});$('en').checked=false;$('enb').hidden=true;$('dt').value=today();$('vf').checked=false;try{$('by').value=localStorage.getItem('plata.admin.by')||''}catch(e){$('by').value=''}$('im').value='';showImg('');$('edt').textContent='Nuevo artículo';$('pub').textContent='Publicar';$('cx').hidden=true;pv()}
 $('cx').onclick=function(){resetForm();$('msg2').textContent=''};
-function edit(p){editId=p.id;img=null;$('ti').value=p.title_es;$('bo').value=p.body_es;$('tie').value=p.title_en||'';$('boe').value=p.body_en||'';$('en').checked=!!(p.title_en&&p.body_en);$('enb').hidden=!$('en').checked;$('alt').value=p.alt||'';$('tg').value=p.tag||'';$('by').value=p.by;$('dt').value=p.date;$('vf').checked=!!p.vf;curImg=p.hasImg?API+'/posts/img?id='+p.id+'&v='+p.v:'';showImg(curImg);$('edt').textContent='Editando artículo';$('pub').textContent='Guardar cambios';$('cx').hidden=false;$('ed').scrollIntoView({behavior:'smooth'});pv()}
+function edit(p){editId=p.id;img=null;$('ti').value=p.title_es;$('bo').value=p.body_es;$('tie').value=p.title_en||'';$('boe').value=p.body_en||'';$('en').checked=!!(p.title_en&&p.body_en);$('enb').hidden=!$('en').checked;$('alt').value=p.alt||'';$('tg').value=p.tag||'';$('bye').value=p.by_en||'';$('tge').value=p.tag_en||'';$('by').value=p.by;$('dt').value=p.date;$('vf').checked=!!p.vf;curImg=p.hasImg?API+'/posts/img?id='+p.id+'&v='+p.v:'';showImg(curImg);$('edt').textContent='Editando artículo';$('pub').textContent='Guardar cambios';$('cx').hidden=false;$('ed').scrollIntoView({behavior:'smooth'});pv()}
 $('pub').onclick=function(){
  if(!tok){$('msg2').textContent='Escribe tu token arriba y pulsa Entrar.';return}
- var b={id:editId,title_es:$('ti').value,body_es:$('bo').value,title_en:$('en').checked?$('tie').value:'',body_en:$('en').checked?$('boe').value:'',alt:$('alt').value,tag:$('tg').value,by:$('by').value,date:$('dt').value,vf:$('vf').checked};
+ var b={id:editId,title_es:$('ti').value,body_es:$('bo').value,title_en:$('en').checked?$('tie').value:'',body_en:$('en').checked?$('boe').value:'',alt:$('alt').value,tag:$('tg').value,tag_en:$('en').checked?$('tge').value:'',by:$('by').value,by_en:$('en').checked?$('bye').value:'',date:$('dt').value,vf:$('vf').checked};
  if(img)b.img=img;
  if(!b.title_es.trim()||!b.body_es.trim()||!b.by.trim()){$('msg2').textContent='Faltan el título, el texto o la firma.';return}
  $('pub').disabled=true;$('msg2').textContent='Publicando…';
  call('/posts','POST',b).then(function(){try{localStorage.setItem('plata.admin.by',b.by)}catch(e){}resetForm();$('msg2').textContent='Listo: publicado en Novedades.';loadPosts()}).catch(function(e){$('msg2').textContent=e.code===401?'El token no es correcto.':'No se pudo publicar: '+e.message}).then(function(){$('pub').disabled=false})};
-function loadPosts(){fetch(API+'/posts').then(function(r){return r.json()}).then(function(j){posts=j.posts||[];var box=$('plist');box.innerHTML='';
+function loadPosts(){fetch(API+'/posts').then(function(r){return r.json()}).then(function(j){posts=j.posts||[];legacyBox();var box=$('plist');box.innerHTML='';
  if(!posts.length){box.innerHTML='<div class="card m">Todavía no hay artículos creados desde aquí.</div>';return}
  posts.forEach(function(p){var el=document.createElement('div');el.className='card';el.innerHTML='<div class="t">'+esc(p.title_es)+'</div><div class="m">'+esc(p.date)+' · por '+esc(p.by)+(p.title_en?' · ES/EN':' · ES')+'</div><div class="row"></div>';
   var row=el.querySelector('.row');var e=document.createElement('button');e.className='g';e.textContent='Editar';e.onclick=function(){edit(p)};row.appendChild(e);
   var d=document.createElement('button');d.className='d';d.textContent='Eliminar';d.onclick=function(){if(!confirm('¿Eliminar este artículo de Novedades? No se puede deshacer.'))return;call('/posts?id='+encodeURIComponent(p.id),'DELETE').then(loadPosts).catch(function(er){$('msg2').textContent=er.code===401?'El token no es correcto.':'No se pudo: '+er.message})};row.appendChild(d);box.appendChild(el)})}).catch(function(){})}
 resetForm();
+
+var LEGACY=[{"id": "legacy-secciones", "date": "2026-10-20", "title_es": "Nuevas secciones en el sitio", "body_es": "Ahora puedes leer [cómo usar Plata](como-usar.html), nuestra página de [transparencia](transparencia.html), el [kit de prensa](prensa.html) y la sección de [ayuda](ayuda.html).", "title_en": "New sections on the site", "body_en": "You can now read [how to use Plata](como-usar.html), our [transparency](transparencia.html) page, the [press kit](prensa.html) and the [help](ayuda.html) section.", "by": "el equipo de Plata", "by_en": "the Plata team", "vf": true, "tag": "Sitio", "tag_en": "Site"}, {"id": "legacy-primera-beta", "date": "2026-10-20", "title_es": "¡La primera beta de Plata ya está para probar!", "body_es": "Llevan varios días desde que empecé a subir las versiones y he estado compartiendo con amigos y todo pero finalmente puedo decir que la beta es pública realmente ya que también tenemos dominio!\n\nLa verdad es que es el primer paso público que diría que tenemos así que no podría estar más feliz de compartir eso por aquí y acá con ustedes :)\n\nSi habrán errores, pero cualquier cosa estaré respondiendo en [devs@plataapp.net](mailto:devs@plataapp.net) lo que encuentres y espero poder subir en unos días el form para testers.\n\nnos vimos.", "title_en": "", "body_en": "", "by": "Leonardo Richarte", "by_en": "", "vf": true, "tag": "Beta 1, Lanzamiento", "tag_en": ""}];
+function legacyBox(){var have={};posts.forEach(function(x){have[x.id]=1});var miss=LEGACY.filter(function(x){return !have[x.id]});var b=$('legacy');b.hidden=!miss.length;if(miss.length)$('legacyn').textContent=miss.length}
+$('legacyb').onclick=function(){var miss=LEGACY.filter(function(x){return !posts.some(function(y){return y.id===x.id})}),i=0,b=this;b.disabled=true;
+ (function next(){if(i>=miss.length){b.disabled=false;$('msg2').textContent='Listo: los artículos existentes ya se pueden editar aquí.';loadPosts();return}
+  call('/posts','POST',miss[i++]).then(next).catch(function(e){b.disabled=false;$('msg2').textContent='No se pudo importar: '+e.message})})()};
 (function(){var q=(location.search.match(/[?&]lang=(es|en)/)||[])[1],es=q?q==='es':/^es/i.test(navigator.language||'es');
 if(!es){$('sub').textContent='Private tools for the Plata team.';$('tok').placeholder='Your admin token';$('go').textContent='Enter'}
 $('scb').textContent=es?'ACCESO RESTRINGIDO':'RESTRICTED ACCESS';
