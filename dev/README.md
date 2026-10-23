@@ -26,7 +26,7 @@ CHANNEL=alpha python3 dev/app/build.py   # variante con icono blanco
 
 ## Publicar una versión nueva de la app
 
-1. En `dev/app/src/app.html` sube `APP_BUILD` (busca `const APP_BUILD`).
+1. En `dev/app/src/app.html` sube `APP_BUILD` (busca `const APP_BUILD`) y el mismo número en la pantalla de inicio (busca `class="sp-b"`).
 2. Compila: `python3 dev/app/build.py`.
 3. Copia el resultado: `cp dev/app/out/finanzas.html app/index.html`.
 4. En `app/sw.js` sube `CACHE` (`finanzas-vNNN`) al mismo número; sin eso los usuarios siguen viendo la versión vieja por el caché.
