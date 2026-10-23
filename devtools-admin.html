@@ -39,6 +39,7 @@ label{display:block;font-size:13px;font-weight:700;color:var(--mute);margin:12px
 <label>ETIQUETA (OPCIONAL)</label><input id="tg" maxlength="30" placeholder="Ej. Beta 2">
 <div class="row"><button id="pub" type="button">Publicar</button><button class="g" id="cx" type="button" hidden>Cancelar edición</button></div><div id="msg2" class="m" style="margin-top:10px"></div></div>
 <div class="t" style="margin:18px 4px 8px">Artículos publicados</div><div id="plist"></div></div></div>
+<p class="m" id="fn" style="margin:28px 4px 0;font-size:13px;text-align:center"></p>
 <script>
 var API='https://plata-cloud.xleoricharte.workers.dev',tok='',$=function(i){return document.getElementById(i)};
 function msg(t){$('msg').textContent=t||''}
@@ -117,5 +118,6 @@ resetForm();
 (function(){var es=/^es/i.test(navigator.language||'es');
 $('sct').textContent=es?'¿Qué fue mano?':'What’s up, bro?';
 $('scp').textContent=es?'Esta es la puertaza gigante que dice en rojo ACCESO RESTRINGIDO. Aquí es donde guardamos todos nuestros más oscuros pensamientos, cables sueltos, un par de cositas, ideas que todavía no salen y nuestros sueños más bonitos, aunque también cafés que se enfriaron y un par de cosas que ni recordamos. Si no eres del equipo, ¿cómo carajo llegaste aquí? ¿Escribiste /devtools-admin a ver qué pasaba? Pues pasó esto: nada. No hay botón oculto, ni descuentos, nada. Ni intentes probar contraseñas, porque el token es tan largo que lo tenemos guardado en un rollo de papel higiénico (lo chévere es que no puedes verificar si eso es real o no). Safa nomás, ve a registrar esos movimientos a Plata.':'This is the giant door that says ACCESS RESTRICTED in red. This is where we keep all our darkest thoughts, loose cables, a couple of little things, ideas that haven’t come out yet and our most beautiful dreams, plus cold coffees and a couple of things we don’t even remember. If you’re not on the team, how the heck did you get here? Did you type /devtools-admin to see what would happen? This is what happened: nothing. No hidden button, no discounts, nothing. Don’t even try guessing passwords, because the token is so long we keep it written on a roll of toilet paper (the cool part is you can’t check whether that’s true or not). Just go away and log those transactions in Plata.';
+$('fn').textContent=es?'Y si sí eres del equipo y no puedes entrar, avisa a Leo nomás. No dejaremos ni correo porque, ¿para qué? Esa huevada es demasiado performativa.':'And if you’re on the team and can’t get in, just tell Leo. We won’t leave an email either because, why? That stuff is way too performative.';
 $('sca').textContent=es?'Volver a Plata →':'Back to Plata →'})();
 </script></body></html>
