@@ -1,0 +1,51 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#0b1a13"><title>Revisiones · Plata</title>
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<style>
+:root{--bg:#f4f6f5;--card:#fff;--ink:#14201a;--mute:#66736b;--line:#e3e8e5;--accent:#1A9D63;--warn:#C23B2E}
+@media (prefers-color-scheme:dark){:root{--bg:#0b1a13;--card:#12261C;--ink:#eef5f1;--mute:#9db3a7;--line:#1f3a2b;--accent:#3FD08F;--warn:#FF8A80}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 Inter,system-ui,-apple-system,Segoe UI,sans-serif;padding:24px 16px 60px}
+.w{max-width:640px;margin:0 auto}h1{font-size:28px;letter-spacing:-.02em;margin:8px 0 4px}.sub{color:var(--mute);margin:0 0 20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;margin:0 0 12px}
+input{width:100%;font:inherit;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);margin:0 0 10px}
+button{font:inherit;font-weight:600;border:0;border-radius:999px;padding:10px 16px;background:var(--accent);color:#fff;cursor:pointer}
+button.g{background:transparent;color:var(--accent);border:1px solid var(--line)}button.d{background:transparent;color:var(--warn);border:1px solid var(--line)}button:disabled{opacity:.5;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.t{font-weight:700}.m{color:var(--mute);font-size:14px}.pill{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:3px 9px;background:var(--line);margin-left:6px}.pill.ok{background:color-mix(in srgb,var(--accent) 22%,transparent);color:var(--accent)}.pill.del{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+#msg{margin:10px 0;color:var(--mute);min-height:20px}
+</style></head><body><div class="w">
+<h1>Revisiones</h1><p class="sub">Copias que los usuarios enviaron para análisis de uso. Solo para el equipo de Plata.</p>
+<div class="card"><input id="tok" type="password" placeholder="Tu token de administrador" autocomplete="off"><button id="go">Ver copias</button><div id="msg"></div></div>
+<div id="list"></div></div>
+<script>
+var API='https://plata-cloud.xleoricharte.workers.dev',tok='',$=function(i){return document.getElementById(i)};
+function msg(t){$('msg').textContent=t||''}
+function call(path,method){return fetch(API+path,{method:method||'GET',headers:{Authorization:'Bearer '+tok}}).then(function(r){return r.json().catch(function(){return{}}).then(function(j){if(!r.ok||j.ok===false){var e=new Error(j.error||('error '+r.status));e.code=r.status;throw e}return j})})}
+function when(id){var n=parseInt(id.split('-')[0],36);return n?new Date(n).toLocaleString([], {day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit'}):id}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function save(name,obj){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();a.remove()}
+function card(id,st,rec){
+  var del=st.deleted,rev=st.reviewed,d=rec&&rec.data||{};
+  var sum=del?'Datos eliminados de los servidores.':rec?((d.transactions||[]).length+' movimientos · '+(d.accounts||[]).length+' cuentas · '+(d.cards||[]).length+' tarjetas · '+esc(rec.plat||'plataforma desconocida')+' · build '+(rec.build||'?')):'';
+  var el=document.createElement('div');el.className='card';
+  el.innerHTML='<div class="t">'+when(id)+(del?'<span class="pill del">Eliminada</span>':rev?'<span class="pill ok">Revisada '+rev+'</span>':'<span class="pill">Pendiente</span>')+'</div><div class="m">'+sum+'</div><div class="row"></div>';
+  var row=el.querySelector('.row');
+  function btn(t,c,fn){var b=document.createElement('button');b.textContent=t;b.className=c;b.onclick=function(){b.disabled=true;fn(b)};row.appendChild(b)}
+  if(!del)btn('Descargar','',function(b){call('/review/get?id='+encodeURIComponent(id)).then(function(j){save('plata-revision-'+id+'.json',j.data);msg('Descargada.')}).catch(fail).then(function(){b.disabled=false})});
+  if(!del&&!rev)btn('Marcar como revisada','g',function(b){call('/review/mark?id='+encodeURIComponent(id),'POST').then(load).catch(fail)});
+  if(!del)btn('Eliminar del servidor','d',function(b){if(!confirm('¿Eliminar esta copia del servidor? Esto no se puede deshacer. Descárgala antes si la necesitas.')){b.disabled=false;return}call('/review/delete?id='+encodeURIComponent(id),'POST').then(load).catch(fail)});
+  return el}
+function fail(e){msg(e.code===401?'El token no es correcto.':'No se pudo: '+e.message)}
+function load(){
+  tok=$('tok').value.trim();if(!tok){msg('Escribe tu token.');return}
+  msg('Cargando…');$('go').disabled=true;
+  call('/review/list').then(function(l){
+    var ids=l.ids.slice().reverse(),box=$('list');box.innerHTML='';
+    if(!ids.length){msg('Todavía no hay copias.');return}
+    msg(ids.length+(ids.length==1?' copia':' copias')+'.');
+    return Promise.all(ids.map(function(id){
+      return call('/review/status?id='+encodeURIComponent(id)).then(function(st){
+        if(st.deleted)return[id,st,null];
+        return call('/review/get?id='+encodeURIComponent(id)).then(function(r){return[id,st,r]})})
+    })).then(function(rs){rs.forEach(function(x){box.appendChild(card(x[0],x[1],x[2]))})})
+  }).catch(fail).then(function(){$('go').disabled=false})}
+$('go').onclick=load;$('tok').addEventListener('keydown',function(e){if(e.key==='Enter')load()});
+</script></body></html>
