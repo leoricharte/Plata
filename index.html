@@ -284,4 +284,4 @@ window.addEventListener("load",measure);measure();
 var rm=window.matchMedia&&matchMedia("(prefers-reduced-motion:reduce)").matches,x=0,last=0,vis=true,half=0;function m(){half=t.scrollWidth/2}window.addEventListener("resize",m);window.addEventListener("load",m);m();
 if("IntersectionObserver"in window)new IntersectionObserver(function(e){vis=e[0].isIntersecting;if(vis){last=0;requestAnimationFrame(go)}}).observe(c);
 function go(ts){if(!vis||rm)return;if(!last)last=ts;var d=(ts-last)/1000;last=ts;if(!half)m();x=(x+d*34)%(half||1);t.style.transform="translate3d("+(-x)+"px,-50%,0)";requestAnimationFrame(go)}requestAnimationFrame(go)})();</script>
-</body></html>
+<script src="content.js?v=2" defer></script></body></html>
