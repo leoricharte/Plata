@@ -3554,7 +3554,7 @@ function monthScreenHTML() {
 const svgU = (svg) => "url('data:image/svg+xml," + encodeURIComponent(svg).replace(/'/g, '%27') + "')";
 const dmSp = (letter, plus) => !!plus && /^[SABC]$/.test(letter);
 const trSp = (letter, plus) => !!plus && /^[DF]$/.test(letter);
-const TRK = 1.3;
+const TRK = 1.22;
 const DMK = 1.18;
 function heroTile(m) {
   const dm = dmSp(m.letter, m.plus), tr = trSp(m.letter, m.plus), L = m.letter + (m.plus ? pch(m.letter) : ''), k = dm ? DMK : tr ? TRK : 1, bx = Math.round(64 * k), mg = -Math.round((bx - 64) / 2);
@@ -4236,9 +4236,9 @@ function avatarInfo() { try { if (!insOn() || !scoreOn()) return null; const m =
 function avatarGrad() { const a = avatarInfo(); return a ? a.g : AVATAR_DEF; }
 function avatarPhoto() { const p = (data && data.settings && data.settings.photo) || ''; return /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/.test(p) ? p : ''; }
 function letterLayer(L, fs, y0) { return svgU('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50" y="' + (y0 + fs * 0.36) + '" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif" font-weight="800" font-size="' + fs + '" letter-spacing="-1" fill="#000">' + L.replace(/[&<>]/g, '') + '</text></svg>') + ' center/100% 100% no-repeat'; }
-const TRI = (sw) => '<polygon points="14,20 86,20 50,84" fill="#000" stroke="#000" stroke-width="' + sw + '" stroke-linejoin="round"/>';
+const TRI = (sw) => '<polygon points="19,25 81,25 50,73" fill="#000" stroke="#000" stroke-width="' + sw + '" stroke-linejoin="round"/>';
 function letterCut(L, dia, full, sq, tri) {
-  if (tri) { const top = letterLayer(L, L.length > 1 ? 35 : 46, 46), base = svgU('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' + TRI(12) + '</svg>') + ' center/100% 100% no-repeat'; return '-webkit-mask:' + top + ',' + base + ';-webkit-mask-composite:xor;mask:' + top + ',' + base + ';mask-composite:exclude'; }
+  if (tri) { const top = letterLayer(L, L.length > 1 ? 38 : 48, 47), base = svgU('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' + TRI(26) + '</svg>') + ' center/100% 100% no-repeat'; return '-webkit-mask:' + top + ',' + base + ';-webkit-mask-composite:xor;mask:' + top + ',' + base + ';mask-composite:exclude'; }
   const fs = dia ? (full ? (L.length > 1 ? 42 : 54) : (L.length > 1 ? 37 : 50)) : sq ? (L.length > 1 ? 44 : 56) : (L.length > 1 ? 50 : 64), top = letterLayer(L, fs, 50);
   const base = dia ? svgU('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' + (full ? '<rect x="10.7" y="10.7" width="78.6" height="78.6" rx="16"' : '<rect x="19" y="19" width="62" height="62" rx="14"') + ' transform="rotate(45 50 50)" fill="#000"/></svg>') + ' center/100% 100% no-repeat' : 'linear-gradient(#000,#000)';
   return '-webkit-mask:' + top + ',' + base + ';-webkit-mask-composite:xor;mask:' + top + ',' + base + ';mask-composite:exclude';
@@ -4251,7 +4251,7 @@ function avatarHTML(sz, photo, nobadge, cut) {
   const g = a.g, rw = Math.max(2, Math.round(sz * 0.055)), bs = Math.round(sz * 0.38), bw = Math.max(2, Math.round(sz * 0.035)), off = Math.round(bs * 0.12), bc = sz + off - bs / 2, cr = bs / 2 + bw;
   const dia = !!(cut && !nobadge && /^[SABC]\+$/.test(a.letter)), tri = !!(cut && !nobadge && /^[DF]-$/.test(a.letter)), box = bs * (tri ? 1.32 : 1.42), dw = box * 0.62, dr = box * 0.14;
   const dcut = dia ? svgU('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + sz + ' ' + sz + '" width="' + sz + '" height="' + sz + '"><rect x="' + (bc - dw / 2 - bw) + '" y="' + (bc - dw / 2 - bw) + '" width="' + (dw + 2 * bw) + '" height="' + (dw + 2 * bw) + '" rx="' + (dr + bw) + '" transform="rotate(45 ' + bc + ' ' + bc + ')" fill="#000"/></svg>') + ' 0 0/' + sz + 'px ' + sz + 'px no-repeat' : '';
-  const tcut = tri ? svgU('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + sz + ' ' + sz + '" width="' + sz + '" height="' + sz + '"><g transform="translate(' + (bc - box / 2) + ' ' + (bc - box / 2) + ') scale(' + (box / 100) + ')">' + TRI(12 + 2 * bw * 100 / box) + '</g></svg>') + ' 0 0/' + sz + 'px ' + sz + 'px no-repeat' : '';
+  const tcut = tri ? svgU('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + sz + ' ' + sz + '" width="' + sz + '" height="' + sz + '"><g transform="translate(' + (bc - box / 2) + ' ' + (bc - box / 2) + ') scale(' + (box / 100) + ')">' + TRI(26 + 2 * bw * 100 / box) + '</g></svg>') + ' 0 0/' + sz + 'px ' + sz + 'px no-repeat' : '';
   const mk = tri ? ';-webkit-mask:' + tcut + ',linear-gradient(#000,#000);-webkit-mask-composite:xor;mask:' + tcut + ',linear-gradient(#000,#000);mask-composite:exclude' : dia ? ';-webkit-mask:' + dcut + ',linear-gradient(#000,#000);-webkit-mask-composite:xor;mask:' + dcut + ',linear-gradient(#000,#000);mask-composite:exclude' : cut && !nobadge ? ';-webkit-mask:radial-gradient(circle at ' + bc + 'px ' + bc + 'px,transparent ' + cr + 'px,#000 ' + (cr + 0.6) + 'px);mask:radial-gradient(circle at ' + bc + 'px ' + bc + 'px,transparent ' + cr + 'px,#000 ' + (cr + 0.6) + 'px)' : '';
   return '<span style="position:relative;flex:none;display:inline-block;width:' + sz + 'px;height:' + sz + 'px" aria-hidden="true">' +
     '<span style="position:absolute;inset:0' + mk + '">' +
