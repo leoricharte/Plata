@@ -64,3 +64,5 @@ No hay un ejecutor de pruebas incluido. Las pruebas se hicieron con Playwright c
 - **Nunca subas perfiles reales** (archivos `.json` de usuarios) ni capturas con datos reales. El `.gitignore` bloquea `.json`.
 - Textos y traducciones: la app y la web tienen español e inglés como mínimo.
 - Solo iconos Remix; el diseño sigue el de la app (hojas con tirador, tarjetas redondeadas, verde `#22B573`).
+
+- **Novedades automáticas:** `python3 dev/changelog.py [fecha]` publica en `novedades.html` el registro de cambios de la última versión de `CHANGELOG.md`, firmado por el equipo de Plata. Se ejecuta en cada versión nueva.

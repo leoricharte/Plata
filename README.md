@@ -1,4 +1,4 @@
-<p align="center"><b>Plata</b> · Beta 2</p>
+<p align="center"><b>Plata</b> · Beta 3</p>
 
 # Plata
 
@@ -6,7 +6,7 @@ Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola 
 
 **Probar:** [plataapp.net/app](https://plataapp.net/app/) · **Sitio:** [plataapp.net](https://plataapp.net)
 
-**Versión:** Beta 2 · **Compilación:** 419
+**Versión:** Beta 3 · **Compilación:** 420
 
 ---
 
