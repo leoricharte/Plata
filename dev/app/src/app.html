@@ -4397,10 +4397,13 @@ function submitSheet() {
   if (ui.sheetType === 'pay') {
     const card = data.cards.find((x) => x.id === v.acc); if (!card) { toast('Elige una tarjeta o préstamo'); return; }
     const d = v.date || iso(getToday());
+    const nBefore = data.transactions.length;
     registerPay(card, amt, d, v.from, v.note.trim() || ('Pago de ' + card.name + (card.payment > 0 && round2(card.balance - amt) <= 0.005 ? ' · final' : '')));
     const auto = ui.sheetAuto && apOK(card) && round2(card.balance) > 0.005;
     if (auto) card.auto = { from: v.from || '', next: dueAfter(card.due_day, d) };
-    ui.dirty++; persist(); closeSheet(); renderAll(); toast(auto ? 'Pago registrado · pago esperado activado' : 'Pago registrado'); return;
+    ui.dirty++; persist(); closeSheet(); renderAll(); toast(auto ? 'Pago registrado · pago esperado activado' : 'Pago registrado');
+    const np = data.transactions[nBefore]; if (np) setTimeout(() => smartCheck(np), 700);
+    return;
   }
   const out = ui.sheetType === 'out', cat = out ? ui.sheetCat : 'Ingreso', acc = accOf(v.acc);
   data.transactions.push({ id: nextTxId(), date: v.date || iso(getToday()), amount: out ? -amt : amt, category: cat, note: v.note.trim() || (out ? cat : 'Ingreso'), acc: acc.id });
@@ -4415,10 +4418,25 @@ function smRow(t, label) {
     '<div style="flex:none;text-align:right"><div style="font-size:15px;font-weight:600">' + (t.amount < 0 ? '−' : '+') + fmtC2(Math.abs(t.amount), cur) + '</div><div style="font-size:12.5px;font-weight:700;color:#E5A100">' + esc(label) + '</div></div></div>';
 }
 function smartCheck(t) {
-  if (!t || isPay(t) || t.job || t.pair) return;
-  const acc = data.accounts.find((x) => x.id === t.acc); if (!acc) return;
+  if (!t || t.job || t.pair) return;
   const U = (x) => usd(Math.abs(x.amount), accOf(x.acc).cur), dd = (a, b) => Math.abs((pd(a) - pd(b)) / 864e5);
   const title = 'Eh… no somos expertos, pero';
+  /* 0) pago de tarjeta anotado suelto + gasto de una cuenta por lo mismo: son dos mitades del mismo pago */
+  const isDeb = (x) => data.accounts.some((a) => a.id === x.acc), isCrd = (x) => data.cards.some((k) => k.id === x.acc);
+  const loosePay = (x) => x.category === PAY && x.amount > 0 && !x.pair && isCrd(x), looseExp = (x) => !isPay(x) && x.amount < 0 && !x.pair && !x.job && isDeb(x);
+  if (loosePay(t) || looseExp(t)) {
+    const m = data.transactions.find((x) => x !== t && dd(x.date, t.date) <= 2 && Math.abs(U(x) - U(t)) <= Math.max(0.5, U(t) * 0.03) && (loosePay(t) ? looseExp(x) : loosePay(x)));
+    if (m) {
+      const pay = loosePay(t) ? t : m, ex = loosePay(t) ? m : t, kd = accOf(pay.acc);
+      askConfirm(title, 'Creemos que estos dos movimientos son el mismo pago de tu tarjeta ' + kd.name + '. ¿Los juntamos como un solo pago para que el gasto no cuente doble?', [{ label: 'Aceptar cambios', fn: () => {
+        const pid = uid(); ex.category = PAY; ex.note = 'Pago a ' + kd.name; ex.pair = pid; pay.pair = pid;
+        ui.dirty++; persist(); renderAll(); toast('Pago registrado');
+      } }], '<div style="margin:10px 0 14px">' + smRow(ex, 'Se corregirá') + smRow(pay, 'Se vinculará') + '</div>', 'Mantener cambios');
+      return;
+    }
+  }
+  if (isPay(t)) return;
+  const acc = data.accounts.find((x) => x.id === t.acc); if (!acc) return;
   /* 1) gasto + ingreso parecidos en cuentas distintas: probablemente una transferencia */
   const o = data.transactions.find((x) => x !== t && !isPay(x) && !x.job && !x.pair && x.acc !== t.acc && data.accounts.some((a) => a.id === x.acc) && (x.amount < 0) !== (t.amount < 0) && dd(x.date, t.date) <= 2 && Math.abs(U(x) - U(t)) <= Math.max(0.5, U(t) * 0.03));
   if (o) {
