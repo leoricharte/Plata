@@ -2613,6 +2613,7 @@ const SUBBRANDS = [
 const SUBRX = SUBBRANDS.map((b) => ({ b: b, rx: b.keys.map((k) => new RegExp('(^|[^a-z0-9])' + k.replace(/ /g, '[^a-z0-9]*') + '([^a-z0-9]|$)')) }));
 const subBrand = (s) => { const n = bankNorm(s && s.name); if (!n) return null; const m = SUBRX.find((x) => x.rx.some((r) => r.test(n))); return m ? m.b : null; };
 const subSVG = (b, px) => { /* vb: glifo dibujado en caja 460; se recorta a su figura y se escala para que pese lo mismo que el resto */ const t = b.vb ? (px > 30 ? 64 : 46) : px, bb = b.bb, sd = bb ? Math.max(bb[2], bb[3]) / (b.k || 0.5) : 460, vx = bb ? bb[0] + bb[2] / 2 - sd / 2 : 0, vy = bb ? bb[1] + bb[3] / 2 - sd / 2 : 0; return '<svg width="' + t + '" height="' + t + '" viewBox="' + (b.vb ? Math.round(vx * 10) / 10 + ' ' + Math.round(vy * 10) / 10 + ' ' + Math.round(sd * 10) / 10 + ' ' + Math.round(sd * 10) / 10 : '0 0 24 24') + '" fill="#fff"' + (b.eo ? ' fill-rule="evenodd"' : '') + ' aria-hidden="true"><path d="' + SUBLOGO[b.i] + '"/></svg>'; };
+const txSub = (t) => { if (!t || t.amount >= 0 || isPay(t) || !t.note) return null; const n = bankNorm(t.note).trim(); return data.subs.find((x) => bankNorm(x.name).trim() === n) || null; }; /* un gasto con el nombre de una suscripción se muestra como esa suscripción */
 function subTile(s, i) { const b = subBrand(s); return b ? tile(b.bg, subSVG(b, 26)) : tile(CARD_COLORS[i % CARD_COLORS.length], esc(s.name).charAt(0)); }
 const ICONS = {
   bank: 'bank-line', card: 'bank-card-line', wallet: 'wallet-3-line', cash: 'cash-line', coins: 'coins-line', bag: 'shopping-bag-3-line', car: 'car-line', home: 'home-4-line',
@@ -3380,9 +3381,9 @@ function setSeg(btn) {
 function swapIn(el) { el.classList.remove('swap'); void el.offsetWidth; el.classList.add('swap'); }
 function txRow(t, sw) {
     const cat = isPay(t) ? pcat(t) : t.amount > 0 ? 'Ingreso' : (CAT_ORDER.indexOf(t.category) >= 0 ? t.category : 'Otros');
-    const d = pd(t.date), cur = accOf(t.acc).cur;
-    const html = '<div class="row tap"' + (sw && isWebView() ? ' data-ctx="' + (isPay(t) ? 'p' : 't') + '"' : '') + ' data-act="tx:' + t.id + '"><span class="tile" style="background:' + (cat === XFER ? 'transparent' : cat === PAY ? '#B98AE6' : CAT_COLOR[cat]) + '" aria-hidden="true">' + (cat === XFER ? RMI('arrow-left-right-line', 30, '#22B573') : cat === PAY ? iconSVG('card', '#fff', 20) : catGlyph(cat)) + '</span>' +
-      '<div class="grow"><div class="name" style="font-size:16px">' + esc(t.note || cat) + '</div><div class="sub" style="font-size:13px">' + (cat === XFER ? (t.amount < 0 ? 'Salida' : 'Entrada') : cat) + ' · ' + dshort(d) + (data.accounts.length + data.cards.length > 1 ? ' · ' + esc(accOf(t.acc).name) : '') + '</div></div>' +
+    const d = pd(t.date), cur = accOf(t.acc).cur, sb = txSub(t);
+    const html = '<div class="row tap"' + (sw && isWebView() ? ' data-ctx="' + (isPay(t) ? 'p' : 't') + '"' : '') + ' data-act="tx:' + t.id + '">' + (sb ? subTile(sb, data.subs.indexOf(sb)) : '<span class="tile" style="background:' + (cat === XFER ? 'transparent' : cat === PAY ? '#B98AE6' : CAT_COLOR[cat]) + '" aria-hidden="true">' + (cat === XFER ? RMI('arrow-left-right-line', 30, '#22B573') : cat === PAY ? iconSVG('card', '#fff', 20) : catGlyph(cat)) + '</span>') +
+      '<div class="grow"><div class="name" style="font-size:16px">' + esc(t.note || cat) + '</div><div class="sub" style="font-size:13px">' + (cat === XFER ? (t.amount < 0 ? 'Salida' : 'Entrada') : sb ? 'Suscripción' : cat) + ' · ' + dshort(d) + (data.accounts.length + data.cards.length > 1 ? ' · ' + esc(accOf(t.acc).name) : '') + '</div></div>' +
       amtHrs(t, '<span class="amt" style="color:' + (t.amount > 0 && !isPay(t) ? 'var(--gt)' : 'var(--ink)') + '">' + fmtSC2(t.amount, cur) + '</span>') + ICON.chev + '</div>';
     return sw && !isWebView() ? swWrap(t, html, isPay(t), isXfer(t)) : html;
 }
@@ -3617,8 +3618,8 @@ function openTx(id) {
 function renderTx(el) {
   const t = txById(ui.txId);
   if (!t) { ui.txId = null; if (ui.tab === 'cuenta') txBackNav(); return false; }
-  const acc = accOf(t.acc), cur = acc.cur, pay = isPay(t), xf = isXfer(t), cat = pay ? pcat(t) : t.amount > 0 ? 'Ingreso' : (CAT_ORDER.indexOf(t.category) >= 0 ? t.category : 'Otros');
-  const col = xf ? 'transparent' : pay ? '#B98AE6' : CAT_COLOR[cat], glyph = xf ? RMI('arrow-left-right-line', 44, '#22B573') : pay ? iconSVG('card', '#fff', 30) : catGlyph(cat), d = pd(t.date);
+  const acc = accOf(t.acc), cur = acc.cur, pay = isPay(t), xf = isXfer(t), sb = txSub(t), cat = pay ? pcat(t) : t.amount > 0 ? 'Ingreso' : sb ? 'Suscripción' : (CAT_ORDER.indexOf(t.category) >= 0 ? t.category : 'Otros');
+  const sbr = sb && subBrand(sb), col = xf ? 'transparent' : pay ? '#B98AE6' : sb ? (sbr ? sbr.bg : CARD_COLORS[data.subs.indexOf(sb) % CARD_COLORS.length]) : CAT_COLOR[cat], glyph = xf ? RMI('arrow-left-right-line', 44, '#22B573') : pay ? iconSVG('card', '#fff', 30) : sb ? (sbr ? subSVG(sbr, 34) : esc(sb.name || '?').charAt(0)) : catGlyph(cat), d = pd(t.date);
   const st = (l, v, c) => '<div><span class="sub">' + l + '</span><b' + (c ? ' style="color:' + c + '"' : '') + '>' + v + '</b></div>';
   const kind = xf ? 'Transferencia' : pay ? 'Pago de crédito' : t.amount > 0 ? 'Ingreso' : 'Gasto';
   const pairT = t.pair ? data.transactions.find((x) => x.pair === t.pair && x !== t) : null;
