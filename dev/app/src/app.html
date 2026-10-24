@@ -1399,7 +1399,7 @@ const isCredit = (a) => data.cards.indexOf(a) >= 0;
 /* Un movimiento en débito suma o resta al saldo; en crédito, un gasto sube la deuda y un pago la baja */
 const applyTo = (a, signed) => { a.balance = round2(isCredit(a) ? a.balance - signed : a.balance + signed); };
 const l4 = (o) => (o && o.last4 ? ' · ● ' + o.last4 : '');
-const l4tag = (o) => (o && o.last4 ? ' <span class="sub" style="font-weight:500;font-size:13px;white-space:nowrap"><i style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#1C1C1E;margin:0 6px 1px 2px"></i><span class="cn" style="font-size:15px;color:var(--ink)">' + esc(o.last4) + '</span></span>' : '');
+const l4tag = (o) => (o && o.last4 ? ' <span class="sub" style="font-weight:500;font-size:13px;white-space:nowrap"><i style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--ink);margin:0 6px 1px 2px"></i><span class="cn" style="font-size:15px;color:var(--ink)">' + esc(o.last4) + '</span></span>' : '');
 const acctOpts = (sel, credit) => '<optgroup label="Débito">' + data.accounts.map((a) => '<option value="' + a.id + '"' + (a.id === sel ? ' selected' : '') + '>' + esc(a.name) + l4(a) + ' · ' + a.cur + '</option>').join('') + '</optgroup>' +
   (credit && data.cards.length ? '<optgroup label="Crédito">' + data.cards.map((a) => '<option value="' + a.id + '"' + (a.id === sel ? ' selected' : '') + '>' + esc(a.name) + l4(a) + ' · ' + a.cur + '</option>').join('') + '</optgroup>' : '');
 const inclNote = (list, bal) => { const m = {}; list.forEach((o) => { if (o.cur && o.cur !== curP()) m[o.cur] = (m[o.cur] || 0) + bal(o); }); const k = Object.keys(m).filter((x) => m[x]); return k.length ? '<span class="sub mixn">Incluye <span data-notr>' + k.map((x) => fmtC(m[x], x)).join(' + ') + '</span></span>' : ''; };
@@ -1876,6 +1876,8 @@ async function clSync(why) {
       if (rev === 0) { const p = await clPut(0, local); if (p.s === 409) continue; if (p.s !== 200) throw new Error('http' + p.s); clDone(p.j.rev, local); break; }
       /* Un dispositivo sin datos nunca borra ni pisa lo que hay en la nube: se carga la nube (así volver al modo Cloud con un perfil vacío no la vacía) */
       if (rev > 0 && !hasData()) { const rm = await PCC.open(await clKey(), g.j.blob); if (hasDataOf(rm)) { clApply(rm); clDone(rev, rm); break; } }
+      /* Al volver al modo Cloud, la copia de este dispositivo no reemplaza la de la nube sin preguntar ni verificar el correo */
+      if (why === 'mode' && rev > 0 && hasData()) { const rm = await PCC.open(await clKey(), g.j.blob); if (clSig(local) !== clSig(rm)) { CL.status = 'idle'; clLocalUp(); return; } clDone(rev, rm); break; }
       let remote = null; if (rev !== CL.st.rev || !base) remote = await PCC.open(await clKey(), g.j.blob);
       if (remote && (!base || stale) && hasData() && clSig(clSnap()) !== clSig(remote)) { CL.first = { remote: remote, rev: rev }; CL.status = 'choose'; clFirstSheet(); return; }
       const merged = remote ? (((!base || stale) && !hasData()) ? remote : mergeData(base && !stale ? base : null, local, remote)) : local; /* un perfil vacío (p. ej. inicio rápido) nunca pisa lo que ya hay en la nube */
@@ -1889,12 +1891,18 @@ async function clSync(why) {
   finally { CL.busy = false; clRefresh(); }
 }
 function clDirty() { if (CL.applying || CL.hold || !clOn() || !syncAllowed()) return; clearTimeout(CL.t); CL.t = setTimeout(() => clSync('edit'), 6000); }
+function clLocalUp() {
+  CL.st.mode = 'local'; clSave(); clRefresh(); CL.promote = true; CL.fromProf = !!ui.profSheet;
+  askConfirm('¿Cargar la copia local como la de la nube?', 'Los datos de este dispositivo reemplazarán tu copia en la nube y en tus otros dispositivos. Primero te enviaremos un código de verificación a tu correo.', [{ label: 'Enviar código', dest: true, fn: async () => {
+    try { const r = await clFetch('/sync/confirm', 'POST', { lang: String(resolveLang() || 'es').slice(0, 2) }); if (r.s === 429) { toast('Demasiados intentos. Prueba en una hora.'); CL.promote = false; return; } if (r.s !== 200) { toast('No pudimos enviar el código. Inténtalo más tarde.'); CL.promote = false; return; } } catch (e) { toast('No pudimos conectar. Inténtalo más tarde.'); CL.promote = false; return; }
+    CL.ui = { step: 'replaceauth', err: '' }; clSheet(); } }], '', 'No, seguir en modo local');
+}
 async function clFirstPick(how) {
   const f = CL.first; if (!f) return; CL.first = null; clClose(); CL.busy = true; CL.status = 'syncing'; clRefresh();
   try {
     if (how === 'remote') { clApply(f.remote); clDone(f.rev, f.remote); }
     else if (how === 'merge') { const m = mergeData(null, clSnap(), f.remote); clApply(m); const p = await clPut(f.rev, m); if (p.s !== 200) throw new Error('http'); clDone(p.j.rev, m); }
-    else { const l = clSnap(), p = await clPut(f.rev, l); if (p.s !== 200) throw new Error('http'); clDone(p.j.rev, l); }
+    else { CL.busy = false; clLocalUp(); return; }
     toast('Listo, ya está sincronizado');
   } catch (e) { CL.status = 'error'; }
   finally { CL.busy = false; clRefresh(); }
@@ -1928,7 +1936,7 @@ function clCardHTML() {
 const clWords = (ws) => '<div class="clw" data-notr>' + ws.map((w, i) => '<span><i>' + (i + 1) + '</i>' + w + '</span>').join('') + '</div>';
 const clXS = RMI('close-line', 24, 'currentColor');
 function clPageHide() { const o = document.getElementById('clpage'); if (o) o.remove(); }
-function clClose() { clearInterval(CL.lp); CL.lk = null; clPageHide(); closeSheet(); }
+function clClose() { CL.promote = false; clearInterval(CL.lp); CL.lk = null; clPageHide(); closeSheet(); }
 function clPage(o) {
   let w = document.getElementById('clpage');
   if (!w) { w = document.createElement('div'); w.id = 'clpage'; document.body.appendChild(w); }
@@ -1951,7 +1959,7 @@ function clSheet() {
   else if (u.step === 'replaceauth') S('¿¡Quién anda ahí!?', 'Enviamos un código a tu correo. Escríbelo para poder reemplazar tu copia en la nube con un archivo de perfil.', clCodeIn + err, '<button class="clb" data-act="cl:rcheck">Continuar</button><button class="clb alt" data-act="cl:x">Cancelar</button>');
   else if (u.step === 'wipeauth') S('¿¡Quién anda ahí!?', 'Enviamos un código a tu correo. Escríbelo para borrar tus datos también de la nube.', '<div class="clred">Esto vaciará tu copia en la nube y tus otros dispositivos. No se puede deshacer.</div>' + clCodeIn + err, '<button class="clb dng" data-act="cl:wipego">Borrar mis datos</button><button class="clb alt" data-act="cl:x">Cancelar</button>');
   else if (u.step === 'replacepick') S('Elige tu archivo', 'Código confirmado. Ahora elige el archivo de perfil con el que quieres reemplazar tu copia en la nube.', '<div class="clred">Esto borrará tu última sincronización. No lo hagas si no deseas perder tus datos.</div>' + err, '<button class="clb dng" data-act="cl:rpick">Elegir archivo</button><button class="clb alt" data-act="cl:x">Cancelar</button>');
-  else if (u.step === 'preview') S('¿Reconoces a esta persona?', 'Revisa que sea el correcto antes de subirlo. Reemplazará lo que tienes en la nube.', clPrevHTML((CL.pend || {}).obj || {}, (CL.pend || {}).meta) + err, '<button class="clb" data-act="cl:rgo">Sí, subir este archivo</button><button class="clb alt" data-act="cl:rother">Elegir otro archivo</button><button class="clb alt" data-act="cl:rback">Cancelar</button>');
+  else if (u.step === 'preview') S('¿Reconoces a esta persona?', 'Revisa que sea el correcto antes de subirlo. Reemplazará lo que tienes en la nube.', clPrevHTML((CL.pend || {}).obj || {}, (CL.pend || {}).meta) + err, (CL.promote ? '<button class="clb" data-act="cl:rgo">Sí, subir esta copia</button><button class="clb alt" data-act="cl:x">Cancelar</button>' : '<button class="clb" data-act="cl:rgo">Sí, subir este archivo</button><button class="clb alt" data-act="cl:rother">Elegir otro archivo</button><button class="clb alt" data-act="cl:rback">Cancelar</button>'));
   else if (u.step === 'done') S('Listo', 'Tu cuenta está lista. Tus datos se sincronizan cifrados entre tus dispositivos.', '', '<button class="clb" data-act="cl:x">Entendido</button>');
   if (u.step === 'newkey') {
     const b = document.querySelector('[data-act="cl:saved"]'), x = document.querySelector('#clpage .clpx'); let n = 5;
@@ -2026,7 +2034,7 @@ async function clFileGo() {
     const r = await clReplace(obj, P.code);
     if (r.s === 400) { clMsg('Código incorrecto o vencido. Vuelve a empezar.'); return; }
     if (r.s !== 200) throw new Error('http');
-    CL.pend = null; clUpDone(obj, r.j.rev, 'Archivo cargado y copia reemplazada');
+    CL.pend = null; if (CL.promote) { CL.promote = false; CL.st.mode = 'cloud'; CL.st.modeAt = Date.now(); clSave(); } clUpDone(obj, r.j.rev, 'Archivo cargado y copia reemplazada');
     clPageHide(); if (CL.fromProf) { CL.fromProf = false; openProfile(); } else closeSheet();
   } catch (e) { clMsg('No pudimos conectar. Inténtalo más tarde.'); }
 }
@@ -2131,7 +2139,8 @@ async function clAct(arg, el) {
       const r = await clFetch('/sync/check', 'POST', { code: code });
       if (r.s === 400) { clMsg('Código incorrecto o vencido.'); el.disabled = false; return; }
       if (r.s !== 200) { clMsg('No pudimos conectar. Inténtalo más tarde.'); el.disabled = false; return; }
-      CL.ui = { step: 'replacepick', code: code, err: '' }; clSheet();
+      if (CL.promote) { CL.pend = { obj: clSnap(), meta: { at: Date.now(), plat: syncDevice().plat }, mode: 'replace', code: code }; CL.ui = { step: 'preview', err: '' }; clSheet(); }
+      else { CL.ui = { step: 'replacepick', code: code, err: '' }; clSheet(); }
     } catch (e) { clMsg('No pudimos conectar. Inténtalo más tarde.'); } el.disabled = false;
   }
   else if (a === 'wipego') {
