@@ -1870,7 +1870,7 @@ const clSnap = () => { const o = clone(data); o.demo = false; return o; };
 const clSig = (o) => JSON.stringify(o);
 function clApply(m) {
   CL.applying = true;
-  try { data = migrate(clone(m)); data.demo = false; persist(); renderAll(); updGdot(); } finally { CL.applying = false; }
+  try { data = migrate(clone(m)); data.demo = false; persist(); renderAll(); updGdot(); if ($('#welcome') && hasData()) { hideWelcome(); setTab('resumen'); } } finally { CL.applying = false; }
 }
 async function clPut(rev, obj) {
   const blob = await PCC.seal(await clKey(), obj);
@@ -1996,6 +1996,7 @@ function clFirstSheet() {
 const clMsg = (t) => { if (CL.ui) CL.ui.err = t; const m = $('#clMsg'); if (m) m.textContent = t || ''; };
 async function clAuthDone(isNew) {
   CL.st.mode = 'cloud'; CL.st.modeAt = 0; clSave();
+  if (!isNew && $('#welcome') && !hasData()) { clClose(); wcloudGo(); return; } /* desde la bienvenida: carga tu nube o inicia el recorrido, sin volver a la pantalla inicial */
   if (isNew) { CL.hold = true; CL.ui = { step: 'tour', i: 0 }; clSheet(); clRefresh(); return; }
   CL.ui = { step: 'done' }; clSheet(); clRefresh(); setTimeout(() => clSync('first'), 300);
 }
@@ -5388,7 +5389,7 @@ document.addEventListener('click', (e) => {
   else if (BW_ACTS.indexOf(a) >= 0) bentoAct(a, arg);
   else if (a === 'wmenu') wMenu();
   else if (a === 'wmenuclose') wCloseMenu();
-  else if (a === 'wcloud') wclOpen();
+  else if (a === 'wcloud') wcloudGo();
   else if (a === 'wclclose') wclClose();
   else if (a === 'wclgo') { wclClose(); clAct('open', el); }
   else if (a === 'wclstay') { /* no cerrar */ }
@@ -5896,6 +5897,17 @@ function wSync() {
 /* Recorridos: el nivel decide cuántos pasos opcionales se muestran */
 const W_STEPS = { simple: ['name', 'cur', 'acc', 'look'], standard: ['name', 'ins', 'cur', 'acc', 'inc', 'budget', 'look'], extended: ['name', 'ins', 'cur', 'acc', 'inc', 'fixed', 'budget', 'subs', 'debt', 'goal', 'look'] };
 function wStart(cloud) { const t = iso(getToday()); ui.w = { level: null, step: 0, first: '', last: '', nick: '', gender: 'n', cur: isWebView() ? [] : guessCur(), fx: 0, accName: 'Cuenta principal', accType: 'checking', accCur: '', bal: '', incName: 'Sueldo', incAmt: '', incRep: 'm', incQ1: '15', incQ2: '30', jQ1: '15', jQ2: '30', fxQ1: '1', fxQ2: '15', incDate: t, incKind: 'i', jMode: '', jName: 'Trabajo', jRate: '', jHours: '40', jTax: '15', jFreq: '', jDate: t, fxName: 'Renta', fxAmt: '', fxRep: 'm', fxDate: t, bud: {}, subName: '', subAmt: '', subDay: '1', dbKind: 'card', dbName: '', dbBal: '', dbLim: '', dbApr: '20', dbPay: '', dbDay: '1', gName: '', gGoal: '', gMon: '' }; if (cloud) ui.w.cloud = true; welcomeHTML('next'); }
+async function wcloudGo() {
+  if (!(clBeta() && clIn()) || hasData()) { wclOpen(); return; }
+  /* Con sesión y sin datos aquí: si la nube ya tiene tu copia se carga; si está vacía, recorrido de inicio en la nube */
+  toast('Revisando tu nube…');
+  try {
+    const g = await clFetch('/sync');
+    if (g.s === 200 && !(g.j.rev > 0)) { wStart(true); return; }
+    if (g.s === 200) { await clSync('first'); if (hasData()) { hideWelcome(); setTab('resumen'); return; } }
+    toast('No pudimos revisar tu nube. Inténtalo más tarde.');
+  } catch (e) { toast('No pudimos conectar. Inténtalo más tarde.'); }
+}
 function wCopyLink() { const u = 'https://plataapp.net', ok = () => toast('Enlace copiado'); try { navigator.clipboard.writeText(u).then(ok, () => toast(u)); } catch (e) { toast(u); } }
 const W_OPT = ['name', 'inc', 'fixed', 'budget', 'subs', 'debt', 'goal'];
 const wSteps = (w) => { const b = W_STEPS[w.level] || []; return w.cloud && b.length ? b.concat('dev') : b; };
