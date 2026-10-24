@@ -4784,17 +4784,20 @@ const AVATAR_DEF = ['#C9CFDD', '#98A2BA', '#5A6482', '#E1E6F2'];
 function avatarInfo() { try { if (!insOn() || !scoreOn()) return null; const m = insightsModel(prevMkOf(iso(getToday()).slice(0, 7))); return !insLocked(m) && GRAD[m.letter] ? { g: m.plus ? plusGrad(m.letter) : GRAD[m.letter], letter: m.letter + (m.plus ? pch(m.letter) : '') } : null; } catch (e) { return null; } }
 function avatarGrad() { const a = avatarInfo(); return a ? a.g : AVATAR_DEF; }
 function avatarPhoto() { const p = (data && data.settings && data.settings.photo) || ''; return /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/.test(p) ? p : ''; }
-function avatarHTML(sz, photo, nobadge) {
+function avatarHTML(sz, photo, nobadge, cut) {
   const ph = photo === undefined ? avatarPhoto() : photo;
   if (!ph) return '<span style="position:relative;overflow:hidden;flex:none;width:' + sz + 'px;height:' + sz + 'px;border-radius:50%;background:' + insBg(avatarGrad()) + ';display:flex;align-items:center;justify-content:center" aria-hidden="true">' + SFI('f13in', sz, '#fff') + '</span>';
   const a = avatarInfo();
   if (!a) return '<span style="display:inline-block;flex:none;width:' + sz + 'px;height:' + sz + 'px;border-radius:50%;background:var(--fill) url(' + ph + ') center/cover no-repeat" aria-hidden="true"></span>';
-  const g = a.g, rw = Math.max(2, Math.round(sz * 0.055)), bs = Math.round(sz * 0.38);
+  const g = a.g, rw = Math.max(2, Math.round(sz * 0.055)), bs = Math.round(sz * 0.38), bw = Math.max(2, Math.round(sz * 0.035)), off = Math.round(bs * 0.12), bc = sz + off - bs / 2, cr = bs / 2 + bw;
+  const mk = cut && !nobadge ? ';-webkit-mask:radial-gradient(circle at ' + bc + 'px ' + bc + 'px,transparent ' + cr + 'px,#000 ' + (cr + 0.6) + 'px);mask:radial-gradient(circle at ' + bc + 'px ' + bc + 'px,transparent ' + cr + 'px,#000 ' + (cr + 0.6) + 'px)' : '';
   return '<span style="position:relative;flex:none;display:inline-block;width:' + sz + 'px;height:' + sz + 'px" aria-hidden="true">' +
+    '<span style="position:absolute;inset:0' + mk + '">' +
     '<span style="position:absolute;inset:0;border-radius:50%;background:' + insBg(g) + '"></span>' +
     '<span style="position:absolute;inset:' + rw + 'px;border-radius:50%;background:var(--card)"></span>' +
     '<span style="position:absolute;inset:' + (rw + 2) + 'px;border-radius:50%;background:var(--fill) url(' + ph + ') center/cover no-repeat"></span>' +
-    (a && !nobadge ? '<span style="position:absolute;right:-' + Math.round(bs * 0.12) + 'px;bottom:-' + Math.round(bs * 0.12) + 'px;width:' + bs + 'px;height:' + bs + 'px;border-radius:50%;background:' + insBg(g) + ';border:' + Math.max(2, Math.round(sz * 0.035)) + 'px solid #fff;box-sizing:border-box;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:' + Math.round(bs * (a.letter.length > 1 ? 0.4 : 0.52)) + 'px;letter-spacing:-.5px;text-shadow:0 1px 2px rgba(0,0,0,.3)">' + a.letter + '</span>' : '') + '</span>';
+    '</span>' +
+    (a && !nobadge ? '<span style="position:absolute;right:-' + Math.round(bs * 0.12) + 'px;bottom:-' + Math.round(bs * 0.12) + 'px;width:' + bs + 'px;height:' + bs + 'px;border-radius:50%;background:' + insBg(g) + ';' + (cut ? '' : 'border:' + bw + 'px solid #fff;') + 'box-sizing:border-box;display:flex;align-items:center;justify-content:center;color:' + (cut ? g[2] : '#fff') + ';font-weight:800;font-size:' + Math.round(bs * (a.letter.length > 1 ? 0.4 : 0.52)) + 'px;letter-spacing:-.5px;' + (cut ? '' : 'text-shadow:0 1px 2px rgba(0,0,0,.3)') + '">' + a.letter + '</span>' : '') + '</span>';
 }
 function gradeCounts() {
   if (!scoreOn()) return [];
@@ -4805,7 +4808,7 @@ function gradeCounts() {
 }
 const gradesShown = () => (data.settings || {}).showGrades !== false;
 function photoRowHTML(has) {
-  return '<div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:6px 0 14px"><button data-act="pickphoto" aria-label="Foto de perfil" style="padding:0">' + avatarHTML(128) + '</button>' +
+  return '<div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:6px 0 14px"><button data-act="pickphoto" aria-label="Foto de perfil" style="padding:0">' + avatarHTML(128, undefined, false, true) + '</button>' +
     '<div style="display:flex;gap:18px"><button class="linkrow" data-act="pickphoto" style="padding:0;border:0;font-size:15px;color:#22B573">' + (has ? 'Cambiar foto' : 'Añadir foto') + '</button>' + (has ? '<button class="linkrow" data-act="rmphoto" style="padding:0;border:0;font-size:15px;color:var(--rt)">Quitar</button>' : '') + '</div></div>';
 }
 function goldGrade() {
