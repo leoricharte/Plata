@@ -5,7 +5,7 @@
 - **Entrar o crear cuenta:** Plata Cloud aparece en la app para todos, sin activarlo aparte. El acceso sigue siendo por invitación.
 - **Sin invitación:** si el correo no tiene acceso, la misma pantalla te apunta a la lista de espera, o te avisa si ya estabas en ella.
 - **Copia local a la nube:** al volver a modo Cloud, cargar la copia de este dispositivo como la de la nube pide confirmación y un código por correo.
-- **Precio:** US$2.99 al mes (S/9.99 en Perú); early supporters, 30% menos durante un año, renovable según el contexto. Primer mes gratis (marcha blanca), por invitación.
+- **Precio:** early supporters, 30% menos durante un año, renovable según el contexto. Primer mes gratis (marcha blanca), por invitación.
 - **Notas y rachas:** al segundo mes seguido subes de nivel; tu nota luce un laurel y un broche.
 - **Transferencias:** mueve plata entre tus cuentas sin que cuente como gasto ni ingreso.
 - **Marcas:** logos y colores automáticos de bancos, billeteras y suscripciones.

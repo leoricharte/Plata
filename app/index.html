@@ -1764,7 +1764,7 @@ const PC_LOGO = { vb: '0 0 881.8 308.35', d: [["g", "M802.1,11.85l5.2,22.9-39.6,
 const pcLogo = (h) => '<svg viewBox="' + PC_LOGO.vb + '" role="img" aria-label="Plata Cloud" style="height:' + h + 'px;width:auto;display:block">' + PC_LOGO.d.map((x) => '<path ' + (x[0] === 'k' ? 'style="fill:var(--ink)"' : 'fill="#22B573"') + ' d="' + x[1] + '"/>').join('') + '</svg>';
 const PLATA_CLOUD_API = 'https://plata-cloud.xleoricharte.workers.dev';
 /* Precios de Plata Cloud: base US$2.99 (S/9.99 en Perú); early supporters, 30% menos. Primer mes gratis (marcha blanca), por invitación. */
-const clPE = () => { try { return /-PE$/i.test(navigator.language || '') || /Lima/.test(Intl.DateTimeFormat().resolvedOptions().timeZone || ''); } catch (e) { return false; } };
+const clPE = () => { try { return /Lima/.test(Intl.DateTimeFormat().resolvedOptions().timeZone || ''); } catch (e) { return false; } };
 const CL_BASE = 2.99, CL_BASE_PEN = 9.99, CL_OFF = 0.3;
 const clPr = () => { const pe = clPE(), b = pe ? CL_BASE_PEN : CL_BASE, e = Math.round(b * (1 - CL_OFF) * 100) / 100, f = (n) => (pe ? 'S/' : '$') + n.toFixed(2); return { base: f(b), early: f(e), zero: pe ? 'S/0' : '$0' }; };
 function clPriceHTML(full) {
