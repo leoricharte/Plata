@@ -6466,7 +6466,7 @@ async function wcloudGo() {
   try {
     const g = await clFetch('/sync');
     if (g.s === 200 && !(g.j.rev > 0)) { wStart(true); return; }
-    if (g.s === 200) { await clSync('first'); if (hasData()) { hideWelcome(); setTab('resumen'); return; } }
+    if (g.s === 200) { if (CL.st.mode !== 'cloud') { CL.st.mode = 'cloud'; CL.st.modeAt = 0; clSave(); } CL.busy = false; CL.hold = false; await clSync('first'); if (hasData()) { hideWelcome(); setTab('resumen'); return; } toast('No pudimos cargar tu copia. Cierra sesión y vuelve a entrar.'); return; }
     toast('No pudimos revisar tu nube. Inténtalo más tarde.');
   } catch (e) { toast('No pudimos conectar. Inténtalo más tarde.'); }
 }
