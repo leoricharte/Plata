@@ -2575,9 +2575,9 @@ const SUBLOGO = {
 };
 const SUBBRANDS = [
   { i: 'spotify', bg: '#1DB954', keys: ['spotify'] },
-  { i: 'applemusic', bg: '#fa4058', vb: 1, eo: 1, keys: ['apple music','applemusic'] },
-  { i: 'appletv', bg: '#000000', vb: 1, keys: ['apple tv','appletv'] },
-  { i: 'icloud', bg: '#3e82f4', vb: 1, keys: ['icloud'] },
+  { i: 'applemusic', bg: '#fa4058', vb: 1, bb: [146.3, 123.4, 167.5, 213.2], k: 0.6, eo: 1, keys: ['apple music','applemusic'] },
+  { i: 'appletv', bg: '#000000', vb: 1, bb: [93.2, 160.9, 273.7, 138.2], k: 0.74, keys: ['apple tv','appletv'] },
+  { i: 'icloud', bg: '#3e82f4', vb: 1, bb: [95.5, 143.6, 268.9, 172.8], k: 0.66, keys: ['icloud'] },
   { i: 'netflix', bg: '#E50914', keys: ['netflix'] },
   { i: 'youtube', bg: '#FF0000', keys: ['youtube', 'youtube premium', 'yt premium'] },
   { i: 'amazon', bg: '#00A8E1', keys: ['amazon prime', 'prime video', 'amazon music', 'prime', 'amazon'] },
@@ -2612,7 +2612,7 @@ const SUBBRANDS = [
 ];
 const SUBRX = SUBBRANDS.map((b) => ({ b: b, rx: b.keys.map((k) => new RegExp('(^|[^a-z0-9])' + k.replace(/ /g, '[^a-z0-9]*') + '([^a-z0-9]|$)')) }));
 const subBrand = (s) => { const n = bankNorm(s && s.name); if (!n) return null; const m = SUBRX.find((x) => x.rx.some((r) => r.test(n))); return m ? m.b : null; };
-const subSVG = (b, px) => { const t = b.vb ? (px > 30 ? 64 : 46) : px; /* vb: glifo ya compuesto en caja de 460, ocupa todo el tile */ return '<svg width="' + t + '" height="' + t + '" viewBox="' + (b.vb ? '0 0 460 460' : '0 0 24 24') + '" fill="#fff"' + (b.eo ? ' fill-rule="evenodd"' : '') + ' aria-hidden="true"><path d="' + SUBLOGO[b.i] + '"/></svg>'; };
+const subSVG = (b, px) => { /* vb: glifo dibujado en caja 460; se recorta a su figura y se escala para que pese lo mismo que el resto */ const t = b.vb ? (px > 30 ? 64 : 46) : px, bb = b.bb, sd = bb ? Math.max(bb[2], bb[3]) / (b.k || 0.5) : 460, vx = bb ? bb[0] + bb[2] / 2 - sd / 2 : 0, vy = bb ? bb[1] + bb[3] / 2 - sd / 2 : 0; return '<svg width="' + t + '" height="' + t + '" viewBox="' + (b.vb ? Math.round(vx * 10) / 10 + ' ' + Math.round(vy * 10) / 10 + ' ' + Math.round(sd * 10) / 10 + ' ' + Math.round(sd * 10) / 10 : '0 0 24 24') + '" fill="#fff"' + (b.eo ? ' fill-rule="evenodd"' : '') + ' aria-hidden="true"><path d="' + SUBLOGO[b.i] + '"/></svg>'; };
 function subTile(s, i) { const b = subBrand(s); return b ? tile(b.bg, subSVG(b, 26)) : tile(CARD_COLORS[i % CARD_COLORS.length], esc(s.name).charAt(0)); }
 const ICONS = {
   bank: 'bank-line', card: 'bank-card-line', wallet: 'wallet-3-line', cash: 'cash-line', coins: 'coins-line', bag: 'shopping-bag-3-line', car: 'car-line', home: 'home-4-line',
