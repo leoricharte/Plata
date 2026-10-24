@@ -3981,7 +3981,7 @@ function sheetHTML(keep) {
     (ui.sheetType === 'pay'
       ? '<label class="srow">' + fico(['#B98AE6', 'card']) + '<span class="grow"><span class="slabel">Tarjeta o préstamo</span><select class="sinput" id="fAcc">' + data.cards.map((a) => '<option value="' + a.id + '"' + (a.id === acc.id ? ' selected' : '') + '>' + esc(a.name) + l4(a) + ' · ' + a.cur + '</option>').join('') + '</select></span></label>' +
         '<label class="srow">' + fico(['#22B573', 'card']) + '<span class="grow"><span class="slabel">Pagar desde</span><select class="sinput" id="fFrom"><option value="">Sin descontar de una cuenta</option>' + data.accounts.map((a) => '<option value="' + a.id + '"' + (a.id === ui.sheetFrom ? ' selected' : '') + '>' + esc(a.name) + l4(a) + ' · ' + a.cur + '</option>').join('') + '</select></span></label>' + '<div id="apWrap">' + apRowHTML() + '</div>'
-      : '<label class="srow">' + fico(['#22B573', 'card']) + '<span class="grow"><span class="slabel">Cuenta</span><select class="sinput" id="fAcc">' + acctOpts(acc.id, true) + '</select></span></label>') +
+      : '<label class="srow">' + fico(['#22B573', 'card']) + '<span class="grow"><span class="slabel">Cuenta</span><select class="sinput" id="fAcc">' + acctOpts(acc.id, ui.sheetType !== 'in') + '</select></span></label>') +
     '<label class="srow">' + fico(['#22B573', 'pen']) + '<span class="grow"><span class="slabel">Nota</span><input class="sinput" id="fNote" placeholder="Opcional" autocomplete="off" value="' + esc(k.note || '') + '"></span></label>' +
     '<div class="nsug" id="nsug">' + noteSugHTML(k.note || '') + '</div>' +
     '<label class="srow">' + fico(['#FF9F0A', 'cal']) + '<span class="grow"><span class="slabel">Fecha</span><input class="sinput" id="fDate" type="date" value="' + esc(k.date || iso(getToday())) + '"></span></label></div>' +
@@ -4406,6 +4406,7 @@ function submitSheet() {
     return;
   }
   const out = ui.sheetType === 'out', cat = out ? ui.sheetCat : 'Ingreso', acc = accOf(v.acc);
+  if (!out && isCredit(acc)) { toast('Un ingreso no va en una tarjeta. Para pagarla usa Pago.'); return; }
   data.transactions.push({ id: nextTxId(), date: v.date || iso(getToday()), amount: out ? -amt : amt, category: cat, note: v.note.trim() || (out ? cat : 'Ingreso'), acc: acc.id });
   applyTo(acc, out ? -amt : amt);
   ui.dirty++; persist(); closeSheet(); renderAll(); toast('Movimiento añadido');
@@ -5011,7 +5012,7 @@ document.addEventListener('click', (e) => {
   }
   else if (a === 'quick') { ui.confirmId = null; ui.form = null; openQMenu(el); }
   else if (a === 'close') { if (!CL.lock) closeSheet(); }
-  else if (a === 'type') { const was = ui.sheetType; ui.sheetType = arg; ui.sheetAuto = false; if (was === 'pay' || arg === 'pay') { const kp = readSheet(); ui.sheetAcc = ui.sheetCard ? ui.sheetCard : arg === 'pay' ? (data.cards[0] || {}).id : data.accounts[0].id; showSheet(sheetHTML(kp)); } else { setSeg(el); const w = $('#catWrap'); w.innerHTML = catsHTML(); swapIn(w); const th = $('#thint'); if (th) th.textContent = typeHint(); } }
+  else if (a === 'type') { const was = ui.sheetType; ui.sheetType = arg; ui.sheetAuto = false; if (was === 'pay' || arg === 'pay') { const kp = readSheet(); ui.sheetAcc = ui.sheetCard ? ui.sheetCard : arg === 'pay' ? (data.cards[0] || {}).id : data.accounts[0].id; showSheet(sheetHTML(kp)); } else { setSeg(el); const fa = $('#fAcc'); if (fa) { const cur = fa.value, isCrd = data.cards.some((k) => k.id === cur), keep = arg === 'in' && isCrd ? data.accounts[0].id : cur; fa.innerHTML = acctOpts(keep, arg !== 'in'); } const w = $('#catWrap'); w.innerHTML = catsHTML(); swapIn(w); const th = $('#thint'); if (th) th.textContent = typeHint(); } }
   else if (a === 'cat') { ui.sheetCat = arg; el.parentNode.querySelectorAll('.chip').forEach((c) => c.classList.toggle('on', c === el)); }
   else if (a === 'submit') submitSheet();
   else if (a === 'load') $('#file').click();

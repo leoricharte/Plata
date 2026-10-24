@@ -48,3 +48,4 @@ Se reemplazará ¦ Will be replaced ¦ 置き換えられます ¦ Verrà sostit
 Lo editas tú ¦ You edit it ¦ ご自身で編集します ¦ Lo modifichi tu ¦ Vous le modifiez ¦ Ti ga uređuješ
 Aceptar cambios ¦ Accept changes ¦ 変更を受け入れる ¦ Accetta modifiche ¦ Accepter les modifications ¦ Prihvati promjene
 Mantener cambios ¦ Keep as is ¦ そのままにする ¦ Mantieni così ¦ Garder tel quel ¦ Ostavi kako jest
+Un ingreso no va en una tarjeta. Para pagarla usa Pago. ¦ Income doesn't go on a card. To pay it, use Payment. ¦ 収入はカードには入れられません。支払いには「支払い」を使ってください。 ¦ Un'entrata non va su una carta. Per pagarla usa Pagamento. ¦ Un revenu ne va pas sur une carte. Pour la payer, utilisez Paiement. ¦ Prihod ne ide na karticu. Za plaćanje koristi Plaćanje.
