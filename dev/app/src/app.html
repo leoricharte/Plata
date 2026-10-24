@@ -4281,7 +4281,7 @@ function goldGrade() {
   return g ? { l: g, pal: CHAMP, ink: '#A47E3A', cfg: LAU[g + '+'] } : p ? { l: p, pal: PLAT, ink: '#6B7586', cfg: LAU[p + '+'] } : null;
 }
 const LAU = { 'S+': { n: 7, a0: 68, a1: 6, L: 25, W: 6.8 }, 'A+': { n: 5, a0: 65, a1: 6, L: 27, W: 7.4 }, 'B+': { n: 4, a0: 61, a1: 6, L: 23, W: 6 }, 'C+': { n: 3, a0: 60, a1: 22, L: 21, W: 5.4 }, S: { n: 3, a0: 62, a1: 36, L: 18, W: 4.6 } };
-function laurelSVG(sz, pal, cfg) {
+function laurelSVG(sz, pal, cfg, hole) {
   const c = sz / 2, r = c - 11, out = [], N = cfg.n, L = cfg.L, W = cfg.W;
   [1, -1].forEach((side) => {
     for (let i = 0; i < N; i++) {
@@ -4293,7 +4293,10 @@ function laurelSVG(sz, pal, cfg) {
       out.push('<path d="M' + P(-L / 2, 0) + ' Q' + P(0, -W) + ' ' + P(L / 2, 0) + ' Q' + P(0, W) + ' ' + P(-L / 2, 0) + 'Z" fill="url(#lg)"/>');
     }
   });
-  return '<svg width="' + sz + '" height="' + sz + '" viewBox="0 0 ' + sz + ' ' + sz + '" style="position:absolute;inset:0;pointer-events:none"><defs><linearGradient id="lg" gradientUnits="userSpaceOnUse" x1="0" y1="' + (c - 64) + '" x2="0" y2="' + (c + 64) + '"><stop offset="0" stop-color="' + pal[0] + '"/><stop offset=".5" stop-color="' + pal[1] + '"/><stop offset="1" stop-color="' + pal[2] + '"/></linearGradient></defs>' + out.join('') + '</svg>';
+  const mid = 'lm' + Math.random().toString(36).slice(2, 7), gap = 4.5;
+  let hm = '';
+  if (hole) { const hw = hole.px / 2 + gap; hm = '<mask id="' + mid + '"><rect width="' + sz + '" height="' + sz + '" fill="#fff"/>' + (hole.kind === 'd' ? '<rect x="' + (c - hole.px * 0.393 - gap) + '" y="' + (hole.cy - hole.px * 0.393 - gap) + '" width="' + (hole.px * 0.786 + 2 * gap) + '" height="' + (hole.px * 0.786 + 2 * gap) + '" rx="' + (hole.px * 0.16 + gap) + '" transform="rotate(45 ' + c + ' ' + hole.cy + ')" fill="#000"/>' : '<circle cx="' + c + '" cy="' + hole.cy + '" r="' + hw + '" fill="#000"/>') + '</mask>'; }
+  return '<svg width="' + sz + '" height="' + sz + '" viewBox="0 0 ' + sz + ' ' + sz + '" style="position:absolute;inset:0;pointer-events:none"><defs><linearGradient id="lg" gradientUnits="userSpaceOnUse" x1="0" y1="' + (c - 64) + '" x2="0" y2="' + (c + 64) + '"><stop offset="0" stop-color="' + pal[0] + '"/><stop offset=".5" stop-color="' + pal[1] + '"/><stop offset="1" stop-color="' + pal[2] + '"/></linearGradient>' + hm + '</defs><g' + (hole ? ' mask="url(#' + mid + ')"' : '') + '>' + out.join('') + '</g></svg>';
 }
 function gradeBadge(L, g, px, style) {
   const dm = /^[SABC]\+$/.test(L), tr = /^[DF]-$/.test(L), k = dm ? DMK : tr ? TRK : 1, bx = Math.round(px * k), cm = dm ? letterCut(L, true, true) : tr ? letterCut(L, false, false, false, true) : letterCut(L);
@@ -4307,7 +4310,7 @@ function profileViewHTML() {
   const sg = !gg && av && av.letter === 'S';
   const ltxt = (g0, g1, s) => 'font-size:' + s + 'px;font-weight:800;letter-spacing:-.5px;line-height:1;background:linear-gradient(180deg,' + g0 + ',' + g1 + ');-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent';
   const pic = (gg || sg)
-    ? '<div style="position:relative;width:176px;height:176px;display:flex;align-items:center;justify-content:center;margin:-8px 0 16px">' + laurelSVG(176, gg ? gg.pal : av.g, gg ? gg.cfg : LAU.S) + avatarHTML(128, undefined, true) + '<div style="position:absolute;left:50%;top:' + (172 - Math.round(34 * (gg || /^[SABC]\\+$/.test(av.letter) ? DMK : 1) / 2)) + 'px;transform:translateX(-50%)">' + gradeBadge(gg ? gg.l + '+' : av.letter, gg ? gg.pal : av.g, 34) + '</div></div>'
+    ? '<div style="position:relative;width:176px;height:176px;display:flex;align-items:center;justify-content:center;margin:-8px 0 16px">' + laurelSVG(176, gg ? gg.pal : av.g, Object.assign({}, gg ? gg.cfg : LAU.S, { a0: gg ? 80 : 76 }), { cy: 171, px: gg || /^[SABC]\\+$/.test(av.letter) ? 34 * DMK : 34, kind: gg || /^[SABC]\\+$/.test(av.letter) ? 'd' : 'c' }) + avatarHTML(128, undefined, true) + '<div style="position:absolute;left:50%;top:' + (171 - Math.round(34 * (gg || /^[SABC]\\+$/.test(av.letter) ? DMK : 1) / 2)) + 'px;transform:translateX(-50%)">' + gradeBadge(gg ? gg.l + '+' : av.letter, gg ? gg.pal : av.g, 34) + '</div></div>'
     : '<div style="display:flex;flex-direction:column;align-items:center">' + avatarHTML(128, undefined, true) + (av ? '<div style="margin-top:10px;display:flex;justify-content:center">' + gradeBadge(av.letter, av.g, 34) + '</div>' : '') + '</div>';
   const top = '<div style="display:flex;flex-direction:column;align-items:center;padding:6px 0 18px">' + pic + '<div style="font-size:24px;font-weight:700;letter-spacing:-.5px;margin-top:12px;text-align:center">' + esc(nm || 'Tu perfil') + '</div>' + gr + '</div>';
   const rv = (l, v) => '<div class="row"><span class="grow" style="font-size:17px">' + l + '</span><span style="font-size:17px;color:var(--mute);text-align:right;min-width:0;overflow-wrap:anywhere">' + esc(v) + '</span></div>';
