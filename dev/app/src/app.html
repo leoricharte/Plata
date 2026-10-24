@@ -4226,9 +4226,12 @@ const AVATAR_DEF = ['#C9CFDD', '#98A2BA', '#5A6482', '#E1E6F2'];
 function avatarInfo() { try { if (!insOn() || !scoreOn()) return null; const m = insightsModel(prevMkOf(iso(getToday()).slice(0, 7))); return !insLocked(m) && GRAD[m.letter] ? { g: m.plus ? plusGrad(m.letter) : GRAD[m.letter], letter: m.letter + (m.plus ? pch(m.letter) : '') } : null; } catch (e) { return null; } }
 function avatarGrad() { const a = avatarInfo(); return a ? a.g : AVATAR_DEF; }
 function avatarPhoto() { const p = (data && data.settings && data.settings.photo) || ''; return /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/.test(p) ? p : ''; }
-function letterCut(L) {
-  const fs = L.length > 1 ? 50 : 64, svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50" y="' + (50 + fs * 0.36) + '" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif" font-weight="800" font-size="' + fs + '" letter-spacing="-1" fill="#000">' + L.replace(/[&<>]/g, '') + '</text></svg>', u = "url('data:image/svg+xml," + encodeURIComponent(svg).replace(/'/g, '%27') + "') center/100% 100% no-repeat";
-  return '-webkit-mask:' + u + ',linear-gradient(#000,#000);-webkit-mask-composite:xor;mask:' + u + ',linear-gradient(#000,#000);mask-composite:exclude';
+const svgU = (svg) => "url('data:image/svg+xml," + encodeURIComponent(svg).replace(/'/g, '%27') + "')";
+function letterLayer(L, fs, y0) { return svgU('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50" y="' + (y0 + fs * 0.36) + '" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif" font-weight="800" font-size="' + fs + '" letter-spacing="-1" fill="#000">' + L.replace(/[&<>]/g, '') + '</text></svg>') + ' center/100% 100% no-repeat'; }
+function letterCut(L, dia) {
+  const fs = dia ? (L.length > 1 ? 37 : 50) : (L.length > 1 ? 50 : 64), top = letterLayer(L, fs, 50);
+  const base = dia ? svgU('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="19" y="19" width="62" height="62" rx="14" transform="rotate(45 50 50)" fill="#000"/></svg>') + ' center/100% 100% no-repeat' : 'linear-gradient(#000,#000)';
+  return '-webkit-mask:' + top + ',' + base + ';-webkit-mask-composite:xor;mask:' + top + ',' + base + ';mask-composite:exclude';
 }
 function avatarHTML(sz, photo, nobadge, cut) {
   const ph = photo === undefined ? avatarPhoto() : photo;
@@ -4236,14 +4239,16 @@ function avatarHTML(sz, photo, nobadge, cut) {
   const a = avatarInfo();
   if (!a) return '<span style="display:inline-block;flex:none;width:' + sz + 'px;height:' + sz + 'px;border-radius:50%;background:var(--fill) url(' + ph + ') center/cover no-repeat" aria-hidden="true"></span>';
   const g = a.g, rw = Math.max(2, Math.round(sz * 0.055)), bs = Math.round(sz * 0.38), bw = Math.max(2, Math.round(sz * 0.035)), off = Math.round(bs * 0.12), bc = sz + off - bs / 2, cr = bs / 2 + bw;
-  const mk = cut && !nobadge ? ';-webkit-mask:radial-gradient(circle at ' + bc + 'px ' + bc + 'px,transparent ' + cr + 'px,#000 ' + (cr + 0.6) + 'px);mask:radial-gradient(circle at ' + bc + 'px ' + bc + 'px,transparent ' + cr + 'px,#000 ' + (cr + 0.6) + 'px)' : '';
+  const dia = !!(cut && !nobadge && /^[SABC]\+$/.test(a.letter)), box = bs * 1.42, dw = box * 0.62, dr = box * 0.14;
+  const dcut = dia ? svgU('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + sz + ' ' + sz + '" width="' + sz + '" height="' + sz + '"><rect x="' + (bc - dw / 2 - bw) + '" y="' + (bc - dw / 2 - bw) + '" width="' + (dw + 2 * bw) + '" height="' + (dw + 2 * bw) + '" rx="' + (dr + bw) + '" transform="rotate(45 ' + bc + ' ' + bc + ')" fill="#000"/></svg>') + ' 0 0/' + sz + 'px ' + sz + 'px no-repeat' : '';
+  const mk = dia ? ';-webkit-mask:' + dcut + ',linear-gradient(#000,#000);-webkit-mask-composite:xor;mask:' + dcut + ',linear-gradient(#000,#000);mask-composite:exclude' : cut && !nobadge ? ';-webkit-mask:radial-gradient(circle at ' + bc + 'px ' + bc + 'px,transparent ' + cr + 'px,#000 ' + (cr + 0.6) + 'px);mask:radial-gradient(circle at ' + bc + 'px ' + bc + 'px,transparent ' + cr + 'px,#000 ' + (cr + 0.6) + 'px)' : '';
   return '<span style="position:relative;flex:none;display:inline-block;width:' + sz + 'px;height:' + sz + 'px" aria-hidden="true">' +
     '<span style="position:absolute;inset:0' + mk + '">' +
     '<span style="position:absolute;inset:0;border-radius:50%;background:' + insBg(g) + (cut ? ';-webkit-mask:radial-gradient(circle,transparent ' + (sz / 2 - rw) + 'px,#000 ' + (sz / 2 - rw + 0.6) + 'px);mask:radial-gradient(circle,transparent ' + (sz / 2 - rw) + 'px,#000 ' + (sz / 2 - rw + 0.6) + 'px)' : '') + '"></span>' +
     (cut ? '' : '<span style="position:absolute;inset:' + rw + 'px;border-radius:50%;background:var(--card)"></span>') +
     '<span style="position:absolute;inset:' + (rw + (cut ? bw : 2)) + 'px;border-radius:50%;background:var(--fill) url(' + ph + ') center/cover no-repeat"></span>' +
     '</span>' +
-    (a && !nobadge ? (cut ? '<span data-notr style="position:absolute;right:-' + off + 'px;bottom:-' + off + 'px;width:' + bs + 'px;height:' + bs + 'px;border-radius:50%;background:' + insBg(g) + ';' + letterCut(a.letter) + '"></span>' : '<span data-notr style="position:absolute;right:-' + off + 'px;bottom:-' + off + 'px;width:' + bs + 'px;height:' + bs + 'px;border-radius:50%;background:' + insBg(g) + ';border:' + bw + 'px solid #fff;box-sizing:border-box;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:' + Math.round(bs * (a.letter.length > 1 ? 0.4 : 0.52)) + 'px;letter-spacing:-.5px;text-shadow:0 1px 2px rgba(0,0,0,.3)">' + a.letter + '</span>') : '') + '</span>';
+    (a && !nobadge ? (cut ? (dia ? '<span data-notr style="position:absolute;left:' + (bc - box / 2) + 'px;top:' + (bc - box / 2) + 'px;width:' + box + 'px;height:' + box + 'px;background:' + insBg(g) + ';' + letterCut(a.letter, true) + '"></span>' : '<span data-notr style="position:absolute;right:-' + off + 'px;bottom:-' + off + 'px;width:' + bs + 'px;height:' + bs + 'px;border-radius:50%;background:' + insBg(g) + ';' + letterCut(a.letter) + '"></span>') : '<span data-notr style="position:absolute;right:-' + off + 'px;bottom:-' + off + 'px;width:' + bs + 'px;height:' + bs + 'px;border-radius:50%;background:' + insBg(g) + ';border:' + bw + 'px solid #fff;box-sizing:border-box;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:' + Math.round(bs * (a.letter.length > 1 ? 0.4 : 0.52)) + 'px;letter-spacing:-.5px;text-shadow:0 1px 2px rgba(0,0,0,.3)">' + a.letter + '</span>') : '') + '</span>';
 }
 function gradeCounts() {
   if (!scoreOn()) return [];
