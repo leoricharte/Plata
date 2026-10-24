@@ -6,7 +6,7 @@
  * Con el secreto RESEND_API_KEY envía un correo de confirmación a quien se apunta por primera vez.
  * Guarda solo: correo, fecha, origen (app o landing), idioma y plataforma. Nada de datos financieros.
  */
-const ORIGINS = ['https://plataapp.net', 'https://www.plataapp.net'];
+const ORIGINS = ['https://plataapp.net', 'https://www.plataapp.net', 'http://tauri.localhost', 'https://tauri.localhost', 'tauri://localhost']; // las últimas tres: la app de escritorio (Tauri)
 const SRC = ['app', 'landing'];
 const LANGS = ['es', 'en', 'ja', 'it', 'fr', 'sh', 'hr'];
 const EMAIL = /^[^\s@<>()[\]\\,;:"]+@[^\s@<>()[\]\\,;:"]+\.[^\s@<>()[\]\\,;:"]{2,}$/;

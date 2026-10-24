@@ -1,0 +1,58 @@
+name: Plata para escritorio (Windows)
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Etiqueta del release (ej. desktop-beta3-420)"
+        required: true
+        default: "desktop-beta3-420"
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: dev/desktop/src-tauri
+
+      - name: Preparar la app (misma que la web)
+        shell: bash
+        run: |
+          mkdir -p dev/desktop/dist
+          cp app/index.html dev/desktop/dist/index.html
+
+      - name: Instalar dependencias
+        working-directory: dev/desktop
+        run: npm install
+
+      - name: Generar íconos
+        working-directory: dev/desktop
+        run: npx tauri icon ../../press/plata-icono-1024.png
+
+      - name: Compilar instaladores
+        working-directory: dev/desktop
+        run: npx tauri build
+
+      - name: Publicar release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag }}
+          name: Plata para Windows (Beta 3 · compilación 420)
+          prerelease: true
+          body: |
+            Plata para Windows. Instalador sin firma: Windows puede mostrar «Windows protegió tu PC». Pulsa «Más información» → «Ejecutar de todos modos».
+          files: |
+            dev/desktop/src-tauri/target/release/bundle/nsis/*.exe
+            dev/desktop/src-tauri/target/release/bundle/msi/*.msi

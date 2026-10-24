@@ -1,0 +1,7 @@
+{
+  "name": "plata-desktop",
+  "private": true,
+  "version": "3.0.420",
+  "scripts": { "tauri": "tauri" },
+  "devDependencies": { "@tauri-apps/cli": "^2" }
+}
