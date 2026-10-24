@@ -5952,11 +5952,15 @@ function welcomeHTML(dir) {
     const blk = (col, ic, ttl, inner) => '<div style="display:flex;gap:14px;align-items:flex-start;margin-top:22px">' + tile(col, RMI(ic, 24, '#fff')) + '<div style="min-width:0"><div style="font-size:17px;font-weight:600;letter-spacing:-.02em;color:var(--ink)">' + ttl + '</div><div style="font-size:15px;line-height:1.4;color:var(--mute);margin-top:4px">' + inner + '</div></div></div>';
     top = '<div class="wtop"></div>';
     body = '<div class="wmain wpriv"' + (wb ? '' : ' style="justify-content:flex-start;padding-top:48px;margin:0 14px"') + '><div style="margin-bottom:20px">' + RMI('file-lock-line', 64, wb ? '#22B573' : '#3A3A3C') + '</div><h1>Tus datos son tuyos.</h1>' +
-      blk('#22B573', 'smartphone-line', 'Tus datos se almacenan localmente en tu teléfono.', 'Estudio 22 y Plata no recopilan tus datos financieros.') +
-      blk(wb ? '#0E7A4D' : '#8E8E93', 'settings-3-line', 'Respalda tus datos', 'Aunque por el momento cerrar y abrir la app mantiene tus datos, haz siempre una copia con el engranaje ' + gear + ' de la esquina derecha para mantenerla al día y segura.') +
-      blk(wb ? '#16915B' : '#6E6E73', 'arrow-left-right-line', 'No se sincroniza entre dispositivos', 'Para usar Plata en otro dispositivo, guarda tu archivo y cárgalo en la plataforma que vayas a usar en ese momento.') +
+      (ui.w && ui.w.cloud
+        ? blk('#22B573', 'cloud-line', 'Tus datos se cifran antes de salir de tu teléfono.', 'Estudio 22 y Plata no podemos leerlos: en Plata Cloud solo guardamos texto cifrado.') +
+          blk(wb ? '#0E7A4D' : '#8E8E93', 'shield-check-line', 'Guarda tu frase de recuperación', 'Es la única forma de abrir tus datos en otro dispositivo. Si la pierdes, nadie puede recuperarla, ni nosotros. La ves en el menú de tres puntos de tu perfil.') +
+          blk(wb ? '#16915B' : '#6E6E73', 'arrow-left-right-line', 'Se sincroniza entre tus dispositivos', 'Entra con tu correo en otro dispositivo y tus datos aparecen solos. Si te quedas sin internet, Plata sigue funcionando y sincroniza al volver.')
+        : blk('#22B573', 'smartphone-line', 'Tus datos se almacenan localmente en tu teléfono.', 'Estudio 22 y Plata no recopilan tus datos financieros.') +
+          blk(wb ? '#0E7A4D' : '#8E8E93', 'settings-3-line', 'Respalda tus datos', 'Aunque por el momento cerrar y abrir la app mantiene tus datos, haz siempre una copia con el engranaje ' + gear + ' de la esquina derecha para mantenerla al día y segura.') +
+          blk(wb ? '#16915B' : '#6E6E73', 'arrow-left-right-line', 'Solo se sincroniza con Plata Cloud', 'Para usar Plata en otro dispositivo, guarda tu archivo y cárgalo allí, o prueba Plata Cloud (opcional, por invitación).')) +
       (ui.wprivDemo ? '<div class="wnote" style="margin:22px 0 0;text-align:left">Los perfiles de demostración fueron creados usando estadísticas y no representan uso real de ningún usuario.</div>' : '') + '</div>';
-    foot = '<div class="wnote wprivfoot" style="margin:0 14px 12px">Plata está en una versión Beta. En el futuro, la gestión de datos podría pasar a ser en la nube.</div><button class="primary" data-act="wpriv">Aceptar</button>';
+    foot = '<div class="wnote wprivfoot" style="margin:0 14px 12px">' + (ui.w && ui.w.cloud ? 'Plata Cloud está en Beta, por invitación. Puedes volver al modo Local cuando quieras desde tu perfil.' : 'Plata está en una versión Beta. Plata Cloud, la sincronización opcional, es por invitación.') + '</div><button class="primary" data-act="wpriv">Aceptar</button>';
   } else if (!w) {
     top = '<div class="wtop"></div>';
     const oc = (c, n, t, d, a) => '<button data-act="' + a + '">' + tile(c, RMI(n, 22, '#fff')) + '<span><b>' + t + '</b><span class="s">' + d + '</span></span></button>';
