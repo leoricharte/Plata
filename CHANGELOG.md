@@ -4,6 +4,7 @@
 
 - **Entrar o crear cuenta:** Plata Cloud aparece en la app para todos, sin activarlo aparte. El acceso sigue siendo por invitación.
 - **Sin invitación:** si el correo no tiene acceso, la misma pantalla te apunta a la lista de espera, o te avisa si ya estabas en ella.
+- **Empezar en la nube:** si es tu primera vez con datos, te lleva a un recorrido como el de Empezar, con aviso de Plata Cloud y un último paso para abrir Plata en tu otro dispositivo (código QR en escritorio, enlace en celular).
 - **Copia local a la nube:** al volver a modo Cloud, cargar la copia de este dispositivo como la de la nube pide confirmación y un código por correo.
 - **Precio:** early supporters, 30% menos durante un año, renovable según el contexto. Primer mes gratis (marcha blanca), por invitación.
 - **Notas y rachas:** al segundo mes seguido subes de nivel; tu nota luce un laurel y un broche.
