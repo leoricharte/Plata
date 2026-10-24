@@ -70,7 +70,7 @@ function waitlistMail(lang, n) {
     + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px">'
     + '<tr><td align="center" style="text-align:center;padding:0"><img src="' + MAIL_CLOUDS + '" width="560" alt="" style="display:block;margin:0 auto;border:0;width:100%;max-width:560px;height:auto"></td></tr>'
     + '<tr><td class="pad" align="center" style="text-align:center;padding:6px 34px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">'
-    + '<tr><td style="padding:0 0 20px 0"><img src="' + MAIL_LOGO + '" width="150" height="52" alt="Plata Cloud" style="display:block;border:0;height:auto;width:150px"></td></tr>'
+    + '<tr><td align="left" style="text-align:left;padding:0 0 20px 0"><img src="' + MAIL_LOGO + '" width="150" height="52" alt="Plata Cloud" style="display:block;border:0;height:auto;width:150px"></td></tr>'
     + '<tr><td class="num" align="center" style="text-align:center;padding:0;font:800 80px/1 ' + F + ';letter-spacing:-0.05em;color:' + G + '">#' + n + '</td></tr>'
     + '<tr><td class="tt" align="center" style="text-align:center;padding:6px 0 14px 0;font:800 36px/1.1 ' + F + ';letter-spacing:-0.03em;color:#1C1C1E">' + t.title + '</td></tr>'
     + '<tr><td align="center" style="text-align:center;padding:0 0 26px 0;font:400 17px/1.55 ' + F + ';color:#5B5B60">' + t.lead(n) + '</td></tr>'
@@ -342,7 +342,7 @@ function codeMail(lang, code, kind, x) {
     + '<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent">' + code + '</div>'
     + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#FFFFFF"><tr><td align="center"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px">'
     + '<tr><td><img src="' + MAIL_CLOUDS + '" width="520" alt="" style="display:block;margin:0 auto;border:0;width:100%;max-width:520px;height:auto"></td></tr>'
-    + '<tr><td style="padding:6px 32px 0"><img src="' + MAIL_LOGO + '" width="140" height="49" alt="Plata Cloud" style="display:block;border:0;height:auto;width:140px"></td></tr>'
+    + '<tr><td align="left" style="text-align:left;padding:6px 32px 0"><img src="' + MAIL_LOGO + '" width="140" height="49" alt="Plata Cloud" style="display:block;border:0;height:auto;width:140px"></td></tr>'
     + '<tr><td align="center" style="text-align:center;padding:22px 32px 8px;font:800 28px/1.15 ' + F + ';letter-spacing:-0.02em;color:#1C1C1E">' + t.title + '</td></tr>'
     + '<tr><td align="center" style="text-align:center;padding:0 32px 22px;font:400 16px/1.55 ' + F + ';color:#5B5B60">' + t.lead + '</td></tr>'
     + detRows + dangerRow
@@ -568,7 +568,7 @@ function inviteMail(lang) {
     + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="center"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px">'
     + '<tr><td><img src="' + MAIL_CLOUDS + '" width="560" alt="" style="display:block;margin:0 auto;border:0;width:100%;height:auto"></td></tr>'
     + '<tr><td align="center" style="text-align:center;padding:6px 34px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">'
-    + '<tr><td style="padding:0 0 20px 0"><img src="' + MAIL_LOGO + '" width="150" height="52" alt="Plata Cloud" style="display:block;border:0;width:150px;height:auto"></td></tr>'
+    + '<tr><td align="left" style="text-align:left;padding:0 0 20px 0"><img src="' + MAIL_LOGO + '" width="150" height="52" alt="Plata Cloud" style="display:block;border:0;width:150px;height:auto"></td></tr>'
     + '<tr><td align="center" style="text-align:center;padding:0 0 14px 0;font:800 36px/1.1 ' + F + ';letter-spacing:-0.03em;color:#1C1C1E">' + t.title + '</td></tr>'
     + '<tr><td align="center" style="text-align:center;padding:6px 0 30px 0"><img src="' + MAIL_KEY + '" width="132" height="126" alt="" style="display:block;margin:0 auto;border:0;width:132px;height:auto"></td></tr>'
     + '<tr><td align="center" style="text-align:center;padding:0 0 22px 0;font:400 17px/1.55 ' + F + ';color:#5B5B60">' + t.lead + '</td></tr>' + li
