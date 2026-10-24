@@ -4784,6 +4784,10 @@ const AVATAR_DEF = ['#C9CFDD', '#98A2BA', '#5A6482', '#E1E6F2'];
 function avatarInfo() { try { if (!insOn() || !scoreOn()) return null; const m = insightsModel(prevMkOf(iso(getToday()).slice(0, 7))); return !insLocked(m) && GRAD[m.letter] ? { g: m.plus ? plusGrad(m.letter) : GRAD[m.letter], letter: m.letter + (m.plus ? pch(m.letter) : '') } : null; } catch (e) { return null; } }
 function avatarGrad() { const a = avatarInfo(); return a ? a.g : AVATAR_DEF; }
 function avatarPhoto() { const p = (data && data.settings && data.settings.photo) || ''; return /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/.test(p) ? p : ''; }
+function letterCut(L) {
+  const fs = L.length > 1 ? 50 : 64, svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50" y="' + (50 + fs * 0.36) + '" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif" font-weight="800" font-size="' + fs + '" letter-spacing="-1" fill="#000">' + L.replace(/[&<>]/g, '') + '</text></svg>', u = "url('data:image/svg+xml," + encodeURIComponent(svg).replace(/'/g, '%27') + "') center/100% 100% no-repeat";
+  return '-webkit-mask:' + u + ',linear-gradient(#000,#000);-webkit-mask-composite:xor;mask:' + u + ',linear-gradient(#000,#000);mask-composite:exclude';
+}
 function avatarHTML(sz, photo, nobadge, cut) {
   const ph = photo === undefined ? avatarPhoto() : photo;
   if (!ph) return '<span style="position:relative;overflow:hidden;flex:none;width:' + sz + 'px;height:' + sz + 'px;border-radius:50%;background:' + insBg(avatarGrad()) + ';display:flex;align-items:center;justify-content:center" aria-hidden="true">' + SFI('f13in', sz, '#fff') + '</span>';
@@ -4795,9 +4799,9 @@ function avatarHTML(sz, photo, nobadge, cut) {
     '<span style="position:absolute;inset:0' + mk + '">' +
     '<span style="position:absolute;inset:0;border-radius:50%;background:' + insBg(g) + (cut ? ';-webkit-mask:radial-gradient(circle,transparent ' + (sz / 2 - rw) + 'px,#000 ' + (sz / 2 - rw + 0.6) + 'px);mask:radial-gradient(circle,transparent ' + (sz / 2 - rw) + 'px,#000 ' + (sz / 2 - rw + 0.6) + 'px)' : '') + '"></span>' +
     (cut ? '' : '<span style="position:absolute;inset:' + rw + 'px;border-radius:50%;background:var(--card)"></span>') +
-    '<span style="position:absolute;inset:' + (rw + 2) + 'px;border-radius:50%;background:var(--fill) url(' + ph + ') center/cover no-repeat"></span>' +
+    '<span style="position:absolute;inset:' + (rw + (cut ? bw : 2)) + 'px;border-radius:50%;background:var(--fill) url(' + ph + ') center/cover no-repeat"></span>' +
     '</span>' +
-    (a && !nobadge ? '<span data-notr style="position:absolute;right:-' + Math.round(bs * 0.12) + 'px;bottom:-' + Math.round(bs * 0.12) + 'px;width:' + bs + 'px;height:' + bs + 'px;border-radius:50%;background:' + insBg(g) + ';' + (cut ? '' : 'border:' + bw + 'px solid #fff;') + 'box-sizing:border-box;display:flex;align-items:center;justify-content:center;color:' + (cut ? 'color-mix(in srgb,' + g[2] + ' 32%,#000)' : '#fff') + ';font-weight:800;font-size:' + Math.round(bs * (a.letter.length > 1 ? (cut ? 0.48 : 0.4) : (cut ? 0.62 : 0.52))) + 'px;letter-spacing:-.5px;' + (cut ? '' : 'text-shadow:0 1px 2px rgba(0,0,0,.3)') + '">' + a.letter + '</span>' : '') + '</span>';
+    (a && !nobadge ? (cut ? '<span data-notr style="position:absolute;right:-' + off + 'px;bottom:-' + off + 'px;width:' + bs + 'px;height:' + bs + 'px;border-radius:50%;background:' + insBg(g) + ';' + letterCut(a.letter) + '"></span>' : '<span data-notr style="position:absolute;right:-' + off + 'px;bottom:-' + off + 'px;width:' + bs + 'px;height:' + bs + 'px;border-radius:50%;background:' + insBg(g) + ';border:' + bw + 'px solid #fff;box-sizing:border-box;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:' + Math.round(bs * (a.letter.length > 1 ? 0.4 : 0.52)) + 'px;letter-spacing:-.5px;text-shadow:0 1px 2px rgba(0,0,0,.3)">' + a.letter + '</span>') : '') + '</span>';
 }
 function gradeCounts() {
   if (!scoreOn()) return [];
