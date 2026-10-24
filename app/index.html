@@ -4853,6 +4853,10 @@ function laurelSVG(sz, pal, cfg) {
   });
   return '<svg width="' + sz + '" height="' + sz + '" viewBox="0 0 ' + sz + ' ' + sz + '" style="position:absolute;inset:0;pointer-events:none"><defs><linearGradient id="lg" gradientUnits="userSpaceOnUse" x1="0" y1="' + (c - 64) + '" x2="0" y2="' + (c + 64) + '"><stop offset="0" stop-color="' + pal[0] + '"/><stop offset=".5" stop-color="' + pal[1] + '"/><stop offset="1" stop-color="' + pal[2] + '"/></linearGradient></defs>' + out.join('') + '</svg>';
 }
+function gradeBadge(L, g, px, style) {
+  const dm = /^[SABC]\+$/.test(L), tr = /^[DF]-$/.test(L), k = dm ? DMK : tr ? TRK : 1, bx = Math.round(px * k), cm = dm ? letterCut(L, true, true) : tr ? letterCut(L, false, false, false, true) : letterCut(L);
+  return '<span role="img" aria-label="' + L + '" style="display:block;flex:none;width:' + bx + 'px;height:' + bx + 'px;border-radius:' + (dm || tr ? 0 : 50) + '%;background:' + insBg(g) + ';' + cm + (style || '') + '"></span>';
+}
 function profileViewHTML() {
   const st = data.settings || {}, nm = [(st.first || '').trim(), (st.last || '').trim()].filter(Boolean).join(' ');
   const gc = gradesShown() ? gradeCounts() : [];
@@ -4861,8 +4865,8 @@ function profileViewHTML() {
   const sg = !gg && av && av.letter === 'S';
   const ltxt = (g0, g1, s) => 'font-size:' + s + 'px;font-weight:800;letter-spacing:-.5px;line-height:1;background:linear-gradient(180deg,' + g0 + ',' + g1 + ');-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent';
   const pic = (gg || sg)
-    ? '<div style="position:relative;width:176px;height:176px;display:flex;align-items:center;justify-content:center;margin:-8px 0 2px">' + laurelSVG(176, gg ? gg.pal : av.g, gg ? gg.cfg : LAU.S) + avatarHTML(128, undefined, true) + '<div style="position:absolute;left:50%;bottom:-3px;transform:translateX(-50%)"><div style="' + (gg ? ltxt(gg.ink, gg.pal[2], 21) : ltxt(av.g[1], av.g[2], 21)) + '">' + (gg ? gg.l + '+' : av.letter) + '</div></div></div>'
-    : '<div style="display:flex;flex-direction:column;align-items:center">' + avatarHTML(128, undefined, true) + (av ? '<div style="margin-top:8px;' + ltxt(av.g[1], av.g[2], 21) + '">' + esc(av.letter) + '</div>' : '') + '</div>';
+    ? '<div style="position:relative;width:176px;height:176px;display:flex;align-items:center;justify-content:center;margin:-8px 0 16px">' + laurelSVG(176, gg ? gg.pal : av.g, gg ? gg.cfg : LAU.S) + avatarHTML(128, undefined, true) + '<div style="position:absolute;left:50%;top:' + (172 - Math.round(34 * (gg || /^[SABC]\\+$/.test(av.letter) ? DMK : 1) / 2)) + 'px;transform:translateX(-50%)">' + gradeBadge(gg ? gg.l + '+' : av.letter, gg ? gg.pal : av.g, 34) + '</div></div>'
+    : '<div style="display:flex;flex-direction:column;align-items:center">' + avatarHTML(128, undefined, true) + (av ? '<div style="margin-top:10px;display:flex;justify-content:center">' + gradeBadge(av.letter, av.g, 34) + '</div>' : '') + '</div>';
   const top = '<div style="display:flex;flex-direction:column;align-items:center;padding:6px 0 18px">' + pic + '<div style="font-size:24px;font-weight:700;letter-spacing:-.5px;margin-top:12px;text-align:center">' + esc(nm || 'Tu perfil') + '</div>' + gr + '</div>';
   const rv = (l, v) => '<div class="row"><span class="grow" style="font-size:17px">' + l + '</span><span style="font-size:17px;color:var(--mute);text-align:right;min-width:0;overflow-wrap:anywhere">' + esc(v) + '</span></div>';
   const GN = { n: 'Neutro', m: 'Masculino', f: 'Femenino' }, lg = LANG_LIST.filter((x) => x[0] === langPref())[0], P = curP(), S = curS();
