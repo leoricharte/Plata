@@ -61,26 +61,26 @@ const mailLink = (lang) => 'https://plataapp.net/cloud.html' + (lang === 'en' ? 
 function waitlistMail(lang, n) {
   const t = mailT(lang), G = '#22B573', F = "Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
   const sig = t.sig, thanks = t.thanks.replace('<', '&lt;');
-  const row = (i) => '<tr><td style="padding:0 0 18px 0"><div style="font:700 15px/1.3 ' + F + ';color:#1C1C1E;margin:0 0 3px">' + t.h[i] + '</div><div style="font:400 15px/1.55 ' + F + ';color:#5B5B60">' + t.p[i] + '</div></td></tr>';
+  const row = (i) => '<tr><td align="center" style="text-align:center;padding:0 0 18px 0"><div style="font:700 15px/1.3 ' + F + ';color:#1C1C1E;margin:0 0 3px">' + t.h[i] + '</div><div style="font:400 15px/1.55 ' + F + ';color:#5B5B60">' + t.p[i] + '</div></td></tr>';
   const html = '<!doctype html><html lang="' + (MAIL_TXT[lang] ? lang : 'en') + '"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="only light"><meta name="supported-color-schemes" content="light"><title>' + t.subject(n) + '</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">'
     + '<style>:root{color-scheme:only light}@media (max-width:520px){.pad{padding-left:24px!important;padding-right:24px!important}.num{font-size:64px!important}.tt{font-size:30px!important}}</style></head>'
     + '<body style="margin:0;padding:0;background:#FFFFFF">'
     + '<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent">' + t.pre(n) + '</div>'
     + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#FFFFFF"><tr><td align="center" style="padding:0">'
     + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px">'
-    + '<tr><td style="padding:0"><img src="' + MAIL_CLOUDS + '" width="560" alt="" style="display:block;border:0;width:100%;max-width:560px;height:auto"></td></tr>'
-    + '<tr><td class="pad" style="padding:6px 34px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">'
+    + '<tr><td align="center" style="text-align:center;padding:0"><img src="' + MAIL_CLOUDS + '" width="560" alt="" style="display:block;margin:0 auto;border:0;width:100%;max-width:560px;height:auto"></td></tr>'
+    + '<tr><td class="pad" align="center" style="text-align:center;padding:6px 34px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">'
     + '<tr><td style="padding:0 0 20px 0"><img src="' + MAIL_LOGO + '" width="150" height="52" alt="Plata Cloud" style="display:block;border:0;height:auto;width:150px"></td></tr>'
-    + '<tr><td class="num" style="padding:0;font:800 80px/1 ' + F + ';letter-spacing:-0.05em;color:' + G + '">#' + n + '</td></tr>'
-    + '<tr><td class="tt" style="padding:6px 0 14px 0;font:800 36px/1.1 ' + F + ';letter-spacing:-0.03em;color:#1C1C1E">' + t.title + '</td></tr>'
-    + '<tr><td style="padding:0 0 26px 0;font:400 17px/1.55 ' + F + ';color:#5B5B60">' + t.lead(n) + '</td></tr>'
+    + '<tr><td class="num" align="center" style="text-align:center;padding:0;font:800 80px/1 ' + F + ';letter-spacing:-0.05em;color:' + G + '">#' + n + '</td></tr>'
+    + '<tr><td class="tt" align="center" style="text-align:center;padding:6px 0 14px 0;font:800 36px/1.1 ' + F + ';letter-spacing:-0.03em;color:#1C1C1E">' + t.title + '</td></tr>'
+    + '<tr><td align="center" style="text-align:center;padding:0 0 26px 0;font:400 17px/1.55 ' + F + ';color:#5B5B60">' + t.lead(n) + '</td></tr>'
     + row(0) + row(1) + row(2)
-    + '<tr><td style="padding:8px 0 26px 0"><a href="' + mailLink(lang) + '" style="display:inline-block;background:' + G + ';color:#FFFFFF;text-decoration:none;border-radius:999px;padding:14px 26px;font:700 16px/1 ' + F + '">' + t.btn + '</a></td></tr>'
-    + '<tr><td style="padding:0 0 14px 0;font:500 16px/1.4 ' + F + ';color:#1C1C1E">' + thanks + '</td></tr>'
-    + '<tr><td style="padding:0 0 18px 0;font:700 15px/1.45 ' + F + ';color:#1C1C1E">' + sig[0] + '<br><span style="font-weight:500;color:#5B5B60">' + sig[1] + '</span></td></tr>'
-    + '<tr><td style="padding:0 0 30px 0"><a href="https://www.instagram.com/plataapp/" style="text-decoration:none;color:#1C1C1E;font:600 15px/1 ' + F + '"><img src="' + MAIL_IG + '" width="20" height="20" alt="Instagram" style="border:0;vertical-align:middle;width:20px;height:20px">&nbsp; plataapp</a></td></tr>'
+    + '<tr><td align="center" style="text-align:center;padding:8px 0 26px 0"><a href="' + mailLink(lang) + '" style="display:inline-block;background:' + G + ';color:#FFFFFF;text-decoration:none;border-radius:999px;padding:14px 26px;font:700 16px/1 ' + F + '">' + t.btn + '</a></td></tr>'
+    + '<tr><td align="center" style="text-align:center;padding:0 0 14px 0;font:500 16px/1.4 ' + F + ';color:#1C1C1E">' + thanks + '</td></tr>'
+    + '<tr><td align="center" style="text-align:center;padding:0 0 18px 0;font:700 15px/1.45 ' + F + ';color:#1C1C1E">' + sig[0] + '<br><span style="font-weight:500;color:#5B5B60">' + sig[1] + '</span></td></tr>'
+    + '<tr><td align="center" style="text-align:center;padding:0 0 30px 0"><a href="https://www.instagram.com/plataapp/" style="text-decoration:none;color:#1C1C1E;font:600 15px/1 ' + F + '"><img src="' + MAIL_IG + '" width="20" height="20" alt="Instagram" style="border:0;vertical-align:middle;width:20px;height:20px">&nbsp; plataapp</a></td></tr>'
     + '</table></td></tr>'
-    + '<tr><td class="pad" style="padding:0 34px 34px;font:400 12.5px/1.5 ' + F + ';color:#8A8A8F">' + t.foot + '</td></tr>'
+    + '<tr><td class="pad" align="center" style="text-align:center;padding:0 34px 34px;font:400 12.5px/1.5 ' + F + ';color:#8A8A8F">' + t.foot + '</td></tr>'
     + '</table></td></tr></table></body></html>';
   const text = '#' + n + '\n' + t.title + '\n\n' + t.lead(n) + '\n\n' + t.h.map((x, i) => x + '\n' + t.p[i]).join('\n\n') + '\n\n' + t.btn + ': ' + mailLink(lang) + '\n\n' + t.thanks + '\n' + sig[0] + ' ' + sig[1] + '\n\nInstagram: plataapp\n\n' + t.foot + '\n';
   return { subject: t.subject(n), html, text };
@@ -329,25 +329,25 @@ function codeMail(lang, code, kind, x) {
   let detRows = '', det = '';
   if (kind === 'link') { x = x || {}; det = (x.plat || '?') + (x.tz ? ' · ' + x.tz.split('/').pop().replace(/_/g, ' ') : '') + (x.when ? ' · ' + x.when : '');
     const os = String(x.plat || '').split(' · ')[0], ico = os === 'iPhone' ? 'apple' : os === 'Android' ? 'android' : os === 'Mac' ? 'macbook' : os === 'Windows' ? 'windows' : os === 'Linux' ? 'computer' : 'smartphone';
-    const item = (ic, tx) => '<tr><td style="padding:0 0 8px"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td valign="middle" style="padding:0 10px 0 0"><img src="' + MAIL_IC(ic) + '" width="20" height="20" alt="" style="display:block;border:0;width:20px;height:20px"></td><td valign="middle" style="font:600 15px/1.3 ' + F + ';color:#1C1C1E">' + String(tx).replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</td></tr></table></td></tr>';
+    const item = (ic, tx) => '<tr><td align="center" style="text-align:center;padding:0 0 8px"><table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td valign="middle" style="padding:0 10px 0 0"><img src="' + MAIL_IC(ic) + '" width="20" height="20" alt="" style="display:block;margin:0 auto;border:0;width:20px;height:20px"></td><td valign="middle" style="font:600 15px/1.3 ' + F + ';color:#1C1C1E">' + String(tx).replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</td></tr></table></td></tr>';
     const city = x.tz ? x.tz.split('/').pop().replace(/_/g, ' ') : '';
-    detRows = '<tr><td style="padding:0 32px 20px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F2F2F4;border-radius:18px"><tr><td style="padding:16px 18px 8px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">'
+    detRows = '<tr><td align="center" style="text-align:center;padding:0 32px 20px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F2F2F4;border-radius:18px"><tr><td align="center" style="text-align:center;padding:16px 18px 8px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">'
       + item(ico, os || (es ? 'Dispositivo' : 'Device')) + (city ? item('global', city) : '') + (x.when ? item('time', x.when) : '') + '</table></td></tr></table></td></tr>';
     Object.assign(t, es
     ? { subject: 'Alguien quiere entrar a tu cuenta de Plata Cloud', title: 'Alguien quiere entrar a tu cuenta', lead: 'Se pidió iniciar sesión en tu cuenta con estos datos. Para aprobarlo, abre Plata en un dispositivo donde ya tengas sesión: en Ajustes verás la solicitud. Confirma que el código de abajo sea el mismo que ves en el dispositivo nuevo. Vence en 10 minutos.', danger: 'APRUÉBALO SOLO SI FUISTE TÚ.', warn: 'Si no fuiste tú, recházalo en Plata o ignora este correo: sin tu aprobación nadie puede entrar.' }
     : { subject: 'Someone wants to sign in to your Plata Cloud account', title: 'Someone wants to sign in to your account', lead: 'A sign-in was requested on your account with these details. To approve it, open Plata on a device where you are already signed in: you will see the request in Settings. Check that the code below matches the one on the new device. It expires in 10 minutes.', danger: 'ONLY APPROVE IT IF IT WAS YOU.', warn: "If it wasn't you, decline it in Plata or ignore this email: nobody can sign in without your approval." }); }
   const spaced = kind === 'link' ? code : code.slice(0, 3) + ' ' + code.slice(3);
-  const dangerRow = t.danger ? '<tr><td style="padding:0 32px 20px"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td valign="top" style="padding:2px 10px 0 0"><img src="' + MAIL_WARN + '" width="22" height="22" alt="!" style="display:block;border:0;width:22px;height:22px"></td><td style="font:800 16px/1.45 ' + F + ';color:#D70015">' + t.danger + '</td></tr></table></td></tr>' : '';
+  const dangerRow = t.danger ? '<tr><td align="center" style="text-align:center;padding:0 32px 20px"><table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td valign="top" style="padding:2px 10px 0 0"><img src="' + MAIL_WARN + '" width="22" height="22" alt="!" style="display:block;margin:0 auto;border:0;width:22px;height:22px"></td><td style="font:800 16px/1.45 ' + F + ';color:#D70015">' + t.danger + '</td></tr></table></td></tr>' : '';
   const html = '<!doctype html><html lang="' + (es ? 'es' : 'en') + '"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="only light"><title>' + t.subject + '</title></head><body style="margin:0;padding:0;background:#FFFFFF">'
     + '<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent">' + code + '</div>'
     + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#FFFFFF"><tr><td align="center"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px">'
-    + '<tr><td><img src="' + MAIL_CLOUDS + '" width="520" alt="" style="display:block;border:0;width:100%;max-width:520px;height:auto"></td></tr>'
+    + '<tr><td><img src="' + MAIL_CLOUDS + '" width="520" alt="" style="display:block;margin:0 auto;border:0;width:100%;max-width:520px;height:auto"></td></tr>'
     + '<tr><td style="padding:6px 32px 0"><img src="' + MAIL_LOGO + '" width="140" height="49" alt="Plata Cloud" style="display:block;border:0;height:auto;width:140px"></td></tr>'
-    + '<tr><td style="padding:22px 32px 8px;font:800 28px/1.15 ' + F + ';letter-spacing:-0.02em;color:#1C1C1E">' + t.title + '</td></tr>'
-    + '<tr><td style="padding:0 32px 22px;font:400 16px/1.55 ' + F + ';color:#5B5B60">' + t.lead + '</td></tr>'
+    + '<tr><td align="center" style="text-align:center;padding:22px 32px 8px;font:800 28px/1.15 ' + F + ';letter-spacing:-0.02em;color:#1C1C1E">' + t.title + '</td></tr>'
+    + '<tr><td align="center" style="text-align:center;padding:0 32px 22px;font:400 16px/1.55 ' + F + ';color:#5B5B60">' + t.lead + '</td></tr>'
     + detRows + dangerRow
-    + '<tr><td style="padding:0 32px 24px"><div style="display:inline-block;background:#E9F6EF;border-radius:18px;padding:18px 28px;font:800 40px/1 ' + F + ';letter-spacing:0.12em;color:#13774C">' + spaced + '</div></td></tr>'
-    + '<tr><td style="padding:0 32px 34px;font:400 13px/1.5 ' + F + ';color:#8A8A8F">' + t.warn + '</td></tr>'
+    + '<tr><td align="center" style="text-align:center;padding:0 32px 24px"><div style="display:inline-block;margin:0 auto;background:#E9F6EF;border-radius:18px;padding:18px 28px;font:800 40px/1 ' + F + ';letter-spacing:0.12em;color:#13774C">' + spaced + '</div></td></tr>'
+    + '<tr><td align="center" style="text-align:center;padding:0 32px 34px;font:400 13px/1.5 ' + F + ';color:#8A8A8F">' + t.warn + '</td></tr>'
     + '</table></td></tr></table></body></html>';
   return { subject: t.subject, html, text: t.title + '\n\n' + spaced + '\n\n' + t.lead + (kind === 'link' ? '\n' + det : '') + '\n\n' + (t.danger ? t.danger + '\n\n' : '') + t.warn + '\n' };
 }
@@ -562,20 +562,20 @@ const INV_TXT = {
 function inviteMail(lang) {
   const t = INV_TXT[lang] || INV_TXT.en, G = '#22B573', F = "Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
   const url = 'https://plataapp.net/app/', th = t.thanks.replace('<', '&lt;');
-  const li = t.steps.map((x, i) => '<tr><td style="padding:0 0 12px 0;font:400 15px/1.5 ' + F + ';color:#5B5B60"><b style="color:' + G + '">' + (i + 1) + '.</b>&nbsp; ' + x + '</td></tr>').join('');
+  const li = t.steps.map((x, i) => '<tr><td align="center" style="text-align:center;padding:0 0 12px 0;font:400 15px/1.5 ' + F + ';color:#5B5B60"><b style="color:' + G + '">' + (i + 1) + '.</b>&nbsp; ' + x + '</td></tr>').join('');
   const html = '<!doctype html><html lang="' + (INV_TXT[lang] ? lang : 'en') + '"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="only light"><title>' + t.subject + '</title></head><body style="margin:0;padding:0;background:#FFFFFF">'
     + '<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent">' + t.pre + '</div>'
     + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="center"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px">'
-    + '<tr><td><img src="' + MAIL_CLOUDS + '" width="560" alt="" style="display:block;border:0;width:100%;height:auto"></td></tr>'
-    + '<tr><td style="padding:6px 34px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">'
+    + '<tr><td><img src="' + MAIL_CLOUDS + '" width="560" alt="" style="display:block;margin:0 auto;border:0;width:100%;height:auto"></td></tr>'
+    + '<tr><td align="center" style="text-align:center;padding:6px 34px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">'
     + '<tr><td style="padding:0 0 20px 0"><img src="' + MAIL_LOGO + '" width="150" height="52" alt="Plata Cloud" style="display:block;border:0;width:150px;height:auto"></td></tr>'
-    + '<tr><td style="padding:0 0 6px 0;font:800 36px/1.1 ' + F + ';letter-spacing:-0.03em;color:#1C1C1E">' + t.title + '</td></tr>'
-    + '<tr><td style="padding:0 0 10px 0"><img src="' + MAIL_KEY + '" width="120" height="115" alt="" style="display:block;border:0;width:120px;height:auto"></td></tr>'
-    + '<tr><td style="padding:0 0 22px 0;font:400 17px/1.55 ' + F + ';color:#5B5B60">' + t.lead + '</td></tr>' + li
-    + '<tr><td style="padding:14px 0 26px 0"><a href="' + url + '" style="display:inline-block;background:' + G + ';color:#FFFFFF;text-decoration:none;border-radius:999px;padding:14px 26px;font:700 16px/1 ' + F + '">' + t.btn + '</a></td></tr>'
-    + '<tr><td style="padding:0 0 14px 0;font:500 16px/1.4 ' + F + ';color:#1C1C1E">' + th + '</td></tr>'
-    + '<tr><td style="padding:0 0 30px 0;font:700 15px/1.45 ' + F + ';color:#1C1C1E">' + t.sig[0] + '<br><span style="font-weight:500;color:#5B5B60">' + t.sig[1] + '</span></td></tr>'
-    + '</table></td></tr><tr><td style="padding:0 34px 34px;font:400 12.5px/1.5 ' + F + ';color:#8A8A8F">' + t.foot + '</td></tr></table></td></tr></table></body></html>';
+    + '<tr><td align="center" style="text-align:center;padding:0 0 14px 0;font:800 36px/1.1 ' + F + ';letter-spacing:-0.03em;color:#1C1C1E">' + t.title + '</td></tr>'
+    + '<tr><td align="center" style="text-align:center;padding:6px 0 30px 0"><img src="' + MAIL_KEY + '" width="132" height="126" alt="" style="display:block;margin:0 auto;border:0;width:132px;height:auto"></td></tr>'
+    + '<tr><td align="center" style="text-align:center;padding:0 0 22px 0;font:400 17px/1.55 ' + F + ';color:#5B5B60">' + t.lead + '</td></tr>' + li
+    + '<tr><td align="center" style="text-align:center;padding:14px 0 26px 0"><a href="' + url + '" style="display:inline-block;background:' + G + ';color:#FFFFFF;text-decoration:none;border-radius:999px;padding:14px 26px;font:700 16px/1 ' + F + '">' + t.btn + '</a></td></tr>'
+    + '<tr><td align="center" style="text-align:center;padding:0 0 14px 0;font:500 16px/1.4 ' + F + ';color:#1C1C1E">' + th + '</td></tr>'
+    + '<tr><td align="center" style="text-align:center;padding:0 0 30px 0;font:700 15px/1.45 ' + F + ';color:#1C1C1E">' + t.sig[0] + '<br><span style="font-weight:500;color:#5B5B60">' + t.sig[1] + '</span></td></tr>'
+    + '</table></td></tr><tr><td align="center" style="text-align:center;padding:0 34px 34px;font:400 12.5px/1.5 ' + F + ';color:#8A8A8F">' + t.foot + '</td></tr></table></td></tr></table></body></html>';
   const text = t.title + '\n\n' + t.lead + '\n\n' + t.steps.map((x, i) => (i + 1) + '. ' + x).join('\n') + '\n\n' + t.btn + ': ' + url + '\n\n' + t.thanks + '\n' + t.sig[0] + ' ' + t.sig[1] + '\n\n' + t.foot + '\n';
   return { subject: t.subject, html, text };
 }
