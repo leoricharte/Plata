@@ -3403,9 +3403,7 @@ const RULES = [
   [/^Al segundo subes a ([SABCDF])\+\.$/, (l, m) => ({ en: 'On the second, you move up to ' + m[1] + '+.', ja: '2か月目で' + m[1] + '+にアップ。', it: 'Al secondo sali a ' + m[1] + '+.', fr: 'Au deuxième, vous passez à ' + m[1] + '+.' })[l]],
   [/^Si sigues igual, al segundo pasas a ([DF])-\.$/, (l, m) => ({ en: 'If nothing changes, on the second you drop to ' + m[1] + '-.', ja: 'このままだと2か月目に' + m[1] + '-になります。', it: 'Se continui così, al secondo scendi a ' + m[1] + '-.', fr: 'Si rien ne change, au deuxième vous passez à ' + m[1] + '-.' })[l]],
   [/^S◆ Diamante · (\d+) meses seguidos$/, (l, m) => ({ en: 'S◆ Diamond · ' + m[1] + ' months in a row', ja: 'S◆ ダイヤモンド · ' + m[1] + 'か月連続', it: 'S◆ Diamante · ' + m[1] + ' mesi di fila', fr: 'S◆ Diamant · ' + m[1] + ' mois d’affilée' })[l]],
-  [/^(Un|Dos) mes(?:es)? más en S y llegas a Diamante\.$/, (l, m) => { const n = m[1] === 'Un' ? 1 : 2; return ({ en: n + (n === 1 ? ' more month' : ' more months') + ' in S and you reach Diamond.', ja: 'あと' + n + 'か月Sを続けるとダイヤモンドです。', it: n === 1 ? 'Ancora un mese in S e arrivi a Diamante.' : 'Ancora due mesi in S e arrivi a Diamante.', fr: n === 1 ? 'Encore un mois en S et vous atteignez Diamant.' : 'Encore deux mois en S et vous atteignez Diamant.' })[l]; }],
-  [/^4 meses seguidos en S y llegas a Diamante\.$/, (l) => ({ en: '4 months in a row at S and you reach Diamond.', ja: 'Sを4か月続けるとダイヤモンドに。', it: '4 mesi di fila in S e arrivi a Diamante.', fr: '4 mois d’affilée en S et vous atteignez Diamant.' })[l]],
-  [/^Lo máximo\. Mantén el nivel\.$/, (l) => ({ en: 'The very best. Keep it up.', ja: '最高です。この調子で。', it: 'Il massimo. Continua così.', fr: 'Le top. Continuez ainsi.' })[l]],
+  [/^Perfección\. En todo su esplendor\.$/, (l) => ({ en: 'Perfection. In all its splendor.', ja: '完璧。その輝きのすべて。', it: 'Perfezione. In tutto il suo splendore.', fr: 'La perfection. Dans toute sa splendeur.' })[l]],
   [/^([SABCDF][+-]) · (\d+) meses seguidos$/, (l, m) => ({ en: m[1] + ' · ' + m[2] + ' months in a row', ja: m[1] + ' · ' + m[2] + 'か月連続', it: m[1] + ' · ' + m[2] + ' mesi di fila', fr: m[1] + ' · ' + m[2] + ' mois d’affilée' })[l]],
   [/^Pago ([A-ZÁÉÍÓÚ\u0250-\uFFFF][^·]*)$/, (l, m) => (l === 'en' ? 'Payment ' + m[1] : l === 'it' ? 'Pagamento ' + m[1] : l === 'fr' ? 'Paiement ' + m[1] : m[1] + 'の支払い')],
   [/^(\d+) ([A-Z]{3}) en ([A-Z]{3})$/, (l, m) => (l === 'ja' ? m[1] + ' ' + m[2] + ' = ' + m[3] : m[1] + ' ' + m[2] + (l === 'fr' ? ' en ' : ' in ') + m[3])],
@@ -4065,10 +4063,10 @@ function gradeStreak(mk, letter) {
 function streakHTML(letter, n, plus) {
   const g = GRAD[letter] || GRAD.B, dia = plus === 'd', pg = tierG(letter, plus), bad = letter === 'D' || letter === 'F', mid = letter === 'B' || letter === 'C', S = letter === 'S';
   const dot = (on, last) => '<span style="width:12px;height:12px;border-radius:50%;display:inline-block;box-sizing:border-box;' + (on ? 'background:' + (last ? pg[1] : g[1]) : 'border:2px solid ' + (last ? pg[1] : '#C7C7CC')) + '"></span>';
-  const dots = '<span style="display:inline-flex;gap:6px;align-items:center">' + (S && n >= 2 ? dot(true) + dot(true, true) + dot(n >= 3) + dot(n >= 4, true) : dot(n >= 1) + dot(n >= 2, true)) + '</span>';
+  const dots = '<span style="display:inline-flex;gap:6px;align-items:center">' + (dia ? dot(true) + dot(true, true) + dot(true) + dot(true, true) : dot(n >= 1) + dot(n >= 2, true)) + '</span>';
   const grad = (txt) => '<div style="font-size:15px;font-weight:700;background:linear-gradient(135deg,' + pg[1] + ',' + pg[2] + ');-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent">' + txt + '</div>';
-  const t = dia ? grad('S◆ Diamante · ' + n + ' meses seguidos') + '<div class="sub" style="font-size:13px">Lo máximo. Mantén el nivel.</div>'
-    : plus ? grad(letter + pch(letter) + ' · ' + n + ' meses seguidos') + '<div class="sub" style="font-size:13px">' + (S ? (n >= 3 ? 'Un mes más en S y llegas a Diamante.' : 'Dos meses más en S y llegas a Diamante.') : bad ? 'Es momento de cambiar el rumbo.' : mid ? 'Nivel estable. Un ajuste más y subes.' : 'Mantienes tu nivel. ¡Sigue así!') + '</div>'
+  const t = dia ? grad('S◆ Diamante · ' + n + ' meses seguidos') + '<div class="sub" style="font-size:13px">Perfección. En todo su esplendor.</div>'
+    : plus ? grad(letter + pch(letter) + ' · ' + n + ' meses seguidos') + '<div class="sub" style="font-size:13px">' + (bad ? 'Es momento de cambiar el rumbo.' : mid ? 'Nivel estable. Un ajuste más y subes.' : 'Mantienes tu nivel. ¡Sigue así!') + '</div>'
     : '<div style="font-size:14px;font-weight:600;color:var(--ink2)">Llevas ' + n + ' de 2 meses con ' + letter + '.</div><div class="sub" style="font-size:13px">' + (bad ? 'Si sigues igual, al segundo pasas a ' + letter + '-.' : 'Al segundo subes a ' + letter + '+.') + '</div>';
   return '<div style="display:flex;align-items:center;gap:12px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">' + dots + '<div class="grow">' + t + '</div></div>';
 }
@@ -6639,7 +6637,7 @@ let wLogoTaps = [];
 let wSel = 'B';
 function wStreakInner() {
   const t = wSel === 'S' || wSel === 'A' ? 'Misma letra 2 meses seguidos y sube a letra+ dorada.' : wSel === 'B' || wSel === 'C' ? 'Misma letra 2 meses seguidos y sube a letra+ platino.' : 'Misma letra 2 meses seguidos y baja a letra- más roja.';
-  return '<div style="flex:none">' + scoreTile(wSel, 38, true) + '</div><div class="sub" style="font-size:14px;line-height:1.35;color:var(--ink2)">' + t + (wSel === 'S' ? '<div style="margin-top:4px">4 meses seguidos en S y llegas a Diamante.</div>' : '') + '</div>';
+  return '<div style="flex:none">' + scoreTile(wSel, 38, true) + '</div><div class="sub" style="font-size:14px;line-height:1.35;color:var(--ink2)">' + t + '</div>';
 }
 function wGradesHTML() {
   const L = [['S', 'Perfecto'], ['A', 'Muy bueno'], ['B', 'Bueno'], ['C', 'Mediocre'], ['D', 'Deficiente'], ['F', 'Muy malo']];
@@ -6669,7 +6667,7 @@ function wDebugGradesHTML() {
   const dia = b('Sd', 'd');
   return '<div style="padding:12px 16px 8px;font-size:14px;color:var(--mute)">Calificaciones (datos planos)</div><div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px 4px;padding:0 12px 4px">' +
     L.map((x) => b(x, false)).join('') + L.map((x) => b(x + 'p', true)).join('') + dia + '</div>' +
-    '<div style="padding:4px 16px 8px;font-size:12px;color:#8E8E93">Segunda fila: letra+ / letra- (racha de 2 meses) · al final: Diamante (4 meses en S)</div>';
+    '<div style="padding:4px 16px 8px;font-size:12px;color:#8E8E93">Segunda fila: letra+ / letra- (racha de 2 meses) · al final: Diamante</div>';
 }
 function wDebugClose() { const b = $('#wdbg'); if (b) { b.style.opacity = '0'; setTimeout(() => b.remove(), 200); } }
 function wDebugPick(v) {
