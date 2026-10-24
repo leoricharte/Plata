@@ -4239,7 +4239,7 @@ function avatarHTML(sz, photo, nobadge, cut) {
     (cut ? '' : '<span style="position:absolute;inset:' + rw + 'px;border-radius:50%;background:var(--card)"></span>') +
     '<span style="position:absolute;inset:' + (rw + 2) + 'px;border-radius:50%;background:var(--fill) url(' + ph + ') center/cover no-repeat"></span>' +
     '</span>' +
-    (a && !nobadge ? '<span data-notr style="position:absolute;right:-' + Math.round(bs * 0.12) + 'px;bottom:-' + Math.round(bs * 0.12) + 'px;width:' + bs + 'px;height:' + bs + 'px;border-radius:50%;background:' + insBg(g) + ';' + (cut ? '' : 'border:' + bw + 'px solid #fff;') + 'box-sizing:border-box;display:flex;align-items:center;justify-content:center;color:' + (cut ? 'color-mix(in srgb,' + g[2] + ' 45%,#000)' : '#fff') + ';font-weight:800;font-size:' + Math.round(bs * (a.letter.length > 1 ? 0.4 : 0.52)) + 'px;letter-spacing:-.5px;' + (cut ? '' : 'text-shadow:0 1px 2px rgba(0,0,0,.3)') + '">' + a.letter + '</span>' : '') + '</span>';
+    (a && !nobadge ? '<span data-notr style="position:absolute;right:-' + Math.round(bs * 0.12) + 'px;bottom:-' + Math.round(bs * 0.12) + 'px;width:' + bs + 'px;height:' + bs + 'px;border-radius:50%;background:' + insBg(g) + ';' + (cut ? '' : 'border:' + bw + 'px solid #fff;') + 'box-sizing:border-box;display:flex;align-items:center;justify-content:center;color:' + (cut ? 'color-mix(in srgb,' + g[2] + ' 32%,#000)' : '#fff') + ';font-weight:800;font-size:' + Math.round(bs * (a.letter.length > 1 ? (cut ? 0.48 : 0.4) : (cut ? 0.62 : 0.52))) + 'px;letter-spacing:-.5px;' + (cut ? '' : 'text-shadow:0 1px 2px rgba(0,0,0,.3)') + '">' + a.letter + '</span>' : '') + '</span>';
 }
 function gradeCounts() {
   if (!scoreOn()) return [];
