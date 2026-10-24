@@ -2866,6 +2866,7 @@ function bsSave() {
   if (!nm) { toast('Escribe un nombre'); return; }
   if (!from || !to) { toast('Elige inicio y fin'); return; }
   if (to < from) { toast('El fin debe ser posterior al inicio'); return; }
+  const clash = bsets().find((x) => x.id !== v.id && x.from <= to && x.to >= from); if (clash) { toast('Esas fechas se cruzan con «' + clash.name + '». Cámbialas.'); return; }
   if (v.isNew) { const src = v.src === 'base' ? data.budget : (bsets().find((x) => x.id === v.src) || {}).budget || data.budget; bsets().push({ id: v.id, name: nm, from: from, to: to, budget: clone(src), cur: bc }); ui.bsel = v.id; }
   else { const b = bsets().find((x) => x.id === v.id); if (b) { b.name = nm; b.from = from; b.to = to; b.cur = bc; } }
   ui.bs = null; ui.dirty++; persist(); closeSheet(); renderAll(); toast('Set guardado');
@@ -3727,12 +3728,12 @@ function txEditHTML(t) {
   ui.sheetType = pay ? 'pay' : t.amount > 0 ? 'in' : 'out'; ui.sheetCat = pay ? '' : (CAT_ORDER.indexOf(t.category) >= 0 ? t.category : 'Otros'); ui.sheetAcc = acc.id; ui.txEditId = t.id;
   return sheetHead('Editar movimiento', 'close', 'txsave') +
     '<div class="amtblock"><div class="amtlabel">Monto</div><div class="amount"><span id="fSym">' + symOf(acc.cur).trim() + '</span><input id="fAmount" inputmode="decimal" autocomplete="off" value="' + Math.abs(t.amount) + '" style="width:' + amtW(Math.abs(t.amount)) + '"></div></div>' +
-    (pay ? '' : segHTML('type', [{ k: 'out', label: 'Gasto', act: 'type:out' }, { k: 'in', label: 'Ingreso', act: 'type:in' }], ui.sheetType, ';margin-bottom:4px') + '<div class="thint" id="thint">' + typeHint() + '</div><div id="catWrap">' + catsHTML() + '</div>') +
+    (pay || t.job ? '' : segHTML('type', [{ k: 'out', label: 'Gasto', act: 'type:out' }, { k: 'in', label: 'Ingreso', act: 'type:in' }], ui.sheetType, ';margin-bottom:4px') + '<div class="thint" id="thint">' + typeHint() + '</div><div id="catWrap">' + catsHTML() + '</div>') +
     '<div class="scard">' +
     (t.job && t.hrs > 0 ? '<label class="srow">' + fico(['#FF9F0A', '#']) + '<span class="grow"><span class="slabel">Horas trabajadas</span><input class="sinput" id="fHrs" inputmode="decimal" autocomplete="off" data-rate="' + t.rate + '" value="' + t.hrs + '"></span></label><div class="srow">' + fico(['#FF6B5E', '%']) + '<span class="grow"><span class="slabel">Impuestos descontados (calculado)</span><div id="taxOut" style="font-size:17px">' + taxPct(Math.abs(t.amount), t.rate, t.hrs) + '%</div></span></div>' : '') +
-    '<label class="srow">' + fico(['#22B573', 'card']) + '<span class="grow"><span class="slabel">Cuenta</span><select class="sinput" id="fAcc">' + acctOpts(acc.id, true) + '</select></span></label>' +
+    '<label class="srow">' + fico(['#22B573', 'card']) + '<span class="grow"><span class="slabel">Cuenta</span><select class="sinput" id="fAcc">' + (pay && isCredit(acc) ? data.cards.map((a) => '<option value="' + a.id + '"' + (a.id === acc.id ? ' selected' : '') + '>' + esc(a.name) + l4(a) + ' · ' + a.cur + '</option>').join('') : acctOpts(acc.id, !pay && !t.job && (ui.sheetType !== 'in' || isCredit(acc)))) + '</select></span></label>' +
     '<label class="srow">' + fico(['#22B573', 'pen']) + '<span class="grow"><span class="slabel">Nota</span><input class="sinput" id="fNote" autocomplete="off" value="' + esc(t.note || '') + '"></span></label>' +
-    '<label class="srow">' + fico(['#FF9F0A', 'cal']) + '<span class="grow"><span class="slabel">Fecha</span><input class="sinput" id="fDate" type="date" value="' + esc(t.date) + '"></span></label></div>' +
+    '<label class="srow">' + fico(['#FF9F0A', 'cal']) + '<span class="grow"><span class="slabel">Fecha</span><input class="sinput" id="fDate" type="date" max="' + iso(getToday()) + '" value="' + esc(t.date) + '"></span></label></div>' +
     '<button class="primary" data-act="txsave">Guardar</button>';
 }
 function txSave() {
@@ -3740,6 +3741,8 @@ function txSave() {
   const v = readSheet(), amt = parseFloat(String(v.amount).replace(',', '.'));
   if (!(amt > 0)) { toast('Escribe un monto'); return; }
   const pay = isPay(t), old = { amount: t.amount, acc: t.acc }, d = v.date || t.date;
+  if (d > iso(getToday())) { toast(futureMsg); return; }
+  if (!pay && ui.sheetType === 'in' && v.acc !== old.acc && isCredit(accOf(v.acc))) { toast('Un ingreso no va en una tarjeta. Para pagarla usa Pago.'); return; }
   txRevert(t);
   const out = pay ? t.amount < 0 : ui.sheetType === 'out';
   t.amount = pay ? (old.amount < 0 ? -amt : amt) : (out ? -amt : amt);
@@ -3943,7 +3946,7 @@ function xferHTML(keep) {
     (diff ? row(['#22B573', '$'], 'Recibes', '<span style="display:flex;align-items:center;gap:6px"><span class="xsym" style="font-size:17px;font-weight:500">' + symOf(t.cur).trim() + '</span><input class="sinput" id="xRecv" inputmode="decimal" autocomplete="off" placeholder="' + (decOf(t.cur) ? '0.00' : '0') + '" value="' + esc(k.recv || '') + '"></span><span class="sub xrate" id="xRate" style="font-size:13px"></span>') : '') +
     row(['#FF9F0A', '$'], 'Comisión (opcional)', '<span style="display:flex;align-items:center;gap:6px"><span class="xsym" style="font-size:17px;font-weight:500">' + symOf(f.cur).trim() + '</span><input class="sinput" id="xComm" inputmode="decimal" autocomplete="off" placeholder="0" value="' + esc(k.comm || '') + '"></span>') +
     row(['#22B573', 'pen'], 'Nota', '<input class="sinput" id="xNote" placeholder="Opcional" autocomplete="off" value="' + esc(k.note || '') + '">') +
-    row(['#FF9F0A', 'cal'], 'Fecha', '<input class="sinput" id="xDate" type="date" value="' + esc(k.date || iso(getToday())) + '">') + '</div>' +
+    row(['#FF9F0A', 'cal'], 'Fecha', '<input class="sinput" id="xDate" type="date" max="' + iso(getToday()) + '" value="' + esc(k.date || iso(getToday())) + '">') + '</div>' +
     '<button class="primary" data-act="xsubmit">Transferir</button>';
 }
 function xferSync() {
@@ -3956,13 +3959,14 @@ function xferSync() {
 function xferSubmit() {
   const x = ui.xf; if (!x) return; const v = xferRead(), amt = xNum(v.amount);
   if (!(amt > 0)) { toast('Escribe un monto'); return; }
+  if ((v.date || iso(getToday())) > iso(getToday())) { toast(futureMsg); return; }
   const f = accOf(x.from), t = accOf(x.to); let recv = amt;
   if (f.cur !== t.cur) { recv = xNum(v.recv); if (!(recv > 0)) recv = xferConv(amt); }
   recv = round2(recv); const comm = round2(xNum(v.comm) || 0), d = v.date || iso(getToday()), pid = uid(), note = v.note.trim();
   data.transactions.push({ id: nextTxId(), date: d, amount: -amt, category: XFER, note: note, acc: f.id, pair: pid }); applyTo(f, -amt);
   data.transactions.push({ id: nextTxId(), date: d, amount: recv, category: XFER, note: note, acc: t.id, pair: pid }); applyTo(t, recv);
   if (comm > 0) { data.transactions.push({ id: nextTxId(), date: d, amount: -comm, category: 'Otros', note: 'Comisión de transferencia', acc: f.id }); applyTo(f, -comm); }
-  ui.dirty++; persist(); closeSheet(); renderAll(); toast('Transferencia registrada');
+  ui.dirty++; persist(); closeSheet(); renderAll(); toast(negWarn([f.id]) || 'Transferencia registrada');
 }
 document.addEventListener('input', (e) => { const el = e.target; if (!ui.xf || !el) return; if (el.id === 'xRecv') ui.xf.recvEdited = true; if (el.id === 'fAmount' || el.id === 'xRecv') xferSync(); });
 document.addEventListener('change', (e) => {
@@ -3984,7 +3988,7 @@ function sheetHTML(keep) {
       : '<label class="srow">' + fico(['#22B573', 'card']) + '<span class="grow"><span class="slabel">Cuenta</span><select class="sinput" id="fAcc">' + acctOpts(acc.id, ui.sheetType !== 'in') + '</select></span></label>') +
     '<label class="srow">' + fico(['#22B573', 'pen']) + '<span class="grow"><span class="slabel">Nota</span><input class="sinput" id="fNote" placeholder="Opcional" autocomplete="off" value="' + esc(k.note || '') + '"></span></label>' +
     '<div class="nsug" id="nsug">' + noteSugHTML(k.note || '') + '</div>' +
-    '<label class="srow">' + fico(['#FF9F0A', 'cal']) + '<span class="grow"><span class="slabel">Fecha</span><input class="sinput" id="fDate" type="date" value="' + esc(k.date || iso(getToday())) + '"></span></label></div>' +
+    '<label class="srow">' + fico(['#FF9F0A', 'cal']) + '<span class="grow"><span class="slabel">Fecha</span><input class="sinput" id="fDate" type="date" max="' + iso(getToday()) + '" value="' + esc(k.date || iso(getToday())) + '"></span></label></div>' +
     '<button class="primary" data-act="submit">Añadir</button>';
 }
 const HISTORY = [
@@ -4390,26 +4394,39 @@ function apRowHTML() {
   const ok = apOK(k);
   return '<div class="row" style="padding:12px 16px"><span class="grow"><span style="font-size:17px;display:block">Pago esperado</span><span class="sub" style="font-size:13px">' + (ok ? 'El día ' + k.due_day + ' de cada mes te preguntamos cuánto pagaste.' : 'Disponible si la tarjeta tiene día de pago.') + '</span></span>' + swHTML(!!ui.sheetAuto && ok, 'apsw', !ok) + '</div>';
 }
+/* Avisos suaves: no bloquean (a veces se anota desordenado), solo avisan */
+const negWarn = (ids) => { const l = [...new Set(ids.filter(Boolean))].map(accOf).filter((a) => a && !isCredit(a) && a.balance < -0.005); return l.length ? 'Ojo: ' + l.map((a) => a.name).join(' y ') + (l.length > 1 ? ' quedaron' : ' quedó') + ' en negativo. Si falta un ingreso, añádelo.' : ''; };
+const futureMsg = 'Para fechas futuras usa los movimientos previstos.';
+/* Pagar más de lo que se debe: se pregunta, porque los intereses reales pueden superar lo anotado */
+function payGuard(card, amt, go) {
+  const owed = Math.max(0, card.balance);
+  if (amt <= owed + 0.005) { go(amt); return; }
+  const opts = owed > 0.005 ? [{ label: 'Pagar solo ' + fmtC2(owed, card.cur), fn: () => go(owed) }, { label: 'Registrar el pago completo', fn: () => go(amt) }] : [{ label: 'Registrar de todos modos', fn: () => go(amt) }];
+  askConfirm('Estás pagando más de lo que debes', owed > 0.005 ? 'En Plata debes ' + fmtC2(owed, card.cur) + ' en ' + card.name + ' y estás pagando ' + fmtC2(amt, card.cur) + '. Si es por intereses, registra el pago completo.' : card.name + ' ya está en 0. ¿Seguro que quieres registrar este pago?', opts);
+}
 function submitSheet() {
   const v = readSheet();
   const amt = parseFloat(String(v.amount).replace(',', '.'));
   if (!(amt > 0)) { toast('Escribe un monto'); return; }
+  if ((v.date || iso(getToday())) > iso(getToday())) { toast(futureMsg); return; }
   if (ui.sheetType === 'pay') {
     const card = data.cards.find((x) => x.id === v.acc); if (!card) { toast('Elige una tarjeta o préstamo'); return; }
     const d = v.date || iso(getToday());
-    const nBefore = data.transactions.length;
-    registerPay(card, amt, d, v.from, v.note.trim() || ('Pago de ' + card.name + (card.payment > 0 && round2(card.balance - amt) <= 0.005 ? ' · final' : '')));
-    const auto = ui.sheetAuto && apOK(card) && round2(card.balance) > 0.005;
-    if (auto) card.auto = { from: v.from || '', next: dueAfter(card.due_day, d) };
-    ui.dirty++; persist(); closeSheet(); renderAll(); toast(auto ? 'Pago registrado · pago esperado activado' : 'Pago registrado');
-    const np = data.transactions[nBefore]; if (np) setTimeout(() => smartCheck(np), 700);
+    payGuard(card, amt, (amt) => {
+      const nBefore = data.transactions.length;
+      registerPay(card, amt, d, v.from, v.note.trim() || ('Pago de ' + card.name + (card.payment > 0 && round2(card.balance - amt) <= 0.005 ? ' · final' : '')));
+      const auto = ui.sheetAuto && apOK(card) && round2(card.balance) > 0.005;
+      if (auto) card.auto = { from: v.from || '', next: dueAfter(card.due_day, d) };
+      ui.dirty++; persist(); closeSheet(); renderAll(); toast(negWarn([v.from]) || (auto ? 'Pago registrado · pago esperado activado' : 'Pago registrado'));
+      const np = data.transactions[nBefore]; if (np) setTimeout(() => smartCheck(np), 700);
+    });
     return;
   }
   const out = ui.sheetType === 'out', cat = out ? ui.sheetCat : 'Ingreso', acc = accOf(v.acc);
   if (!out && isCredit(acc)) { toast('Un ingreso no va en una tarjeta. Para pagarla usa Pago.'); return; }
   data.transactions.push({ id: nextTxId(), date: v.date || iso(getToday()), amount: out ? -amt : amt, category: cat, note: v.note.trim() || (out ? cat : 'Ingreso'), acc: acc.id });
   applyTo(acc, out ? -amt : amt);
-  ui.dirty++; persist(); closeSheet(); renderAll(); toast('Movimiento añadido');
+  ui.dirty++; persist(); closeSheet(); renderAll(); toast(negWarn([acc.id]) || 'Movimiento añadido');
   const nt = data.transactions[data.transactions.length - 1]; setTimeout(() => smartCheck(nt), 700);
 }
 /* Avisos de "esto se ve raro": solo ayudan a no penalizar sin querer; siempre se pueden descartar */
@@ -4473,8 +4490,8 @@ function smartCheck(t) {
 /* --- Formularios genéricos (cuentas, ahorros, deudas, suscripciones, ingresos, simulaciones, presupuesto, aportes) --- */
 const CURSEG = { t: 'seg', k: 'cur', get opts() { return activeCurs().map((c) => [c, c]); } };
 const FORMS = {
-  account: { coll: 'accounts', hero: 'balance', heroLabel: () => 'Saldo', cur: 'cur', need: ['name'], title: ['Nueva cuenta de débito', 'Cuenta de débito'],
-    fields: [{ k: 'name', t: 'text', label: 'Nombre', ic: ['#22B573', 'pen'] }, { k: 'last4', t: 'last4', label: 'Últimos 4 dígitos (opcional)', ic: ['#8E8E93', '#'] }, { t: 'seg', k: 'type', opts: [['checking', 'Corriente'], ['savings', 'Ahorros'], ['cash', 'Efectivo']] }, { k: 'apy', t: 'num', label: 'Rendimiento anual (%) — opcional', ic: ['#FF9F0A', '%'] }, CURSEG],
+  account: { coll: 'accounts', hero: 'balance', heroLabel: () => 'Saldo', cur: 'cur', need: ['name'], rebuild: ['type'], title: ['Nueva cuenta de débito', 'Cuenta de débito'],
+    fields: [{ k: 'name', t: 'text', label: 'Nombre', ic: ['#22B573', 'pen'] }, { k: 'last4', t: 'last4', label: 'Últimos 4 dígitos (opcional)', ic: ['#8E8E93', '#'], show: (o) => o.type !== 'cash' }, { t: 'seg', k: 'type', opts: [['checking', 'Corriente'], ['savings', 'Ahorros'], ['cash', 'Efectivo']] }, { k: 'apy', t: 'num', label: 'Rendimiento anual (%) — opcional', ic: ['#FF9F0A', '%'], show: (o) => o.type !== 'cash' }, CURSEG],
     blank: () => ({ id: uid(), name: '', type: 'checking', cur: curP(), apy: 0, balance: 0, color: '', icon: '' }), style: 'acc' },
   saving: { coll: 'savings', hero: 'goal', heroLabel: () => 'Meta', cur: 'cur', need: ['name'], title: ['Nueva meta', 'Meta de ahorro'],
     fields: [{ k: 'name', t: 'text', label: 'Nombre', ic: ['#22B573', 'pen'] }, { k: 'balance', t: 'num', label: 'Ahorrado hasta la fecha', ic: ['#22B573', '◎'] }, { k: 'monthly', t: 'num', label: 'Aporte mensual', ic: ['#6D8BEA', '+'] }, CURSEG],
@@ -4521,7 +4538,7 @@ const FORMS = {
   budget: { hero: 'limit', heroLabel: () => 'Límite mensual (opcional)', curFrom: 'bud', need: ['name'], title: ['Nueva categoría', 'Categoría'], style: 'cat',
     fields: [{ k: 'name', t: 'text', label: 'Nombre', ic: ['#22B573', 'pen'] }] },
   contrib: { hero: 'amount', heroLabel: () => 'Aporte', curFrom: 'sav', need: [], pos: true, title: ['Aportar', 'Aportar'],
-    fields: [{ k: 'sav', t: 'select', label: 'A la meta', ic: ['#22B573', '◎'] }, { k: 'from', t: 'select', label: 'Desde la cuenta', ic: ['#22B573', 'card'] }], blank: () => ({}) }
+    fields: [{ k: 'sav', t: 'select', label: 'A la meta', ic: ['#22B573', '◎'] }], blank: () => ({}) }
 };
 function formCur(F, o) {
   if (F.cur) return o[F.cur] || curP();
@@ -4672,6 +4689,7 @@ function saveForm() {
   if (f.kind === 'budget') {
     const nm = String(o.name || '').replace(/[<>:]/g, '').trim();
     if (!nm) { toast('Escribe un nombre'); return; }
+    if ([PAY, XFER, 'Ingreso', 'Pago'].some((r) => r.toLowerCase() === nm.toLowerCase())) { toast('Ese nombre está reservado'); return; }
     if (CAT_ORDER.some((x) => x === nm && x !== o.orig)) { toast('Ya existe esa categoría'); return; }
     if (o.orig) {
       const cc = data.cats.find((x) => x.name === o.orig); cc.name = nm; cc.color = o.color; cc.icon = o.icon || '';
@@ -4690,9 +4708,9 @@ function saveForm() {
   if (F.need.indexOf('name') >= 0 && !String(o.name || '').trim()) { toast('Escribe un nombre'); return; }
   if (F.pos && !(Math.abs(o[F.hero]) > 0)) { toast('Escribe un monto'); return; }
   if (f.kind === 'contrib') {
-    const s = data.savings.find((x) => x.id === o.sav), a = accOf(o.from);
-    s.balance = round2(s.balance + o.amount); s.log = (s.log || []).concat([{ date: iso(getToday()), amount: o.amount, from: o.from }]);
-    a.balance = round2(a.balance - fromUSD(usd(o.amount, s.cur), a.cur));
+    /* la meta es una forma de contar parte de tu dinero: el saldo de tus cuentas no cambia */
+    const s = data.savings.find((x) => x.id === o.sav);
+    s.balance = round2(s.balance + o.amount); s.log = (s.log || []).concat([{ date: iso(getToday()), amount: o.amount }]);
     return formDone('Aporte registrado');
   }
   if (f.kind === 'income' || f.kind === 'expense' || f.kind === 'cardpay') {
@@ -4714,6 +4732,14 @@ function saveForm() {
     syncJobs(); return formDone('Trabajo guardado');
   }
   if (f.kind === 'account' || f.kind === 'debt') o.last4 = String(o.last4 || '').replace(/\D/g, '').slice(0, 4);
+  if (f.kind === 'account' && o.type === 'cash') { o.last4 = ''; o.apy = 0; }
+  if (f.kind === 'debt') {
+    const dd = Math.round(o.due_day) || 0;
+    if (dd < 0 || dd > 31) { toast('El día de pago va del 1 al 31'); return; }
+    o.due_day = dd;
+    if (o.apr < 0) { toast('El interés no puede ser negativo'); return; }
+    if (o.kind === 'card' && o.limit > 0 && o.balance > o.limit) { toast('La deuda supera el límite de la tarjeta. Revisa el saldo o el límite.'); return; }
+  }
   if (f.kind === 'sub') o.day = Math.max(1, Math.min(31, Math.round(o.day) || 1));
   if (f.kind === 'debt' && o.kind !== 'card') o.limit = 0;
   o.name = String(o.name).trim();
@@ -4722,9 +4748,37 @@ function saveForm() {
   if ((f.kind === 'account' || f.kind === 'debt') && f.origCur != null && o.cur !== f.origCur && f.linkF > 0 && f.linkF !== 1) scaleLinked(o.id, f.linkF, o.cur);
   formDone('Guardado');
 }
+/* lo que depende de una cuenta o tarjeta */
+function delLinks(id) {
+  const l = [], c = (n, k, w) => { if (n) l.push(n + ' ' + (n === 1 ? k : w)); };
+  c(data.jobs.filter((j) => j.acc === id).length, 'trabajo', 'trabajos'); c(data.subs.filter((x) => x.acc === id).length, 'suscripción', 'suscripciones');
+  c(data.expected_income.filter((e) => e.acc === id && !e.job).length + data.expected_expense.filter((e) => e.acc === id || e.card === id).length, 'movimiento previsto', 'movimientos previstos');
+  c(data.cards.filter((k) => k.auto && k.auto.from === id).length, 'pago esperado', 'pagos esperados');
+  return l;
+}
+function delCascade(id) {
+  const gone = data.transactions.filter((t) => t.acc === id), pairs = new Set(gone.map((t) => t.pair).filter(Boolean));
+  data.transactions = data.transactions.filter((t) => t.acc !== id);
+  data.transactions.forEach((t) => { if (t.pair && pairs.has(t.pair)) delete t.pair; });
+  const fb = (data.accounts[0] || {}).id || '';
+  data.jobs.forEach((j) => { if (j.acc === id) j.acc = fb; });
+  data.subs.forEach((x) => { if (x.acc === id) x.acc = ''; });
+  data.expected_income.forEach((e) => { if (e.acc === id) e.acc = fb; });
+  data.expected_expense = data.expected_expense.filter((e) => e.card !== id); data.expected_expense.forEach((e) => { if (e.acc === id) e.acc = fb; });
+  data.planned = data.planned.filter((x) => x.card !== id); data.planned.forEach((x) => { if (x.acc === id) x.acc = fb; });
+  data.cards.forEach((k) => { if (k.auto && k.auto.from === id) k.auto.from = ''; });
+  syncJobs();
+}
 function deleteForm() {
   if (!ui.form) return;
   const f = ui.form, F = FORMS[f.kind];
+  if (!f.confirmDel && (f.kind === 'account' || f.kind === 'debt')) {
+    if (f.kind === 'account' && data.accounts.length < 2) { toast('Debes tener al menos una cuenta'); return; }
+    const n = data.transactions.filter((t) => t.acc === f.id).length, links = delLinks(f.id);
+    if (n || links.length) {
+      askConfirm('Tiene datos ligados', 'Tiene ' + n + (n === 1 ? ' movimiento' : ' movimientos') + (links.length ? ' y está ligada a ' + links.join(', ') : '') + '. Si la eliminas, se borran esos movimientos. Para conservar el historial, mejor ocúltala.', [{ label: 'Ocultar (recomendado)', fn: () => { const ob = data[F.coll].find((x) => x.id === f.id); if (ob) ob.hid = true; formDone('Oculta del resumen'); } }, { label: 'Eliminar todo', dest: true, fn: () => { f.confirmDel = true; deleteForm(); } }]); return;
+    }
+  }
   if (!f.confirmDel) {
     const fut = { sub: 'Dejará de aparecer en tus pagos futuros. Tu historial no cambia.', income: 'Dejará de aparecer en tus ingresos futuros. Tu historial no cambia.', expense: 'Dejará de aparecer en tus gastos futuros. Tu historial no cambia.', job: 'Dejará de generar ingresos futuros. Tu historial no cambia.' }[f.kind];
     askConfirm('¿Eliminar esto?', fut || 'Esta acción no se puede deshacer.', [{ label: 'Eliminar', dest: true, fn: () => { f.confirmDel = true; deleteForm(); } }]); return;
@@ -4734,6 +4788,7 @@ function deleteForm() {
   else {
     if (f.kind === 'account' && data.accounts.length < 2) { toast('Debes tener al menos una cuenta'); return; }
     data[F.coll] = data[F.coll].filter((x) => x.id !== f.id);
+    if (f.kind === 'account' || f.kind === 'debt') delCascade(f.id);
   }
   formDone('Eliminado');
 }
@@ -4797,18 +4852,26 @@ function checkPending() { if (ui.skipPending || $('#sheet').classList.contains('
 function doConfirmPay(ok) {
   const card = data.cards.find((x) => x.id === ui.confirmId); if (!card || !card.auto) return;
   const today = iso(getToday());
+  const tail = () => {
+    ui.dirty++; persist(); renderAll(); ui.confirmPick = null;
+    const h = confirmHTML();
+    if (h) { $('#sheet').innerHTML = h; swapIn($('#cwrap')); } else closeSheet();
+  };
   if (ok) {
-    const amt = parseFloat(String(($('#fHero') || {}).value).replace(',', '.'));
-    if (!(amt > 0)) { toast('Escribe cuánto pagaste'); return; }
+    const amt0 = parseFloat(String(($('#fHero') || {}).value).replace(',', '.'));
+    if (!(amt0 > 0)) { toast('Escribe cuánto pagaste'); return; }
     const from = ($('#cFrom') || {}).value || '';
-    const pdt = card.auto.next <= today ? card.auto.next : today, pnote = (() => { const left = round2(card.balance - amt); return 'Pago de ' + card.name + (card.payment > 0 && left <= 0.005 ? ' · final' : ''); })();
-    registerPay(card, amt, pdt, from, pnote);
-    if (card.balance > 0.005) { card.auto.from = from; card.auto.next = dueAfter(card.due_day, today); delete card.auto.snooze; toast('Pago registrado'); }
-    else { delete card.auto; toast('Deuda pagada · pago esperado desactivado'); }
-  } else { card.auto.snooze = iso(addDays(getToday(), 1)); toast('Te pregunto mañana'); }
-  ui.dirty++; persist(); renderAll(); ui.confirmPick = null;
-  const h = confirmHTML();
-  if (h) { $('#sheet').innerHTML = h; swapIn($('#cwrap')); } else closeSheet();
+    payGuard(card, amt0, (amt) => {
+      const pdt = card.auto.next <= today ? card.auto.next : today, pnote = (() => { const left = round2(card.balance - amt); return 'Pago de ' + card.name + (card.payment > 0 && left <= 0.005 ? ' · final' : ''); })();
+      registerPay(card, amt, pdt, from, pnote);
+      if (card.balance > 0.005) { card.auto.from = from; card.auto.next = dueAfter(card.due_day, today); delete card.auto.snooze; toast(negWarn([from]) || 'Pago registrado'); }
+      else { delete card.auto; toast(negWarn([from]) || 'Deuda pagada · pago esperado desactivado'); }
+      tail();
+    });
+    return;
+  }
+  card.auto.snooze = iso(addDays(getToday(), 1)); toast('Te pregunto mañana');
+  tail();
 }
 function doConfirm(ok) {
   if (ui.confirmKind === 'pay') { doConfirmPay(ok); return; }

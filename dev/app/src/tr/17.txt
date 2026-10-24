@@ -49,3 +49,14 @@ Lo editas tú ¦ You edit it ¦ ご自身で編集します ¦ Lo modifichi tu �
 Aceptar cambios ¦ Accept changes ¦ 変更を受け入れる ¦ Accetta modifiche ¦ Accepter les modifications ¦ Prihvati promjene
 Mantener cambios ¦ Keep as is ¦ そのままにする ¦ Mantieni così ¦ Garder tel quel ¦ Ostavi kako jest
 Un ingreso no va en una tarjeta. Para pagarla usa Pago. ¦ Income doesn't go on a card. To pay it, use Payment. ¦ 収入はカードには入れられません。支払いには「支払い」を使ってください。 ¦ Un'entrata non va su una carta. Per pagarla usa Pagamento. ¦ Un revenu ne va pas sur une carte. Pour la payer, utilisez Paiement. ¦ Prihod ne ide na karticu. Za plaćanje koristi Plaćanje.
+Ese nombre está reservado ¦ That name is reserved ¦ その名前は予約されています ¦ Questo nome è riservato ¦ Ce nom est réservé ¦ Taj je naziv rezerviran
+Para fechas futuras usa los movimientos previstos. ¦ For future dates, use planned items. ¦ 将来の日付には予定を使ってください。 ¦ Per date future usa i movimenti previsti. ¦ Pour les dates futures, utilisez les opérations prévues. ¦ Za buduće datume koristi planirane stavke.
+Estás pagando más de lo que debes ¦ You're paying more than you owe ¦ 借入額より多く支払おうとしています ¦ Stai pagando più di quanto devi ¦ Vous payez plus que vous ne devez ¦ Plaćaš više nego što duguješ
+Registrar el pago completo ¦ Record the full payment ¦ 全額を記録する ¦ Registra il pagamento completo ¦ Enregistrer le paiement complet ¦ Zabilježi cijelo plaćanje
+Registrar de todos modos ¦ Record anyway ¦ それでも記録する ¦ Registra comunque ¦ Enregistrer quand même ¦ Ipak zabilježi
+El día de pago va del 1 al 31 ¦ The payment day goes from 1 to 31 ¦ 支払日は1〜31日です ¦ Il giorno di pagamento va da 1 a 31 ¦ Le jour de paiement va de 1 à 31 ¦ Dan plaćanja je od 1 do 31
+El interés no puede ser negativo ¦ Interest can't be negative ¦ 利率はマイナスにできません ¦ L'interesse non può essere negativo ¦ Le taux ne peut pas être négatif ¦ Kamata ne može biti negativna
+La deuda supera el límite de la tarjeta. Revisa el saldo o el límite. ¦ The debt is over the card limit. Check the balance or the limit. ¦ 借入がカードの限度額を超えています。残高か限度額を確認してください。 ¦ Il debito supera il limite della carta. Controlla il saldo o il limite. ¦ La dette dépasse la limite de la carte. Vérifiez le solde ou la limite. ¦ Dug premašuje limit kartice. Provjeri stanje ili limit.
+Tiene datos ligados ¦ It has linked data ¦ 関連データがあります ¦ Ha dati collegati ¦ Elle a des données liées ¦ Ima povezane podatke
+Ocultar (recomendado) ¦ Hide (recommended) ¦ 非表示にする（推奨） ¦ Nascondi (consigliato) ¦ Masquer (recommandé) ¦ Sakrij (preporučeno)
+Eliminar todo ¦ Delete everything ¦ すべて削除 ¦ Elimina tutto ¦ Tout supprimer ¦ Izbriši sve
