@@ -7,7 +7,9 @@
 - **Copia local a la nube:** al volver a modo Cloud, cargar la copia de este dispositivo como la de la nube pide confirmación y un código por correo.
 - **Precio:** US$2.99 al mes (S/9.99 en Perú); early supporters, 30% menos durante un año, renovable según el contexto. Primer mes gratis (marcha blanca), por invitación.
 - **Notas y rachas:** al segundo mes seguido subes de nivel; tu nota luce un laurel y un broche.
-- **Idiomas:** English, 日本語, Italiano y Srpskohrvatski.
+- **Transferencias:** mueve plata entre tus cuentas sin que cuente como gasto ni ingreso.
+- **Marcas:** logos y colores automáticos de bancos, billeteras y suscripciones.
+- **Monedas:** al cambiar la moneda de una cuenta, tarjeta o meta, elige mantener los montos o convertirlos.
 - **Más rápido:** desliza un movimiento para editarlo, posponerlo o borrarlo (clic derecho en escritorio); avisos cuando algo se ve raro.
 - **Transparencia y aviso legal:** actualizados con la cuenta de Plata Cloud, el cifrado, la frase de recuperación y los términos de la marcha blanca.
 
