@@ -2644,6 +2644,7 @@ const BANKS = [
     ['M230,282.13c28.73,0,52.01-23.34,52.01-52.14s-23.29-52.14-52.01-52.14-52.01,23.34-52.01,52.14,23.29,52.14,52.01,52.14Z', '#fff', '#fff', 1]] },
 ];
 const bankNorm = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+const bankPick = (o) => (o && o.icon && o.iconUser ? null : bankOf(o)); /* el logo gana, salvo que la persona haya elegido un icono a mano */
 const bankOf = (o) => {
   const n = bankNorm(o && o.name); if (!n) return null;
   return BANKS.find((b) => b.keys.some((k) => new RegExp('(^|[^a-z0-9])' + k + '([^a-z0-9]|$)').test(n))) || null;
@@ -2658,8 +2659,8 @@ const ICONS = {
 };
 const SWATCH = ['#B98AE6', '#6D8BEA', '#5CC8C0', '#22B573', '#EDB03E', '#FF9F0A', '#F08FB0', '#FF453A', '#8E8E93', '#1C1C1E'];
 const iconSVG = (n, color, size) => RMI(ICONS[n], size, color);
-function glyphFor(o, kind) { const bk = !o.icon && (kind === 'debt') && bankOf(o); return o.icon && ICONS[o.icon] ? iconSVG(o.icon, '#fff', 24) : bk ? bankSVG(bk, true) : (kind === 'debt' ? iconSVG('card', '#fff', 24) : esc(o.name || '?').charAt(0)); }
-function tileObj(o, color, kind) { const bk = !o.icon && (kind === 'acc' || kind === 'debt') && bankOf(o); return bk && (kind === 'acc' || bk.fixed) ? '<span class="tile" style="background:' + bk.bg + ';overflow:hidden" aria-hidden="true">' + bankSVG(bk, false) + '</span>' : tile(color, glyphFor(o, kind)); }
+function glyphFor(o, kind) { const bk = (kind === 'debt') && bankPick(o); return bk && !bk.fixed ? bankSVG(bk, true) : o.icon && ICONS[o.icon] ? iconSVG(o.icon, '#fff', 24) : bk ? bankSVG(bk, true) : (kind === 'debt' ? iconSVG('card', '#fff', 24) : esc(o.name || '?').charAt(0)); }
+function tileObj(o, color, kind) { const bk = (kind === 'acc' || kind === 'debt') && bankPick(o); return bk && (kind === 'acc' || bk.fixed) ? '<span class="tile" style="background:' + bk.bg + ';overflow:hidden" aria-hidden="true">' + bankSVG(bk, false) + '</span>' : tile(color, glyphFor(o, kind)); }
 function tileFor(o, i, kind) { return tileObj(o, o.color || CARD_COLORS[i % CARD_COLORS.length], kind); }
 const payOf = (e) => (e && e.card ? data.cards.find((x) => x.id === e.card) || null : null);
 const hidMark = (o) => (o && o.hid ? ' <span style="display:inline-block;vertical-align:-2px;margin-left:2px">' + RMI('eye-off-line', 15, '#8E8E93') + '</span>' : '');
@@ -2876,7 +2877,7 @@ function renderResumen() {
     '<div class="bar" style="height:8px;border-radius:4px;margin:10px 0 8px"><i style="height:8px;border-radius:4px;width:' + pct + '%;background:' + (left < 0 ? '#FF3B30' : '#1A9D63') + '"></i></div>' +
     '<div class="sub">' + (c.budgetTotal ? (left >= 0 ? 'Te quedan ' + fmt(left) : 'Te pasaste por ' + fmt(-left)) : 'Aún no defines límites') + '</div>' +
     '<button class="link" data-act="tab:presupuesto">Ver presupuesto</button></div>';
-  const accRows = data.accounts.map((a, i) => rowEdit('acct', a.id, bankOf(a) && !a.icon ? tileFor(a, i, 'acc') : tile(CARD_COLORS[i % CARD_COLORS.length], esc(a.name).charAt(0)),
+  const accRows = data.accounts.map((a, i) => rowEdit('acct', a.id, bankPick(a) ? tileFor(a, i, 'acc') : tile(CARD_COLORS[i % CARD_COLORS.length], esc(a.name).charAt(0)),
     '<div class="name" style="font-size:16px">' + esc(a.name) + l4tag(a) + '</div><div class="sub" style="font-size:13px">' + accType[a.type] + ' · ' + a.cur + '</div>',
     '<span class="amt">' + fmtC(a.balance, a.cur) + '</span>')).join('');
   $('#s-resumen').innerHTML =
@@ -3044,7 +3045,7 @@ function renderDeuda() {
     '<div class="name" style="font-size:16px">' + esc(a.name) + l4tag(a) + hidMark(a) + '</div><div class="sub" style="font-size:13px">' + accType[a.type] + ' · ' + a.cur + (a.apy > 0 ? ' · ' + a.apy + '% anual · ≈ ' + fmtC2((a.balance * a.apy) / 1200, a.cur) + '/mes' : '') + '</div>',
     '<span class="amt">' + fmtC(a.balance, a.cur) + '</span>'); }).join('');
   const creditRows = sortAcc(c.cards, 'card').map((it) => { const k = it.o, i = it.i; return rowEdit('acct', k.id, tileFor(k, i, 'debt'),
-    '<div class="name">' + esc(k.name) + l4tag(k) + hidMark(k) + '</div>' + (k.kind === 'card' && k.limit > 0 ? '<div class="bar"><i style="width:' + Math.min(100, k.util) + '%;background:' + ((bankOf(k) || {}).fixed && !k.icon ? bankOf(k).bg : k.color) + '"></i></div>' : '') +
+    '<div class="name">' + esc(k.name) + l4tag(k) + hidMark(k) + '</div>' + (k.kind === 'card' && k.limit > 0 ? '<div class="bar"><i style="width:' + Math.min(100, k.util) + '%;background:' + ((bankPick(k) || {}).fixed ? bankPick(k).bg : k.color) + '"></i></div>' : '') +
     '<div class="sub" style="font-size:13px">' + (k.kind === 'loan' ? 'Préstamo' : k.util + '% usado · disponible ' + fmtC(Math.max(0, k.limit - k.balance), k.cur)) + '</div>' +
     (function () { const parts = []; if (k.apr > 0) { parts.push(k.apr + '% anual'); if (k.balance > 0) parts.push('≈ ' + fmtC2((k.balance * k.apr) / 1200, k.cur) + '/mes'); } if (k.due_day > 0) parts.push('pago día ' + k.due_day); return parts.length ? '<div class="sub" style="font-size:13px">' + parts.join(' · ') + '</div>' : ''; })() + debtInsight(k),
     '<span class="amt">' + fmtC(k.balance, k.cur) + '</span>'); }).join('');
@@ -5152,8 +5153,8 @@ function styleHTML(o, F) {
   const autoGlyph = kind === 'debt' ? iconSVG('card', '#1C1C1E', 22) : '<b>Aa</b>';
   return '<div class="scard"><div class="srow" style="display:block"><span class="slabel">Color</span><div class="swatches">' + SWATCH.map((c) => '<button class="sw' + (c === col ? ' on' : '') + '" style="background:' + c + '" data-act="fpick:color:' + c + '" aria-label="Color"></button>').join('') +
     '<span class="sw swc' + (SWATCH.indexOf(col) < 0 ? ' on' : '') + '" id="swc" aria-label="Color personalizado"><i id="swci"' + (SWATCH.indexOf(col) < 0 ? ' style="background:' + col + '"' : '') + '></i><input type="color" id="cpick" value="' + (/^#[0-9a-fA-F]{6}$/.test(col) ? col : '#22B573') + '"></span></div></div>' +
-    '<div class="srow" style="display:block"><span class="slabel">Icono</span><div class="icons"><button class="ico' + (!o.icon ? ' on' : '') + '" data-act="fpick:icon:auto" aria-label="Automático">' + autoGlyph + '</button>' +
-    Object.keys(ICONS).map((n) => '<button class="ico' + (o.icon === n ? ' on' : '') + '" data-act="fpick:icon:' + n + '" aria-label="' + n + '">' + iconSVG(n, '#1C1C1E', 22) + '</button>').join('') + '</div></div></div>';
+    '<div class="srow" style="display:block"><span class="slabel">Icono</span><div class="icons"><button class="ico' + (!o.icon || (!o.iconUser && bankOf(o)) ? ' on' : '') + '" data-act="fpick:icon:auto" aria-label="Automático">' + autoGlyph + '</button>' +
+    Object.keys(ICONS).map((n) => '<button class="ico' + (o.icon === n && (o.iconUser || !bankOf(o)) ? ' on' : '') + '" data-act="fpick:icon:' + n + '" aria-label="' + n + '">' + iconSVG(n, '#1C1C1E', 22) + '</button>').join('') + '</div></div></div>';
 }
 function updPrev() {
   const f = ui.form, el = $('#fPrev'); if (!f || !el || !FORMS[f.kind].style) return;
@@ -5701,7 +5702,7 @@ document.addEventListener('click', (e) => {
   else if (a === 'evseries') { const f = ui.ev.form, id = ui.ev.srcId; closeSheet(); setTimeout(() => openForm(f, id), 260); }
   else if (a === 'fsave') saveForm();
   else if (a === 'fdel') deleteForm();
-  else if (a === 'fpick') { if (!ui.form) return; const q = arg.split(':'), k = q[0], v = q.slice(1).join(':'); syncForm(); ui.form.obj[k] = v === 'auto' ? '' : v; el.parentNode.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b === el)); updPrev(); }
+  else if (a === 'fpick') { if (!ui.form) return; const q = arg.split(':'), k = q[0], v = q.slice(1).join(':'); syncForm(); ui.form.obj[k] = v === 'auto' ? '' : v; if (k === 'icon') ui.form.obj.iconUser = v !== 'auto'; el.parentNode.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b === el)); updPrev(); }
   else if (a === 'fseg') {
     if (!ui.form) return;
     const q = arg.split(':'), k = q[0]; let v = q.slice(1).join(':');
