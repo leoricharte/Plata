@@ -6476,7 +6476,9 @@ async function wcloudGo() {
       if (CL.st.mode !== 'cloud') { CL.st.mode = 'cloud'; CL.st.modeAt = 0; clSave(); } CL.busy = false; CL.hold = false;
       await clSync('first');
       if (hasData()) { hideWelcome(); setTab('resumen'); return; }
-      say('Tu nube tiene una copia, pero no pudimos abrirla en este dispositivo (estado: ' + (CL.status || '?') + '). Cierra sesión y vuelve a entrar con tu frase.'); return;
+      /* Copia sincronizada pero sin datos (p. ej. quedó vacía de una prueba): cuenta como nube vacía y se empieza el recorrido */
+      if (CL.status === 'error' || CL.status === 'offline' || CL.status === 'login') { say('Tu nube tiene una copia, pero no pudimos abrirla en este dispositivo (estado: ' + CL.status + '). Cierra sesión y vuelve a entrar con tu frase.'); return; }
+      back(); wStart(true); return;
     }
     say('No pudimos revisar tu nube (código ' + g.s + '). Inténtalo más tarde.');
   } catch (e) { say('No pudimos conectar con Plata Cloud. Revisa tu internet e inténtalo de nuevo.'); }
