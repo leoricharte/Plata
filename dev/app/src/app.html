@@ -1874,6 +1874,8 @@ async function clSync(why) {
       const g = await clFetch('/sync'); if (g.s === 401) return; if (g.s !== 200) throw new Error('http' + g.s);
       const rev = g.j.rev || 0, base = clBaseGet(), stale = !CL.st.last || Date.now() - CL.st.last > 80 * 864e5, local = clSnap();
       if (rev === 0) { const p = await clPut(0, local); if (p.s === 409) continue; if (p.s !== 200) throw new Error('http' + p.s); clDone(p.j.rev, local); break; }
+      /* Un dispositivo sin datos nunca borra ni pisa lo que hay en la nube: se carga la nube (así volver al modo Cloud con un perfil vacío no la vacía) */
+      if (rev > 0 && !hasData()) { const rm = await PCC.open(await clKey(), g.j.blob); if (hasDataOf(rm)) { clApply(rm); clDone(rev, rm); break; } }
       let remote = null; if (rev !== CL.st.rev || !base) remote = await PCC.open(await clKey(), g.j.blob);
       if (remote && (!base || stale) && hasData() && clSig(clSnap()) !== clSig(remote)) { CL.first = { remote: remote, rev: rev }; CL.status = 'choose'; clFirstSheet(); return; }
       const merged = remote ? (((!base || stale) && !hasData()) ? remote : mergeData(base && !stale ? base : null, local, remote)) : local; /* un perfil vacío (p. ej. inicio rápido) nunca pisa lo que ya hay en la nube */
@@ -2243,6 +2245,7 @@ function loadStored() {
 }
 let data = loadStored() || migrate(clone(EMPTY));
 syncStamp();
+const hasDataOf = (o) => !!o && ((o.transactions || []).length + (o.cards || []).length + (o.savings || []).length + (o.subs || []).length + (o.expected_income || []).length + (o.expected_expense || []).length + (o.planned || []).length > 0 || Object.keys(o.budget || {}).length > 0);
 const hasData = () => data.transactions.length + data.cards.length + data.savings.length + data.subs.length + data.expected_income.length + data.expected_expense.length + data.planned.length > 0 || Object.keys(data.budget).length > 0;
 const ui = { itemId: null, itemKind: null, itemDel: false, txId: null, txDel: false, tab: 'resumen', week: 8, hor: 13, variable: true, mov: 'all', interest: false, sheetType: 'out', sheetCat: 'Comida', sheetAcc: 'bank', dirty: 0, extra: 100, skipPending: false, form: null, confirmId: null };
 try { ui.dirty = Number(localStorage.getItem(KEY_DIRTY)) || 0; } catch (e) { /* sin almacenamiento */ }
