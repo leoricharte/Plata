@@ -138,13 +138,14 @@ async function join(req, env, h, ctx) {
   if (email.length > 254 || !EMAIL.test(email)) return json({ ok: false, error: 'email' }, 400, h);
   if (await rateLimited(req, env)) return json({ ok: false, error: 'rate' }, 429, h);
   const key = 'w:' + email;
-  if (!(await env.WAITLIST.get(key))) {
+  const had = !!(await env.WAITLIST.get(key));
+  if (!had) {
     const num = await nextNumber(env);
     const rec = { n: num, t: Date.now(), src: SRC.includes(b.src) ? b.src : 'landing', lang: LANGS.includes(b.lang) ? b.lang : 'es', plat: String(b.plat || '').slice(0, 40) };
     await env.WAITLIST.put(key, JSON.stringify(rec));
     if (ctx && ctx.waitUntil) ctx.waitUntil(sendWaitlistMail(env, email, rec.lang, num)); // solo la primera vez: no se reenvía si ya estaba
   }
-  return json({ ok: true }, 200, h); // misma respuesta si ya estaba: no revela quién está en la lista
+  return json({ ok: true, already: had }, 200, h); // la app avisa "ya estás en la lista" en la misma pantalla
 }
 
 async function exportList(req, env, h) {
@@ -356,14 +357,16 @@ async function authStart(req, env, h, ctx) {
   const ip = req.headers.get('CF-Connecting-IP') || 'x', hour = Math.floor(Date.now() / 3600000), ek = await emailKey(env, email);
   if (await hit(env, 'rl:ai:' + (await sha((env.RL_SALT || 'plata') + ip)) + ':' + hour, 20, 7200) || await hit(env, 'rl:ae:' + ek.slice(0, 24) + ':' + hour, 5, 7200)) return json({ ok: false, error: 'rate' }, 429, h);
   let allowed = env.CLOUD_OPEN === '1' || String(env.CLOUD_TESTERS || '').toLowerCase().split(',').map((x) => x.trim()).filter(Boolean).includes(email);
-  if (!allowed) { const u = await kvGet(env, 'u:' + ek); const w = await kvGet(env, 'w:' + email); allowed = !!u || !!(w && w.inv); }
+  let listed = false;
+  if (!allowed) { const u = await kvGet(env, 'u:' + ek); const w = await kvGet(env, 'w:' + email); allowed = !!u || !!(w && w.inv); listed = !allowed && !!w; }
   if (allowed) {
     const code = rnd6();
     await kvPut(env, 'c:' + ek, { h: await shaFull((env.RL_SALT || 'plata') + ':c:' + ek + ':' + code), exp: Date.now() + CODE_TTL, tries: 0 }, 900);
     const p = sendCodeMail(env, email, b.lang === 'en' ? 'en' : 'es', code);
     if (ctx && ctx.waitUntil) ctx.waitUntil(p); else await p;
   }
-  return json({ ok: true }, 200, h); // misma respuesta haya o no cupo: no revela quién tiene acceso
+  // La app necesita saber si debe pedir el código o llevar a la lista de espera. Solo se revela "tiene acceso / está en la lista / no", con límite de intentos por correo y por conexión.
+  return json({ ok: true, access: allowed, listed: listed }, 200, h);
 }
 
 async function authVerify(req, env, h) {

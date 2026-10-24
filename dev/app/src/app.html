@@ -1649,9 +1649,9 @@ function cloudStripHTML() { return clLinkHTML() + clGoneHTML() + cloudStripHTML0
 function cloudStripHTML0() {
   if (!PLATA_CLOUD_API || cloudJoined() || cloudStripOff()) return '';
   return '<div class="cstrip cloudw" id="cloudStrip" data-cloud="1">' + PC_CLOUDS + '<span class="ct">Plata Cloud: marcha blanca gratis un mes<a class="cl cm" href="https://plataapp.net/cloud" target="_blank" rel="noopener">Conocer más ›</a></span>' +
-    '<button class="cb cm" data-act="cloudstrip">Unirme</button><a class="cb cd" href="https://plataapp.net/cloud" target="_blank" rel="noopener">Conocer más</a>' +
+    '<button class="cb cm" data-act="cl:open">Entrar</button><a class="cb cd" href="https://plataapp.net/cloud" target="_blank" rel="noopener">Conocer más</a>' +
     '<button class="cx" data-act="cloudstripx" aria-label="Cerrar">×</button>' +
-    '<div class="cf"><input type="email" inputmode="email" autocomplete="email" placeholder="correo@ejemplo.com" aria-label="Correo"><button class="cb" data-act="cloudjoin">Apuntarme</button></div></div>';
+    '</div>';
 }
 function renderWebCloud() { const w = $('#webcloud'); if (w) w.innerHTML = cloudStripHTML().replace('id="cloudStrip"', 'id="cloudStripTop"'); }
 function cloudCardHTML() {
@@ -1668,10 +1668,9 @@ function wclHTML() {
   return pcLogo(34) + '<h3>Tus datos, en todos tus dispositivos</h3><p class="wclp">Plata Cloud sincroniza tu información entre tu teléfono y tu computadora, sin dejar de ser tuya.</p>' +
     '<div class="wcli"><i>1</i><span>Cifrado de extremo a extremo: solo tú puedes leer tus datos.</span></div>' +
     '<div class="wcli"><i>2</i><span>Sin contraseñas: entras con un código que te llega al correo.</span></div>' +
-    '<div class="wcli"><i>3</i><span>Marcha blanca gratuita de un mes para quienes entren primero.</span></div>' +
-    (joined ? '<div class="wclok">Estás en la lista. Te avisaremos cuando abramos cupos.</div>'
-      : '<div class="wclf"><input type="email" inputmode="email" autocomplete="email" placeholder="correo@ejemplo.com" aria-label="Correo"><button class="execbtn" data-act="cloudjoin">Unirme a la lista</button></div><div class="wcln">Usaremos tu correo solo para invitarte a Plata Cloud. <a href="https://plataapp.net/cloud" target="_blank" rel="noopener">Conocer más ›</a></div>') +
-    '<button class="wclx" data-act="wclclose">' + (joined ? 'Cerrar' : 'Ahora no') + '</button>';
+    '<div class="wcli"><i>3</i><span>Marcha blanca gratuita de un mes, por invitación. Si aún no tienes, entras a la lista de espera.</span></div>' +
+    '<button class="execbtn" data-act="wclgo">Crear cuenta o entrar</button>' +
+    '<button class="wclx" data-act="wclclose">' + 'Ahora no' + '</button>';
 }
 function wclOpen() {
   const w = $('#welcome'); if (!w || $('#wcl')) return;
@@ -1679,7 +1678,7 @@ function wclOpen() {
   bk.innerHTML = '<div class="wclc cloudw" data-cloud="1" data-act="wclstay">' + PC_CLOUDS + '<div>' + wclHTML() + '</div></div>';
   w.appendChild(bk); requestAnimationFrame(() => { bk.style.opacity = '1'; });
 }
-function wclRefresh() { const c = document.querySelector('#wcl .wclc > div'); if (c) c.innerHTML = wclHTML(); const b = document.querySelector('.wcloud .cpill'); if (b) b.textContent = cloudJoined() ? 'En la lista de espera' : 'Únete a la lista de espera'; }
+function wclRefresh() { const c = document.querySelector('#wcl .wclc > div'); if (c) c.innerHTML = wclHTML(); const b = document.querySelector('.wcloud .cpill'); if (b) b.textContent = clIn() ? 'Con sesión' : 'Crear cuenta o entrar'; }
 function wclClose() { const b = $('#wcl'); if (b) { b.style.opacity = '0'; setTimeout(() => b.remove(), 200); } }
 async function cloudJoin(el) {
   const box = el && el.closest && el.closest('[data-cloud]'), i = box ? box.querySelector('input') : $('#sCloudMail'), mail = ((i && i.value) || '').trim();
@@ -1831,7 +1830,7 @@ const CL = { st: {}, busy: false, t: null, status: 'idle', ui: null, api: PLATA_
     if (location.hostname === 'localhost') { const a = /[?&]cloudapi=([^&]+)/.exec(location.search); if (a) sessionStorage.setItem('plata.cloudapi', decodeURIComponent(a[1])); const s = sessionStorage.getItem('plata.cloudapi'); if (s) CL.api = s; }
   } catch (e) { /* sin almacenamiento */ }
 })();
-const clBeta = () => { try { return localStorage.getItem('plata.cloudbeta') === '1'; } catch (e) { return false; } };
+const clBeta = () => { try { return !!PLATA_CLOUD_API && localStorage.getItem('plata.cloudbeta') !== '0'; } catch (e) { return !!PLATA_CLOUD_API; } };
 const clSave = () => { try { localStorage.setItem(CLK, JSON.stringify(CL.st)); } catch (e) { /* sin almacenamiento */ } };
 const clIn = () => !!(CL.st.tok && CL.st.seed);
 const clOn = () => clIn() && CL.st.mode === 'cloud';
@@ -1924,7 +1923,7 @@ function clCardHTML() {
   if (!clBeta()) return cloudCardHTML();
   const head = '<div class="crow">' + pcLogo(30) + '<span class="clhr"><span class="betapill b2">B E T A</span>' + (clIn() ? '<button class="cldots" data-act="cl:menu" aria-label="Más opciones">' + RMI('more-fill', 22, 'currentColor') + '</button>' : '') + '</span></div>';
   if (!clIn()) return '<div id="clCard"><div class="scard clt" style="padding:12px 16px 14px">' + PC_CLOUDS + head +
-    '<div class="sub" style="font-size:13px;margin:2px 0 4px">Sincroniza tus datos entre dispositivos, cifrados de extremo a extremo. Solo con invitación durante la marcha blanca.</div>' +
+    '<div class="sub" style="font-size:13px;margin:2px 0 4px">Sincroniza tus datos entre dispositivos, cifrados de extremo a extremo. Por invitación durante la marcha blanca; si aún no tienes, te apuntamos a la lista de espera.</div>' +
     '<button class="clb" data-act="cl:open">Crear cuenta o entrar</button></div></div>';
   const cloud = CL.st.mode === 'cloud', cool = Math.max(0, Math.ceil((CL_COOL - (Date.now() - (CL.st.modeAt || 0))) / 1000));
   return '<div id="clCard"><div class="scard clt" style="padding:12px 16px 14px">' + PC_CLOUDS + head +
@@ -1948,9 +1947,11 @@ function clSheet() {
   if ((CL.ui || {}).step === 'tour') { clPageHide(); closeSheet(); clTourShow(CL.ui); return; }
   clTourHide(); closeSheet();
   const u = CL.ui || { step: 'email' }, err = '<div class="clmsg" id="clMsg">' + esc(u.err || '') + '</div>', S = (title, sub, body, foot, logo) => clPage({ title: title, sub: sub, body: body, foot: foot, logo: logo });
-  if (u.step === 'email') S('Plata Cloud', 'Escribe el correo con el que te invitamos. Te mandamos un código para entrar, sin contraseña.', '<div class="clin"><input id="clEmail" class="sinput" type="email" inputmode="email" autocomplete="email" placeholder="correo@ejemplo.com" value="' + esc(u.email || '') + '"></div>' + err, '<button class="clb" data-act="cl:start">Enviarme el código</button><button class="clb alt" data-act="cl:link">Pedir aprobación desde otro dispositivo</button>');
+  if (u.step === 'email') S('Plata Cloud', 'Escribe tu correo. Si ya tienes acceso, te mandamos un código para entrar, sin contraseña. Si aún no, te apuntamos a la lista de espera.', '<div class="clin"><input id="clEmail" class="sinput" type="email" inputmode="email" autocomplete="email" placeholder="correo@ejemplo.com" value="' + esc(u.email || '') + '"></div>' + err, '<button class="clb" data-act="cl:start">Enviarme el código</button><button class="clb alt" data-act="cl:link">Pedir aprobación desde otro dispositivo</button>');
+  else if (u.step === 'nolist') S('Plata Cloud es solo por invitación', 'Todavía estamos en marcha blanca y vamos abriendo cupos de a poco. Este correo aún no tiene acceso, pero puedes apuntarte a la lista de espera y te avisamos cuando te toque.', '<div class="clmail" data-notr>' + esc(u.email) + '</div>' + err, '<button class="clb" data-act="cl:wljoin">Unirme a la lista de espera</button><button class="clb alt" data-act="cl:wlback">Usar otro correo</button>');
+  else if (u.step === 'listed') S(u.fresh ? 'Listo, estás en la lista' : 'Ya estás en la lista de espera', 'Te avisaremos por correo cuando abramos tu cupo. No tienes que hacer nada más. Si recibes una invitación, vuelve aquí y entra con este mismo correo.', '<div class="clmail" data-notr>' + esc(u.email) + '</div>', '<button class="clb" data-act="cl:x">Entendido</button><button class="clb alt" data-act="cl:wlback">Usar otro correo</button>');
   else if (u.step === 'linkwait') S('Aprueba desde otro dispositivo', 'Abre Plata en un dispositivo donde ya tengas sesión: en Ajustes verás la solicitud. Revisa que el código sea el mismo y apruébala. También te mandamos un aviso por correo.', '<div class="clmcode" data-notr>' + esc(u.code) + '</div><div class="clwait"><i></i>Esperando aprobación…</div>' + err, '<button class="clb alt" data-act="cl:linkmail">Usar el código del correo</button><button class="clb alt" data-act="cl:lkcancel">Cancelar</button>');
-  else if (u.step === 'code') S('Revisa tu correo', 'Si tu correo tiene invitación a Plata Cloud, te enviamos un código. Vence en 10 minutos. Si no llega, revisa spam; si aún no tienes invitación, apúntate a la lista de espera.', '<div class="clmail" data-notr>' + esc(u.email) + '</div>' + clCodeIn + err, '<button class="clb" data-act="cl:verify">Entrar</button><button class="clb alt" data-act="cl:resend">Enviar otro código</button>');
+  else if (u.step === 'code') S('Revisa tu correo', 'Te enviamos un código. Vence en 10 minutos. Si no llega, revisa spam.', '<div class="clmail" data-notr>' + esc(u.email) + '</div>' + clCodeIn + err, '<button class="clb" data-act="cl:verify">Entrar</button><button class="clb alt" data-act="cl:resend">Enviar otro código</button>');
   else if (u.step === 'newkey') S('Tu frase de recuperación', '<span>Estas 12 palabras son la llave de tus datos.</span> <b>Nadie más puede recuperarlas, ni nosotros.</b> <span>Anótalas en papel y guárdalas en un lugar seguro. Si pierdes tus dispositivos y la frase, tus datos de la nube no se podrán abrir.</span>', clWords(u.words), '<button class="clb" data-act="cl:saved">Ya las guardé</button>');
   else if (u.step === 'quiz') S('Confírmala', 'Para asegurarnos de que la anotaste, escribe estas palabras.', u.pos.map((p) => '<div class="clin"><input class="sinput clq" data-p="' + p + '" autocapitalize="none" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Palabra ' + (p + 1) + '"></div>').join('') + err, '<button class="clb" data-act="cl:quiz">Confirmar</button><button class="clb alt" data-act="cl:back">Ver la frase otra vez</button>');
   else if (u.step === 'enter') S('Escribe tu frase', 'Esta cuenta ya existe. Escribe las 12 palabras de tu frase de recuperación para abrir tus datos en este dispositivo.', '<div class="clin"><input id="clPhrase" class="sinput" autocapitalize="none" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="palabra1 palabra2 palabra3 …"></div>' + err, '<button class="clb" data-act="cl:enter">Abrir mis datos</button>');
@@ -2167,6 +2168,16 @@ async function clAct(arg, el) {
       if (CL.fromProf) { CL.fromProf = false; openProfile(); } else closeSheet();
     } catch (e) { clMsg('No pudimos conectar. Inténtalo más tarde.'); } el.disabled = false;
   }
+  else if (a === 'wljoin') {
+    el.disabled = true; try {
+      const r = await fetch(PLATA_CLOUD_API + '/waitlist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: u.email, src: 'app', lang: String(resolveLang() || 'es').slice(0, 2), plat: syncDevice().plat, website: '' }) });
+      if (r.status === 429) { clMsg('Demasiados intentos. Prueba en una hora.'); el.disabled = false; return; }
+      if (!r.ok) throw new Error('http');
+      try { localStorage.setItem('plata.cloudwl', '1'); } catch (e) { /* sin almacenamiento */ }
+      CL.ui = { step: 'listed', email: u.email, fresh: true }; clSheet();
+    } catch (e) { clMsg('No pudimos conectar. Inténtalo más tarde.'); } el.disabled = false;
+  }
+  else if (a === 'wlback') { CL.ui = { step: 'email', email: u.email }; clSheet(); }
   else if (a === 'gonex') clGoneClear();
   else if (a === 'open') { clGoneClear(); CL.fromProf = !!ui.profSheet; CL.ui = { step: 'email' }; clSheet(); }
   else if (a === 'start' || a === 'resend') {
@@ -2174,7 +2185,7 @@ async function clAct(arg, el) {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { clMsg('Escribe un correo válido.'); return; }
     el.disabled = true; try {
       const r = await clFetch('/auth/start', 'POST', { email: em, lang: String(resolveLang() || 'es').slice(0, 2) });
-      if (r.s === 429) clMsg('Demasiados intentos. Prueba en una hora.'); else if (r.s !== 200) clMsg('No pudimos conectar. Inténtalo más tarde.'); else { CL.ui = { step: 'code', email: em }; clSheet(); if (a === 'resend') toast('Te mandamos otro código'); }
+      if (r.s === 429) clMsg('Demasiados intentos. Prueba en una hora.'); else if (r.s !== 200) clMsg('No pudimos conectar. Inténtalo más tarde.'); else if (r.j && r.j.access === false) { CL.ui = { step: r.j.listed ? 'listed' : 'nolist', email: em }; clSheet(); } else { CL.ui = { step: 'code', email: em }; clSheet(); if (a === 'resend') toast('Te mandamos otro código'); }
     } catch (e) { clMsg('No pudimos conectar. Inténtalo más tarde.'); } el.disabled = false;
   } else if (a === 'verify') {
     const code = (($('#clCode') || {}).value || '').replace(/\s/g, ''); if (!/^\d{6}$/.test(code)) { clMsg('Escribe el código completo.'); return; }
@@ -5358,6 +5369,7 @@ document.addEventListener('click', (e) => {
   else if (a === 'wmenuclose') wCloseMenu();
   else if (a === 'wcloud') wclOpen();
   else if (a === 'wclclose') wclClose();
+  else if (a === 'wclgo') { wclClose(); clAct('open', el); }
   else if (a === 'wclstay') { /* no cerrar */ }
   else if (a === 'wquick') { wCloseMenu(); wPriv(() => { data = migrate(clone(EMPTY)); ui.dirty = 0; persist(); renderAll(); setTab('resumen'); hideWelcome(); }); }
   else if (a === 'wgear') wGearHint();
@@ -5915,7 +5927,7 @@ function welcomeHTML(dir) {
     const oc = (c, n, t, d, a) => '<button data-act="' + a + '">' + tile(c, RMI(n, 22, '#fff')) + '<span><b>' + t + '</b><span class="s">' + d + '</span></span></button>';
     body = '<div class="wland"><div class="wmain"><div class="wbrand" data-act="wlogo"><div class="plogo" role="img" aria-label="Plata"></div></div><div class="wtag">Finanzas simples. Tu plata a tu modo.</div></div>' +
       '<div class="wnote" style="font-size:13px;font-weight:500;margin:0 0 12px">' + APP_VERSION + '</div><div class="wright"><div class="wrow"><button class="primary" data-act="wstart" style="flex:1">Empezar</button><button class="wdotbtn" data-act="wmenu" aria-label="Más opciones">' + RMI('more-fill', 24, '#1C1C1E') + '</button></div>' +
-      '<button class="wcloud cloudw" data-act="wcloud">' + PC_CLOUDS + '<span class="wct">Empezar en la nube</span><span class="cpill">' + (cloudJoined() ? 'En la lista de espera' : 'Únete a la lista de espera') + '</span></button>' +
+      '<button class="wcloud cloudw" data-act="wcloud">' + PC_CLOUDS + '<span class="wct">Empezar en la nube</span><span class="cpill">' + (clIn() ? 'Con sesión' : 'Crear cuenta o entrar') + '</span></button>' +
       '<div class="walso">También disponible</div><button class="wghost" data-act="wload">Cargar archivo de perfil</button>' +
       '<div class="wopts">' + oc('#22B573', 'flashlight-line', 'Inicio rápido', 'Adelanta el recorrido inicial.', 'wquick') + oc('#B98AE6', 'bar-chart-line', 'Datos de demostración', 'Revisa un ejemplo de alguien usando Plata.', 'wdemo') + '</div></div></div></div>' + WSOC;
   } else if (w.demo) {

@@ -1,5 +1,12 @@
 # Registro de cambios
 
+## Plata Cloud visible para todos
+
+- **Entrar o crear cuenta:** Plata Cloud aparece en la app para todos, sin activarlo aparte. El acceso sigue siendo por invitación.
+- **Sin invitación:** si el correo no tiene acceso, la misma pantalla te apunta a la lista de espera, o te avisa si ya estabas en ella.
+- **Copia local a la nube:** al volver a modo Cloud, cargar la copia de este dispositivo como la de la nube pide confirmación y un código por correo.
+- **Transparencia y aviso legal:** actualizados con la cuenta de Plata Cloud, el cifrado, la frase de recuperación y los términos de la marcha blanca.
+
 ## Beta 2
 
 - **Plata llega a tu mesa:** la versión de escritorio ya está disponible. Entra a la web desde tu PC o Mac para verla.
