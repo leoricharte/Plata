@@ -414,6 +414,13 @@ async function syncGet(req, env, h) {
   const d = await kvGet(env, 'd:' + a.ek);
   return json(d ? { ok: true, rev: d.rev, blob: d.blob, t: d.t, v: d.v, dev: d.dev } : { ok: true, rev: 0 }, 200, h);
 }
+async function syncDelete(req, env, h) {
+  const o = needOrigin(req, h); if (o) return o;
+  const a = await session(req, env); if (!a) return unauth(h);
+  if (await hit(env, 'rl:sw:' + a.ek.slice(0, 24) + ':' + Math.floor(Date.now() / 3600000), 10, 7200)) return json({ ok: false, error: 'rate' }, 429, h);
+  for (const k of ['d:', 'p:']) await env.WAITLIST.delete(k + a.ek); // solo la copia cifrada y su respaldo: la cuenta y la sesión siguen
+  return json({ ok: true }, 200, h);
+}
 async function syncConfirm(req, env, h, ctx) {
   const o = needOrigin(req, h); if (o) return o;
   const a = await session(req, env); if (!a) return unauth(h);
@@ -617,6 +624,7 @@ export default {
       if (p === '/me/key' && m === 'PUT') return await setKey(req, env, h);
       if (p === '/sync' && m === 'GET') return await syncGet(req, env, h);
       if (p === '/sync' && m === 'PUT') return await syncPut(req, env, h);
+      if (p === '/sync' && m === 'DELETE') return await syncDelete(req, env, h);
       if (p === '/sync/confirm' && m === 'POST') return await syncConfirm(req, env, h, ctx);
       if (p === '/sync/check' && m === 'POST') return await syncCheck(req, env, h);
       if (p === '/account' && m === 'DELETE') return await delAccount(req, env, h);

@@ -1906,6 +1906,24 @@ async function clSync(why) {
   finally { CL.busy = false; clRefresh(); }
 }
 function clDirty() { if (CL.applying || CL.hold || !clOn() || !syncAllowed()) return; clearTimeout(CL.t); CL.t = setTimeout(() => clSync('edit'), 6000); }
+function clWipeRun() {
+  const tok = String(Date.now()); let n = 5;
+  askConfirm('Borrando en 5 s…', 'Se borrarán los datos de tu nube. Toca Cancelar si fue sin querer.', [], '', 'Cancelar');
+  const bk = document.getElementById('alertback'); if (bk) bk.dataset.t = tok;
+  const alive = () => { const x = document.getElementById('alertback'); return x && x.dataset.t === tok ? x : null; };
+  const iv = setInterval(async () => {
+    const x = alive(); if (!x) { clearInterval(iv); return; }
+    n -= 1;
+    if (n > 0) { const h = x.querySelector('h4'); if (h) h.textContent = 'Borrando en ' + n + ' s…'; return; }
+    clearInterval(iv); x.classList.remove('in'); setTimeout(() => x.remove(), 220);
+    try {
+      const r = await clFetch('/sync', 'DELETE');
+      if (r.s === 200) { CL.st.mode = 'local'; CL.st.modeAt = Date.now(); CL.st.last = 0; clSave(); CL.status = 'idle'; clRefresh(); setTimeout(() => askConfirm('Listo', 'Borramos los datos de tu nube. Pasaste al modo Local; lo de este dispositivo sigue intacto.', [], '', 'Entendido'), 300); }
+      else if (r.s === 401) { CL.ui = { step: 'email' }; clSheet(); }
+      else toast('No pudimos borrar tus datos. Inténtalo más tarde.');
+    } catch (e) { toast('No pudimos conectar. Inténtalo más tarde.'); }
+  }, 1000);
+}
 function clLocalUp() {
   CL.st.mode = 'local'; clSave(); clRefresh(); CL.promote = true; CL.fromProf = !!ui.profSheet;
   askConfirm('¿Cargar la copia local como la de la nube?', 'Los datos de este dispositivo reemplazarán tu copia en la nube y en tus otros dispositivos. Primero te enviaremos un código de verificación a tu correo.', [{ label: 'Enviar código', dest: true, fn: async () => {
@@ -1974,6 +1992,7 @@ function clSheet() {
   else if (u.step === 'show') S('Tu frase de recuperación', 'Guárdala en papel y no la compartas con nadie.', clWords(u.words), '<button class="clb alt" data-act="cl:x">Cerrar</button>');
   else if (u.step === 'delcode') S('Confirma el borrado', 'Enviamos un código a tu correo para confirmar. Escríbelo para borrar tu cuenta de Plata Cloud.', '<div class="clred">Esto borrará tu cuenta y toda tu copia en la nube. No lo hagas si no deseas perder tus datos.</div>' + clCodeIn + err, '<button class="clb dng" data-act="cl:delgo">Borrar mi cuenta</button><button class="clb alt" data-act="cl:x">Cancelar</button>');
   else if (u.step === 'replaceauth') S('¿¡Quién anda ahí!?', 'Enviamos un código a tu correo. Escríbelo para poder reemplazar tu copia en la nube con un archivo de perfil.', clCodeIn + err, '<button class="clb" data-act="cl:rcheck">Continuar</button><button class="clb alt" data-act="cl:x">Cancelar</button>');
+  else if (u.step === 'wipeq') S('Confirma que eres tú', 'Para borrar los datos de tu nube, escribe estas palabras de tu frase de recuperación.', u.pos.map((p) => '<div class="clin"><input class="sinput clq" data-p="' + p + '" autocapitalize="none" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Palabra ' + (p + 1) + '"></div>').join('') + err, '<button class="clb dng" data-act="cl:wipeok">Borrar datos de la nube</button><button class="clb alt" data-act="cl:x">Cancelar</button>');
   else if (u.step === 'wipeauth') S('¿¡Quién anda ahí!?', 'Enviamos un código a tu correo. Escríbelo para borrar tus datos también de la nube.', '<div class="clred">Esto vaciará tu copia en la nube y tus otros dispositivos. No se puede deshacer.</div>' + clCodeIn + err, '<button class="clb dng" data-act="cl:wipego">Borrar mis datos</button><button class="clb alt" data-act="cl:x">Cancelar</button>');
   else if (u.step === 'replacepick') S('Elige tu archivo', 'Código confirmado. Ahora elige el archivo de perfil con el que quieres reemplazar tu copia en la nube.', '<div class="clred">Esto borrará tu última sincronización. No lo hagas si no deseas perder tus datos.</div>' + err, '<button class="clb dng" data-act="cl:rpick">Elegir archivo</button><button class="clb alt" data-act="cl:x">Cancelar</button>');
   else if (u.step === 'preview') S('¿Reconoces a esta persona?', 'Revisa que sea el correcto antes de subirlo. Reemplazará lo que tienes en la nube.', clPrevHTML((CL.pend || {}).obj || {}, (CL.pend || {}).meta) + err, (CL.promote ? '<button class="clb" data-act="cl:rgo">Sí, subir esta copia</button><button class="clb alt" data-act="cl:x">Cancelar</button>' : '<button class="clb" data-act="cl:rgo">Sí, subir este archivo</button><button class="clb alt" data-act="cl:rother">Elegir otro archivo</button><button class="clb alt" data-act="cl:rback">Cancelar</button>'));
@@ -2244,7 +2263,16 @@ async function clAct(arg, el) {
     CL.st.seed = PCC.b64u(seed); CL.st.kc = kc; CL.key = null; clSave(); await clAuthDone();
   } else if (a === 'f') clFirstPick(p[1]);
   else if (a === 'sync') { clSync('manual'); }
-  else if (a === 'menu') askConfirm('Plata Cloud', CL.st.email || '', [{ label: 'Ver frase de recuperación', fn: () => clAct('phrase', el) }, { label: 'Cerrar sesión', fn: () => clAct('out', el) }, { label: 'Borrar cuenta', dest: true, fn: () => clAct('del', el) }]);
+  else if (a === 'menu') askConfirm('Plata Cloud', CL.st.email || '', [{ label: 'Ver frase de recuperación', fn: () => clAct('phrase', el) }, { label: 'Cerrar sesión', fn: () => clAct('out', el) }].concat((typeof navigator !== 'undefined' && navigator.onLine === false) ? [] : [{ label: 'Borrar datos de la nube', dest: true, fn: () => clAct('wipe', el) }]).concat([{ label: 'Borrar cuenta', dest: true, fn: () => clAct('del', el) }]));
+  else if (a === 'wipe') askConfirm('¿Borrar los datos de la nube?', 'Se borra la copia que Plata Cloud guarda de tus datos (y su respaldo). Tu cuenta sigue activa y los datos de este dispositivo no se tocan, pero pasarás al modo Local. No se puede deshacer. Antes te pediremos 3 palabras de tu frase de recuperación.', [{ label: 'Continuar', dest: true, fn: async () => {
+    const pos = []; while (pos.length < 3) { const x = Math.floor(Math.random() * 12); if (pos.indexOf(x) < 0) pos.push(x); } pos.sort((x, y) => x - y);
+    CL.fromProf = !!ui.profSheet; CL.ui = { step: 'wipeq', pos: pos, words: await PCC.toPhrase(PCC.unb64u(CL.st.seed)), err: '' }; clSheet();
+  } }]);
+  else if (a === 'wipeok') {
+    const ok = [].every.call(document.querySelectorAll('.clq'), (i) => PCC.wordIdx(i.value) === PCC.wordIdx(u.words[Number(i.dataset.p)]) && PCC.wordIdx(i.value) >= 0);
+    if (!ok) { clMsg('Alguna palabra no coincide. Revisa tu frase.'); return; }
+    clClose(); setTimeout(clWipeRun, 250);
+  }
   else if (a === 'phrase') { CL.fromProf = !!ui.profSheet; askConfirm('Ver tu frase de recuperación', 'Asegúrate de que nadie más esté mirando tu pantalla.', [{ label: 'Mostrar', fn: async () => { CL.ui = { step: 'show', words: await PCC.toPhrase(PCC.unb64u(CL.st.seed)) }; clSheet(); } }]); }
   else if (a === 'mode') {
     const to = p[1], wait = Math.ceil((CL_COOL - (Date.now() - (CL.st.modeAt || 0))) / 1000);
