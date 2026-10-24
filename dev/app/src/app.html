@@ -3600,6 +3600,7 @@ function renderItem(el) {
       rows = '<div class="stats" style="border:0;margin:0;padding:0;gap:20px">' + st('Día de cobro', 'Día ' + o.day) + st('Frecuencia', 'Cada mes') + '</div>' +
         (o.acc && (data.accounts.concat(data.cards)).some((x) => x.id === o.acc) ? '<div class="stats" style="margin-top:14px;gap:20px">' + st('Se cobra de', esc(accOf(o.acc).name)) + '</div>' : '') +
         '<div class="stats" style="margin-top:14px;gap:20px">' + st('Por año', fmtC2(round2(o.amount * 12), o.cur)) + (o.cur !== curP() ? st('Equivale a', '≈ ' + fmt2(usd(o.amount, o.cur))) : '') + '</div>';
+      btns = '<button class="primary" data-act="subadv" style="background:#22B573;color:#fff">Adelantar cobro</button>';
     }
   } else if (kind === 'budget') {
     const cc = data.cats.find((x) => x.name === id);
@@ -3624,13 +3625,27 @@ function renderItem(el) {
     (canDel ? '<button class="delbtn" data-act="itdel">' + 'Eliminar' + '</button>' : '');
   return true;
 }
-function askConfirm(title, msg, buttons) {
+/* Adelantar una suscripción: registra el cobro hoy y salta el próximo cobro de la serie */
+function subAdvance(sb) {
+  const today = iso(getToday()), ov = (data.ovr = data.ovr || {});
+  let nx = dueAfter(sb.day || 1, today);
+  for (let i = 0; i < 24 && ov['sub:' + sb.id + ':' + nx] && ov['sub:' + sb.id + ':' + nx].skip; i++) nx = dueAfter(sb.day || 1, nx);
+  const acc = (sb.acc && data.accounts.concat(data.cards).find((x) => x.id === sb.acc)) || data.accounts.find((x) => x.cur === sb.cur) || data.accounts[0];
+  if (!acc) { toast('Añade una cuenta primero'); return; }
+  const prev = data.transactions.filter((t) => t.note === sb.name && t.amount < 0).sort((a, b) => (a.date < b.date ? 1 : -1))[0];
+  const amt = acc.cur === sb.cur ? sb.amount : round2(fromUSD(usd(sb.amount, sb.cur), acc.cur));
+  data.transactions.push({ id: nextTxId(), date: today, amount: -amt, category: prev ? prev.category : 'Ocio', note: sb.name, acc: acc.id });
+  applyTo(acc, -amt);
+  ov['sub:' + sb.id + ':' + nx] = { skip: true };
+  ui.dirty++; persist(); renderAll(); toast('Cobro adelantado');
+}
+function askConfirm(title, msg, buttons, extra, cancelLabel) {
   const old = document.getElementById('alertback'); if (old) old.remove();
   const bk = document.createElement('div'); bk.id = 'alertback'; bk.className = 'alertback';
   const close = () => { bk.classList.remove('in'); setTimeout(() => bk.remove(), 220); };
   const box = document.createElement('div'); box.className = 'alertbox'; box.setAttribute('role', 'alertdialog');
-  box.innerHTML = '<h4>' + esc(title) + '</h4>' + (msg ? '<p>' + esc(msg) + '</p>' : '');
-  buttons.concat([{ label: 'Cancelar' }]).forEach((b) => {
+  box.innerHTML = '<h4>' + esc(title) + '</h4>' + (msg ? '<p>' + esc(msg) + '</p>' : '') + (extra || '');
+  buttons.concat([{ label: cancelLabel || 'Cancelar' }]).forEach((b) => {
     const bt = document.createElement('button'); bt.type = 'button'; bt.textContent = b.label; if (b.dest) bt.className = 'dest';
     bt.addEventListener('click', (ev) => { ev.stopPropagation(); close(); if (b.fn) setTimeout(b.fn, 60); }); box.appendChild(bt);
   });
@@ -4055,7 +4070,7 @@ document.addEventListener('change', (e) => { const el = e.target; if (el && el.m
 })();
 const APP_VERSION = 'Beta 2';
 const WSOC = '<div class="wsoc"><span class="wver">' + APP_VERSION + '</span><a href="https://instagram.com/plataapp" target="_blank" rel="noopener" data-notr>' + RMI('instagram-line', 20, 'currentColor') + 'plataapp</a><a href="https://plataapp.net" target="_blank" rel="noopener" data-notr>' + RMI('link', 20, 'currentColor') + 'plataapp.net</a></div>';
-const APP_BUILD = 408;
+const APP_BUILD = 409;
 const ALPHA_TESTERS = ['Rodrigo Espinoza', 'Mariana Richarte', 'Jeny Surichaqui', 'Carlos Flores'];
 const BETA_TESTERS = []; // los testers de la beta se añaden aquí
 const E22_LOGO = 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 1900.3 316.3%27%3E%3Cg fill=%27%233C3C43%27 fill-opacity=%27.6%27%3E%3Cpath d=%27M0,311.8V4.1h205.9v52.2H63v74.3h132.2v51.4H63v77.4h143.3v52.2H0Z%27/%3E%3Cpath d=%27M315.1,316.3c-24.6,0-46.1-3.8-64.3-11.4-18.2-7.6-32.5-18.8-42.6-33.7-10.2-14.9-15.6-33.2-16.1-54.9h61.3c.8,10.3,3.9,19,9.3,25.9,5.4,7,12.5,12.2,21.5,15.6,8.9,3.4,19.1,5.2,30.4,5.2s21.1-1.6,29.4-4.9c8.3-3.2,14.8-7.8,19.5-13.7,4.7-5.9,7-12.8,7-20.6s-2.1-12.9-6.3-17.7c-4.2-4.7-10.2-8.8-18.1-12.3-7.8-3.4-17.4-6.5-28.7-9.1l-33.9-8.5c-26-6.3-46.4-16.3-61.1-29.8-14.7-13.6-22.1-31.5-22.1-53.8s5-34.8,15-48.7c10-13.9,23.7-24.7,41.1-32.4,17.4-7.7,37.3-11.6,59.6-11.6s42.5,3.9,59.5,11.7c16.9,7.8,30.1,18.6,39.6,32.4,9.5,13.8,14.4,29.8,14.7,47.8h-60.9c-1.1-12.4-6.4-22-15.8-28.7-9.4-6.7-22-10.1-37.7-10.1s-19.7,1.5-27.3,4.5c-7.6,3-13.3,7.2-17.2,12.6-3.9,5.4-5.9,11.5-5.9,18.4s2.3,13.9,6.8,18.9c4.5,5,10.6,9.1,18.2,12.2,7.6,3.1,15.6,5.7,24.2,7.7l27.9,6.8c12.9,2.9,25,6.8,36.1,11.8,11.2,5,20.9,11,29.3,18.3,8.4,7.2,14.9,15.8,19.5,25.7,4.6,9.9,6.9,21.3,6.9,34.3,0,18.6-4.7,34.8-14,48.6-9.4,13.8-22.9,24.5-40.7,32.1-17.8,7.6-39.1,11.4-64,11.4Z%27/%3E%3Cpath d=%27M409.2,56.4V4.1h251.3v52.2h-94v255.4h-63.2V56.4h-94.2Z%27/%3E%3Cpath d=%27M776.1,316.1c-25.3,0-47.5-4.7-66.6-14.1-19.1-9.4-33.9-22.5-44.4-39.3-10.5-16.8-15.8-36.4-15.8-58.8V4.1h63v194.5c0,12,2.6,22.6,8,31.9,5.3,9.3,12.7,16.6,22.3,21.9,9.6,5.3,20.8,7.9,33.6,7.9s24.2-2.6,33.8-7.9c9.6-5.3,17-12.6,22.3-21.9,5.3-9.3,8-19.9,8-31.9V4.1h63.2v199.7c0,22.4-5.3,42.1-15.9,58.8-10.6,16.8-25.4,29.9-44.5,39.3-19.1,9.4-41.3,14.1-66.8,14.1Z%27/%3E%3Cpath d=%27M967.2,4.1v307.7h-63V4.1h63ZM1012.4,311.8h-79.7v-54.3h76.6c19.8,0,36.4-3.5,49.9-10.5,13.4-7,23.5-17.9,30.3-32.6,6.7-14.7,10.1-33.6,10.1-56.6s-3.4-41.6-10.2-56.3c-6.8-14.7-16.9-25.5-30.1-32.5-13.3-7-29.8-10.5-49.5-10.5h-78.5V4.1h82.2c30.8,0,57.4,6.2,79.6,18.5,22.2,12.3,39.3,29.9,51.3,52.9s18,50.4,18,82.3-6,59.6-18,82.6c-12,23-29.2,40.6-51.5,53-22.4,12.3-49.2,18.5-80.4,18.5Z%27/%3E%3Cpath d=%27M1218.1,4.1v307.7h-63V4.1h63Z%27/%3E%3Cpath d=%27M1354.3,315.9c-27.1,0-51.5-6.2-73.2-18.6-21.7-12.4-38.8-30.4-51.4-53.9s-18.9-52-18.9-85.3,6.3-62,18.9-85.6c12.6-23.6,29.7-41.6,51.4-54,21.7-12.4,46.1-18.6,73.2-18.6s51.7,6.2,73.3,18.6c21.6,12.4,38.7,30.4,51.3,54,12.6,23.6,18.9,52.1,18.9,85.6s-6.3,61.7-18.9,85.3-29.7,41.5-51.3,53.9c-21.6,12.4-46,18.6-73.3,18.6ZM1354.3,260c16,0,29.9-3.9,41.8-11.7,11.9-7.8,21.2-19.3,27.8-34.5,6.6-15.2,9.9-33.8,9.9-55.6s-3.3-40.8-9.9-56.1c-6.6-15.2-15.9-26.7-27.8-34.5-11.9-7.8-25.8-11.7-41.8-11.7s-29.7,3.9-41.7,11.8c-12,7.8-21.3,19.4-27.9,34.6-6.6,15.2-9.9,33.8-9.9,55.9s3.3,40.4,9.9,55.5c6.6,15.1,15.9,26.6,27.9,34.5,12,7.8,25.9,11.8,41.7,11.8Z%27/%3E%3Cpath d=%27M1533.9,311.8v-45.4l109-102.2c9.4-9.1,17.2-17.3,23.6-24.7,6.4-7.4,11.3-14.6,14.7-21.7,3.4-7.1,5.1-14.8,5.1-23s-2.1-17.1-6.2-23.7c-4.1-6.6-9.8-11.7-16.9-15.3-7.2-3.6-15.4-5.4-24.6-5.4s-17.8,1.9-25,5.8c-7.2,3.9-12.7,9.4-16.5,16.5-3.9,7.2-5.8,15.8-5.8,25.8h-60.3c0-20,4.6-37.3,13.7-52.1,9.2-14.8,21.9-26.2,38.1-34.3,16.2-8.1,35-12.1,56.2-12.1s40.7,3.9,57,11.7c16.2,7.8,28.9,18.5,37.9,32.1,9,13.6,13.5,29.3,13.5,47.1s-2.2,22.7-6.7,33.9c-4.5,11.2-12.5,23.6-24,37.5-11.5,13.8-27.8,30.4-48.8,49.7l-46.5,45.8v2.3h130.1v51.8h-217.6Z%27/%3E%3Cpath d=%27M1755.5,207.4v-30.2l72.5-68c6.2-6,11.5-11.5,15.7-16.4,4.3-4.9,7.5-9.7,9.7-14.4,2.2-4.7,3.4-9.8,3.4-15.3s-1.4-11.4-4.1-15.8c-2.7-4.4-6.5-7.8-11.3-10.2-4.8-2.4-10.2-3.6-16.3-3.6s-11.9,1.3-16.6,3.8c-4.8,2.6-8.4,6.2-11,11-2.6,4.8-3.8,10.5-3.8,17.2h-40.1c0-13.3,3-24.8,9.1-34.7,6.1-9.8,14.5-17.4,25.3-22.8,10.8-5.4,23.3-8,37.4-8s27.1,2.6,37.9,7.8c10.8,5.2,19.2,12.3,25.2,21.4,6,9.1,9,19.5,9,31.3s-1.5,15.1-4.5,22.5c-3,7.4-8.3,15.7-15.9,24.9-7.6,9.2-18.5,20.2-32.5,33l-30.9,30.5v1.5h86.5v34.5h-144.7Z%27/%3E%3C/g%3E%3C/svg%3E';
@@ -4391,6 +4406,49 @@ function submitSheet() {
   data.transactions.push({ id: nextTxId(), date: v.date || iso(getToday()), amount: out ? -amt : amt, category: cat, note: v.note.trim() || (out ? cat : 'Ingreso'), acc: acc.id });
   applyTo(acc, out ? -amt : amt);
   ui.dirty++; persist(); closeSheet(); renderAll(); toast('Movimiento añadido');
+  const nt = data.transactions[data.transactions.length - 1]; setTimeout(() => smartCheck(nt), 700);
+}
+/* Avisos de "esto se ve raro": solo ayudan a no penalizar sin querer; siempre se pueden descartar */
+function smRow(t, label) {
+  const cur = accOf(t.acc).cur, nm = t.note || t.category;
+  return '<div style="display:flex;align-items:center;gap:10px;text-align:left;padding:10px 0;border-top:1px solid var(--line)"><div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(nm) + '</div><div style="font-size:12.5px;color:var(--sec);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(t.category + ' · ' + dlabel(pd(t.date)) + ' · ' + accOf(t.acc).name) + '</div></div>' +
+    '<div style="flex:none;text-align:right"><div style="font-size:15px;font-weight:600">' + (t.amount < 0 ? '−' : '+') + fmtC2(Math.abs(t.amount), cur) + '</div><div style="font-size:12.5px;font-weight:700;color:#E5A100">' + esc(label) + '</div></div></div>';
+}
+function smartCheck(t) {
+  if (!t || isPay(t) || t.job || t.pair) return;
+  const acc = data.accounts.find((x) => x.id === t.acc); if (!acc) return;
+  const U = (x) => usd(Math.abs(x.amount), accOf(x.acc).cur), dd = (a, b) => Math.abs((pd(a) - pd(b)) / 864e5);
+  const title = 'Eh… no somos expertos, pero';
+  /* 1) gasto + ingreso parecidos en cuentas distintas: probablemente una transferencia */
+  const o = data.transactions.find((x) => x !== t && !isPay(x) && !x.job && !x.pair && x.acc !== t.acc && data.accounts.some((a) => a.id === x.acc) && (x.amount < 0) !== (t.amount < 0) && dd(x.date, t.date) <= 2 && Math.abs(U(x) - U(t)) <= Math.max(0.5, U(t) * 0.03));
+  if (o) {
+    const out = t.amount < 0 ? t : o, inn = t.amount < 0 ? o : t;
+    askConfirm(title, 'Creemos que esto fue una transferencia entre tus cuentas. ¿La registramos así para que no cuente como gasto ni ingreso?', [{ label: 'Aceptar cambios', fn: () => {
+      const pid = uid(); [out, inn].forEach((x) => { x.category = XFER; x.pair = pid; x.note = ''; });
+      ui.dirty++; persist(); renderAll(); toast('Transferencia registrada');
+    } }], '<div style="margin:10px 0 14px">' + smRow(out, 'Se corregirá') + smRow(inn, 'Se corregirá') + '</div>', 'Mantener cambios');
+    return;
+  }
+  if (t.amount >= 0) return;
+  /* 2) gasto que coincide con la cuota o el saldo de una tarjeta: probablemente un pago */
+  const card = data.cards.find((k) => k.balance > 0.005 && [k.payment, k.balance].some((v) => v > 0 && Math.abs(usd(v, k.cur) - U(t)) <= Math.max(0.5, U(t) * 0.01)));
+  if (card) {
+    askConfirm(title, 'Creemos que esto fue el pago de tu tarjeta ' + card.name + '. ¿Lo registramos como pago para que no cuente como gasto?', [{ label: 'Aceptar cambios', fn: () => {
+      const i = data.transactions.indexOf(t); if (i < 0) return;
+      data.transactions.splice(i, 1); applyTo(acc, -t.amount);
+      registerPay(card, round2(fromUSD(usd(-t.amount, acc.cur), card.cur)), t.date, acc.id, 'Pago de ' + card.name);
+      ui.dirty++; persist(); renderAll(); toast('Pago registrado');
+    } }], '<div style="margin:10px 0 14px">' + smRow(t, 'Se reemplazará') + '</div>', 'Mantener cambios');
+    return;
+  }
+  /* 3) monto muy por encima de lo habitual en su categoría: probablemente un error al escribirlo */
+  const same = data.transactions.filter((x) => x !== t && x.amount < 0 && !isPay(x) && x.category === t.category && dd(x.date, t.date) <= 120).map((x) => Math.abs(x.amount) * 1).sort((a, b) => a - b);
+  if (same.length >= 5) {
+    const med = same[Math.floor(same.length / 2)];
+    if (med > 0 && Math.abs(t.amount) >= med * 10) {
+      askConfirm(title, 'Creemos que este monto es mucho para ' + t.category + ' (lo normal son unos ' + fmtC2(med, acc.cur) + '). ¿Te equivocaste al escribirlo?', [{ label: 'Aceptar cambios', fn: () => { ui.txId = t.id; ui.confirmId = null; ui.form = null; showSheet(txEditHTML(t)); } }], '<div style="margin:10px 0 14px">' + smRow(t, 'Lo editas tú') + '</div>', 'Mantener cambios');
+    }
+  }
 }
 
 /* --- Formularios genéricos (cuentas, ahorros, deudas, suscripciones, ingresos, simulaciones, presupuesto, aportes) --- */
@@ -4694,7 +4752,7 @@ function confirmHTML() {
     const c = e.card;
     return '<div id="cwrap">' + sheetHead(c.kind === 'loan' ? '¿Pagaste tu préstamo?' : '¿Pagaste tu tarjeta?', 'cclose', 'cok') +
       '<div class="amtblock"><div class="amtlabel">' + esc(c.name) + ' · día de pago ' + when + (list.length > 1 ? ' · 1 de ' + list.length : '') + '</div>' +
-      '<div class="amount"><span id="fSym">' + symOf(cur).trim() + '</span><input id="fHero" inputmode="decimal" autocomplete="off" placeholder="' + (decOf(cur) ? '0.00' : '0') + '" value="' + (apFinal(c) ? c.balance : '') + '" style="width:' + amtW(apFinal(c) ? String(c.balance) : '', decOf(cur) ? '0.00' : '0') + '"></div>' +
+      '<div class="amount"><span id="fSym">' + symOf(cur).trim() + '</span><input id="fHero" inputmode="decimal" autocomplete="off" placeholder="' + (decOf(cur) ? '0.00' : '0') + '" value="' + (apFinal(c) ? c.balance.toFixed(decOf(cur) ? 2 : 0) : '') + '" style="width:' + amtW(apFinal(c) ? c.balance.toFixed(decOf(cur) ? 2 : 0) : '', decOf(cur) ? '0.00' : '0') + '"></div>' +
       '<div class="deltachip">' + (apFinal(c) ? 'Última cuota · es lo que te queda' : '¿Cuánto pagaste?') + '</div></div>' +
       '<div class="scard"><label class="srow">' + fico(['#22B573', 'card']) + '<span class="grow"><span class="slabel">Pagar desde</span><select class="sinput" id="cFrom"><option value="">Sin descontar de una cuenta</option>' + data.accounts.map((a) => '<option value="' + a.id + '"' + (a.id === c.auto.from ? ' selected' : '') + '>' + esc(a.name) + l4(a) + ' · ' + a.cur + '</option>').join('') + '</select></span></label></div>' +
       '<button class="primary" data-act="cok">Confirmar</button><button class="secbtn" data-act="' + (ui.confirmPick ? 'cclose' : 'clater') + '">' + (ui.confirmPick ? 'Cancelar' : 'Aún no pagué') + '</button></div>';
@@ -4968,6 +5026,10 @@ document.addEventListener('click', (e) => {
   else if (a === 'new') openForm(arg, null);
   else if (a === 'evedit') openEv(arg);
   else if (a === 'evsave') evSave();
+  else if (a === 'subadv') {
+    const sb = data.subs.find((x) => x.id === ui.itemId); if (!sb) return;
+    askConfirm('¿Adelantar este cobro?', 'Se registra el gasto hoy y se salta el próximo cobro, para que no se cuente doble.', [{ label: 'Adelantar', fn: () => subAdvance(sb) }]);
+  }
   else if (a === 'evskip') { evStore({ skip: true }); toast('Evento omitido'); }
   else if (a === 'evreset') { evStore(null); toast('Evento restaurado'); }
   else if (a === 'evseries') { const f = ui.ev.form, id = ui.ev.srcId; closeSheet(); setTimeout(() => openForm(f, id), 260); }

@@ -35,3 +35,16 @@ Salida ¦ Outgoing ¦ 出金 ¦ Uscita ¦ Sortie ¦ Izlaz
 Entrada ¦ Incoming ¦ 入金 ¦ Entrata ¦ Entrée ¦ Ulaz
 Última cuota · es lo que te queda ¦ Last payment · this is what's left ¦ 最後の支払い・残りの金額です ¦ Ultima rata · è quello che ti resta ¦ Dernier paiement · c'est ce qu'il vous reste ¦ Posljednja rata · to je ono što ti ostaje
 Deuda pagada · pago esperado desactivado ¦ Debt paid off · expected payment turned off ¦ 完済しました・支払い予定をオフにしました ¦ Debito estinto · pagamento previsto disattivato ¦ Dette remboursée · paiement prévu désactivé ¦ Dug otplaćen · očekivano plaćanje isključeno
+Adelantar cobro ¦ Pay ahead ¦ 先に支払う ¦ Anticipa addebito ¦ Avancer le prélèvement ¦ Plati unaprijed
+¿Adelantar este cobro? ¦ Pay this charge ahead? ¦ この請求を先に支払いますか？ ¦ Anticipare questo addebito? ¦ Avancer ce prélèvement ? ¦ Platiti ovu naplatu unaprijed?
+Se registra el gasto hoy y se salta el próximo cobro, para que no se cuente doble. ¦ The expense is recorded today and the next charge is skipped, so it isn't counted twice. ¦ 支出を今日記録し、次回の請求はスキップされるので、二重には数えられません。 ¦ La spesa viene registrata oggi e il prossimo addebito viene saltato, così non è contato due volte. ¦ La dépense est enregistrée aujourd'hui et le prochain prélèvement est ignoré, pour qu'il ne soit pas compté deux fois. ¦ Trošak se bilježi danas, a sljedeća naplata se preskače, pa se ne računa dvaput.
+Adelantar ¦ Pay ahead ¦ 先に払う ¦ Anticipa ¦ Avancer ¦ Unaprijed
+Cobro adelantado ¦ Charge paid ahead ¦ 先に支払いました ¦ Addebito anticipato ¦ Prélèvement avancé ¦ Naplata unaprijed
+Añade una cuenta primero ¦ Add an account first ¦ 先に口座を追加してください ¦ Aggiungi prima un conto ¦ Ajoutez d'abord un compte ¦ Prvo dodaj račun
+Eh… no somos expertos, pero ¦ Hey… we're no experts, but ¦ えっと…専門家ではありませんが ¦ Ehm… non siamo esperti, ma ¦ Euh… nous ne sommes pas experts, mais ¦ Ovaj… nismo stručnjaci, ali
+¡Ups! ¡Mi culpa! ¦ Oops! My bad! ¦ あっ！ごめんなさい！ ¦ Ops! Colpa mia! ¦ Oups ! Ma faute ! ¦ Ups! Moja greška!
+Se corregirá ¦ Will be fixed ¦ 修正されます ¦ Verrà corretto ¦ Sera corrigé ¦ Bit će ispravljeno
+Se reemplazará ¦ Will be replaced ¦ 置き換えられます ¦ Verrà sostituito ¦ Sera remplacé ¦ Bit će zamijenjeno
+Lo editas tú ¦ You edit it ¦ ご自身で編集します ¦ Lo modifichi tu ¦ Vous le modifiez ¦ Ti ga uređuješ
+Aceptar cambios ¦ Accept changes ¦ 変更を受け入れる ¦ Accetta modifiche ¦ Accepter les modifications ¦ Prihvati promjene
+Mantener cambios ¦ Keep as is ¦ そのままにする ¦ Mantieni così ¦ Garder tel quel ¦ Ostavi kako jest
