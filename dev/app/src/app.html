@@ -3504,7 +3504,7 @@ function streakHTML(letter, n, plus) {
   const dot = (on, last) => '<span style="width:12px;height:12px;border-radius:50%;display:inline-block;box-sizing:border-box;' + (on ? 'background:' + (last ? pg[1] : g[1]) : 'border:2px solid ' + (last ? pg[1] : '#C7C7CC')) + '"></span>';
   const dots = '<span style="display:inline-flex;gap:6px;align-items:center">' + (dia ? dot(true) + dot(true, true) + dot(true) + dot(true, true) : dot(n >= 1) + dot(n >= 2, true)) + '</span>';
   const grad = (txt) => '<div style="font-size:15px;font-weight:700;background:linear-gradient(135deg,' + pg[1] + ',' + pg[2] + ');-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent">' + txt + '</div>';
-  const t = dia ? grad('S◆ Diamante · ' + n + ' meses seguidos') + '<div class="sub" style="font-size:13px">Perfección. En todo su esplendor.</div>'
+  const t = dia ? grad('Diamante · ' + n + ' meses seguidos') + '<div class="sub" style="font-size:13px">Perfección. En todo su esplendor.</div>'
     : plus ? grad(letter + pch(letter) + ' · ' + n + ' meses seguidos') + '<div class="sub" style="font-size:13px">' + (bad ? 'Es momento de cambiar el rumbo.' : mid ? 'Nivel estable. Un ajuste más y subes.' : 'Mantienes tu nivel. ¡Sigue así!') + '</div>'
     : '<div style="font-size:14px;font-weight:600;color:var(--ink2)">Llevas ' + n + ' de 2 meses con ' + letter + '.</div><div class="sub" style="font-size:13px">' + (bad ? 'Si sigues igual, al segundo pasas a ' + letter + '-.' : 'Al segundo subes a ' + letter + '+.') + '</div>';
   return '<div style="display:flex;align-items:center;gap:12px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">' + dots + '<div class="grow">' + t + '</div></div>';
@@ -3558,7 +3558,7 @@ const DIAM = ['#EAFBFF', '#8ED6F3', '#4A7FD6', '#FFFFFF'];
 const GEMK = 1.28;
 const GEM = (sw) => '<path d="M31 29 L69 29 L87 45 L50 85 L13 45 Z" fill="#000" stroke="#000" stroke-width="' + sw + '" stroke-linejoin="round"/>';
 const gmSp = (letter, plus) => plus === 'd' && letter === 'S';
-const tL = (L, plus) => (plus === 'd' ? L + '◆' : plus ? L + pch(L) : L);
+const tL = (L, plus) => (plus === 'd' ? 'Diamante' : plus ? L + pch(L) : L);
 const tierG = (L, plus) => (plus === 'd' ? DIAM : plusGrad(L));
 function gemHTML(px, g, label) {
   return '<span role="img" aria-label="' + (label || 'S◆') + '" style="position:relative;display:block;flex:none;width:' + px + 'px;height:' + px + 'px;background:' + insBg(g) + ';-webkit-mask:' + svgU('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' + GEM(16) + '</svg>') + ' center/100% 100% no-repeat;mask:' + svgU('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' + GEM(16) + '</svg>') + ' center/100% 100% no-repeat"></span>';
@@ -6413,7 +6413,7 @@ const BW = {
   } },
   score: { t: 'Tu evaluación', tt: () => { const m = bLast(); return m && m.hasPrev ? 'Nota de ' + MON_FULL[m.T.getMonth()] : 'Tu evaluación'; }, d: 'La nota de tu último cierre de mes.', ic: 'medal-line', sizes: ['S', 'M', 'T'], r: (c, w, h) => {
     const m = bLast(); if (!m || !m.hasPrev || !scoreOn()) return bemp('Aún sin evaluación');
-    const g = m.plus ? tierG(m.letter, m.plus) : (GRAD[m.letter] || GRAD.B), L = tL(m.letter, m.plus), d = bvb(w, h), big = Math.max(40, Math.min(d[1] * 0.82, d[0] * (w > 1 ? 0.4 : 0.8)));
+    const g = m.plus ? tierG(m.letter, m.plus) : (GRAD[m.letter] || GRAD.B), L = m.plus === 'd' ? '◆' : tL(m.letter, m.plus), d = bvb(w, h), big = Math.max(40, Math.min(d[1] * 0.82, d[0] * (w > 1 ? 0.4 : 0.8)));
     const sub = '';
     const ltr = '<div style="font-size:' + big + 'px;font-weight:800;letter-spacing:-.05em;line-height:1;padding:0 .1em 0 .04em;background:' + bTG(g) + ';-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent">' + L + '</div>';
     if (w === 1) return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">' + ltr + sub + (h > 1 ? '<div style="margin-top:1em;color:var(--ink);line-height:1.35">' + esc(insPhrase(m)) + '</div>' : '') + '</div>';
