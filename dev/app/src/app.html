@@ -2274,7 +2274,9 @@ function calc() {
   const income = sum(incTx, txUSD);
   const expense = -sum(flowTx.filter((t) => t.amount < 0), txUSD);
   const catTot = {};
+  let subSpent = 0; /* cobros de suscripciones: van aparte del presupuesto */
   flowTx.filter((t) => t.amount < 0).forEach((t) => {
+    if (txSub(t)) { subSpent -= txUSD(t); return; }
     const c = CAT_ORDER.indexOf(t.category) >= 0 ? t.category : 'Otros';
     catTot[c] = (catTot[c] || 0) - txUSD(t);
   });
@@ -2291,11 +2293,12 @@ function calc() {
   const dim = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
   const budgetTotal = sum(CAT_ORDER, (k) => budOf(activeSet())[k] || 0);
   const subsTotal = sum(data.subs, (s) => usd(s.amount, s.cur));
+  data.subHist = data.subHist || {}; data.subHist[mk] = round2(subsTotal); /* foto mensual del total de suscripciones */
   return {
     today: today, mk: mk, dim: dim, tx: tx, monthTx: monthTx, income: income, expense: expense, incomeCount: incTx.length, cats: cats, catTot: catTot, months: months,
     balance: balance, cards: cards, debt: sum(cards, (c) => c.ub), interest: sum(cards, (c) => c.interest),
     savings: savings, saved: sum(savings, (s) => s.ub), savedMonthly: sum(data.savings, (s) => usd(s.monthly || 0, s.cur)),
-    budgetTotal: budgetTotal, subsTotal: subsTotal
+    budgetTotal: budgetTotal, subsTotal: subsTotal, expV: expense - subSpent, subSpent: subSpent
   };
 }
 
@@ -2613,7 +2616,7 @@ const SUBBRANDS = [
 const SUBRX = SUBBRANDS.map((b) => ({ b: b, rx: b.keys.map((k) => new RegExp('(^|[^a-z0-9])' + k.replace(/ /g, '[^a-z0-9]*') + '([^a-z0-9]|$)')) }));
 const subBrand = (s) => { const n = bankNorm(s && s.name); if (!n) return null; const m = SUBRX.find((x) => x.rx.some((r) => r.test(n))); return m ? m.b : null; };
 const subSVG = (b, px) => { /* vb: glifo dibujado en caja 460; se recorta a su figura y se escala para que pese lo mismo que el resto */ const t = b.vb ? (px > 30 ? 64 : 46) : px, bb = b.bb, sd = bb ? Math.max(bb[2], bb[3]) / (b.k || 0.5) : 460, vx = bb ? bb[0] + bb[2] / 2 - sd / 2 : 0, vy = bb ? bb[1] + bb[3] / 2 - sd / 2 : 0; return '<svg width="' + t + '" height="' + t + '" viewBox="' + (b.vb ? Math.round(vx * 10) / 10 + ' ' + Math.round(vy * 10) / 10 + ' ' + Math.round(sd * 10) / 10 + ' ' + Math.round(sd * 10) / 10 : '0 0 24 24') + '" fill="#fff"' + (b.eo ? ' fill-rule="evenodd"' : '') + ' aria-hidden="true"><path d="' + SUBLOGO[b.i] + '"/></svg>'; };
-const txSub = (t) => { if (!t || t.amount >= 0 || isPay(t) || !t.note) return null; const n = bankNorm(t.note).trim(); return data.subs.find((x) => bankNorm(x.name).trim() === n) || null; }; /* un gasto con el nombre de una suscripción se muestra como esa suscripción */
+const txSub = (t) => { if (!t || t.amount >= 0 || isPay(t)) return null; if (t.sub) { const l = data.subs.find((x) => x.id === t.sub); if (l) return l; } if (!t.note) return null; const n = bankNorm(t.note).trim(); return data.subs.find((x) => bankNorm(x.name).trim() === n) || null; }; /* un gasto con el nombre de una suscripción se muestra como esa suscripción */
 function subTile(s, i) { const b = subBrand(s); return b ? tile(b.bg, subSVG(b, 26)) : tile(CARD_COLORS[i % CARD_COLORS.length], esc(s.name).charAt(0)); }
 const ICONS = {
   bank: 'bank-line', card: 'bank-card-line', wallet: 'wallet-3-line', cash: 'cash-line', coins: 'coins-line', bag: 'shopping-bag-3-line', car: 'car-line', home: 'home-4-line',
@@ -2789,7 +2792,7 @@ function renderResumen() {
   maybeNews(); maybeNavNote(); maybeFeedback();
   const visAcc = data.accounts.filter((a) => !a.hid);
   const c = calc(), nx = nextIncome(), pend = pendingIncomes();
-  const catCenter = '<text x="120" y="116" text-anchor="middle" font-size="13" fill="#6C6C70" font-family="inherit">Total</text><text x="120" y="146" text-anchor="middle" font-size="28" font-weight="700" letter-spacing="-0.8" fill="#1C1C1E" font-family="inherit">' + fmt(c.expense) + '</text>';
+  const catCenter = '<text x="120" y="116" text-anchor="middle" font-size="13" fill="#6C6C70" font-family="inherit">Total</text><text x="120" y="146" text-anchor="middle" font-size="28" font-weight="700" letter-spacing="-0.8" fill="#1C1C1E" font-family="inherit">' + fmt(c.expV) + '</text>';
   const catRing = c.cats.length ? ringSVG(c.cats, 100, 22, 4, 240, catCenter) : '';
   const catList = c.cats.length
     ? '<div class="catlist">' + c.cats.map((k) => '<div><i style="background:' + k.color + '"></i><span>' + k.name + '</span><b>' + fmt(k.v) + '</b></div>').join('') + '</div>'
@@ -2833,9 +2836,9 @@ function renderResumen() {
         '<span class="amt" style="font-weight:600">−' + fmtC(Math.abs(e.a0), e.cur) + '</span></div>';
     }).join('') + '</div>';
   }
-  const left = c.budgetTotal - c.expense, pct = c.budgetTotal ? Math.min(100, (c.expense / c.budgetTotal) * 100) : 0;
+  const left = c.budgetTotal - c.expV, pct = c.budgetTotal ? Math.min(100, (c.expV / c.budgetTotal) * 100) : 0;
   const budgetCard = '<div class="card"><div class="lbl">Presupuesto de ' + MON_FULL[c.today.getMonth()] + '</div>' +
-    '<div class="big" style="font-size:26px;margin-top:2px">' + fmt(c.expense) + ' <span class="sub" style="font-weight:500;letter-spacing:0">de ' + fmt(c.budgetTotal) + '</span></div>' +
+    '<div class="big" style="font-size:26px;margin-top:2px">' + fmt(c.expV) + ' <span class="sub" style="font-weight:500;letter-spacing:0">de ' + fmt(c.budgetTotal) + '</span></div>' +
     '<div class="bar" style="height:8px;border-radius:4px;margin:10px 0 8px"><i style="height:8px;border-radius:4px;width:' + pct + '%;background:' + (left < 0 ? '#FF3B30' : '#1A9D63') + '"></i></div>' +
     '<div class="sub">' + (c.budgetTotal ? (left >= 0 ? 'Te quedan ' + fmt(left) : 'Te pasaste por ' + fmt(-left)) : 'Aún no defines límites') + '</div>' +
     '<button class="link" data-act="tab:presupuesto">Ver presupuesto</button></div>';
@@ -2912,12 +2915,12 @@ function debtInsight(k) {
 }
 function renderPresupuesto() {
   const fmt = bfmt;
-  const c = calc(), vs = viewSet(), vb = budOf(vs), bt = sum(CAT_ORDER, (k) => vb[k] || 0), act = activeSet(), prev = (vs || null) !== (act || null), left = bt - c.expense, dl = c.dim - c.today.getDate() + 1;
+  const c = calc(), vs = viewSet(), vb = budOf(vs), bt = sum(CAT_ORDER, (k) => vb[k] || 0), act = activeSet(), prev = (vs || null) !== (act || null), left = bt - c.expV, dl = c.dim - c.today.getDate() + 1;
   const center = prev
     ? '<text x="120" y="112" text-anchor="middle" font-size="13" fill="#6C6C70" font-family="inherit">Límite del set</text><text x="120" y="144" text-anchor="middle" font-size="30" font-weight="700" letter-spacing="-0.9" fill="#1C1C1E" font-family="inherit">' + fmt(bt) + '</text>'
     : bt
     ? '<text x="120" y="112" text-anchor="middle" font-size="13" fill="#6C6C70" font-family="inherit">' + (left >= 0 ? 'Quedan' : 'Te pasaste') + '</text><text x="120" y="144" text-anchor="middle" font-size="30" font-weight="700" letter-spacing="-0.9" fill="' + (left >= 0 ? '#1C1C1E' : 'var(--rt)') + '" font-family="inherit">' + fmt(Math.abs(left)) + '</text><text x="120" y="166" text-anchor="middle" font-size="12" fill="#6C6C70" font-family="inherit">de ' + fmt(bt) + '</text>'
-    : '<text x="120" y="112" text-anchor="middle" font-size="13" fill="#6C6C70" font-family="inherit">Gastado</text><text x="120" y="144" text-anchor="middle" font-size="30" font-weight="700" fill="#1C1C1E" font-family="inherit">' + fmt(c.expense) + '</text>';
+    : '<text x="120" y="112" text-anchor="middle" font-size="13" fill="#6C6C70" font-family="inherit">Gastado</text><text x="120" y="144" text-anchor="middle" font-size="30" font-weight="700" fill="#1C1C1E" font-family="inherit">' + fmt(c.expV) + '</text>';
   const ring = ringSVG(prev ? [] : (c.cats.length ? c.cats : []), 100, 22, 4, 240, center);
   const rows = CAT_ORDER.map((k) => {
     const lim = vb[k] || 0, sp = c.catTot[k] || 0, pct = lim ? sp / lim : 0, over = lim && sp > lim;
@@ -3052,13 +3055,24 @@ function renderAhorro() {
 }
 
 /* ---------- Insights: tendencias del mes + evaluación ---------- */
+/* Gasto fijo: cuánto crecieron tus suscripciones frente al mes anterior (en dinero y en cantidad). Las ya existentes antes de llevar la cuenta son la base. */
+function subGrowth(mk) {
+  const hist = data.subHist || {}, pk = prevMkOf(mk), isCur = mk === iso(getToday()).slice(0, 7);
+  const cur = isCur ? sum(data.subs, (x) => usd(x.amount, x.cur)) : hist[mk];
+  if (cur == null) return null;
+  const nw = data.subs.filter((x) => x.since && x.since.slice(0, 7) === mk), newTot = sum(nw, (x) => usd(x.amount, x.cur));
+  const base = hist[pk] != null ? hist[pk] : (isCur ? cur - newTot : null);
+  if (base == null) return null;
+  const d = round2(cur - base), pct = base > 0 ? d / base : (d > 0 ? 1 : 0);
+  return { cur: cur, base: base, d: d, pct: pct, n: nw.length, pts: d > 0.005 ? -clamp(pct * 40, 0, 10) : 0 };
+}
 function monthSums(mk, upTo) {
-  const o = { inc: 0, exp: 0, cat: {}, n: 0 };
+  const o = { inc: 0, exp: 0, expV: 0, sub: 0, cat: {}, n: 0 };
   data.transactions.forEach((t) => {
     if (isPay(t) || t.date.slice(0, 7) !== mk) return;
     if (upTo && Number(t.date.slice(8, 10)) > upTo) return;
     const v = txUSD(t); o.n++;
-    if (v > 0) o.inc += v; else { o.exp -= v; const c = CAT_ORDER.indexOf(t.category) >= 0 ? t.category : 'Otros'; o.cat[c] = (o.cat[c] || 0) - v; }
+    if (v > 0) o.inc += v; else if (txSub(t)) { o.exp -= v; o.sub -= v; } else { o.exp -= v; o.expV -= v; const c = CAT_ORDER.indexOf(t.category) >= 0 ? t.category : 'Otros'; o.cat[c] = (o.cat[c] || 0) - v; }
   });
   return o;
 }
@@ -3068,20 +3082,20 @@ function insightsModel(mk0, upTo0) {
   const T0 = getToday(), cmk = iso(T0).slice(0, 7), mk = mk0 || cmk, isCur = mk === cmk, y = Number(mk.slice(0, 4)), mo = Number(mk.slice(5, 7)) - 1;
   const T = new Date(y, mo, 1), dimM = new Date(y, mo + 1, 0).getDate(), part = !!upTo0 || isCur, day = upTo0 || (isCur ? T0.getDate() : dimM), pmk = prevMkOf(mk), dimP = new Date(y, mo, 0).getDate();
   const cur = monthSums(mk, part ? day : 0); let prev = monthSums(pmk, part ? day : 0), est = false;
-  if (!prev.n) { const h = data.history.find((x) => x.month === pmk); if (h) { const f = part ? Math.min(1, day / dimP) : 1; prev = { inc: h.income * f, exp: h.expense * f, cat: {}, n: 0 }; est = true; } }
+  if (!prev.n) { const h = data.history.find((x) => x.month === pmk); if (h) { const f = part ? Math.min(1, day / dimP) : 1; prev = { inc: h.income * f, exp: h.expense * f, expV: h.expense * f, sub: 0, cat: {}, n: 0 }; est = true; } }
   const hasPrev = prev.inc > 0 || prev.exp > 0, pct = (a, b) => (b > 0 ? (a - b) / b : null);
   const c0 = calc(), mtx = data.transactions.filter((t) => t.date.slice(0, 7) === mk && (!part || Number(t.date.slice(8, 10)) <= day)).sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : (b.id || 0) - (a.id || 0)));
   const c = Object.assign({}, c0, { dim: dimM, monthTx: mtx, catTot: cur.cat }), AB = budOf(activeSet()), lim = CAT_ORDER.filter((k) => (AB[k] || 0) > 0), within = lim.filter((k) => (cur.cat[k] || 0) <= AB[k]).length;
   const contrib = data.savings.some((sv) => (sv.log || []).some((l) => l.date && l.date.slice(0, 7) === mk && (!part || Number(l.date.slice(8, 10)) <= day)));
-  const rateC = cur.inc > 0 ? (cur.inc - cur.exp) / cur.inc : null, rateP = prev.inc > 0 ? (prev.inc - prev.exp) / prev.inc : null;
+  const rateC = cur.inc > 0 ? (cur.inc - cur.expV) / cur.inc : null, rateP = prev.inc > 0 ? (prev.inc - prev.expV) / prev.inc : null;
   let A = 0, B = 0, Cc = 0, D = contrib ? 5 : 0;
-  const ps = pct(cur.exp, prev.exp); if (ps != null) A = clamp(-ps * 50, -25, 25);
+  const ps = pct(cur.expV, prev.expV); if (ps != null) A = clamp(-ps * 50, -25, 25);
   if (rateC != null && rateP != null) B = clamp((rateC - rateP) * 60, -15, 15);
   if (lim.length) Cc = (within / lim.length - 0.5) * 30;
-  const score = clamp(Math.round(50 + A + B + Cc + D), 0, 100), delta = A + B;
+  const sg = subGrowth(mk), E = sg ? sg.pts : 0, score = clamp(Math.round(50 + A + B + Cc + D + E), 0, 100), delta = A + B;
   const letter = score >= 90 ? 'S' : score >= 78 ? 'A' : score >= 64 ? 'B' : score >= 50 ? 'C' : score >= 35 ? 'D' : 'F';
   const sk = hasPrev ? gradeStreak(mk, letter) : { n: 1, plus: false };
-  return { streak: sk.n, plus: sk.plus, isCur: isCur, T: T, day: day, dim: dimM, mk: mk, cur: cur, prev: prev, est: est, hasPrev: hasPrev, pct: pct, ps: ps, c: c, lim: lim, within: within, contrib: contrib, rateC: rateC, rateP: rateP, score: score, delta: delta, letter: letter, pmk: pmk };
+  return { streak: sk.n, plus: sk.plus, isCur: isCur, T: T, day: day, dim: dimM, mk: mk, cur: cur, prev: prev, est: est, hasPrev: hasPrev, pct: pct, ps: ps, c: c, lim: lim, within: within, contrib: contrib, rateC: rateC, rateP: rateP, sg: sg, score: score, delta: delta, letter: letter, pmk: pmk };
 }
 function insightsHTML(noHead) {
   const sel = insSel(), m = sel.m, half = sel.half, hs = (data.halfSnaps || {})[m.mk] || null, hl = half && hs ? hs : m, c = m.c, cur = m.cur, prev = m.prev, GOOD = 'var(--gt)', BAD = 'var(--rt)', MUTE = '#6C6C70';
@@ -3100,7 +3114,7 @@ function insightsHTML(noHead) {
     h += secHead('Categorías que más cambiaron') + '<div class="card lst">' + ch.map((x) => '<div class="row">' + tile(CAT_COLOR[x.k], catGlyph(x.k)) + '<div class="grow"><div class="name" style="font-size:16px">' + x.k + '</div><div class="sub" style="font-size:13px">' + fmt(x.b) + ' → ' + fmt(x.a) + '</div></div>' + (x.b > 0 ? chip(x.d / x.b, true) : '<span class="sub" style="font-weight:600">nuevo</span>') + '</div>').join('') + '</div>';
   }
   // ritmo
-  const fixedM = cur.cat['Alquiler'] || 0, proj = m.day > 0 ? fixedM + (cur.exp - fixedM) / m.day * m.dim : 0;
+  const fixedM = cur.cat['Alquiler'] || 0, proj = m.day > 0 ? fixedM + (cur.expV - fixedM) / m.day * m.dim : 0;
   let pace = '<div class="sub" style="font-size:15px">Al ritmo actual cerrarías el mes gastando <b style="color:var(--ink)">' + fmt(proj) + '</b>.</div>';
   if (c.budgetTotal > 0) { const over = proj > c.budgetTotal; pace += '<div class="bar" style="margin:12px 0 8px"><i style="width:' + Math.min(100, proj / c.budgetTotal * 100) + '%;background:' + (over ? '#FF3B30' : '#22B573') + '"></i></div><div class="sub" style="font-size:14px;color:' + (over ? BAD : GOOD) + ';font-weight:600">' + (over ? 'Te pasarías ' + fmt(proj - c.budgetTotal) + ' de tu presupuesto de ' + fmt(c.budgetTotal) : 'Quedarías ' + fmt(c.budgetTotal - proj) + ' por debajo de tu presupuesto de ' + fmt(c.budgetTotal)) + '</div>'; }
   if (!closed) h += secHead('Ritmo de gasto') + '<div class="card">' + pace + '</div>';
@@ -3108,7 +3122,7 @@ function insightsHTML(noHead) {
   const big = c.monthTx.filter((t) => !isPay(t) && t.amount < 0).sort((a, b) => txUSD(a) - txUSD(b))[0];
   if (!half && big) { const bc = CAT_ORDER.indexOf(big.category) >= 0 ? big.category : 'Otros'; h += secHead('Tu gasto más grande') + '<div class="card lst"><div class="row tap" data-act="tx:' + big.id + '">' + tile(CAT_COLOR[bc], catGlyph(bc)) + '<div class="grow"><div class="name" style="font-size:16px">' + esc(big.note || bc) + '</div><div class="sub" style="font-size:13px">' + bc + ' · ' + dshort(pd(big.date)) + '</div></div><span class="amt">' + fmtSC2(big.amount, accOf(big.acc).cur) + '</span>' + ICON.chev + '</div></div>'; }
   // comprometido
-  if (!half && c.subsTotal > 0) h += secHead('Ya comprometido') + '<div class="card"><div class="sub" style="font-size:15px">Tus servicios y suscripciones suman <b style="color:var(--ink)">' + fmt(c.subsTotal) + '</b> al mes' + (cur.inc > 0 ? ', el <b style="color:var(--ink)">' + Math.round(c.subsTotal / cur.inc * 100) + '%</b> de lo que has ingresado este mes' : '') + '.</div></div>';
+  if (!half && c.subsTotal > 0) h += secHead('Ya comprometido') + '<div class="card"><div class="sub" style="font-size:15px">Tus servicios y suscripciones suman <b style="color:var(--ink)">' + fmt(c.subsTotal) + '</b> al mes' + (cur.inc > 0 ? ', el <b style="color:var(--ink)">' + Math.round(c.subsTotal / cur.inc * 100) + '%</b> de lo que has ingresado este mes' : '') + '.' + (m.sg && (m.sg.n > 0 || Math.abs(m.sg.d) > 0.005) ? '<div style="margin-top:8px;color:' + (m.sg.d > 0.005 ? BAD : GOOD) + ';font-weight:600">' + (m.sg.n > 0 ? plural(m.sg.n, 'suscripción nueva', 'suscripciones nuevas') + ' · ' : '') + (m.sg.d >= 0 ? '+' : '−') + fmt(Math.abs(m.sg.d)) + ' al mes frente a ' + pmName + '</div>' : '') + '</div></div>';
   // evaluación
   const colL = { S: 'linear-gradient(135deg,#B98AE6,#6D8BEA)', A: '#22B573', B: '#4CC3A0', C: '#EDB03E', D: '#FF9F0A', F: '#FF3B30' }[m.letter];
   const dir = !m.hasPrev ? 0 : m.delta > 3 ? 1 : m.delta < -3 ? -1 : 0, dcol = dir > 0 ? GOOD : dir < 0 ? BAD : MUTE;
@@ -3458,12 +3472,13 @@ function monthScore(mk) {
   if (!cur.n || !(prev.inc > 0 || prev.exp > 0)) return null;
   const AB = budOf(activeSet()), lim = CAT_ORDER.filter((k) => (AB[k] || 0) > 0), within = lim.filter((k) => (cur.cat[k] || 0) <= AB[k]).length;
   const contrib = data.savings.some((sv) => (sv.log || []).some((l) => l.date && l.date.slice(0, 7) === mk));
-  const rC = cur.inc > 0 ? (cur.inc - cur.exp) / cur.inc : null, rP = prev.inc > 0 ? (prev.inc - prev.exp) / prev.inc : null;
+  const rC = cur.inc > 0 ? (cur.inc - cur.expV) / cur.inc : null, rP = prev.inc > 0 ? (prev.inc - prev.expV) / prev.inc : null;
   let A = 0, B = 0, Cc = 0;
-  if (prev.exp > 0) A = clamp(-((cur.exp - prev.exp) / prev.exp) * 50, -25, 25);
+  if (prev.expV > 0) A = clamp(-((cur.expV - prev.expV) / prev.expV) * 50, -25, 25);
   if (rC != null && rP != null) B = clamp((rC - rP) * 60, -15, 15);
   if (lim.length) Cc = (within / lim.length - 0.5) * 30;
-  const score = clamp(Math.round(50 + A + B + Cc + (contrib ? 5 : 0)), 0, 100);
+  const sg = subGrowth(mk), E = sg ? sg.pts : 0;
+  const score = clamp(Math.round(50 + A + B + Cc + E + (contrib ? 5 : 0)), 0, 100);
   const letter = score >= 90 ? 'S' : score >= 78 ? 'A' : score >= 64 ? 'B' : score >= 50 ? 'C' : score >= 35 ? 'D' : 'F', sk = gradeStreak(mk, letter);
   return { score: score, letter: letter, streak: sk.n, plus: sk.plus };
 }
@@ -3741,7 +3756,7 @@ function subAdvance(sb) {
   if (!acc) { toast('Añade una cuenta primero'); return; }
   const prev = data.transactions.filter((t) => t.note === sb.name && t.amount < 0).sort((a, b) => (a.date < b.date ? 1 : -1))[0];
   const amt = acc.cur === sb.cur ? sb.amount : round2(fromUSD(usd(sb.amount, sb.cur), acc.cur));
-  data.transactions.push({ id: nextTxId(), date: today, amount: -amt, category: prev ? prev.category : 'Ocio', note: sb.name, acc: acc.id });
+  data.transactions.push({ id: nextTxId(), date: today, amount: -amt, category: prev ? prev.category : 'Ocio', note: sb.name, acc: acc.id, sub: sb.id });
   applyTo(acc, -amt);
   ov['sub:' + sb.id + ':' + nx] = { skip: true };
   ui.dirty++; persist(); renderAll(); toast('Cobro adelantado');
@@ -4610,7 +4625,7 @@ const FORMS = {
     blank: () => ({ id: uid(), kind: 'card', name: '', cur: curP(), limit: 0, balance: 0, apr: 20, payment: 0, due_day: 1, color: '', icon: '' }), style: 'debt' },
   sub: { coll: 'subs', hero: 'amount', heroLabel: () => 'Por mes', cur: 'cur', need: ['name'], pos: true, title: ['Nuevo servicio o suscripción', 'Servicio o suscripción'],
     fields: [{ k: 'name', t: 'text', label: 'Nombre', ic: ['#22B573', 'pen'] }, { k: 'day', t: 'num', label: 'Día de cobro', ic: ['#FF9F0A', '#'] }, { k: 'acc', t: 'select', label: 'Se cobra de', ic: ['#22B573', 'card'] }, CURSEG],
-    blank: () => ({ id: uid(), name: '', amount: 0, cur: curP(), day: Math.min(28, getToday().getDate()), acc: '' }) },
+    blank: () => ({ id: uid(), name: '', amount: 0, cur: curP(), day: Math.min(28, getToday().getDate()), acc: '', since: iso(getToday()) }) },
   income: { coll: 'expected_income', hero: 'amount', heroLabel: () => 'Monto previsto', curFrom: 'acc', need: ['name'], pos: true, rebuild: ['repeat'], title: ['Ingreso previsto', 'Ingreso previsto'],
     fields: [{ k: 'name', t: 'text', label: 'Nombre', ic: ['#22B573', 'pen'] }, { t: 'seg', k: 'repeat', opts: [['0', 'Una vez'], ['7', 'Semanal'], ['14', '14 días'], ['q', 'Quincenal'], ['m', 'Mensual']] },
       { k: 'acc', t: 'select', label: 'Cuenta', ic: ['#22B573', 'card'] }, { k: 'date', t: 'date', label: 'Fecha', ic: ['#FF9F0A', 'cal'] },
@@ -6074,7 +6089,7 @@ function wFinish(skip) {
   if (w.level === 'extended') {
     const fx = wnum(w.fxAmt), nm = (w.fxName || '').trim();
     if (fx > 0) fresh.expected_expense.push({ id: uid(), name: nm || 'Gasto fijo', amount: fx, acc: acc.id, date: w.fxRep === 'q' ? iso(qNext(pd(iso(getToday())), qMake(wQ(w.fxQ1, 1), wQ(w.fxQ2, 15)), true)) : (w.fxDate || iso(getToday())), repeat: w.fxRep === 'm' ? 'm' : w.fxRep === 'q' ? qMake(wQ(w.fxQ1, 1), wQ(w.fxQ2, 15)) : Number(w.fxRep), until: '', cat: /renta|alquiler/i.test(nm) ? 'Alquiler' : 'Otros' });
-    const sb = wnum(w.subAmt); if (sb > 0) fresh.subs.push({ id: uid(), name: (w.subName || '').trim() || 'Servicio o suscripción', amount: sb, cur: acc.cur, day: Math.max(1, Math.min(31, Math.round(wnum(w.subDay)) || 1)) });
+    const sb = wnum(w.subAmt); if (sb > 0) fresh.subs.push({ id: uid(), since: iso(getToday()), name: (w.subName || '').trim() || 'Servicio o suscripción', amount: sb, cur: acc.cur, day: Math.max(1, Math.min(31, Math.round(wnum(w.subDay)) || 1)) });
     const db = wnum(w.dbBal), dn = (w.dbName || '').trim();
     if (db > 0 || dn) fresh.cards.push({ id: uid(), kind: w.dbKind === 'loan' ? 'loan' : 'card', name: dn || (w.dbKind === 'loan' ? 'Préstamo' : 'Tarjeta'), cur: acc.cur, limit: w.dbKind === 'loan' ? 0 : wnum(w.dbLim), balance: db, apr: w.dbApr === '' ? 20 : wnum(w.dbApr), payment: wnum(w.dbPay), due_day: Math.max(1, Math.min(31, Math.round(wnum(w.dbDay)) || 1)), color: '', icon: '' });
     const gl = wnum(w.gGoal), gn = (w.gName || '').trim();
@@ -6273,9 +6288,9 @@ const BW = {
   cats: { t: 'Gasto por categoría', d: 'En qué se va tu plata este mes.', ic: 'pie-chart-2-line', sizes: ['S', 'T', 'L'], r: (c, w, h) => {
     if (!c.cats.length) return bemp('Sin gastos este mes');
     const list = '<div class="blist">' + c.cats.slice().sort((a, b) => b.v - a.v).slice(0, h >= 2 ? 8 : 5).map((k) => '<div><i style="background:' + k.color + '"></i><span>' + k.name + '</span><b>' + fmt(k.v) + '</b></div>').join('') + '</div>';
-    if (w === 1 && h === 1) return '<div class="bdon">' + bDonut(c.cats, c.expense, 'Gastado') + '</div>';
-    if (w === 1) return '<div style="display:flex;flex-direction:column;gap:.8em;flex:1;min-height:0"><div style="flex:1;min-height:0;display:flex">' + bDonut(c.cats, c.expense, 'Gastado') + '</div>' + list.replace('class="blist"', 'class="blist" style="flex:none;gap:.4em"') + '</div>';
-    return '<div class="bdon">' + bDonut(c.cats, c.expense, 'Gastado') + list + '</div>';
+    if (w === 1 && h === 1) return '<div class="bdon">' + bDonut(c.cats, c.expV, 'Gastado') + '</div>';
+    if (w === 1) return '<div style="display:flex;flex-direction:column;gap:.8em;flex:1;min-height:0"><div style="flex:1;min-height:0;display:flex">' + bDonut(c.cats, c.expV, 'Gastado') + '</div>' + list.replace('class="blist"', 'class="blist" style="flex:none;gap:.4em"') + '</div>';
+    return '<div class="bdon">' + bDonut(c.cats, c.expV, 'Gastado') + list + '</div>';
   } },
   flow: { t: 'Ingresos vs gastos', d: 'Comparación de los últimos meses.', ic: 'bar-chart-grouped-line', sizes: ['M', 'L', 'W'], r: (c, w, h) => {
     const ms = c.months.filter((m) => m.income > 0 || m.expense > 0); if (!ms.length) return bemp('Aún no hay meses para comparar');
