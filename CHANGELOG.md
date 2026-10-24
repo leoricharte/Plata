@@ -7,6 +7,7 @@
 - **Copia local a la nube:** al volver a modo Cloud, cargar la copia de este dispositivo como la de la nube pide confirmación y un código por correo.
 - **Precio:** early supporters, 30% menos durante un año, renovable según el contexto. Primer mes gratis (marcha blanca), por invitación.
 - **Notas y rachas:** al segundo mes seguido subes de nivel; tu nota luce un laurel y un broche.
+- **Navegación renovada:** cuatro pestañas y un botón + junto a la barra para registrar o planear en un toque; Ahorro ahora vive dentro de Proyección.
 - **Transferencias:** mueve plata entre tus cuentas sin que cuente como gasto ni ingreso.
 - **Marcas:** logos y colores automáticos de bancos, billeteras y suscripciones.
 - **Monedas:** al cambiar la moneda de una cuenta, tarjeta o meta, elige mantener los montos o convertirlos.
