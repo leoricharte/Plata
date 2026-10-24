@@ -4802,6 +4802,7 @@ function letterCut(L, dia, full, sq, tri) {
   return '-webkit-mask:' + top + ',' + base + ';-webkit-mask-composite:xor;mask:' + top + ',' + base + ';mask-composite:exclude';
 }
 function avatarHTML(sz, photo, nobadge, cut) {
+  if (cut === undefined) cut = true;
   const ph = photo === undefined ? avatarPhoto() : photo;
   if (!ph) return '<span style="position:relative;overflow:hidden;flex:none;width:' + sz + 'px;height:' + sz + 'px;border-radius:50%;background:' + insBg(avatarGrad()) + ';display:flex;align-items:center;justify-content:center" aria-hidden="true">' + SFI('f13in', sz, '#fff') + '</span>';
   const a = avatarInfo();
