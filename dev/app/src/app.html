@@ -3553,10 +3553,10 @@ function monthScreenHTML() {
 }
 const svgU = (svg) => "url('data:image/svg+xml," + encodeURIComponent(svg).replace(/'/g, '%27') + "')";
 const dmSp = (letter, plus) => !!plus && /^[SABC]$/.test(letter);
-const DMASK = (() => { const u = svgU('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="14" y="14" width="72" height="72" rx="16" transform="rotate(45 50 50)" fill="#000"/></svg>') + ' center/100% 100% no-repeat'; return '-webkit-mask:' + u + ';mask:' + u; })();
+const DMASK = (() => { const u = svgU('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10.7" y="10.7" width="78.6" height="78.6" rx="16" transform="rotate(45 50 50)" fill="#000"/></svg>') + ' center/100% 100% no-repeat'; return '-webkit-mask:' + u + ';mask:' + u; })();
 function scoreTile(letter, sz, plus) {
   const g = plus ? plusGrad(letter) : (GRAD[letter] || GRAD.B), dm = dmSp(letter, plus);
-  return '<span data-notr style="display:flex;align-items:center;justify-content:center;width:' + sz + 'px;height:' + sz + 'px;border-radius:' + (dm ? 0 : Math.round(sz * 0.32)) + 'px;background:' + insBg(g) + ';color:#fff;font-size:' + Math.round(sz * (dm ? 0.36 : plus ? 0.46 : 0.56)) + 'px;font-weight:800;letter-spacing:-1px' + (plus ? ';text-shadow:0 1px 3px rgba(0,0,0,.35)' : '') + (dm ? ';' + DMASK : '') + '">' + letter + (plus ? pch(letter) : '') + '</span>';
+  return '<span data-notr style="display:flex;align-items:center;justify-content:center;width:' + sz + 'px;height:' + sz + 'px;border-radius:' + (dm ? 0 : Math.round(sz * 0.32)) + 'px;background:' + insBg(g) + ';color:#fff;font-size:' + Math.round(sz * (dm ? 0.4 : plus ? 0.46 : 0.56)) + 'px;font-weight:800;letter-spacing:-1px' + (plus ? ';text-shadow:0 1px 3px rgba(0,0,0,.35)' : '') + (dm ? ';' + DMASK : '') + '">' + letter + (plus ? pch(letter) : '') + '</span>';
 }
 function mmPickHTML() {
   const T = getToday(), cmk = iso(T).slice(0, 7), cnt = {};
