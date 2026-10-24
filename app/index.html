@@ -2337,6 +2337,7 @@ async function clAct(arg, el) {
       const k = await PCC.linkNew(), rid = PCC.b64u(crypto.getRandomValues(new Uint8Array(24))), tz = (Intl.DateTimeFormat().resolvedOptions().timeZone || '');
       const r = await clFetch('/link/start', 'POST', { email: em, pub: k.pub, rid: rid, plat: syncDevice().plat, tz: tz, lang: String(resolveLang() || 'es').slice(0, 2) });
       if (r.s === 429) clMsg('Demasiados intentos. Prueba en una hora.'); else if (r.s !== 200) clMsg('No pudimos conectar. Inténtalo más tarde.');
+      else if (r.j && r.j.access === false) { CL.ui = { step: r.j.listed ? 'listed' : 'nolist', email: em }; clSheet(); }
       else { CL.lk = k.priv; CL.ui = { step: 'linkwait', email: em, pub: k.pub, rid: rid, code: await PCC.matchCode(k.pub), t0: Date.now() }; clSheet(); clLinkWait(); }
     } catch (e) { clMsg('No pudimos conectar. Inténtalo más tarde.'); } el.disabled = false;
   } else if (a === 'lkcancel' || a === 'linkmail') { clearInterval(CL.lp); CL.lk = null; CL.ui = { step: 'email', email: u.email }; clSheet(); }

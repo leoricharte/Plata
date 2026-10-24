@@ -483,6 +483,8 @@ async function linkStart(req, env, h, ctx) {
   const ip = req.headers.get('CF-Connecting-IP') || 'x', hour = Math.floor(Date.now() / 3600000), ek = await emailKey(env, email);
   if (await hit(env, 'rl:li:' + (await sha((env.RL_SALT || 'plata') + ip)) + ':' + hour, 10, 7200) || await hit(env, 'rl:le:' + ek.slice(0, 24) + ':' + hour, 4, 7200)) return json({ ok: false, error: 'rate' }, 429, h);
   const u = await kvGet(env, 'u:' + ek);
+  let allowed = !!u || env.CLOUD_OPEN === '1' || String(env.CLOUD_TESTERS || '').toLowerCase().split(',').map((x) => x.trim()).filter(Boolean).includes(email), listed = false;
+  if (!allowed) { const w = await kvGet(env, 'w:' + email); allowed = !!(w && w.inv); listed = !allowed && !!w; }
   if (u && u.kc) { // solo hay algo que aprobar si la cuenta ya tiene llave; la respuesta es igual haya o no cuenta
     const l = { rh: await shaFull(rid), pub, plat: String(b.plat || '').slice(0, 40), tz: String(b.tz || '').slice(0, 40), t: Date.now(), st: 'p' };
     await kvPut(env, 'l:' + ek, l, 660);
@@ -490,7 +492,7 @@ async function linkStart(req, env, h, ctx) {
     const p = sendCodeMail(env, email, b.lang === 'en' ? 'en' : 'es', await matchCode(pub), 'link', { plat: l.plat, tz: l.tz, when });
     if (ctx && ctx.waitUntil) ctx.waitUntil(p); else await p;
   }
-  return json({ ok: true }, 200, h);
+  return json({ ok: true, access: allowed, listed: listed }, 200, h);
 }
 async function linkPending(req, env, h) {
   const a = await session(req, env); if (!a) return unauth(h);
