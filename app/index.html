@@ -4981,15 +4981,15 @@ function smartCheck(t) {
   const title = 'Eh… no somos expertos, pero';
   /* 0) pago de tarjeta anotado suelto + gasto de una cuenta por lo mismo: son dos mitades del mismo pago */
   const isDeb = (x) => data.accounts.some((a) => a.id === x.acc), isCrd = (x) => data.cards.some((k) => k.id === x.acc);
-  const loosePay = (x) => x.category === PAY && x.amount > 0 && !x.pair && isCrd(x), looseExp = (x) => !isPay(x) && x.amount < 0 && !x.pair && !x.job && isDeb(x);
+  const loosePay = (x) => x.amount > 0 && !x.pair && !x.job && isCrd(x) && (x.category === PAY || !isPay(x)), looseExp = (x) => !isPay(x) && x.amount < 0 && !x.pair && !x.job && isDeb(x);
   if (loosePay(t) || looseExp(t)) {
     const m = data.transactions.find((x) => x !== t && dd(x.date, t.date) <= 2 && Math.abs(U(x) - U(t)) <= Math.max(0.5, U(t) * 0.03) && (loosePay(t) ? looseExp(x) : loosePay(x)));
     if (m) {
       const pay = loosePay(t) ? t : m, ex = loosePay(t) ? m : t, kd = accOf(pay.acc);
       askConfirm(title, 'Creemos que estos dos movimientos son el mismo pago de tu tarjeta ' + kd.name + '. ¿Los juntamos como un solo pago para que el gasto no cuente doble?', [{ label: 'Aceptar cambios', fn: () => {
-        const pid = uid(); ex.category = PAY; ex.note = 'Pago a ' + kd.name; ex.pair = pid; pay.pair = pid;
+        const pid = uid(), wasPay = pay.category === PAY; ex.category = PAY; ex.note = 'Pago a ' + kd.name; ex.pair = pid; pay.pair = pid; if (!wasPay) { pay.category = PAY; pay.note = 'Pago de ' + kd.name; }
         ui.dirty++; persist(); renderAll(); toast('Pago registrado');
-      } }], '<div style="margin:10px 0 14px">' + smRow(ex, 'Se corregirá') + smRow(pay, 'Se vinculará') + '</div>', 'Mantener cambios');
+      } }], '<div style="margin:10px 0 14px">' + smRow(ex, 'Se corregirá') + smRow(pay, pay.category === PAY ? 'Se vinculará' : 'Se corregirá') + '</div>', 'Mantener cambios');
       return;
     }
   }
