@@ -18,11 +18,14 @@ const MAIL_FROM = 'Plata Cloud <cloud@plataapp.net>';
 const MAIL_LOGO = 'https://plataapp.net/img/email-logo.png';
 const MAIL_CLOUDS = 'https://plataapp.net/img/email-clouds.png';
 const MAIL_IG = 'https://plataapp.net/img/email-ig.png';
+const MAIL_KEY = 'https://plataapp.net/img/email-key.gif';
+const MAIL_WARN = 'https://plataapp.net/img/email-warn.png';
+const MAIL_IC = (n) => 'https://plataapp.net/img/email-ic-' + n + '.png';
 const MAIL_TXT = {
   es: {
     subject: (n) => 'Eres la persona #' + n + ' en la lista de Plata Cloud',
-    pre: (n) => 'Ya estás para volar. Te avisaremos apenas abramos cupos.',
-    title: 'Ya estás para volar.',
+    pre: (n) => 'Pronto volando. Te avisaremos apenas abramos cupos.',
+    title: 'Pronto volando.',
     lead: (n) => 'Eres la persona número ' + n + ' en apuntarse a Plata Cloud. Cuando abramos cupos para la marcha blanca gratuita de un mes, te escribiremos a este correo.',
     h: ['¿Qué es Plata Cloud?', '¿Qué cambia hoy?', '¿Qué más me van a pedir?'],
     p: [
@@ -37,8 +40,8 @@ const MAIL_TXT = {
   },
   en: {
     subject: (n) => "You're person #" + n + ' on the Plata Cloud list',
-    pre: (n) => "You're ready to fly. We'll let you know as soon as spots open.",
-    title: "You're ready to fly.",
+    pre: (n) => "Flying soon. We'll let you know as soon as spots open.",
+    title: 'Flying soon.',
     lead: (n) => 'You are person number ' + n + " to join Plata Cloud. When we open spots for the free one-month trial run, we'll write to this address.",
     h: ['What is Plata Cloud?', 'What changes today?', 'What else will you ask of me?'],
     p: [
@@ -323,11 +326,18 @@ function codeMail(lang, code, kind, x) {
   if (kind === 'delete') Object.assign(t, es
     ? { subject: 'Confirma el borrado de tu cuenta: ' + code, title: 'Confirma que quieres borrar tu cuenta', lead: 'Alguien pidió borrar tu cuenta de Plata Cloud. Si fuiste tú, escribe este código en Plata. Vence en 10 minutos.', danger: 'ESTO BORRARÁ TU CUENTA Y TODA TU COPIA EN LA NUBE. NO LO HAGAS SI NO DESEAS PERDER TUS DATOS.', warn: 'Si no fuiste tú, ignora este correo y no compartas el código: sin él no se puede borrar nada.' }
     : { subject: 'Confirm deleting your account: ' + code, title: 'Confirm you want to delete your account', lead: 'Someone asked to delete your Plata Cloud account. If it was you, enter this code in Plata. It expires in 10 minutes.', danger: "THIS WILL DELETE YOUR ACCOUNT AND YOUR WHOLE CLOUD COPY. DON'T DO IT IF YOU DON'T WANT TO LOSE YOUR DATA.", warn: "If it wasn't you, ignore this email and don't share the code: nothing can be deleted without it." });
-  if (kind === 'link') { x = x || {}; const det = (x.plat || '?') + (x.tz ? ' · ' + x.tz.split('/').pop().replace(/_/g, ' ') : '') + (x.when ? ' · ' + x.when : ''); Object.assign(t, es
-    ? { subject: 'Alguien quiere entrar a tu cuenta de Plata Cloud', title: 'Alguien quiere entrar a tu cuenta', lead: 'Se pidió iniciar sesión desde ' + det + '. Para aprobarlo, abre Plata en un dispositivo donde ya tengas sesión: en Ajustes verás la solicitud. Confirma que el código de abajo sea el mismo que ves en el dispositivo nuevo. Vence en 10 minutos.', danger: 'APRUÉBALO SOLO SI FUISTE TÚ.', warn: 'Si no fuiste tú, recházalo en Plata o ignora este correo: sin tu aprobación nadie puede entrar.' }
-    : { subject: 'Someone wants to sign in to your Plata Cloud account', title: 'Someone wants to sign in to your account', lead: 'A sign-in was requested from ' + det + '. To approve it, open Plata on a device where you are already signed in: you will see the request in Settings. Check that the code below matches the one on the new device. It expires in 10 minutes.', danger: 'ONLY APPROVE IT IF IT WAS YOU.', warn: "If it wasn't you, decline it in Plata or ignore this email: nobody can sign in without your approval." }); }
+  let detRows = '', det = '';
+  if (kind === 'link') { x = x || {}; det = (x.plat || '?') + (x.tz ? ' · ' + x.tz.split('/').pop().replace(/_/g, ' ') : '') + (x.when ? ' · ' + x.when : '');
+    const os = String(x.plat || '').split(' · ')[0], ico = os === 'iPhone' ? 'apple' : os === 'Android' ? 'android' : os === 'Mac' ? 'macbook' : os === 'Windows' ? 'windows' : os === 'Linux' ? 'computer' : 'smartphone';
+    const item = (ic, tx) => '<tr><td style="padding:0 0 8px"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td valign="middle" style="padding:0 10px 0 0"><img src="' + MAIL_IC(ic) + '" width="20" height="20" alt="" style="display:block;border:0;width:20px;height:20px"></td><td valign="middle" style="font:600 15px/1.3 ' + F + ';color:#1C1C1E">' + String(tx).replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</td></tr></table></td></tr>';
+    const city = x.tz ? x.tz.split('/').pop().replace(/_/g, ' ') : '';
+    detRows = '<tr><td style="padding:0 32px 20px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#FFF3E0;border-radius:18px"><tr><td style="padding:16px 18px 8px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">'
+      + item(ico, os || (es ? 'Dispositivo' : 'Device')) + (city ? item('global', city) : '') + (x.when ? item('time', x.when) : '') + '</table></td></tr></table></td></tr>';
+    Object.assign(t, es
+    ? { subject: 'Alguien quiere entrar a tu cuenta de Plata Cloud', title: 'Alguien quiere entrar a tu cuenta', lead: 'Se pidió iniciar sesión en tu cuenta con estos datos. Para aprobarlo, abre Plata en un dispositivo donde ya tengas sesión: en Ajustes verás la solicitud. Confirma que el código de abajo sea el mismo que ves en el dispositivo nuevo. Vence en 10 minutos.', danger: 'APRUÉBALO SOLO SI FUISTE TÚ.', warn: 'Si no fuiste tú, recházalo en Plata o ignora este correo: sin tu aprobación nadie puede entrar.' }
+    : { subject: 'Someone wants to sign in to your Plata Cloud account', title: 'Someone wants to sign in to your account', lead: 'A sign-in was requested on your account with these details. To approve it, open Plata on a device where you are already signed in: you will see the request in Settings. Check that the code below matches the one on the new device. It expires in 10 minutes.', danger: 'ONLY APPROVE IT IF IT WAS YOU.', warn: "If it wasn't you, decline it in Plata or ignore this email: nobody can sign in without your approval." }); }
   const spaced = kind === 'link' ? code : code.slice(0, 3) + ' ' + code.slice(3);
-  const dangerRow = t.danger ? '<tr><td style="padding:0 32px 20px;font:800 16px/1.45 ' + F + ';color:#D70015">' + t.danger + '</td></tr>' : '';
+  const dangerRow = t.danger ? '<tr><td style="padding:0 32px 20px"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td valign="top" style="padding:2px 10px 0 0"><img src="' + MAIL_WARN + '" width="22" height="22" alt="!" style="display:block;border:0;width:22px;height:22px"></td><td style="font:800 16px/1.45 ' + F + ';color:#D70015">' + t.danger + '</td></tr></table></td></tr>' : '';
   const html = '<!doctype html><html lang="' + (es ? 'es' : 'en') + '"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="only light"><title>' + t.subject + '</title></head><body style="margin:0;padding:0;background:#FFFFFF">'
     + '<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent">' + code + '</div>'
     + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#FFFFFF"><tr><td align="center"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px">'
@@ -335,11 +345,11 @@ function codeMail(lang, code, kind, x) {
     + '<tr><td style="padding:6px 32px 0"><img src="' + MAIL_LOGO + '" width="140" height="49" alt="Plata Cloud" style="display:block;border:0;height:auto;width:140px"></td></tr>'
     + '<tr><td style="padding:22px 32px 8px;font:800 28px/1.15 ' + F + ';letter-spacing:-0.02em;color:#1C1C1E">' + t.title + '</td></tr>'
     + '<tr><td style="padding:0 32px 22px;font:400 16px/1.55 ' + F + ';color:#5B5B60">' + t.lead + '</td></tr>'
-    + dangerRow
+    + detRows + dangerRow
     + '<tr><td style="padding:0 32px 24px"><div style="display:inline-block;background:#E9F6EF;border-radius:18px;padding:18px 28px;font:800 40px/1 ' + F + ';letter-spacing:0.12em;color:#13774C">' + spaced + '</div></td></tr>'
     + '<tr><td style="padding:0 32px 34px;font:400 13px/1.5 ' + F + ';color:#8A8A8F">' + t.warn + '</td></tr>'
     + '</table></td></tr></table></body></html>';
-  return { subject: t.subject, html, text: t.title + '\n\n' + spaced + '\n\n' + t.lead + '\n\n' + (t.danger ? t.danger + '\n\n' : '') + t.warn + '\n' };
+  return { subject: t.subject, html, text: t.title + '\n\n' + spaced + '\n\n' + t.lead + (kind === 'link' ? '\n' + det : '') + '\n\n' + (t.danger ? t.danger + '\n\n' : '') + t.warn + '\n' };
 }
 async function sendCodeMail(env, email, lang, code, kind, x) {
   if (!env.RESEND_API_KEY) return;
@@ -559,7 +569,8 @@ function inviteMail(lang) {
     + '<tr><td><img src="' + MAIL_CLOUDS + '" width="560" alt="" style="display:block;border:0;width:100%;height:auto"></td></tr>'
     + '<tr><td style="padding:6px 34px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">'
     + '<tr><td style="padding:0 0 20px 0"><img src="' + MAIL_LOGO + '" width="150" height="52" alt="Plata Cloud" style="display:block;border:0;width:150px;height:auto"></td></tr>'
-    + '<tr><td style="padding:0 0 14px 0;font:800 36px/1.1 ' + F + ';letter-spacing:-0.03em;color:#1C1C1E">' + t.title + '</td></tr>'
+    + '<tr><td style="padding:0 0 6px 0;font:800 36px/1.1 ' + F + ';letter-spacing:-0.03em;color:#1C1C1E">' + t.title + '</td></tr>'
+    + '<tr><td style="padding:0 0 10px 0"><img src="' + MAIL_KEY + '" width="120" height="115" alt="" style="display:block;border:0;width:120px;height:auto"></td></tr>'
     + '<tr><td style="padding:0 0 22px 0;font:400 17px/1.55 ' + F + ';color:#5B5B60">' + t.lead + '</td></tr>' + li
     + '<tr><td style="padding:14px 0 26px 0"><a href="' + url + '" style="display:inline-block;background:' + G + ';color:#FFFFFF;text-decoration:none;border-radius:999px;padding:14px 26px;font:700 16px/1 ' + F + '">' + t.btn + '</a></td></tr>'
     + '<tr><td style="padding:0 0 14px 0;font:500 16px/1.4 ' + F + ';color:#1C1C1E">' + th + '</td></tr>'
