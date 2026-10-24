@@ -4296,7 +4296,7 @@ function goldGrade() {
   if (dm) return { l: 'S', pal: DIAM, ink: '#4A7FD6', cfg: LAU.D, gem: true };
   return g ? { l: g, pal: CHAMP, ink: '#A47E3A', cfg: LAU[g + '+'] } : p ? { l: p, pal: PLAT, ink: '#6B7586', cfg: LAU[p + '+'] } : null;
 }
-const LAU = { D: { n: 7, a0: 68, a1: 6, L: 25, W: 6.8, berry: true }, 'S+': { n: 7, a0: 68, a1: 6, L: 25, W: 6.8 }, 'A+': { n: 5, a0: 65, a1: 6, L: 27, W: 7.4 }, 'B+': { n: 4, a0: 61, a1: 6, L: 23, W: 6 }, 'C+': { n: 3, a0: 60, a1: 22, L: 21, W: 5.4 }, S: { n: 3, a0: 62, a1: 36, L: 18, W: 4.6 } };
+const LAU = { D: { n: 7, a0: 68, a1: 6, L: 25, W: 6.8 }, 'S+': { n: 7, a0: 68, a1: 6, L: 25, W: 6.8 }, 'A+': { n: 5, a0: 65, a1: 6, L: 27, W: 7.4 }, 'B+': { n: 4, a0: 61, a1: 6, L: 23, W: 6 }, 'C+': { n: 3, a0: 60, a1: 22, L: 21, W: 5.4 }, S: { n: 3, a0: 62, a1: 36, L: 18, W: 4.6 } };
 function laurelSVG(sz, pal, cfg, hole) {
   const c = sz / 2, r = c - 11, out = [], N = cfg.n, L = cfg.L, W = cfg.W;
   [1, -1].forEach((side) => {
