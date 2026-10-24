@@ -5899,14 +5899,23 @@ const W_STEPS = { simple: ['name', 'cur', 'acc', 'look'], standard: ['name', 'in
 function wStart(cloud) { const t = iso(getToday()); ui.w = { level: null, step: 0, first: '', last: '', nick: '', gender: 'n', cur: isWebView() ? [] : guessCur(), fx: 0, accName: 'Cuenta principal', accType: 'checking', accCur: '', bal: '', incName: 'Sueldo', incAmt: '', incRep: 'm', incQ1: '15', incQ2: '30', jQ1: '15', jQ2: '30', fxQ1: '1', fxQ2: '15', incDate: t, incKind: 'i', jMode: '', jName: 'Trabajo', jRate: '', jHours: '40', jTax: '15', jFreq: '', jDate: t, fxName: 'Renta', fxAmt: '', fxRep: 'm', fxDate: t, bud: {}, subName: '', subAmt: '', subDay: '1', dbKind: 'card', dbName: '', dbBal: '', dbLim: '', dbApr: '20', dbPay: '', dbDay: '1', gName: '', gGoal: '', gMon: '' }; if (cloud) ui.w.cloud = true; welcomeHTML('next'); }
 async function wcloudGo() {
   if (!(clBeta() && clIn()) || hasData()) { wclOpen(); return; }
-  /* Con sesión y sin datos aquí: si la nube ya tiene tu copia se carga; si está vacía, recorrido de inicio en la nube */
-  toast('Revisando tu nube…');
+  /* Con sesión y sin datos aquí: si la nube ya tiene tu copia se carga; si está vacía, recorrido de inicio en la nube. Los avisos son diálogos (los toasts no se ven sobre la bienvenida) */
+  const lb = document.querySelector('.wcloud .wct'), old = lb ? lb.textContent : '';
+  if (lb) lb.textContent = 'Revisando tu nube…';
+  const back = () => { if (lb) lb.textContent = old; };
+  const say = (m) => { back(); askConfirm('Plata Cloud', m, [], '', 'Entendido'); };
   try {
     const g = await clFetch('/sync');
-    if (g.s === 200 && !(g.j.rev > 0)) { wStart(true); return; }
-    if (g.s === 200) { if (CL.st.mode !== 'cloud') { CL.st.mode = 'cloud'; CL.st.modeAt = 0; clSave(); } CL.busy = false; CL.hold = false; await clSync('first'); if (hasData()) { hideWelcome(); setTab('resumen'); return; } toast('No pudimos cargar tu copia. Cierra sesión y vuelve a entrar.'); return; }
-    toast('No pudimos revisar tu nube. Inténtalo más tarde.');
-  } catch (e) { toast('No pudimos conectar. Inténtalo más tarde.'); }
+    if (g.s === 401) { back(); CL.ui = { step: 'email' }; clSheet(); return; }
+    if (g.s === 200 && !(g.j.rev > 0)) { back(); wStart(true); return; }
+    if (g.s === 200) {
+      if (CL.st.mode !== 'cloud') { CL.st.mode = 'cloud'; CL.st.modeAt = 0; clSave(); } CL.busy = false; CL.hold = false;
+      await clSync('first');
+      if (hasData()) { hideWelcome(); setTab('resumen'); return; }
+      say('Tu nube tiene una copia, pero no pudimos abrirla en este dispositivo (estado: ' + (CL.status || '?') + '). Cierra sesión y vuelve a entrar con tu frase.'); return;
+    }
+    say('No pudimos revisar tu nube (código ' + g.s + '). Inténtalo más tarde.');
+  } catch (e) { say('No pudimos conectar con Plata Cloud. Revisa tu internet e inténtalo de nuevo.'); }
 }
 function wCopyLink() { const u = 'https://plataapp.net', ok = () => toast('Enlace copiado'); try { navigator.clipboard.writeText(u).then(ok, () => toast(u)); } catch (e) { toast(u); } }
 const W_OPT = ['name', 'inc', 'fixed', 'budget', 'subs', 'debt', 'goal'];
