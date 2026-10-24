@@ -5215,7 +5215,7 @@ function submitSheet() {
 /* Avisos de "esto se ve raro": solo ayudan a no penalizar sin querer; siempre se pueden descartar */
 function smRow(t, label) {
   const cur = accOf(t.acc).cur, nm = t.note || t.category;
-  return '<div style="display:flex;align-items:center;gap:10px;text-align:left;padding:10px 0;border-top:1px solid var(--line)"><div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(nm) + '</div><div style="font-size:12.5px;color:var(--sec);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(t.category + ' · ' + dlabel(pd(t.date)) + ' · ' + accOf(t.acc).name) + '</div></div>' +
+  return '<div style="display:flex;align-items:center;gap:10px;text-align:left;padding:10px 0;border-top:1px solid var(--line)"><div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(nm) + '</div><div style="font-size:12.5px;color:var(--sec);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(t.category + ' · ' + dlabel(pd(t.date))) + '</div><div style="font-size:12.5px;color:var(--sec);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(accOf(t.acc).name) + '</div></div>' +
     '<div style="flex:none;text-align:right"><div style="font-size:15px;font-weight:600">' + (t.amount < 0 ? '−' : '+') + fmtC2(Math.abs(t.amount), cur) + '</div><div style="font-size:12.5px;font-weight:700;color:#E5A100">' + esc(label) + '</div></div></div>';
 }
 function smartCheck(t) {
