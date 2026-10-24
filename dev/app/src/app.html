@@ -4226,9 +4226,15 @@ function dbgViewHTML() {
   const opt = (k, l) => '<button class="linkrow" data-act="dbgview:' + k + '" style="width:100%;' + (k === 'auto' ? '' : 'border-top:1px solid var(--line);') + '"><span class="grow" style="text-align:left">' + l + '</span>' + ((fv || 'auto') === k ? '<b style="color:#22B573">✓</b>' : '') + '</button>';
   return '<div class="sub" style="padding:14px 6px 6px;text-transform:uppercase;font-size:12px;letter-spacing:.5px">Debug · Vista</div><div class="scard">' + opt('auto', 'Automática (según el ancho)') + opt('desktop', 'Forzar escritorio') + opt('mobile', 'Forzar móvil') + '</div>';
 }
+function dbgExtraHTML() {
+  const T = (t) => '<div class="sub" style="padding:14px 6px 6px;text-transform:uppercase;font-size:12px;letter-spacing:.5px">' + t + '</div>', cur = langPref(), tp = window.__themePref();
+  const th = T('Debug · Apariencia') + '<div class="scard"><div style="padding:12px 14px;display:flex;gap:6px">' + [['auto', 'Auto'], ['light', 'Claro'], ['dark', 'Oscuro']].map((t) => '<button data-act="dbgtheme:' + t[0] + '" style="flex:1;height:38px;border-radius:999px;font-size:15px;font-weight:600;' + (tp === t[0] ? 'background:#22B573;color:#fff' : 'background:var(--fill, rgba(120,120,128,.16));color:var(--ink)') + '">' + t[1] + '</button>').join('') + '</div></div>';
+  const lg = T('Debug · Idioma') + '<div class="scard">' + LANG_LIST.map((x, i) => '<button class="linkrow" data-act="dbglang:' + x[0] + '" style="width:100%;' + (i ? 'border-top:1px solid var(--line);' : '') + '"><span class="grow" style="text-align:left">' + x[1] + '</span>' + (cur === x[0] ? '<b style="color:#22B573">✓</b>' : '') + '</button>').join('') + '</div>';
+  return th + lg + '<div class="scard" style="margin-top:14px">' + wDebugGradesHTML() + '</div>';
+}
 function dbgListHTML() {
-  return dbgViewHTML() + '<div class="sub" style="padding:14px 6px 6px;text-transform:uppercase;font-size:12px;letter-spacing:.5px">Debug · Perfiles por calificación</div><div class="scard">' +
-    ['S', 'A', 'B', 'C', 'D', 'F', 'H', 'X'].map((g, i) => '<button class="linkrow" data-act="dbg:' + g + '" style="width:100%;' + (i ? 'border-top:1px solid var(--line);' : '') + '"><b style="width:22px;color:#6D8BEA">' + (g === 'X' ? '?' : g === 'H' ? '½' : g) + '</b>' + DBG[g].nick + (g === 'X' ? ' · sin datos suficientes' : g === 'H' ? ' <span class="sub">half‑time</span>' : '') + '</button>').join('') + '</div>';
+  return dbgViewHTML() + dbgExtraHTML() + '<div class="sub" style="padding:14px 6px 6px;text-transform:uppercase;font-size:12px;letter-spacing:.5px">Debug · Perfiles por calificación</div><div class="scard">' +
+    ['S', 'A', 'B', 'C', 'D', 'F', 'H', 'X'].map((g, i) => '<button class="linkrow" data-act="dbg:' + g + '" style="width:100%;' + (i ? 'border-top:1px solid var(--line);' : '') + '"><b data-notr style="width:22px;color:#6D8BEA">' + (g === 'X' ? '?' : g === 'H' ? '½' : g) + '</b>' + DBG[g].nick + (g === 'X' ? ' · sin datos suficientes' : g === 'H' ? ' <span class="sub">half‑time</span>' : '') + '</button>').join('') + '</div>';
 }
 function creditsHTML() {
   const role = (n, r) => '<div class="row" style="border:0"><div class="grow"><div class="name" style="font-size:17px">' + n + '</div><div class="sub" style="font-size:14px;margin-top:1px">' + r + '</div></div></div>';
@@ -5334,7 +5340,7 @@ document.addEventListener('click', (e) => {
   else if (a === 'wdbgclose') wDebugClose();
   else if (a === 'wdbgtheme') { window.__applyTheme(arg); try { if (data && data.settings) { data.settings.theme = arg === 'auto' ? '' : arg; persist(); } } catch (e) { /* sin perfil */ } document.querySelectorAll('#wdbg [data-act^="wdbgtheme:"]').forEach((bt) => { const on = bt.getAttribute('data-act') === 'wdbgtheme:' + arg; bt.style.background = on ? '#22B573' : 'rgba(120,120,128,.16)'; bt.style.color = on ? '#fff' : 'var(--ink)'; }); }
   else if (a === 'wgsel') { wSel = arg; const box = document.getElementById('wstreak'); if (box) { box.innerHTML = wStreakInner(); } document.querySelectorAll('[data-act^="wgsel:"]').forEach((b) => { b.style.opacity = b.dataset.act === 'wgsel:' + arg ? '' : '.55'; }); }
-  else if (a === 'wgrade') { wDebugClose(); loadDemo('g_' + arg); renderAll(); setTab('resumen'); hideWelcome(); toast('Perfil de prueba cargado'); }
+  else if (a === 'wgrade') { wDebugClose(); loadDemo('g_' + arg); if (ui.dbgOpen) { closeSheet(); leaveSettings(); } renderAll(); setTab('resumen'); hideWelcome(); toast('Perfil de prueba cargado'); }
   else if (BW_ACTS.indexOf(a) >= 0) bentoAct(a, arg);
   else if (a === 'wmenu') wMenu();
   else if (a === 'wmenuclose') wCloseMenu();
@@ -5366,6 +5372,8 @@ document.addEventListener('click', (e) => {
   else if (a === 'insights') { ui.insHalf = false; ui.insMk = arg || ''; openItem('insights', 'x'); }
   else if (a === 'inshalf') { ui.insHalf = true; openItem('insights', 'x'); }
   else if (a === 'dbgview') { try { if (arg === 'auto') localStorage.removeItem('plata.view'); else localStorage.setItem('plata.view', arg); } catch (e) { /* sin almacenamiento */ } persist(); setTimeout(() => location.reload(), 120); }
+  else if (a === 'dbgtheme') { window.__applyTheme(arg); try { if (data && data.settings) { data.settings.theme = arg === 'auto' ? '' : arg; persist(); } } catch (e) { /* sin perfil */ } renderCuenta(); }
+  else if (a === 'dbglang') { data.settings.lang = arg === 'auto' ? '' : arg; persist(); applyLang(); renderAll(); renderCuenta(); }
   else if (a === 'dbgmenu') { ui.dbgOpen = !ui.dbgOpen; renderCuenta(); }
   else if (a === 'transp') { openTransp(); }
   else if (a === 'credits') { ui.dbgOpen = false; ui.itemKind = 'credits'; renderCuenta(); navSlide('push'); }
@@ -6095,9 +6103,10 @@ function wDebug() {
 }
 function wDebugGradesHTML() {
   const L = ['S', 'A', 'B', 'C', 'D', 'F'], b = (k, plus) => '<button data-act="wgrade:' + k + '" aria-label="' + k + '" style="display:flex;justify-content:center;padding:0">' + scoreTile(k.charAt(0), 40, plus) + '</button>';
+  const dia = b('Sd', 'd');
   return '<div style="padding:12px 16px 8px;font-size:14px;color:var(--mute)">Calificaciones (datos planos)</div><div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px 4px;padding:0 12px 4px">' +
-    L.map((x) => b(x, false)).join('') + L.map((x) => b(x + 'p', true)).join('') + '</div>' +
-    '<div style="padding:4px 16px 8px;font-size:12px;color:#8E8E93">Segunda fila: letra+ / letra- (racha de 2 meses)</div>';
+    L.map((x) => b(x, false)).join('') + L.map((x) => b(x + 'p', true)).join('') + dia + '</div>' +
+    '<div style="padding:4px 16px 8px;font-size:12px;color:#8E8E93">Segunda fila: letra+ / letra- (racha de 2 meses) · al final: Diamante (4 meses en S)</div>';
 }
 function wDebugClose() { const b = $('#wdbg'); if (b) { b.style.opacity = '0'; setTimeout(() => b.remove(), 200); } }
 function wDebugPick(v) {
