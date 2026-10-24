@@ -3235,11 +3235,11 @@ function halfBanner(m) {
     '<span style="display:flex;align-items:center;justify-content:center;width:100%;height:42px;--tg:' + tGrad(hg) + ';border-radius:999px;margin-top:12px;background:linear-gradient(180deg,#2C2C2E,#0B0B0C);color:#fff;font-size:16px;font-weight:600;box-shadow:inset 0 1px 0 rgba(255,255,255,.2)">' + '<b class="btg">Ver informe hasta ahora</b>' + '</span></div>';
 }
 function closeBanner(m, label, act) {
-  const mes = MON_FULL[m.T.getMonth()], g = m.hasPrev ? (scoreOn() && m.plus ? plusGrad(m.letter) : GRAD[scoreOn() ? m.letter : 'B']) : ['#B9B9C6', '#7B7B93', '#3A3A52', '#D8D8E6'];
+  const mes = MON_FULL[m.T.getMonth()], g = m.hasPrev ? (scoreOn() && m.plus ? tierG(m.letter, m.plus) : GRAD[scoreOn() ? m.letter : 'B']) : ['#B9B9C6', '#7B7B93', '#3A3A52', '#D8D8E6'];
   return '<div class="insban tap" data-act="' + act + '" role="button" style="position:relative;overflow:hidden;border-radius:26px;margin:0 0 14px;padding:18px;text-align:center;color:#fff;--tg:' + tGrad(g) + ';background:' + insBg(g) + ';box-shadow:0 8px 24px rgba(0,0,0,.12)">' +
     '<div class="insgrain"></div>' +
     '<div style="position:relative"><div class="btx" style="font-size:15px;font-weight:500;opacity:.92">' + label + ' ' + mes + '</div>' +
-    '<div class="btx" style="font-size:26px;font-weight:800;letter-spacing:-.6px;margin:2px 0 6px">' + (!scoreOn() ? 'Tus tendencias de ' + mes + '.' : m.hasPrev ? 'Tu evaluación fue ' + m.letter + (m.plus ? pch(m.letter) : '') + '.' : 'Aún sin evaluación.') + '</div>' +
+    '<div class="btx" style="font-size:26px;font-weight:800;letter-spacing:-.6px;margin:2px 0 6px">' + (!scoreOn() ? 'Tus tendencias de ' + mes + '.' : m.hasPrev ? 'Tu evaluación fue ' + tL(m.letter, m.plus) + '.' : 'Aún sin evaluación.') + '</div>' +
     (scoreOn() ? '<div class="btx" style="font-size:15px;line-height:1.3;opacity:.95;margin:0 6px 14px">' + esc(insPhrase(m)) + '</div>' : '<div style="height:8px"></div>') +
     '<span style="display:flex;align-items:center;justify-content:center;width:100%;height:50px;border-radius:999px;background:var(--card);color:' + g[1] + ';font-size:17px;font-weight:600">' + '<b class="btg">Ver informe</b>' + '</span></div></div>';
 }
@@ -3482,7 +3482,7 @@ function monthScore(mk) {
   const letter = score >= 90 ? 'S' : score >= 78 ? 'A' : score >= 64 ? 'B' : score >= 50 ? 'C' : score >= 35 ? 'D' : 'F', sk = gradeStreak(mk, letter);
   return { score: score, letter: letter, streak: sk.n, plus: sk.plus };
 }
-/* Racha: meses seguidos con la misma letra (S–C). Al cuarto mes la letra sube a "+" y se vuelve dorado champán */
+/* Racha: meses seguidos con la misma letra. Al segundo mes la letra sube a "+" (dorado/platino) o "-" (rojo); 4 meses seguidos en S = Diamante */
 const CHAMP = ['#F6E3A8', '#D9B35F', '#8A6527', '#FFF3CF'];
 const PLAT = ['#E3E7EE', '#A7B1C0', '#505A6C', '#FFFFFF'], REDD = ['#FF7A5C', '#D6302E', '#5A0E1F', '#FF9F7A'], REDF = ['#FF4D4D', '#B3122C', '#3C0614', '#FF7A6B'];
 const pch = (L) => (L === 'D' || L === 'F' ? '-' : '+');
@@ -3497,14 +3497,16 @@ function gradeStreak(mk, letter) {
       n++;
     }
   } catch (e) { /* sin racha */ }
-  return { n: n, plus: n >= 4 };
+  return { n: n, plus: n >= 2 ? (letter === 'S' && n >= 4 ? 'd' : true) : false };
 }
 function streakHTML(letter, n, plus) {
-  const g = GRAD[letter] || GRAD.B, pg = plusGrad(letter), bad = letter === 'D' || letter === 'F', mid = letter === 'B' || letter === 'C';
+  const g = GRAD[letter] || GRAD.B, dia = plus === 'd', pg = tierG(letter, plus), bad = letter === 'D' || letter === 'F', mid = letter === 'B' || letter === 'C', S = letter === 'S';
   const dot = (on, last) => '<span style="width:12px;height:12px;border-radius:50%;display:inline-block;box-sizing:border-box;' + (on ? 'background:' + (last ? pg[1] : g[1]) : 'border:2px solid ' + (last ? pg[1] : '#C7C7CC')) + '"></span>';
-  const dots = '<span style="display:inline-flex;gap:6px;align-items:center">' + dot(n >= 1) + dot(n >= 2) + dot(n >= 3) + dot(n >= 4, true) + '</span>';
-  const t = plus ? '<div style="font-size:15px;font-weight:700;background:linear-gradient(135deg,' + pg[1] + ',' + pg[2] + ');-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent">' + letter + pch(letter) + ' · ' + n + ' meses seguidos</div><div class="sub" style="font-size:13px">' + (bad ? 'Es momento de cambiar el rumbo.' : mid ? 'Nivel estable. Un ajuste más y subes.' : 'Mantienes tu nivel. ¡Sigue así!') + '</div>'
-    : '<div style="font-size:14px;font-weight:600;color:var(--ink2)">Llevas ' + n + ' de 4 meses con ' + letter + '.</div><div class="sub" style="font-size:13px">' + (bad ? 'Si sigues igual, al cuarto pasas a ' + letter + '-.' : 'Al cuarto subes a ' + letter + '+.') + '</div>';
+  const dots = '<span style="display:inline-flex;gap:6px;align-items:center">' + (S && n >= 2 ? dot(true) + dot(true, true) + dot(n >= 3) + dot(n >= 4, true) : dot(n >= 1) + dot(n >= 2, true)) + '</span>';
+  const grad = (txt) => '<div style="font-size:15px;font-weight:700;background:linear-gradient(135deg,' + pg[1] + ',' + pg[2] + ');-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent">' + txt + '</div>';
+  const t = dia ? grad('S◆ Diamante · ' + n + ' meses seguidos') + '<div class="sub" style="font-size:13px">Lo máximo. Mantén el nivel.</div>'
+    : plus ? grad(letter + pch(letter) + ' · ' + n + ' meses seguidos') + '<div class="sub" style="font-size:13px">' + (S ? (n >= 3 ? 'Un mes más en S y llegas a Diamante.' : 'Dos meses más en S y llegas a Diamante.') : bad ? 'Es momento de cambiar el rumbo.' : mid ? 'Nivel estable. Un ajuste más y subes.' : 'Mantienes tu nivel. ¡Sigue así!') + '</div>'
+    : '<div style="font-size:14px;font-weight:600;color:var(--ink2)">Llevas ' + n + ' de 2 meses con ' + letter + '.</div><div class="sub" style="font-size:13px">' + (bad ? 'Si sigues igual, al segundo pasas a ' + letter + '-.' : 'Al segundo subes a ' + letter + '+.') + '</div>';
   return '<div style="display:flex;align-items:center;gap:12px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">' + dots + '<div class="grow">' + t + '</div></div>';
 }
 function monthBanner() {
@@ -3552,16 +3554,27 @@ function monthScreenHTML() {
     segHTML('mmf', items, mm.f) + '<div id="mmBody">' + mmBodyHTML() + '</div>';
 }
 const svgU = (svg) => "url('data:image/svg+xml," + encodeURIComponent(svg).replace(/'/g, '%27') + "')";
-const dmSp = (letter, plus) => !!plus && /^[SABC]$/.test(letter);
-const trSp = (letter, plus) => !!plus && /^[DF]$/.test(letter);
+const DIAM = ['#EAFBFF', '#8ED6F3', '#4A7FD6', '#FFFFFF'];
+const GEMK = 1.28;
+const GEM = (sw) => '<path d="M27 25 L73 25 L93 44 L50 90 L7 44 Z" fill="#000" stroke="#000" stroke-width="' + sw + '" stroke-linejoin="round"/>';
+const gmSp = (letter, plus) => plus === 'd' && letter === 'S';
+const tL = (L, plus) => (plus === 'd' ? L + '◆' : plus ? L + pch(L) : L);
+const tierG = (L, plus) => (plus === 'd' ? DIAM : plusGrad(L));
+function gemHTML(px, g, label) {
+  return '<span role="img" aria-label="' + (label || 'S◆') + '" style="position:relative;display:block;flex:none;width:' + px + 'px;height:' + px + 'px;background:' + insBg(g) + ';-webkit-mask:' + svgU('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' + GEM(10) + '</svg>') + ' center/100% 100% no-repeat;mask:' + svgU('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' + GEM(10) + '</svg>') + ' center/100% 100% no-repeat"><svg viewBox="0 0 100 100" style="position:absolute;inset:0;width:100%;height:100%" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"><path d="M10 44H90M27 25L38 44L50 88L62 44L73 25M38 44L50 25L62 44"/></svg></span>';
+}
+const dmSp = (letter, plus) => !!plus && plus !== 'd' && /^[SABC]$/.test(letter);
+const trSp = (letter, plus) => !!plus && plus !== 'd' && /^[DF]$/.test(letter);
 const TRK = 1.22;
 const DMK = 1.18;
 function heroTile(m) {
-  const dm = dmSp(m.letter, m.plus), tr = trSp(m.letter, m.plus), L = m.letter + (m.plus ? pch(m.letter) : ''), k = dm ? DMK : tr ? TRK : 1, bx = Math.round(64 * k), mg = -Math.round((bx - 64) / 2);
-  return '<div role="img" aria-label="' + L + '" style="position:relative;overflow:hidden;flex:none;width:' + bx + 'px;height:' + bx + 'px;margin:' + mg + 'px;border-radius:' + (dm || tr ? 0 : 20) + 'px;background:' + insBg(m.plus ? plusGrad(m.letter) : (GRAD[m.letter] || GRAD.B)) + ';' + letterCut(L, dm, true, true, tr) + '"><div class="insgrain"></div></div>';
+  if (gmSp(m.letter, m.plus)) { const bx = Math.round(64 * GEMK); return '<div style="flex:none;width:' + bx + 'px;height:' + bx + 'px;margin:' + (-Math.round((bx - 64) / 2)) + 'px">' + gemHTML(bx, DIAM) + '</div>'; }
+  const dm = dmSp(m.letter, m.plus), tr = trSp(m.letter, m.plus), L = tL(m.letter, m.plus), k = dm ? DMK : tr ? TRK : 1, bx = Math.round(64 * k), mg = -Math.round((bx - 64) / 2);
+  return '<div role="img" aria-label="' + L + '" style="position:relative;overflow:hidden;flex:none;width:' + bx + 'px;height:' + bx + 'px;margin:' + mg + 'px;border-radius:' + (dm || tr ? 0 : 20) + 'px;background:' + insBg(m.plus ? tierG(m.letter, m.plus) : (GRAD[m.letter] || GRAD.B)) + ';' + letterCut(L, dm, true, true, tr) + '"><div class="insgrain"></div></div>';
 }
 function scoreTile(letter, sz, plus) {
-  const g = plus ? plusGrad(letter) : (GRAD[letter] || GRAD.B), dm = dmSp(letter, plus), tr = trSp(letter, plus), L = letter + (plus ? pch(letter) : ''), k = dm ? DMK : tr ? TRK : 1, bx = Math.round(sz * k), mg = -Math.round((bx - sz) / 2);
+  if (gmSp(letter, plus)) { const bx = Math.round(sz * GEMK); return '<span style="display:block;flex:none;width:' + bx + 'px;height:' + bx + 'px;margin:' + (-Math.round((bx - sz) / 2)) + 'px">' + gemHTML(bx, DIAM) + '</span>'; }
+  const g = plus ? tierG(letter, plus) : (GRAD[letter] || GRAD.B), dm = dmSp(letter, plus), tr = trSp(letter, plus), L = tL(letter, plus), k = dm ? DMK : tr ? TRK : 1, bx = Math.round(sz * k), mg = -Math.round((bx - sz) / 2);
   return '<span role="img" aria-label="' + L + '" style="display:block;flex:none;width:' + bx + 'px;height:' + bx + 'px;margin:' + mg + 'px;border-radius:' + (dm || tr ? 0 : Math.round(sz * 0.32)) + 'px;background:' + insBg(g) + ';' + letterCut(L, dm, true, true, tr) + '"></span>';
 }
 function mmPickHTML() {
@@ -4232,7 +4245,7 @@ function creditsHTML() {
 }
 
 const AVATAR_DEF = ['#C9CFDD', '#98A2BA', '#5A6482', '#E1E6F2'];
-function avatarInfo() { try { if (!insOn() || !scoreOn()) return null; const m = insightsModel(prevMkOf(iso(getToday()).slice(0, 7))); return !insLocked(m) && GRAD[m.letter] ? { g: m.plus ? plusGrad(m.letter) : GRAD[m.letter], letter: m.letter + (m.plus ? pch(m.letter) : '') } : null; } catch (e) { return null; } }
+function avatarInfo() { try { if (!insOn() || !scoreOn()) return null; const m = insightsModel(prevMkOf(iso(getToday()).slice(0, 7))); return !insLocked(m) && GRAD[m.letter] ? { g: m.plus ? tierG(m.letter, m.plus) : GRAD[m.letter], letter: m.plus === 'd' ? 'S*' : tL(m.letter, m.plus) } : null; } catch (e) { return null; } }
 function avatarGrad() { const a = avatarInfo(); return a ? a.g : AVATAR_DEF; }
 function avatarPhoto() { const p = (data && data.settings && data.settings.photo) || ''; return /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/.test(p) ? p : ''; }
 function letterLayer(L, fs, y0) { return svgU('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50" y="' + (y0 + fs * 0.36) + '" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif" font-weight="800" font-size="' + fs + '" letter-spacing="-1" fill="#000">' + L.replace(/[&<>]/g, '') + '</text></svg>') + ' center/100% 100% no-repeat'; }
@@ -4250,17 +4263,18 @@ function avatarHTML(sz, photo, nobadge, cut) {
   const a = avatarInfo();
   if (!a) return '<span style="display:inline-block;flex:none;width:' + sz + 'px;height:' + sz + 'px;border-radius:50%;background:var(--fill) url(' + ph + ') center/cover no-repeat" aria-hidden="true"></span>';
   const g = a.g, rw = Math.max(2, Math.round(sz * 0.055)), bs = Math.round(sz * 0.38), bw = Math.max(2, Math.round(sz * 0.035)), off = Math.round(bs * 0.12), bc = sz + off - bs / 2, cr = bs / 2 + bw;
-  const dia = !!(cut && !nobadge && /^[SABC]\+$/.test(a.letter)), tri = !!(cut && !nobadge && /^[DF]-$/.test(a.letter)), box = bs * (tri ? 1.32 : 1.42), dw = box * 0.62, dr = box * 0.14;
+  const gem = !!(cut && !nobadge && a.letter === 'S*'), dia = !!(cut && !nobadge && /^[SABC]\+$/.test(a.letter)), tri = !!(cut && !nobadge && /^[DF]-$/.test(a.letter)), box = bs * (gem ? 1.55 : tri ? 1.32 : 1.42), dw = box * 0.62, dr = box * 0.14;
   const dcut = dia ? svgU('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + sz + ' ' + sz + '" width="' + sz + '" height="' + sz + '"><rect x="' + (bc - dw / 2 - bw) + '" y="' + (bc - dw / 2 - bw) + '" width="' + (dw + 2 * bw) + '" height="' + (dw + 2 * bw) + '" rx="' + (dr + bw) + '" transform="rotate(45 ' + bc + ' ' + bc + ')" fill="#000"/></svg>') + ' 0 0/' + sz + 'px ' + sz + 'px no-repeat' : '';
   const tcut = tri ? svgU('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + sz + ' ' + sz + '" width="' + sz + '" height="' + sz + '"><g transform="translate(' + (bc - box / 2) + ' ' + (bc - box / 2) + ') scale(' + (box / 100) + ')">' + TRI(26 + 2 * bw * 100 / box) + '</g></svg>') + ' 0 0/' + sz + 'px ' + sz + 'px no-repeat' : '';
-  const mk = tri ? ';-webkit-mask:' + tcut + ',linear-gradient(#000,#000);-webkit-mask-composite:xor;mask:' + tcut + ',linear-gradient(#000,#000);mask-composite:exclude' : dia ? ';-webkit-mask:' + dcut + ',linear-gradient(#000,#000);-webkit-mask-composite:xor;mask:' + dcut + ',linear-gradient(#000,#000);mask-composite:exclude' : cut && !nobadge ? ';-webkit-mask:radial-gradient(circle at ' + bc + 'px ' + bc + 'px,transparent ' + cr + 'px,#000 ' + (cr + 0.6) + 'px);mask:radial-gradient(circle at ' + bc + 'px ' + bc + 'px,transparent ' + cr + 'px,#000 ' + (cr + 0.6) + 'px)' : '';
+  const gcut = gem ? svgU('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + sz + ' ' + sz + '" width="' + sz + '" height="' + sz + '"><g transform="translate(' + (bc - box / 2) + ' ' + (bc - box / 2) + ') scale(' + (box / 100) + ')">' + GEM(10 + 2 * bw * 100 / box) + '</g></svg>') + ' 0 0/' + sz + 'px ' + sz + 'px no-repeat' : '';
+  const mk = gem ? ';-webkit-mask:' + gcut + ',linear-gradient(#000,#000);-webkit-mask-composite:xor;mask:' + gcut + ',linear-gradient(#000,#000);mask-composite:exclude' : tri ? ';-webkit-mask:' + tcut + ',linear-gradient(#000,#000);-webkit-mask-composite:xor;mask:' + tcut + ',linear-gradient(#000,#000);mask-composite:exclude' : dia ? ';-webkit-mask:' + dcut + ',linear-gradient(#000,#000);-webkit-mask-composite:xor;mask:' + dcut + ',linear-gradient(#000,#000);mask-composite:exclude' : cut && !nobadge ? ';-webkit-mask:radial-gradient(circle at ' + bc + 'px ' + bc + 'px,transparent ' + cr + 'px,#000 ' + (cr + 0.6) + 'px);mask:radial-gradient(circle at ' + bc + 'px ' + bc + 'px,transparent ' + cr + 'px,#000 ' + (cr + 0.6) + 'px)' : '';
   return '<span style="position:relative;flex:none;display:inline-block;width:' + sz + 'px;height:' + sz + 'px" aria-hidden="true">' +
     '<span style="position:absolute;inset:0' + mk + '">' +
     '<span style="position:absolute;inset:0;border-radius:50%;background:' + insBg(g) + (cut ? ';-webkit-mask:radial-gradient(circle,transparent ' + (sz / 2 - rw) + 'px,#000 ' + (sz / 2 - rw + 0.6) + 'px);mask:radial-gradient(circle,transparent ' + (sz / 2 - rw) + 'px,#000 ' + (sz / 2 - rw + 0.6) + 'px)' : '') + '"></span>' +
     (cut ? '' : '<span style="position:absolute;inset:' + rw + 'px;border-radius:50%;background:var(--card)"></span>') +
     '<span style="position:absolute;inset:' + (rw + (cut ? bw : 2)) + 'px;border-radius:50%;background:var(--fill) url(' + ph + ') center/cover no-repeat"></span>' +
     '</span>' +
-    (a && !nobadge ? (cut ? (tri ? '<span data-notr style="position:absolute;left:' + (bc - box / 2) + 'px;top:' + (bc - box / 2) + 'px;width:' + box + 'px;height:' + box + 'px;background:' + insBg(g) + ';' + letterCut(a.letter, false, false, false, true) + '"></span>' : dia ? '<span data-notr style="position:absolute;left:' + (bc - box / 2) + 'px;top:' + (bc - box / 2) + 'px;width:' + box + 'px;height:' + box + 'px;background:' + insBg(g) + ';' + letterCut(a.letter, true) + '"></span>' : '<span data-notr style="position:absolute;right:-' + off + 'px;bottom:-' + off + 'px;width:' + bs + 'px;height:' + bs + 'px;border-radius:50%;background:' + insBg(g) + ';' + letterCut(a.letter) + '"></span>') : '<span data-notr style="position:absolute;right:-' + off + 'px;bottom:-' + off + 'px;width:' + bs + 'px;height:' + bs + 'px;border-radius:50%;background:' + insBg(g) + ';border:' + bw + 'px solid #fff;box-sizing:border-box;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:' + Math.round(bs * (a.letter.length > 1 ? 0.4 : 0.52)) + 'px;letter-spacing:-.5px;text-shadow:0 1px 2px rgba(0,0,0,.3)">' + a.letter + '</span>') : '') + '</span>';
+    (a && !nobadge ? (cut ? (gem ? '<span style="position:absolute;left:' + (bc - box / 2) + 'px;top:' + (bc - box / 2) + 'px">' + gemHTML(Math.round(box), g) + '</span>' : tri ? '<span data-notr style="position:absolute;left:' + (bc - box / 2) + 'px;top:' + (bc - box / 2) + 'px;width:' + box + 'px;height:' + box + 'px;background:' + insBg(g) + ';' + letterCut(a.letter, false, false, false, true) + '"></span>' : dia ? '<span data-notr style="position:absolute;left:' + (bc - box / 2) + 'px;top:' + (bc - box / 2) + 'px;width:' + box + 'px;height:' + box + 'px;background:' + insBg(g) + ';' + letterCut(a.letter, true) + '"></span>' : '<span data-notr style="position:absolute;right:-' + off + 'px;bottom:-' + off + 'px;width:' + bs + 'px;height:' + bs + 'px;border-radius:50%;background:' + insBg(g) + ';' + letterCut(a.letter) + '"></span>') : '<span data-notr style="position:absolute;right:-' + off + 'px;bottom:-' + off + 'px;width:' + bs + 'px;height:' + bs + 'px;border-radius:50%;background:' + insBg(g) + ';border:' + bw + 'px solid #fff;box-sizing:border-box;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:' + Math.round(bs * (a.letter.length > 1 ? 0.4 : 0.52)) + 'px;letter-spacing:-.5px;text-shadow:0 1px 2px rgba(0,0,0,.3)">' + a.letter + '</span>') : '') + '</span>';
 }
 function gradeCounts() {
   if (!scoreOn()) return [];
@@ -4277,11 +4291,12 @@ function photoRowHTML(has) {
 function goldGrade() {
   if (!scoreOn()) return null;
   const ks = {}; data.transactions.forEach((t) => { ks[t.date.slice(0, 7)] = 1; });
-  let g = '', p = '';
-  Object.keys(ks).forEach((k) => { const s = monthScore(k); if (!s || !s.plus) return; if (s.letter === 'S' || s.letter === 'A') { if (g === '' || s.letter === 'S') g = s.letter; } else if (s.letter === 'B' || s.letter === 'C') { if (p === '' || s.letter === 'B') p = s.letter; } });
+  let g = '', p = '', dm = false;
+  Object.keys(ks).forEach((k) => { const s = monthScore(k); if (!s || !s.plus) return; if (s.plus === 'd') { dm = true; return; } if (s.letter === 'S' || s.letter === 'A') { if (g === '' || s.letter === 'S') g = s.letter; } else if (s.letter === 'B' || s.letter === 'C') { if (p === '' || s.letter === 'B') p = s.letter; } });
+  if (dm) return { l: 'S', pal: DIAM, ink: '#4A7FD6', cfg: LAU.D, gem: true };
   return g ? { l: g, pal: CHAMP, ink: '#A47E3A', cfg: LAU[g + '+'] } : p ? { l: p, pal: PLAT, ink: '#6B7586', cfg: LAU[p + '+'] } : null;
 }
-const LAU = { 'S+': { n: 7, a0: 68, a1: 6, L: 25, W: 6.8 }, 'A+': { n: 5, a0: 65, a1: 6, L: 27, W: 7.4 }, 'B+': { n: 4, a0: 61, a1: 6, L: 23, W: 6 }, 'C+': { n: 3, a0: 60, a1: 22, L: 21, W: 5.4 }, S: { n: 3, a0: 62, a1: 36, L: 18, W: 4.6 } };
+const LAU = { D: { n: 7, a0: 68, a1: 6, L: 25, W: 6.8, berry: true }, 'S+': { n: 7, a0: 68, a1: 6, L: 25, W: 6.8 }, 'A+': { n: 5, a0: 65, a1: 6, L: 27, W: 7.4 }, 'B+': { n: 4, a0: 61, a1: 6, L: 23, W: 6 }, 'C+': { n: 3, a0: 60, a1: 22, L: 21, W: 5.4 }, S: { n: 3, a0: 62, a1: 36, L: 18, W: 4.6 } };
 function laurelSVG(sz, pal, cfg, hole) {
   const c = sz / 2, r = c - 11, out = [], N = cfg.n, L = cfg.L, W = cfg.W;
   [1, -1].forEach((side) => {
@@ -4294,12 +4309,14 @@ function laurelSVG(sz, pal, cfg, hole) {
       out.push('<path d="M' + P(-L / 2, 0) + ' Q' + P(0, -W) + ' ' + P(L / 2, 0) + ' Q' + P(0, W) + ' ' + P(-L / 2, 0) + 'Z" fill="url(#lg)"/>');
     }
   });
+  if (cfg.berry) [1, -1].forEach((side) => { for (let i = 0; i < N - 1; i++) { const A = cfg.a0 + (cfg.a1 - cfg.a0) * (i + 0.5) / (N - 1), a = A * Math.PI / 180, rr = r - 9; out.push('<circle cx="' + (c + side * rr * Math.cos(a)).toFixed(1) + '" cy="' + (c + rr * Math.sin(a)).toFixed(1) + '" r="2.7" fill="url(#lg)"/>'); } });
   const mid = 'lm' + Math.random().toString(36).slice(2, 7), gap = 4.5;
   let hm = '';
-  if (hole) { const hw = hole.px / 2 + gap; hm = '<mask id="' + mid + '"><rect width="' + sz + '" height="' + sz + '" fill="#fff"/>' + (hole.kind === 'd' ? '<rect x="' + (c - hole.px * 0.393 - gap) + '" y="' + (hole.cy - hole.px * 0.393 - gap) + '" width="' + (hole.px * 0.786 + 2 * gap) + '" height="' + (hole.px * 0.786 + 2 * gap) + '" rx="' + (hole.px * 0.16 + gap) + '" transform="rotate(45 ' + c + ' ' + hole.cy + ')" fill="#000"/>' : '<circle cx="' + c + '" cy="' + hole.cy + '" r="' + hw + '" fill="#000"/>') + '</mask>'; }
+  if (hole) { const hw = hole.px / 2 + gap; hm = '<mask id="' + mid + '"><rect width="' + sz + '" height="' + sz + '" fill="#fff"/>' + (hole.kind === 'g' ? '<g transform="translate(' + (c - hole.px / 2) + ' ' + (hole.cy - hole.px / 2) + ') scale(' + (hole.px / 100) + ')">' + GEM(10 + 2 * gap * 100 / hole.px) + '</g>' : hole.kind === 'd' ? '<rect x="' + (c - hole.px * 0.393 - gap) + '" y="' + (hole.cy - hole.px * 0.393 - gap) + '" width="' + (hole.px * 0.786 + 2 * gap) + '" height="' + (hole.px * 0.786 + 2 * gap) + '" rx="' + (hole.px * 0.16 + gap) + '" transform="rotate(45 ' + c + ' ' + hole.cy + ')" fill="#000"/>' : '<circle cx="' + c + '" cy="' + hole.cy + '" r="' + hw + '" fill="#000"/>') + '</mask>'; }
   return '<svg width="' + sz + '" height="' + sz + '" viewBox="0 0 ' + sz + ' ' + sz + '" style="position:absolute;inset:0;pointer-events:none"><defs><linearGradient id="lg" gradientUnits="userSpaceOnUse" x1="0" y1="' + (c - 64) + '" x2="0" y2="' + (c + 64) + '"><stop offset="0" stop-color="' + pal[0] + '"/><stop offset=".5" stop-color="' + pal[1] + '"/><stop offset="1" stop-color="' + pal[2] + '"/></linearGradient>' + hm + '</defs><g' + (hole ? ' mask="url(#' + mid + ')"' : '') + '>' + out.join('') + '</g></svg>';
 }
 function gradeBadge(L, g, px, style) {
+  if (L === 'S*') return gemHTML(Math.round(px * GEMK), DIAM);
   const dm = /^[SABC]\+$/.test(L), tr = /^[DF]-$/.test(L), k = dm ? DMK : tr ? TRK : 1, bx = Math.round(px * k), cm = dm ? letterCut(L, true, true) : tr ? letterCut(L, false, false, false, true) : letterCut(L);
   return '<span role="img" aria-label="' + L + '" style="display:block;flex:none;width:' + bx + 'px;height:' + bx + 'px;border-radius:' + (dm || tr ? 0 : 50) + '%;background:' + insBg(g) + ';' + cm + (style || '') + '"></span>';
 }
@@ -4311,8 +4328,8 @@ function profileViewHTML() {
   const sg = !gg && av && av.letter === 'S';
   const ltxt = (g0, g1, s) => 'font-size:' + s + 'px;font-weight:800;letter-spacing:-.5px;line-height:1;background:linear-gradient(180deg,' + g0 + ',' + g1 + ');-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent';
   const pic = (gg || sg)
-    ? (() => { const dm = !!gg || /^[SABC]\\+$/.test(av.letter), bp = dm ? 34 * DMK : 34, hs = dm ? bp * 0.786 : bp, gp = 4, cy = 152, ac = cy - 24, hole = dm ? '<rect x="' + (64 - hs / 2 - gp) + '" y="' + (ac - hs / 2 - gp) + '" width="' + (hs + 2 * gp) + '" height="' + (hs + 2 * gp) + '" rx="' + (bp * 0.16 + gp) + '" transform="rotate(45 64 ' + ac + ')" fill="#000"/>' : '<circle cx="64" cy="' + ac + '" r="' + (bp / 2 + gp) + '" fill="#000"/>', hm = svgU('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">' + hole + '</svg>') + ' 0 0/128px 128px no-repeat', mk = '-webkit-mask:' + hm + ',linear-gradient(#000,#000);-webkit-mask-composite:xor;mask:' + hm + ',linear-gradient(#000,#000);mask-composite:exclude';
-      return '<div style="position:relative;width:176px;height:176px;margin:-8px 0 6px">' + laurelSVG(176, gg ? gg.pal : av.g, Object.assign({}, gg ? gg.cfg : LAU.S, { a0: gg ? 80 : 76 }), { cy: cy, px: bp, kind: dm ? 'd' : 'c' }) + '<div style="position:absolute;left:24px;top:24px;' + mk + '">' + avatarHTML(128, undefined, true, true) + '</div><div style="position:absolute;left:50%;top:' + (cy - Math.round(bp / 2)) + 'px;transform:translateX(-50%)">' + gradeBadge(gg ? gg.l + '+' : av.letter, gg ? gg.pal : av.g, 34) + '</div></div>'; })()
+    ? (() => { const gem = !!(gg && gg.gem) || (!gg && av.letter === 'S*'), dm = !gem && (!!gg || /^[SABC]\+$/.test(av.letter)), bp = gem ? 34 * GEMK : dm ? 34 * DMK : 34, hs = dm ? bp * 0.786 : bp, gp = 4, cy = 152, ac = cy - 24, hole = gem ? '<g transform="translate(' + (64 - bp / 2) + ' ' + (ac - bp / 2) + ') scale(' + (bp / 100) + ')">' + GEM(10 + 2 * gp * 100 / bp) + '</g>' : dm ? '<rect x="' + (64 - hs / 2 - gp) + '" y="' + (ac - hs / 2 - gp) + '" width="' + (hs + 2 * gp) + '" height="' + (hs + 2 * gp) + '" rx="' + (bp * 0.16 + gp) + '" transform="rotate(45 64 ' + ac + ')" fill="#000"/>' : '<circle cx="64" cy="' + ac + '" r="' + (bp / 2 + gp) + '" fill="#000"/>', hm = svgU('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">' + hole + '</svg>') + ' 0 0/128px 128px no-repeat', mk = '-webkit-mask:' + hm + ',linear-gradient(#000,#000);-webkit-mask-composite:xor;mask:' + hm + ',linear-gradient(#000,#000);mask-composite:exclude';
+      return '<div style="position:relative;width:176px;height:176px;margin:-8px 0 6px">' + laurelSVG(176, gg ? gg.pal : av.g, Object.assign({}, gg ? gg.cfg : LAU.S, { a0: gg ? 80 : 76 }), { cy: cy, px: bp, kind: gem ? 'g' : dm ? 'd' : 'c' }) + '<div style="position:absolute;left:24px;top:24px;' + mk + '">' + avatarHTML(128, undefined, true, true) + '</div><div style="position:absolute;left:50%;top:' + (cy - Math.round(bp / 2)) + 'px;transform:translateX(-50%)">' + gradeBadge(gg ? (gg.gem ? 'S*' : gg.l + '+') : av.letter, gg ? gg.pal : av.g, 34) + '</div></div>'; })()
     : '<div style="display:flex;flex-direction:column;align-items:center">' + avatarHTML(128, undefined, true) + (av ? '<div style="margin-top:10px;display:flex;justify-content:center">' + gradeBadge(av.letter, av.g, 34) + '</div>' : '') + '</div>';
   const top = '<div style="display:flex;flex-direction:column;align-items:center;padding:6px 0 18px">' + pic + '<div style="font-size:24px;font-weight:700;letter-spacing:-.5px;margin-top:12px;text-align:center">' + esc(nm || 'Tu perfil') + '</div>' + gr + '</div>';
   const rv = (l, v) => '<div class="row"><span class="grow" style="font-size:17px">' + l + '</span><span style="font-size:17px;color:var(--mute);text-align:right;min-width:0;overflow-wrap:anywhere">' + esc(v) + '</span></div>';
@@ -6050,8 +6067,8 @@ function maybeA2hs() {
 let wLogoTaps = [];
 let wSel = 'B';
 function wStreakInner() {
-  const t = wSel === 'S' || wSel === 'A' ? 'Misma letra 4 meses seguidos y sube a letra+ dorada.' : wSel === 'B' || wSel === 'C' ? 'Misma letra 4 meses seguidos y sube a letra+ platino.' : 'Misma letra 4 meses seguidos y baja a letra- más roja.';
-  return '<div style="flex:none">' + scoreTile(wSel, 38, true) + '</div><div class="sub" style="font-size:14px;line-height:1.35;color:var(--ink2)">' + t + '</div>';
+  const t = wSel === 'S' || wSel === 'A' ? 'Misma letra 2 meses seguidos y sube a letra+ dorada.' : wSel === 'B' || wSel === 'C' ? 'Misma letra 2 meses seguidos y sube a letra+ platino.' : 'Misma letra 2 meses seguidos y baja a letra- más roja.';
+  return '<div style="flex:none">' + scoreTile(wSel, 38, true) + '</div><div class="sub" style="font-size:14px;line-height:1.35;color:var(--ink2)">' + t + (wSel === 'S' ? '<div style="margin-top:4px">4 meses seguidos en S y llegas a Diamante.</div>' : '') + '</div>';
 }
 function wGradesHTML() {
   const L = [['S', 'Perfecto'], ['A', 'Muy bueno'], ['B', 'Bueno'], ['C', 'Mediocre'], ['D', 'Deficiente'], ['F', 'Muy malo']];
@@ -6080,7 +6097,7 @@ function wDebugGradesHTML() {
   const L = ['S', 'A', 'B', 'C', 'D', 'F'], b = (k, plus) => '<button data-act="wgrade:' + k + '" aria-label="' + k + '" style="display:flex;justify-content:center;padding:0">' + scoreTile(k.charAt(0), 40, plus) + '</button>';
   return '<div style="padding:12px 16px 8px;font-size:14px;color:var(--mute)">Calificaciones (datos planos)</div><div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px 4px;padding:0 12px 4px">' +
     L.map((x) => b(x, false)).join('') + L.map((x) => b(x + 'p', true)).join('') + '</div>' +
-    '<div style="padding:4px 16px 8px;font-size:12px;color:#8E8E93">Segunda fila: letra+ / letra- (racha de 4 meses)</div>';
+    '<div style="padding:4px 16px 8px;font-size:12px;color:#8E8E93">Segunda fila: letra+ / letra- (racha de 2 meses)</div>';
 }
 function wDebugClose() { const b = $('#wdbg'); if (b) { b.style.opacity = '0'; setTimeout(() => b.remove(), 200); } }
 function wDebugPick(v) {
@@ -6257,7 +6274,7 @@ function bDonut(items, total, label) {
 function bLast() { try { if (!insOn()) return null; const m = insightsModel(prevMkOf(iso(getToday()).slice(0, 7))); return insLocked(m) ? null : m; } catch (e) { return null; } }
 function bAvatar(sz) { let gg = null, av = null; try { gg = goldGrade(); av = gg ? null : avatarInfo(); } catch (e) { /* sin laurel */ } const sg = !gg && av && av.letter === 'S'; if (!gg && !sg) return avatarHTML(sz); const o = Math.round(sz * 1.375); return '<div style="position:relative;flex:none;width:' + o + 'px;height:' + o + 'px;display:flex;align-items:center;justify-content:center">' + laurelSVG(o, gg ? gg.pal : av.g, gg ? gg.cfg : LAU.S) + avatarHTML(sz, undefined, true) + '</div>'; }
 const bTG = (g) => { const m = (c) => 'color-mix(in srgb,' + c + ' var(--tm,100%),#000)'; return 'linear-gradient(100deg,' + m(g[3] || g[0]) + ',' + m(g[0]) + ' 45%,' + m(g[1]) + ')'; };
-function bnameGrad() { const m = bLast(); if (!m || !m.hasPrev) return ''; const g = m.plus ? plusGrad(m.letter) : (GRAD[m.letter] || GRAD.B); return 'background-image:' + bTG(g) + ';'; }
+function bnameGrad() { const m = bLast(); if (!m || !m.hasPrev) return ''; const g = m.plus ? tierG(m.letter, m.plus) : (GRAD[m.letter] || GRAD.B); return 'background-image:' + bTG(g) + ';'; }
 const BPK = {
   card: { t: 'Tarjeta', d: 'Una tarjeta o préstamo en compacto. Tú eliges cuál.', ic: 'bank-card-line', pre: 'card', ph: 'Sin tarjetas ni préstamos', list: (c) => c.cards.map((q) => ({ id: q.id, name: q.name, o: q })) },
   goal: { t: 'Meta', d: 'El avance de una meta de ahorro. Tú eliges cuál.', ic: 'seedling-line', pre: 'goal', ph: 'Aún no tienes metas', list: (c) => c.savings.map((q) => ({ id: q.id, name: q.name, o: q })) },
@@ -6387,7 +6404,7 @@ const BW = {
   } },
   score: { t: 'Tu evaluación', tt: () => { const m = bLast(); return m && m.hasPrev ? 'Nota de ' + MON_FULL[m.T.getMonth()] : 'Tu evaluación'; }, d: 'La nota de tu último cierre de mes.', ic: 'medal-line', sizes: ['S', 'M', 'T'], r: (c, w, h) => {
     const m = bLast(); if (!m || !m.hasPrev || !scoreOn()) return bemp('Aún sin evaluación');
-    const g = m.plus ? plusGrad(m.letter) : (GRAD[m.letter] || GRAD.B), L = m.letter + (m.plus ? pch(m.letter) : ''), d = bvb(w, h), big = Math.max(40, Math.min(d[1] * 0.82, d[0] * (w > 1 ? 0.4 : 0.8)));
+    const g = m.plus ? tierG(m.letter, m.plus) : (GRAD[m.letter] || GRAD.B), L = tL(m.letter, m.plus), d = bvb(w, h), big = Math.max(40, Math.min(d[1] * 0.82, d[0] * (w > 1 ? 0.4 : 0.8)));
     const sub = '';
     const ltr = '<div style="font-size:' + big + 'px;font-weight:800;letter-spacing:-.05em;line-height:1;padding:0 .1em 0 .04em;background:' + bTG(g) + ';-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent">' + L + '</div>';
     if (w === 1) return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">' + ltr + sub + (h > 1 ? '<div style="margin-top:1em;color:var(--ink);line-height:1.35">' + esc(insPhrase(m)) + '</div>' : '') + '</div>';
@@ -6395,7 +6412,7 @@ const BW = {
   } },
   insight: { t: 'Último insight', tt: () => { const m = bLast(); return m && m.hasPrev ? 'Insight de ' + MON_FULL[m.T.getMonth()] : 'Último insight'; }, d: 'La lectura más reciente de tus finanzas.', ic: 'lightbulb-line', sizes: ['M', 'W', 'S', 'L'], r: (c, w, h) => {
     const m = bLast(); if (!m || !m.hasPrev) return bemp('Aún sin insights');
-    const g = m.plus ? plusGrad(m.letter) : (GRAD[m.letter] || GRAD.B), tg = bTG(g), d = bvb(w, h), fz = Math.max(1.4, Math.min(w > 1 && h === 1 ? 2.7 : 4.4, d[0] / (w > 1 ? 270 : 250) * (h > 1 ? 1.3 : 1)));
+    const g = m.plus ? tierG(m.letter, m.plus) : (GRAD[m.letter] || GRAD.B), tg = bTG(g), d = bvb(w, h), fz = Math.max(1.4, Math.min(w > 1 && h === 1 ? 2.7 : 4.4, d[0] / (w > 1 ? 270 : 250) * (h > 1 ? 1.3 : 1)));
     const phrase = '<div style="font-size:' + fz + 'em;font-weight:700;letter-spacing:-.03em;line-height:1.2;background:' + tg + ';-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent">' + esc(insPhrase(m)) + '</div>' + (w < 2 ? '<div style="color:var(--mute)">Cierre de ' + MON_FULL[m.T.getMonth()] + '</div>' : '');
     if (w < 2) return '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:.5em;min-height:0">' + phrase + '</div>';
     const pm = MON_FULL[Number(m.pmk.slice(5, 7)) - 1], pts = [];
@@ -6407,7 +6424,7 @@ const BW = {
     let pf = Math.min(leftW * nl / (txt.length * 0.56), d[1] * (h > 1 ? 0.14 : 0.15)), vf = Math.min(leftW / 4 / 3.5, d[1] * 0.27);
     const need = pf * 1.2 * nl + vf * 1.2 + vf * 0.45 + 28, k = Math.min(1, (d[1] - 4) / need); pf *= k; vf *= k;
     const net = m.cur.inc - m.cur.exp;
-    const st = [['Ingresos', fmt(m.cur.inc), 0], ['Gastos', fmt(m.cur.exp), 1], ['Ahorro', m.rateC == null ? '—' : Math.round(m.rateC * 100) + '%', m.rateC != null && m.rateC < 0 ? 1 : 0], ['Nota', m.letter + (m.plus ? '+' : '') + ' · ' + m.score, 0]].map((x) => '<div style="display:flex;flex-direction:column;gap:.1em"><span style="color:var(--mute);font-size:' + Math.max(13, Math.round(vf * 0.4)) + 'px">' + x[0] + '</span><b style="font-size:' + Math.round(vf) + 'px;white-space:nowrap;font-weight:800;letter-spacing:-.03em;line-height:1.1;background:' + (x[2] ? 'linear-gradient(180deg,#FF9A92,#E5625A 55%,#8E2C28)' : 'linear-gradient(180deg,#46E096,#22B573 55%,#0B5F3B)') + ';-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">' + x[1] + '</b></div>').join('');
+    const st = [['Ingresos', fmt(m.cur.inc), 0], ['Gastos', fmt(m.cur.exp), 1], ['Ahorro', m.rateC == null ? '—' : Math.round(m.rateC * 100) + '%', m.rateC != null && m.rateC < 0 ? 1 : 0], ['Nota', tL(m.letter, m.plus) + ' · ' + m.score, 0]].map((x) => '<div style="display:flex;flex-direction:column;gap:.1em"><span style="color:var(--mute);font-size:' + Math.max(13, Math.round(vf * 0.4)) + 'px">' + x[0] + '</span><b style="font-size:' + Math.round(vf) + 'px;white-space:nowrap;font-weight:800;letter-spacing:-.03em;line-height:1.1;background:' + (x[2] ? 'linear-gradient(180deg,#FF9A92,#E5625A 55%,#8E2C28)' : 'linear-gradient(180deg,#46E096,#22B573 55%,#0B5F3B)') + ';-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">' + x[1] + '</b></div>').join('');
     const kf = Math.round(Math.max(14, Math.min(d[1] * 0.074, d[0] * 0.026, 22))), kp = '<div data-kp="1" style="flex:none;width:36%;border-left:1px solid var(--wline);padding-left:1.2em;display:flex;align-items:center;justify-content:center;font-size:' + kf + 'px"><div style="display:flex;flex-direction:column;gap:.6em;max-width:100%"><div style="color:var(--mute);font-size:.72em;text-transform:uppercase;letter-spacing:.08em;font-weight:600">Puntos clave</div>' + pts.map((x) => '<div style="display:flex;gap:.6em;align-items:flex-start;line-height:1.28"><i style="flex:none;width:.55em;height:.55em;border-radius:50%;margin-top:.365em;background:' + (x[0] === null ? '#8E8E93' : x[0] ? '#22B573' : '#E5625A') + '"></i><span>' + esc(x[1]) + '</span></div>').join('') + '</div></div>';
     const phrase2 = '<div style="font-size:' + Math.round(pf) + 'px;font-weight:700;letter-spacing:-.03em;line-height:1.2;background:' + tg + ';-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent">' + esc(txt) + '</div>';
     return '<div style="flex:1;display:flex;gap:1.8em;min-height:0"><div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:.5em">' + phrase2 + '<div style="display:grid;grid-template-columns:repeat(4,auto);justify-content:space-between;gap:0 1em;margin-top:' + Math.round(vf * 0.35) + 'px">' + st + '</div></div>' + kp + '</div>';
