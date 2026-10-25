@@ -158,8 +158,7 @@ async function join(req, env, h, ctx) {
 }
 
 async function exportList(req, env, h) {
-  const auth = req.headers.get('Authorization') || '';
-  if (!env.ADMIN_TOKEN || auth !== 'Bearer ' + env.ADMIN_TOKEN) return json({ ok: false, error: 'auth' }, 401, h);
+  { const g = await adminGate(req, env, h); if (g) return g; }
   const out = []; let cursor;
   do {
     const r = await env.WAITLIST.list({ prefix: 'w:', cursor });
@@ -190,9 +189,19 @@ async function reviewPut(req, env, h) {
   await kvPut(env, ipk, { n: lim.n + 1, t: now }, 8 * 86400);
   return json({ ok: true, id: id, until: now + REVIEW_WAIT[Math.min(lim.n + 1, REVIEW_WAIT.length) - 1] }, 200, h);
 }
-const adminOk = (req, env) => env.ADMIN_TOKEN && (req.headers.get('Authorization') || '') === 'Bearer ' + env.ADMIN_TOKEN;
+/* Acceso de administrador: comparación en tiempo constante (se comparan hashes) y bloqueo por IP tras 5 fallos en 15 minutos (429). El contador usa KV, que no es atómico: es un freno razonable, no una garantía exacta. */
+const AUTH_MAX = 5, AUTH_WIN = 900;
+async function adminGate(req, env, h) { // devuelve null si el token es correcto; si no, la respuesta 401 o 429
+  const ip = req.headers.get('CF-Connecting-IP') || 'x', key = 'af:' + (await sha((env.RL_SALT || 'plata') + ':adm:' + ip));
+  const n = Number(await env.WAITLIST.get(key)) || 0;
+  if (n >= AUTH_MAX) return json({ ok: false, error: 'rate' }, 429, Object.assign({}, h, { 'Retry-After': String(AUTH_WIN) }));
+  const ok = !!env.ADMIN_TOKEN && same(await sha(req.headers.get('Authorization') || ''), await sha('Bearer ' + env.ADMIN_TOKEN));
+  if (ok) return null;
+  await env.WAITLIST.put(key, String(n + 1), { expirationTtl: AUTH_WIN });
+  return json({ ok: false, error: 'auth' }, 401, h);
+}
 async function reviewList(req, env, h) {
-  if (!adminOk(req, env)) return json({ ok: false, error: 'auth' }, 401, h);
+  { const g = await adminGate(req, env, h); if (g) return g; }
   const out = []; let cursor;
   do { const r = await env.WAITLIST.list({ prefix: 'rv:', cursor }); r.keys.forEach((k) => out.push(k.name.slice(3))); cursor = r.list_complete ? undefined : r.cursor; } while (cursor);
   return json({ ok: true, count: out.length, ids: out }, 200, h);
@@ -204,21 +213,21 @@ async function reviewStatus(env, h, url) {
   return json({ ok: true, reviewed: day(v.reviewed), deleted: day(v.deleted) }, 200, h);
 }
 async function reviewMark(req, env, h, url) { // el equipo marca una copia como revisada: POST /review/mark?id=… con ADMIN_TOKEN
-  if (!adminOk(req, env)) return json({ ok: false, error: 'auth' }, 401, h);
+  { const g = await adminGate(req, env, h); if (g) return g; }
   const k = 'rv:' + (url.searchParams.get('id') || ''), v = await kvGet(env, k);
   if (!v) return json({ ok: false, error: 'none' }, 404, h);
   v.reviewed = Date.now(); await kvPut(env, k, v);
   return json({ ok: true }, 200, h);
 }
 async function reviewDelete(req, env, h, url) { // borra los datos de la copia y deja solo una constancia (fecha) para que la app lo muestre
-  if (!adminOk(req, env)) return json({ ok: false, error: 'auth' }, 401, h);
+  { const g = await adminGate(req, env, h); if (g) return g; }
   const k = 'rv:' + (url.searchParams.get('id') || ''), v = await kvGet(env, k);
   if (!v) return json({ ok: false, error: 'none' }, 404, h);
   await kvPut(env, k, { t: v.t, reviewed: v.reviewed || Date.now(), deleted: Date.now() });
   return json({ ok: true }, 200, h);
 }
 async function reviewGet(req, env, h, url) {
-  if (!adminOk(req, env)) return json({ ok: false, error: 'auth' }, 401, h);
+  { const g = await adminGate(req, env, h); if (g) return g; }
   const v = await env.WAITLIST.get('rv:' + (url.searchParams.get('id') || ''));
   return v ? new Response(v, { status: 200, headers: Object.assign({ 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }, h) }) : json({ ok: false, error: 'none' }, 404, h);
 }
@@ -244,7 +253,7 @@ async function postImg(env, url) {
   return new Response(u, { status: 200, headers: { 'Content-Type': 'image/jpeg', 'Cache-Control': 'public, max-age=86400' } });
 }
 async function postSave(req, env, h) {
-  if (!adminOk(req, env)) return json({ ok: false, error: 'auth' }, 401, h);
+  { const g = await adminGate(req, env, h); if (g) return g; }
   const raw = await req.text(); if (raw.length > 3000000) return json({ ok: false, error: 'size' }, 413, h);
   let b; try { b = JSON.parse(raw); } catch (e) { return json({ ok: false, error: 'json' }, 400, h); }
   const s = (x, n) => String(x == null ? '' : x).slice(0, n);
@@ -263,7 +272,7 @@ async function postSave(req, env, h) {
   return json({ ok: true, id: id }, 200, h);
 }
 async function postDel(req, env, h, url) {
-  if (!adminOk(req, env)) return json({ ok: false, error: 'auth' }, 401, h);
+  { const g = await adminGate(req, env, h); if (g) return g; }
   const id = url.searchParams.get('id') || ''; if (!POST_ID.test(id)) return json({ ok: false, error: 'none' }, 404, h);
   await env.WAITLIST.delete('po:' + id); await env.WAITLIST.delete('pi:' + id); delete MEMO.posts;
   return json({ ok: true }, 200, h);
@@ -280,7 +289,7 @@ async function contentList(env, h) {
   return new Response(JSON.stringify({ ok: true, items: items }), { status: 200, headers: Object.assign({ 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=30' }, h) });
 }
 async function contentSave(req, env, h) {
-  if (!adminOk(req, env)) return json({ ok: false, error: 'auth' }, 401, h);
+  { const g = await adminGate(req, env, h); if (g) return g; }
   const raw = await req.text(); if (raw.length > 30000) return json({ ok: false, error: 'size' }, 413, h);
   let b; try { b = JSON.parse(raw); } catch (e) { return json({ ok: false, error: 'json' }, 400, h); }
   if (!b || !CT_KEY.test(String(b.k || '')) || typeof b.es !== 'string' || typeof b.en !== 'string' || b.es.length > 6000 || b.en.length > 6000) return json({ ok: false, error: 'campos' }, 400, h);
@@ -288,7 +297,7 @@ async function contentSave(req, env, h) {
   return json({ ok: true }, 200, h);
 }
 async function contentDel(req, env, h, url) {
-  if (!adminOk(req, env)) return json({ ok: false, error: 'auth' }, 401, h);
+  { const g = await adminGate(req, env, h); if (g) return g; }
   const k = url.searchParams.get('k') || ''; if (!CT_KEY.test(k)) return json({ ok: false, error: 'none' }, 404, h);
   await env.WAITLIST.delete('ct:' + k); delete MEMO.content; return json({ ok: true }, 200, h);
 }
@@ -598,8 +607,7 @@ async function sendInviteMail(env, email, lang) {
 }
 // Autoriza (inv=1), opcionalmente avisa por correo (send), o revoca (revoke). Solo con ADMIN_TOKEN.
 async function adminInvite(req, env, h) {
-  const auth = req.headers.get('Authorization') || '';
-  if (!env.ADMIN_TOKEN || auth !== 'Bearer ' + env.ADMIN_TOKEN) return json({ ok: false, error: 'auth' }, 401, h);
+  { const g = await adminGate(req, env, h); if (g) return g; }
   const { b, err } = await readBody(req, 20000); if (err) return json({ ok: false, error: 'json' }, err, h);
   const list = Array.isArray(b.emails) ? b.emails.slice(0, 200) : []; let done = 0, mailed = 0, failed = [], missing = [];
   for (const raw of list) {
@@ -623,7 +631,7 @@ export default {
       if (url.pathname === '/waitlist/export' && req.method === 'GET') return await exportList(req, env, h);
       const p = url.pathname, m = req.method;
       if (p === '/content' && m === 'GET') return await contentList(env, h);
-      if (p === '/content/ping' && m === 'GET') return adminOk(req, env) ? json({ ok: true }, 200, h) : json({ ok: false, error: 'auth' }, 401, h);
+      if (p === '/content/ping' && m === 'GET') return (await adminGate(req, env, h)) || json({ ok: true }, 200, h);
       if (p === '/content' && m === 'POST') return await contentSave(req, env, h);
       if (p === '/content' && m === 'DELETE') return await contentDel(req, env, h, url);
       if (p === '/posts' && m === 'GET') return await postsList(env, h);
