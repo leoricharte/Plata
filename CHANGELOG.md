@@ -2,6 +2,7 @@
 
 ## Beta 3
 
+- **Seguridad (compilación 421):** revisión completa. La app limpia y escapa todo lo que llega de un archivo de perfil o de la nube, y solo ejecuta su propio código. Aprobar un dispositivo nuevo ahora muestra un código de 6 dígitos en las dos pantallas, que nadie en medio puede imitar. Pisar o borrar tu copia en la nube exige tu frase, no solo tu correo. La nube rechaza copias viejas que intenten pasar por nuevas. Nuevo: "Cerrar sesión en otros dispositivos".
 - **Entrar o crear cuenta:** Plata Cloud aparece en la app para todos, sin activarlo aparte. El acceso sigue siendo por invitación.
 - **Sin invitación:** si el correo no tiene acceso, la misma pantalla te apunta a la lista de espera, o te avisa si ya estabas en ella.
 - **Empezar en la nube:** si es tu primera vez con datos, te lleva a un recorrido como el de Empezar, con aviso de Plata Cloud y un último paso para abrir Plata en tu otro dispositivo (código QR en escritorio, enlace en celular).

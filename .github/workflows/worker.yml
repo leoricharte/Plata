@@ -1,0 +1,61 @@
+# Despliega el servidor de Plata Cloud (dev/worker) en Cloudflare cuando cambia en main.
+# Así la app (GitHub Pages) y el servidor salen en el mismo push: no son compatibles con sus versiones anteriores.
+#
+# Configuración (una vez), en GitHub → Settings → Secrets and variables → Actions:
+#   Secrets:   CLOUDFLARE_API_TOKEN   (Cloudflare → My Profile → API Tokens → plantilla "Edit Cloudflare Workers")
+#              CLOUDFLARE_ACCOUNT_ID  (Cloudflare → Workers & Pages → panel derecho "Account ID")
+#   Variables: CF_KV_WAITLIST_ID      (el ID del KV enlazado como WAITLIST; no es secreto)
+# Los secretos del Worker (ADMIN_TOKEN, RL_SALT, RESEND_API_KEY) y sus variables se quedan en Cloudflare: esto no los toca.
+name: Servidor (Cloudflare Worker)
+
+on:
+  push:
+    branches: ["main"]
+    paths: ["dev/worker/**", ".github/workflows/worker.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: worker-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+
+      - name: Pruebas de seguridad del servidor
+        run: |
+          node dev/tests/carrera.mjs
+          node dev/tests/cors.mjs
+
+      - name: Poner el ID del KV en wrangler.toml
+        env:
+          KV_ID: ${{ vars.CF_KV_WAITLIST_ID }}
+        run: |
+          if ! printf '%s' "$KV_ID" | grep -Eq '^[0-9a-f]{32}$'; then echo "Falta la variable CF_KV_WAITLIST_ID (32 caracteres hexadecimales)"; exit 1; fi
+          sed -i "s/REEMPLAZA_CON_EL_ID_DEL_KV_WAITLIST/$KV_ID/" dev/worker/wrangler.toml
+          grep -q "$KV_ID" dev/worker/wrangler.toml
+
+      - name: Desplegar
+        uses: cloudflare/wrangler-action@9681c2997648301493e78cacbfb790a9f19c833f # v3.9.0
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: dev/worker
+          command: deploy
+
+      - name: Comprobar que responde
+        run: |
+          for i in 1 2 3 4 5 6; do
+            if curl -fsS https://plata-cloud.xleoricharte.workers.dev/health | grep -q '"ok":true'; then echo "El servidor responde"; exit 0; fi
+            sleep 5
+          done
+          echo "El servidor no responde a /health"; exit 1

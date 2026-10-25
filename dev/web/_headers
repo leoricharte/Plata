@@ -1,0 +1,16 @@
+# Cloudflare Pages · cabeceras de web.plataapp.net (la app).
+# La CSP con los hashes de los scripts va dentro de index.html (la genera build.py). Aquí va lo que una etiqueta <meta> no puede hacer.
+/*
+  Content-Security-Policy: frame-ancestors 'none'; base-uri 'none'; object-src 'none'
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  Strict-Transport-Security: max-age=31536000
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  Cross-Origin-Opener-Policy: same-origin
+/index.html
+  Cache-Control: no-cache
+/
+  Cache-Control: no-cache
+/sw.js
+  Cache-Control: no-cache

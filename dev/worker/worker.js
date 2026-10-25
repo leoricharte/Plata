@@ -6,7 +6,14 @@
  * Con el secreto RESEND_API_KEY envía un correo de confirmación a quien se apunta por primera vez.
  * Guarda solo: correo, fecha, origen (app o landing), idioma y plataforma. Nada de datos financieros.
  */
-const ORIGINS = ['https://plataapp.net', 'https://www.plataapp.net', 'http://tauri.localhost', 'https://tauri.localhost', 'tauri://localhost']; // las últimas tres: la app de escritorio (Tauri)
+// web.plataapp.net: la app. plataapp.net: el sitio (y la app vieja mientras dura la migración). Las tres últimas: la app de escritorio (Tauri).
+const ORIGINS = ['https://web.plataapp.net', 'https://plataapp.net', 'https://www.plataapp.net', 'http://tauri.localhost', 'https://tauri.localhost', 'tauri://localhost'];
+// Rutas de administración: solo desde el panel privado (variable ADMIN_ORIGINS, separada por comas) o desde localhost. El token sigue siendo obligatorio.
+const ADMIN_PATHS = /^\/(waitlist\/export|content\/ping|review\/(list|get|mark|delete)|admin\/)/;
+const isAdminReq = (req, url) => {
+  const m = req.method === 'OPTIONS' ? (req.headers.get('Access-Control-Request-Method') || 'GET') : req.method; // en la verificación previa del navegador cuenta el método que se va a usar
+  return ADMIN_PATHS.test(url.pathname) || ((url.pathname === '/content' || url.pathname === '/posts') && m !== 'GET');
+};
 const SRC = ['app', 'landing'];
 const LANGS = ['es', 'en', 'ja', 'it', 'fr', 'sh', 'hr'];
 const EMAIL = /^[^\s@<>()[\]\\,;:"]+@[^\s@<>()[\]\\,;:"]+\.[^\s@<>()[\]\\,;:"]{2,}$/;
@@ -114,10 +121,13 @@ async function nextNumber(env) {
   return n;
 }
 
-const cors = (req, env) => {
+const list = (v) => String(v || '').split(',').map((x) => x.trim()).filter(Boolean);
+const LOCAL = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
+const cors = (req, env, admin) => {
   const o = req.headers.get('Origin') || '';
-  const ok = ORIGINS.includes(o) || String(env.TEST_ORIGINS || '').split(',').map((x) => x.trim()).filter(Boolean).includes(o) || (env.DEV === '1' && /^http:\/\/localhost(:\d+)?$/.test(o));
-  return ok ? { 'Access-Control-Allow-Origin': o, 'Access-Control-Allow-Methods': 'POST, GET, PUT, DELETE, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type, Authorization', 'Access-Control-Max-Age': '86400', Vary: 'Origin' } : { Vary: 'Origin' };
+  const adminOk = list(env.ADMIN_ORIGINS).includes(o) || LOCAL.test(o); // el panel también lee las rutas públicas (textos, Novedades)
+  const ok = admin ? adminOk : (ORIGINS.includes(o) || list(env.TEST_ORIGINS).includes(o) || (env.DEV === '1' && LOCAL.test(o)) || list(env.ADMIN_ORIGINS).includes(o));
+  return ok ? { 'Access-Control-Allow-Origin': o, 'Access-Control-Allow-Methods': 'POST, GET, PUT, DELETE, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Plata-Write', 'Access-Control-Max-Age': '86400', Vary: 'Origin' } : { Vary: 'Origin' };
 };
 const json = (body, status, h) => new Response(JSON.stringify(body), { status: status || 200, headers: Object.assign({ 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }, h || {}) });
 
@@ -126,13 +136,50 @@ async function sha(s) {
   return Array.from(new Uint8Array(b)).map((x) => x.toString(16).padStart(2, '0')).join('').slice(0, 24);
 }
 
+/* ---------- Contadores y códigos atómicos (Durable Object "Gate") ----------
+ * Workers KV no es atómico y acepta 1 escritura por segundo por clave: con peticiones en paralelo, un contador de "leer, sumar, guardar"
+ * deja pasar muchos más intentos de los permitidos (se probó: 300 intentos simultáneos contra un límite de 5). Cada contador y cada
+ * código vive en su propio Durable Object, que atiende sus peticiones de una en una. Además no gasta escrituras de KV (1.000 al día gratis),
+ * así que nadie puede agotar ese cupo para tumbar el servicio. */
+export class Gate {
+  constructor(state) { this.s = state.storage; }
+  async fetch(req) {
+    const b = await req.json(), now = Date.now();
+    let v = await this.s.get('v');
+    if (v && v.exp && v.exp < now) { v = undefined; await this.s.delete('v'); }
+    const done = async (out, nv) => {
+      if (nv === null) await this.s.delete('v');
+      else if (nv) { await this.s.put('v', nv); if (nv.exp) await this.s.setAlarm(nv.exp + 1000); }
+      return Response.json(out);
+    };
+    switch (b.op) {
+      case 'hit': { const n = v ? v.n || 0 : 0; if (n >= b.max) return done({ limited: true }); return done({ limited: false }, { n: n + 1, exp: v ? v.exp : now + b.ttl * 1000 }); }
+      case 'peek': return done({ n: v ? v.n || 0 : 0 });
+      case 'set': return done({ ok: true }, { val: b.val, tries: 0, exp: now + b.ttl * 1000 });
+      case 'try': { // compara el hash de un código; lo consume si acierta (salvo keep) y cuenta los fallos sin carreras
+        if (!v || v.val == null || v.tries >= b.max) return done({ ok: false });
+        if (v.val === b.val) return done({ ok: true }, b.keep ? undefined : null);
+        return done({ ok: false }, { val: v.val, tries: v.tries + 1, exp: v.exp }); }
+      case 'get': return done({ val: v ? v.val : null });
+      case 'cas': { // cambia el valor solo si su estado (val.st) es el esperado
+        const cur = v ? v.val : null, st = cur ? cur.st : null;
+        if (b.expect !== undefined && !(Array.isArray(b.expect) ? b.expect.includes(st) : st === b.expect)) return done({ ok: false, val: cur });
+        return done({ ok: true, val: b.val }, b.val === null ? null : { val: b.val, exp: now + b.ttl * 1000 }); }
+      case 'del': return done({ ok: true }, null);
+    }
+    return done({ error: 'op' });
+  }
+  async alarm() { const v = await this.s.get('v'); if (!v || !v.exp || v.exp <= Date.now()) await this.s.deleteAll(); }
+}
+async function gate(env, name, body) {
+  if (!env.GATE) throw new Error('GATE'); // sin el Durable Object enlazado, las rutas que lo necesitan fallan cerradas (503)
+  const r = await env.GATE.get(env.GATE.idFromName(name)).fetch('https://gate/', { method: 'POST', body: JSON.stringify(body) });
+  return r.json();
+}
+async function hit(env, key, max, ttl) { return (await gate(env, key, { op: 'hit', max, ttl })).limited; } // true si ya se pasó del límite
+const ipKey = async (req, env, tag) => tag + ':' + (await sha((env.RL_SALT || 'plata') + (req.headers.get('CF-Connecting-IP') || 'x')));
 async function rateLimited(req, env) {
-  const ip = req.headers.get('CF-Connecting-IP') || 'x', hour = Math.floor(Date.now() / 3600000);
-  const key = 'rl:' + (await sha((env.RL_SALT || 'plata') + ip)) + ':' + hour;
-  const n = Number(await env.WAITLIST.get(key)) || 0;
-  if (n >= LIMIT_PER_HOUR) return true;
-  await env.WAITLIST.put(key, String(n + 1), { expirationTtl: 7200 });
-  return false;
+  return hit(env, (await ipKey(req, env, 'rl')) + ':' + Math.floor(Date.now() / 3600000), LIMIT_PER_HOUR, 7200);
 }
 
 async function join(req, env, h, ctx) {
@@ -170,7 +217,7 @@ async function exportList(req, env, h) {
 }
 
 /* ---------- Copias enviadas para revisión del equipo (texto plano, solo con permiso expreso del usuario) ---------- */
-const MAX_REVIEW = 4000000, REVIEW_WAIT = [10, 30, 60, 120, 1440].map((m) => m * 60000);
+const MAX_REVIEW = 4000000, REVIEW_TTL = 30 * 86400, REVIEW_WAIT = [10, 30, 60, 120, 1440].map((m) => m * 60000);
 async function reviewPut(req, env, h) {
   const origin = req.headers.get('Origin') || '';
   if (!h['Access-Control-Allow-Origin'] && origin) return json({ ok: false, error: 'origin' }, 403, h);
@@ -185,19 +232,19 @@ async function reviewPut(req, env, h) {
   const until = lim.t + REVIEW_WAIT[Math.min(lim.n, REVIEW_WAIT.length) - 1] ;
   if (lim.n > 0 && now < until) return json({ ok: false, error: 'wait', until: until }, 429, h);
   const id = Date.now().toString(36) + '-' + rndB64(6);
-  await env.WAITLIST.put('rv:' + id, JSON.stringify({ t: Date.now(), build: Number(b.build) || 0, plat: String(b.plat || '').slice(0, 40), data: b.data }));
+  await env.WAITLIST.put('rv:' + id, JSON.stringify({ t: Date.now(), build: Number(b.build) || 0, plat: String(b.plat || '').slice(0, 40), data: b.data }), { expirationTtl: REVIEW_TTL }); // texto plano: no se guarda más de 30 días
   await kvPut(env, ipk, { n: lim.n + 1, t: now }, 8 * 86400);
   return json({ ok: true, id: id, until: now + REVIEW_WAIT[Math.min(lim.n + 1, REVIEW_WAIT.length) - 1] }, 200, h);
 }
-/* Acceso de administrador: comparación en tiempo constante (se comparan hashes) y bloqueo por IP tras 5 fallos en 15 minutos (429). El contador usa KV, que no es atómico: es un freno razonable, no una garantía exacta. */
+/* Acceso de administrador: comparación en tiempo constante (se comparan hashes) y bloqueo por IP tras 5 fallos en 15 minutos (429), con contador atómico. */
 const AUTH_MAX = 5, AUTH_WIN = 900;
 async function adminGate(req, env, h) { // devuelve null si el token es correcto; si no, la respuesta 401 o 429
-  const ip = req.headers.get('CF-Connecting-IP') || 'x', key = 'af:' + (await sha((env.RL_SALT || 'plata') + ':adm:' + ip));
-  const n = Number(await env.WAITLIST.get(key)) || 0;
-  if (n >= AUTH_MAX) return json({ ok: false, error: 'rate' }, 429, Object.assign({}, h, { 'Retry-After': String(AUTH_WIN) }));
-  const ok = !!env.ADMIN_TOKEN && same(await sha(req.headers.get('Authorization') || ''), await sha('Bearer ' + env.ADMIN_TOKEN));
+  const o = req.headers.get('Origin'); if (o && !h['Access-Control-Allow-Origin']) return json({ ok: false, error: 'origin' }, 403, h); // solo desde el panel privado
+  const key = await ipKey(req, env, 'af');
+  if ((await gate(env, key, { op: 'peek' })).n >= AUTH_MAX) return json({ ok: false, error: 'rate' }, 429, Object.assign({}, h, { 'Retry-After': String(AUTH_WIN) }));
+  const ok = !!env.ADMIN_TOKEN && env.ADMIN_TOKEN.length >= 32 && same(await shaFull(req.headers.get('Authorization') || ''), await shaFull('Bearer ' + env.ADMIN_TOKEN));
   if (ok) return null;
-  await env.WAITLIST.put(key, String(n + 1), { expirationTtl: AUTH_WIN });
+  await hit(env, key, AUTH_MAX, AUTH_WIN);
   return json({ ok: false, error: 'auth' }, 401, h);
 }
 async function reviewList(req, env, h) {
@@ -216,14 +263,14 @@ async function reviewMark(req, env, h, url) { // el equipo marca una copia como 
   { const g = await adminGate(req, env, h); if (g) return g; }
   const k = 'rv:' + (url.searchParams.get('id') || ''), v = await kvGet(env, k);
   if (!v) return json({ ok: false, error: 'none' }, 404, h);
-  v.reviewed = Date.now(); await kvPut(env, k, v);
+  v.reviewed = Date.now(); await kvPut(env, k, v, Math.max(60, Math.round((v.t + REVIEW_TTL * 1000 - Date.now()) / 1000)));
   return json({ ok: true }, 200, h);
 }
 async function reviewDelete(req, env, h, url) { // borra los datos de la copia y deja solo una constancia (fecha) para que la app lo muestre
   { const g = await adminGate(req, env, h); if (g) return g; }
   const k = 'rv:' + (url.searchParams.get('id') || ''), v = await kvGet(env, k);
   if (!v) return json({ ok: false, error: 'none' }, 404, h);
-  await kvPut(env, k, { t: v.t, reviewed: v.reviewed || Date.now(), deleted: Date.now() });
+  await kvPut(env, k, { t: v.t, reviewed: v.reviewed || Date.now(), deleted: Date.now() }, REVIEW_TTL);
   return json({ ok: true }, 200, h);
 }
 async function reviewGet(req, env, h, url) {
@@ -250,7 +297,7 @@ async function postImg(env, url) {
   const id = url.searchParams.get('id') || '', b = POST_ID.test(id) ? await env.WAITLIST.get('pi:' + id) : null;
   if (!b) return new Response('', { status: 404 });
   const bin = atob(b), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
-  return new Response(u, { status: 200, headers: { 'Content-Type': 'image/jpeg', 'Cache-Control': 'public, max-age=86400' } });
+  return new Response(u, { status: 200, headers: { 'Content-Type': 'image/jpeg', 'X-Content-Type-Options': 'nosniff', 'Content-Security-Policy': "default-src 'none'", 'Cache-Control': 'public, max-age=86400' } });
 }
 async function postSave(req, env, h) {
   { const g = await adminGate(req, env, h); if (g) return g; }
@@ -280,6 +327,9 @@ async function postDel(req, env, h, url) {
 
 /* ---------- Textos editables del sitio (editor oculto: cada texto se identifica por un hash de su versión original en español) ---------- */
 const CT_KEY = /^[0-9a-f]{6,16}$/;
+/* Solo se aceptan <b>, <i>, <em>, <strong>, <br> y <a href="…"> con enlaces http(s), mailto o relativos. Cualquier otro "<" se rechaza. */
+const SAFE_TAG = /<\/?(b|i|em|strong|br)\s*\/?>|<a\s+href\s*=\s*("(https?:\/\/|mailto:)[^"<>]*"|'(https?:\/\/|mailto:)[^'<>]*'|"[\w#\/.?=&-]+"|'[\w#\/.?=&-]+')\s*>|<\/a\s*>/gi;
+const safeText = (t) => !/[<>]/.test(t.replace(SAFE_TAG, ''));
 async function contentList(env, h) {
   const items = await memo('content', async () => {
     const items = {}; let cursor;
@@ -293,6 +343,7 @@ async function contentSave(req, env, h) {
   const raw = await req.text(); if (raw.length > 30000) return json({ ok: false, error: 'size' }, 413, h);
   let b; try { b = JSON.parse(raw); } catch (e) { return json({ ok: false, error: 'json' }, 400, h); }
   if (!b || !CT_KEY.test(String(b.k || '')) || typeof b.es !== 'string' || typeof b.en !== 'string' || b.es.length > 6000 || b.en.length > 6000) return json({ ok: false, error: 'campos' }, 400, h);
+  if (!safeText(b.es) || !safeText(b.en)) return json({ ok: false, error: 'html' }, 400, h); // el sitio también lo limpia al mostrarlo
   await kvPut(env, 'ct:' + b.k, { es: b.es, en: b.en, orig: String(b.orig || '').slice(0, 160), t: Date.now() }); delete MEMO.content;
   return json({ ok: true }, 200, h);
 }
@@ -316,12 +367,6 @@ const emailKey = async (env, email) => (await shaFull((env.RL_SALT || 'plata') +
 const kvGet = async (env, k) => { const v = await env.WAITLIST.get(k); try { return v ? JSON.parse(v) : null; } catch (e) { return null; } };
 const kvPut = (env, k, o, ttl) => env.WAITLIST.put(k, JSON.stringify(o), ttl ? { expirationTtl: ttl } : undefined);
 
-async function hit(env, key, max, ttl) { // contador simple por ventana
-  const n = Number(await env.WAITLIST.get(key)) || 0;
-  if (n >= max) return true;
-  await env.WAITLIST.put(key, String(n + 1), { expirationTtl: ttl });
-  return false;
-}
 async function readBody(req, max) {
   const raw = await req.text();
   if (raw.length > (max || 2048)) return { err: 413 };
@@ -349,23 +394,23 @@ function codeMail(lang, code, kind, x) {
     detRows = '<tr><td align="center" style="text-align:center;padding:0 32px 20px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F2F2F4;border-radius:18px"><tr><td align="center" style="text-align:center;padding:16px 18px 8px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">'
       + item(ico, os || (es ? 'Dispositivo' : 'Device')) + (city ? item('global', city) : '') + (x.when ? item('time', x.when) : '') + '</table></td></tr></table></td></tr>';
     Object.assign(t, es
-    ? { subject: 'Alguien quiere entrar a tu cuenta de Plata Cloud', title: 'Alguien quiere entrar a tu cuenta', lead: 'Se pidió iniciar sesión en tu cuenta con estos datos. Para aprobarlo, abre Plata en un dispositivo donde ya tengas sesión: en Ajustes verás la solicitud. Confirma que el código de abajo sea el mismo que ves en el dispositivo nuevo. Vence en 10 minutos.', danger: 'APRUÉBALO SOLO SI FUISTE TÚ.', warn: 'Si no fuiste tú, recházalo en Plata o ignora este correo: sin tu aprobación nadie puede entrar.' }
-    : { subject: 'Someone wants to sign in to your Plata Cloud account', title: 'Someone wants to sign in to your account', lead: 'A sign-in was requested on your account with these details. To approve it, open Plata on a device where you are already signed in: you will see the request in Settings. Check that the code below matches the one on the new device. It expires in 10 minutes.', danger: 'ONLY APPROVE IT IF IT WAS YOU.', warn: "If it wasn't you, decline it in Plata or ignore this email: nobody can sign in without your approval." }); }
-  const spaced = kind === 'link' ? code : code.slice(0, 3) + ' ' + code.slice(3);
+    ? { subject: 'Alguien quiere entrar a tu cuenta de Plata Cloud', title: 'Alguien quiere entrar a tu cuenta', lead: 'Se pidió iniciar sesión en tu cuenta con estos datos. Para aprobarlo, abre Plata en un dispositivo donde ya tengas sesión: en Ajustes verás la solicitud y un código de 6 dígitos. Apruébala solo si es el mismo código que ves en el dispositivo nuevo. Vence en 10 minutos.', danger: 'APRUÉBALO SOLO SI FUISTE TÚ.', warn: 'Si no fuiste tú, recházalo en Plata o ignora este correo: sin tu aprobación nadie puede entrar.' }
+    : { subject: 'Someone wants to sign in to your Plata Cloud account', title: 'Someone wants to sign in to your account', lead: 'A sign-in was requested on your account with these details. To approve it, open Plata on a device where you are already signed in: you will see the request in Settings and a 6-digit code. Only approve it if the code is the same one shown on the new device. It expires in 10 minutes.', danger: 'ONLY APPROVE IT IF IT WAS YOU.', warn: "If it wasn't you, decline it in Plata or ignore this email: nobody can sign in without your approval." }); }
+  const spaced = code ? code.slice(0, 3) + ' ' + code.slice(3) : '';
   const dangerRow = t.danger ? '<tr><td align="center" style="text-align:center;padding:0 32px 20px"><table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td valign="top" style="padding:2px 10px 0 0"><img src="' + MAIL_WARN + '" width="22" height="22" alt="!" style="display:block;margin:0 auto;border:0;width:22px;height:22px"></td><td style="font:800 16px/1.45 ' + F + ';color:#D70015">' + t.danger + '</td></tr></table></td></tr>' : '';
   const html = '<!doctype html><html lang="' + (es ? 'es' : 'en') + '"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="only light"><title>' + t.subject + '</title></head><body style="margin:0;padding:0;background:#FFFFFF">'
-    + '<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent">' + code + '</div>'
+    + '<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent">' + (code || t.title) + '</div>'
     + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#FFFFFF"><tr><td align="center"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px">'
     + '<tr><td><img src="' + MAIL_CLOUDS + '" width="520" alt="" style="display:block;margin:0 auto;border:0;width:100%;max-width:520px;height:auto"></td></tr>'
     + '<tr><td align="left" style="text-align:left;padding:6px 32px 0"><img src="' + MAIL_LOGO + '" width="140" height="49" alt="Plata Cloud" style="display:block;border:0;height:auto;width:140px"></td></tr>'
     + '<tr><td align="center" style="text-align:center;padding:22px 32px 8px;font:800 28px/1.15 ' + F + ';letter-spacing:-0.02em;color:#1C1C1E">' + t.title + '</td></tr>'
     + '<tr><td align="center" style="text-align:center;padding:0 32px 22px;font:400 16px/1.55 ' + F + ';color:#5B5B60">' + t.lead + '</td></tr>'
     + detRows + dangerRow
-    + '<tr><td align="center" style="text-align:center;padding:0 32px 24px"><div style="display:inline-block;margin:0 auto;background:#E9F6EF;border-radius:18px;padding:18px 28px;font:800 40px/1 ' + F + ';letter-spacing:0.12em;color:#13774C">' + spaced + '</div></td></tr>'
+    + (code ? '<tr><td align="center" style="text-align:center;padding:0 32px 24px"><div style="display:inline-block;margin:0 auto;background:#E9F6EF;border-radius:18px;padding:18px 28px;font:800 40px/1 ' + F + ';letter-spacing:0.12em;color:#13774C">' + spaced + '</div></td></tr>' : '')
     + '<tr><td align="center" style="text-align:center;padding:0 32px 18px;font:400 13px/1.5 ' + F + ';color:#8A8A8F">' + t.warn + '</td></tr>'
     + socialRow(F)
     + '</table></td></tr></table></body></html>';
-  return { subject: t.subject, html, text: t.title + '\n\n' + spaced + '\n\n' + t.lead + (kind === 'link' ? '\n' + det : '') + '\n\n' + (t.danger ? t.danger + '\n\n' : '') + t.warn + '\n' };
+  return { subject: t.subject, html, text: t.title + '\n\n' + (spaced ? spaced + '\n\n' : '') + t.lead + (kind === 'link' ? '\n' + det : '') + '\n\n' + (t.danger ? t.danger + '\n\n' : '') + t.warn + '\n' };
 }
 async function sendCodeMail(env, email, lang, code, kind, x) {
   if (!env.RESEND_API_KEY) return;
@@ -376,18 +421,27 @@ async function sendCodeMail(env, email, lang, code, kind, x) {
   } catch (e) { console.log('resend code fail'); }
 }
 
+/* Códigos de 6 dígitos (correo): guardados como hash en el Gate, con intentos contados sin carreras. */
+const codeHash = async (env, tag, ek, code) => shaFull((env.RL_SALT || 'plata') + ':' + tag + ':' + ek + ':' + code);
+async function codeSet(env, tag, ek, code) { await gate(env, tag + ':' + ek, { op: 'set', val: await codeHash(env, tag, ek, code), ttl: CODE_TTL / 1000 }); }
+async function codeTry(env, tag, ek, code, keep) {
+  if (!/^\d{6}$/.test(code)) return false;
+  return (await gate(env, tag + ':' + ek, { op: 'try', val: await codeHash(env, tag, ek, code), max: MAX_TRIES, keep: !!keep })).ok;
+}
+const isTester = (env, email) => env.CLOUD_OPEN === '1' || list(String(env.CLOUD_TESTERS || '').toLowerCase()).includes(email);
+const hourOf = () => Math.floor(Date.now() / 3600000), minOf = () => Math.floor(Date.now() / 60000);
+
 async function authStart(req, env, h, ctx) {
   const o = needOrigin(req, h); if (o) return o;
   const { b, err } = await readBody(req); if (err) return json({ ok: false, error: err === 413 ? 'size' : 'json' }, err, h);
   const email = cleanEmail(b.email); if (!email) return json({ ok: false, error: 'email' }, 400, h);
-  const ip = req.headers.get('CF-Connecting-IP') || 'x', hour = Math.floor(Date.now() / 3600000), ek = await emailKey(env, email);
-  if (await hit(env, 'rl:ai:' + (await sha((env.RL_SALT || 'plata') + ip)) + ':' + hour, 20, 7200) || await hit(env, 'rl:ae:' + ek.slice(0, 24) + ':' + hour, 5, 7200)) return json({ ok: false, error: 'rate' }, 429, h);
-  let allowed = env.CLOUD_OPEN === '1' || String(env.CLOUD_TESTERS || '').toLowerCase().split(',').map((x) => x.trim()).filter(Boolean).includes(email);
-  let listed = false;
+  const ek = await emailKey(env, email);
+  if (await hit(env, (await ipKey(req, env, 'rl:ai')) + ':' + hourOf(), 20, 7200) || await hit(env, 'rl:ae:' + ek.slice(0, 24) + ':' + hourOf(), 5, 7200)) return json({ ok: false, error: 'rate' }, 429, h);
+  let allowed = isTester(env, email), listed = false;
   if (!allowed) { const u = await kvGet(env, 'u:' + ek); const w = await kvGet(env, 'w:' + email); allowed = !!u || !!(w && w.inv); listed = !allowed && !!w; }
   if (allowed) {
     const code = rnd6();
-    await kvPut(env, 'c:' + ek, { h: await shaFull((env.RL_SALT || 'plata') + ':c:' + ek + ':' + code), exp: Date.now() + CODE_TTL, tries: 0 }, 900);
+    await codeSet(env, 'c', ek, code);
     const p = sendCodeMail(env, email, b.lang === 'en' ? 'en' : 'es', code);
     if (ctx && ctx.waitUntil) ctx.waitUntil(p); else await p;
   }
@@ -395,20 +449,22 @@ async function authStart(req, env, h, ctx) {
   return json({ ok: true, access: allowed, listed: listed }, 200, h);
 }
 
+async function newSession(env, ek, u, dev) {
+  const token = rndB64(32);
+  await kvPut(env, 's:' + (await shaFull(token)), { u: ek, sv: u.sv || 0, dev: String(dev || '').slice(0, 40), t: Date.now() }, SESSION_DAYS * 86400);
+  return token;
+}
 async function authVerify(req, env, h) {
   const o = needOrigin(req, h); if (o) return o;
   const { b, err } = await readBody(req); if (err) return json({ ok: false, error: err === 413 ? 'size' : 'json' }, err, h);
   const email = cleanEmail(b.email), code = String(b.code || '').replace(/\s/g, '');
   if (!email || !/^\d{6}$/.test(code)) return json({ ok: false, error: 'code' }, 400, h);
-  const ek = await emailKey(env, email), c = await kvGet(env, 'c:' + ek);
-  if (!c || c.exp < Date.now() || c.tries >= MAX_TRIES) return json({ ok: false, error: 'code' }, 400, h);
-  const ok = same(c.h, await shaFull((env.RL_SALT || 'plata') + ':c:' + ek + ':' + code));
-  if (!ok) { c.tries += 1; await kvPut(env, 'c:' + ek, c, 900); return json({ ok: false, error: 'code' }, 400, h); }
-  await env.WAITLIST.delete('c:' + ek);
+  if (await hit(env, (await ipKey(req, env, 'rl:av')) + ':' + minOf(), 30, 180)) return json({ ok: false, error: 'rate' }, 429, h);
+  const ek = await emailKey(env, email);
+  if (!(await codeTry(env, 'c', ek, code))) return json({ ok: false, error: 'code' }, 400, h);
   let u = await kvGet(env, 'u:' + ek), isNew = false;
   if (!u) { isNew = true; u = { email, t: Date.now(), kc: '' }; await kvPut(env, 'u:' + ek, u); }
-  const token = rndB64(32);
-  await kvPut(env, 's:' + (await shaFull(token)), { u: ek, dev: String(b.dev || '').slice(0, 40), t: Date.now() }, SESSION_DAYS * 86400);
+  const token = await newSession(env, ek, u, b.dev);
   const d = await kvGet(env, 'd:' + ek);
   return json({ ok: true, token, new: isNew, hasKey: !!u.kc, kc: u.kc || '', hasData: !!d, rev: d ? d.rev : 0 }, 200, h);
 }
@@ -417,9 +473,23 @@ async function session(req, env) {
   const m = /^Bearer ([A-Za-z0-9_-]{20,80})$/.exec(req.headers.get('Authorization') || ''); if (!m) return null;
   const sk = 's:' + (await shaFull(m[1])), s = await kvGet(env, sk); if (!s) return null;
   const u = await kvGet(env, 'u:' + s.u); if (!u) return null;
+  if ((s.sv || 0) !== (u.sv || 0)) return null; // "Cerrar sesión en todos los dispositivos" invalida las sesiones anteriores
   return { sk, ek: s.u, u };
 }
 const unauth = (h) => json({ ok: false, error: 'auth' }, 401, h);
+
+/* Llave de escritura: sale de la frase de 12 palabras (HKDF, rama "write"), así que quien solo tiene acceso al correo
+ * puede leer el texto cifrado, pero no puede pisar, reemplazar ni borrar la copia. El servidor guarda solo su hash. */
+const WK = /^[A-Za-z0-9_-]{40,64}$/;
+async function writeOk(req, env, a) {
+  const wk = req.headers.get('X-Plata-Write') || '';
+  if (!WK.test(wk)) return false;
+  const wh = await shaFull('wk:' + wk);
+  if (a.u.wh) return same(a.u.wh, wh);
+  a.u.wh = wh; await kvPut(env, 'u:' + a.ek, a.u); return true; // cuentas creadas antes de esta versión: se fija la primera vez que escriben
+}
+const noWrite = (h) => json({ ok: false, error: 'wk' }, 403, h);
+const revFloor = async (env, ek) => Number(await env.WAITLIST.get('n:' + ek)) || 0; // la revisión nunca retrocede, ni después de borrar la copia
 
 async function me(req, env, h) {
   const a = await session(req, env); if (!a) return unauth(h);
@@ -432,18 +502,23 @@ async function setKey(req, env, h) {
   const { b, err } = await readBody(req, 512); if (err) return json({ ok: false, error: 'json' }, err, h);
   if (typeof b.kc !== 'string' || !B64.test(b.kc) || b.kc.length < 16 || b.kc.length > 128) return json({ ok: false, error: 'kc' }, 400, h);
   if (a.u.kc) return json({ ok: false, error: 'exists' }, 409, h); // la comprobación de clave se fija una vez, al crear la cuenta
-  a.u.kc = b.kc; await kvPut(env, 'u:' + a.ek, a.u);
+  const wk = req.headers.get('X-Plata-Write') || '';
+  if (!WK.test(wk)) return noWrite(h);
+  a.u.kc = b.kc; a.u.wh = await shaFull('wk:' + wk); await kvPut(env, 'u:' + a.ek, a.u);
   return json({ ok: true }, 200, h);
 }
 async function syncGet(req, env, h) {
   const a = await session(req, env); if (!a) return unauth(h);
-  const d = await kvGet(env, 'd:' + a.ek);
-  return json(d ? { ok: true, rev: d.rev, blob: d.blob, t: d.t, v: d.v, dev: d.dev } : { ok: true, rev: 0 }, 200, h);
+  const d = await kvGet(env, 'd:' + a.ek), next = Math.max(d ? d.rev : 0, await revFloor(env, a.ek)) + 1;
+  return json(d ? { ok: true, rev: d.rev, next, blob: d.blob, t: d.t, v: d.v, dev: d.dev } : { ok: true, rev: 0, next }, 200, h);
 }
 async function syncDelete(req, env, h) {
   const o = needOrigin(req, h); if (o) return o;
   const a = await session(req, env); if (!a) return unauth(h);
-  if (await hit(env, 'rl:sw:' + a.ek.slice(0, 24) + ':' + Math.floor(Date.now() / 3600000), 10, 7200)) return json({ ok: false, error: 'rate' }, 429, h);
+  if (!(await writeOk(req, env, a))) return noWrite(h);
+  if (await hit(env, 'rl:sw:' + a.ek.slice(0, 24) + ':' + hourOf(), 10, 7200)) return json({ ok: false, error: 'rate' }, 429, h);
+  const cur = await kvGet(env, 'd:' + a.ek);
+  if (cur) await env.WAITLIST.put('n:' + a.ek, String(Math.max(cur.rev, await revFloor(env, a.ek))));
   for (const k of ['d:', 'p:']) await env.WAITLIST.delete(k + a.ek); // solo la copia cifrada y su respaldo: la cuenta y la sesión siguen
   return json({ ok: true }, 200, h);
 }
@@ -451,9 +526,9 @@ async function syncConfirm(req, env, h, ctx) {
   const o = needOrigin(req, h); if (o) return o;
   const a = await session(req, env); if (!a) return unauth(h);
   const { b } = await readBody(req);
-  if (await hit(env, 'rl:sc:' + a.ek.slice(0, 24) + ':' + Math.floor(Date.now() / 3600000), 5, 7200)) return json({ ok: false, error: 'rate' }, 429, h);
+  if (await hit(env, 'rl:sc:' + a.ek.slice(0, 24) + ':' + hourOf(), 5, 7200)) return json({ ok: false, error: 'rate' }, 429, h);
   const code = rnd6();
-  await kvPut(env, 'c2:' + a.ek, { h: await shaFull((env.RL_SALT || 'plata') + ':c2:' + a.ek + ':' + code), exp: Date.now() + CODE_TTL, tries: 0 }, 900);
+  await codeSet(env, 'c2', a.ek, code);
   const p = sendCodeMail(env, a.u.email, (b && b.lang) === 'en' ? 'en' : 'es', code, b && b.kind === 'delete' ? 'delete' : 'replace');
   if (ctx && ctx.waitUntil) ctx.waitUntil(p); else await p;
   return json({ ok: true }, 200, h);
@@ -461,20 +536,20 @@ async function syncConfirm(req, env, h, ctx) {
 async function syncPut(req, env, h) {
   const o = needOrigin(req, h); if (o) return o;
   const a = await session(req, env); if (!a) return unauth(h);
-  if (await hit(env, 'rl:sp:' + a.ek.slice(0, 24) + ':' + Math.floor(Date.now() / 60000), 30, 180)) return json({ ok: false, error: 'rate' }, 429, h);
+  if (await hit(env, 'rl:sp:' + a.ek.slice(0, 24) + ':' + minOf(), 30, 180)) return json({ ok: false, error: 'rate' }, 429, h);
   const { b, err } = await readBody(req, MAX_BLOB + 1024); if (err) return json({ ok: false, error: err === 413 ? 'size' : 'json' }, err, h);
   if (b.demo === true) return json({ ok: false, error: 'demo' }, 403, h); // un perfil de demostración nunca se sube
   if (!a.u.kc) return json({ ok: false, error: 'nokey' }, 409, h);
+  if (!(await writeOk(req, env, a))) return noWrite(h);
   if (typeof b.blob !== 'string' || !b.blob.length || b.blob.length > MAX_BLOB || !B64.test(b.blob)) return json({ ok: false, error: 'blob' }, 400, h);
-  const cur = await kvGet(env, 'd:' + a.ek), curRev = cur ? cur.rev : 0;
-  if (b.replace === true && curRev > 0) { // reemplazo total (archivo de perfil): exige el código enviado al correo
-    const c = await kvGet(env, 'c2:' + a.ek), code = String(b.code || '').replace(/\s/g, '');
-    if (!c || c.exp < Date.now() || c.tries >= MAX_TRIES || !/^\d{6}$/.test(code)) return json({ ok: false, error: 'code' }, 400, h);
-    if (!same(c.h, await shaFull((env.RL_SALT || 'plata') + ':c2:' + a.ek + ':' + code))) { c.tries += 1; await kvPut(env, 'c2:' + a.ek, c, 900); return json({ ok: false, error: 'code' }, 400, h); }
-    await env.WAITLIST.delete('c2:' + a.ek);
-  } else if (Number(b.base) !== curRev) return json({ ok: false, error: 'conflict', rev: curRev, t: cur ? cur.t : 0 }, 409, h);
+  const cur = await kvGet(env, 'd:' + a.ek), curRev = cur ? cur.rev : 0, next = Math.max(curRev, await revFloor(env, a.ek)) + 1;
+  if (b.replace === true && curRev > 0) { // reemplazo total (archivo de perfil): exige además el código enviado al correo
+    if (!(await codeTry(env, 'c2', a.ek, String(b.code || '').replace(/\s/g, '')))) return json({ ok: false, error: 'code' }, 400, h);
+  } else if (Number(b.base) !== curRev) return json({ ok: false, error: 'conflict', rev: curRev, next, t: cur ? cur.t : 0 }, 409, h);
+  // La app cifra la revisión dentro de la copia: si no coincide con la que se asignaría, la copia se armó contra otro estado
+  if (b.next != null && Number(b.next) !== next) return json({ ok: false, error: 'conflict', rev: curRev, next, t: cur ? cur.t : 0 }, 409, h);
   if (cur) await kvPut(env, 'p:' + a.ek, cur); // copia anterior: una red de seguridad contra errores de un dispositivo
-  const nd = { rev: curRev + 1, blob: b.blob, t: Date.now(), v: Number(b.v) || 1, dev: String(b.dev || '').slice(0, 40) };
+  const nd = { rev: next, blob: b.blob, t: Date.now(), v: Number(b.v) || 1, dev: String(b.dev || '').slice(0, 40) };
   await kvPut(env, 'd:' + a.ek, nd);
   return json({ ok: true, rev: nd.rev, t: nd.t }, 200, h);
 }
@@ -483,86 +558,109 @@ async function logout(req, env, h) {
   await env.WAITLIST.delete(a.sk);
   return json({ ok: true }, 200, h);
 }
+async function logoutAll(req, env, h) { // cierra todas las sesiones (por si se perdió o robaron un dispositivo) y devuelve una nueva para este
+  const o = needOrigin(req, h); if (o) return o;
+  const a = await session(req, env); if (!a) return unauth(h);
+  if (!(await writeOk(req, env, a))) return noWrite(h); // pide la frase: quien solo tiene el correo no puede echar al dueño
+  a.u.sv = (a.u.sv || 0) + 1; await kvPut(env, 'u:' + a.ek, a.u);
+  await env.WAITLIST.delete(a.sk);
+  const { b } = await readBody(req);
+  return json({ ok: true, token: await newSession(env, a.ek, a.u, b && b.dev) }, 200, h);
+}
 async function syncCheck(req, env, h) {
   const o = needOrigin(req, h); if (o) return o;
   const a = await session(req, env); if (!a) return unauth(h);
   const { b } = await readBody(req);
-  const c = await kvGet(env, 'c2:' + a.ek), code = String((b && b.code) || '').replace(/\s/g, '');
-  if (!c || Date.now() > c.exp || c.tries >= MAX_TRIES || !/^\d{6}$/.test(code)) return json({ ok: false, error: 'code' }, 400, h);
-  if (!same(c.h, await shaFull((env.RL_SALT || 'plata') + ':c2:' + a.ek + ':' + code))) { c.tries += 1; await kvPut(env, 'c2:' + a.ek, c, 900); return json({ ok: false, error: 'code' }, 400, h); }
+  if (!(await codeTry(env, 'c2', a.ek, String((b && b.code) || '').replace(/\s/g, ''), true))) return json({ ok: false, error: 'code' }, 400, h);
   return json({ ok: true }, 200, h);
 }
 async function delAccount(req, env, h) {
   const o = needOrigin(req, h); if (o) return o;
   const a = await session(req, env); if (!a) return unauth(h);
   const { b } = await readBody(req);
-  const c = await kvGet(env, 'c2:' + a.ek), code = String((b && b.code) || '').replace(/\s/g, '');
-  if (!c || Date.now() > c.exp || c.tries >= MAX_TRIES || !/^\d{6}$/.test(code)) return json({ ok: false, error: 'code' }, 400, h);
-  if (!same(c.h, await shaFull((env.RL_SALT || 'plata') + ':c2:' + a.ek + ':' + code))) { c.tries += 1; await kvPut(env, 'c2:' + a.ek, c, 900); return json({ ok: false, error: 'code' }, 400, h); }
-  for (const k of ['u:', 'd:', 'p:', 'c:', 'c2:', 'l:']) await env.WAITLIST.delete(k + a.ek);
+  if (!(await codeTry(env, 'c2', a.ek, String((b && b.code) || '').replace(/\s/g, '')))) return json({ ok: false, error: 'code' }, 400, h);
+  for (const k of ['u:', 'd:', 'p:', 'n:']) await env.WAITLIST.delete(k + a.ek);
+  await gate(env, 'link:' + a.ek, { op: 'del' });
   await env.WAITLIST.delete(a.sk); // las demás sesiones dejan de valer solas: sin cuenta, session() devuelve null
   return json({ ok: true }, 200, h);
 }
-// ---- aprobar un inicio de sesión desde un dispositivo con sesión activa -------------------------------------------
-// El dispositivo nuevo manda una clave pública efímera (ECDH P-256). El dispositivo activo cifra la semilla con ella:
-// el servidor solo retransmite texto cifrado y nunca ve la llave. La sesión se crea al recoger la aprobación.
+
+/* ---- Aprobar un inicio de sesión desde un dispositivo con sesión activa ----------------------------------------------
+ * Comparación numérica con compromiso previo (como el emparejamiento Bluetooth "numeric comparison"):
+ *  1. Nuevo (N) → start: su clave pública efímera pkN.                                   estado p
+ *  2. Activo (A) → commit: c = SHA-256(pkA ‖ nA), sin revelar pkA ni nA.                 estado c
+ *  3. N → nonce: nN aleatorio, elegido después de ver c.                                  estado n
+ *  4. A → reveal: pkA y nA. N comprueba c. Ambos muestran el código de 6 dígitos
+ *     derivado de pkN ‖ pkA ‖ nA ‖ nN. La persona compara las dos pantallas.              estado r
+ *  5. A → answer: la semilla cifrada con ECDH(pkA, pkN), solo si la persona aprueba.      estado a / d
+ * Quien esté en medio (incluido este servidor) tiene que fijar su clave antes de conocer el aleatorio del otro lado, así que no puede
+ * fabricar a la fuerza una clave con el mismo código: acertar es 1 en un millón. El estado vive en el Gate: cada paso es atómico. */
 const LINK_TTL = 10 * 60 * 1000, B64U = /^[A-Za-z0-9_-]+$/;
-const matchCode = async (pub) => { const d = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pub))); return String(((d[0] << 24 | d[1] << 16 | d[2] << 8 | d[3]) >>> 0) % 10000).padStart(4, '0'); };
+const b64ok = (v, min, max) => typeof v === 'string' && v.length >= min && v.length <= max && B64U.test(v);
+const linkTtl = (L) => Math.max(5, Math.round((L.t + LINK_TTL - Date.now()) / 1000));
+const linkGet = async (env, ek) => (await gate(env, 'link:' + ek, { op: 'get' })).val;
+const linkStep = async (env, ek, expect, L) => (await gate(env, 'link:' + ek, { op: 'cas', expect, val: L, ttl: L ? linkTtl(L) : 1 })).ok;
+
 async function linkStart(req, env, h, ctx) {
   const o = needOrigin(req, h); if (o) return o;
   const { b, err } = await readBody(req, 1024); if (err) return json({ ok: false, error: err === 413 ? 'size' : 'json' }, err, h);
   const email = cleanEmail(b.email), pub = String(b.pub || ''), rid = String(b.rid || '');
-  if (!email || pub.length < 60 || pub.length > 140 || !B64U.test(pub) || rid.length < 20 || rid.length > 64 || !B64U.test(rid)) return json({ ok: false, error: 'bad' }, 400, h);
-  const ip = req.headers.get('CF-Connecting-IP') || 'x', hour = Math.floor(Date.now() / 3600000), ek = await emailKey(env, email);
-  if (await hit(env, 'rl:li:' + (await sha((env.RL_SALT || 'plata') + ip)) + ':' + hour, 10, 7200) || await hit(env, 'rl:le:' + ek.slice(0, 24) + ':' + hour, 4, 7200)) return json({ ok: false, error: 'rate' }, 429, h);
+  if (!email || !b64ok(pub, 60, 140) || !b64ok(rid, 20, 64)) return json({ ok: false, error: 'bad' }, 400, h);
+  const ek = await emailKey(env, email);
+  if (await hit(env, (await ipKey(req, env, 'rl:li')) + ':' + hourOf(), 10, 7200) || await hit(env, 'rl:le:' + ek.slice(0, 24) + ':' + hourOf(), 4, 7200)) return json({ ok: false, error: 'rate' }, 429, h);
   const u = await kvGet(env, 'u:' + ek);
-  let allowed = !!u || env.CLOUD_OPEN === '1' || String(env.CLOUD_TESTERS || '').toLowerCase().split(',').map((x) => x.trim()).filter(Boolean).includes(email), listed = false;
+  let allowed = !!u || isTester(env, email), listed = false;
   if (!allowed) { const w = await kvGet(env, 'w:' + email); allowed = !!(w && w.inv); listed = !allowed && !!w; }
   if (u && u.kc) { // solo hay algo que aprobar si la cuenta ya tiene llave; la respuesta es igual haya o no cuenta
-    const l = { rh: await shaFull(rid), pub, plat: String(b.plat || '').slice(0, 40), tz: String(b.tz || '').slice(0, 40), t: Date.now(), st: 'p' };
-    await kvPut(env, 'l:' + ek, l, 660);
-    let when = ''; try { when = new Date(l.t).toLocaleString(b.lang === 'en' ? 'en-US' : 'es', { timeZone: l.tz || 'UTC', dateStyle: 'medium', timeStyle: 'short' }); } catch (e) { /* zona no válida */ }
-    const p = sendCodeMail(env, email, b.lang === 'en' ? 'en' : 'es', await matchCode(pub), 'link', { plat: l.plat, tz: l.tz, when });
+    const L = { st: 'p', rh: await shaFull(rid), pub, plat: String(b.plat || '').slice(0, 40), tz: String(b.tz || '').slice(0, 40), t: Date.now() };
+    await linkStep(env, ek, undefined, L); // una solicitud nueva reemplaza a la anterior (el protocolo vuelve a empezar)
+    let when = ''; try { when = new Date(L.t).toLocaleString(b.lang === 'en' ? 'en-US' : 'es', { timeZone: L.tz || 'UTC', dateStyle: 'medium', timeStyle: 'short' }); } catch (e) { /* zona no válida */ }
+    const p = sendCodeMail(env, email, b.lang === 'en' ? 'en' : 'es', '', 'link', { plat: L.plat, tz: L.tz, when });
     if (ctx && ctx.waitUntil) ctx.waitUntil(p); else await p;
   }
   return json({ ok: true, access: allowed, listed: listed }, 200, h);
 }
-async function linkPending(req, env, h) {
+async function linkPending(req, env, h) { // A: ¿hay una solicitud? y, si N ya mandó su aleatorio, cuál es
   const a = await session(req, env); if (!a) return unauth(h);
-  const l = await kvGet(env, 'l:' + a.ek);
-  if (!l || l.st !== 'p' || Date.now() - l.t > LINK_TTL) return json({ ok: true, req: null }, 200, h);
-  return json({ ok: true, req: { pub: l.pub, plat: l.plat, tz: l.tz, t: l.t } }, 200, h);
+  const L = await linkGet(env, a.ek);
+  if (!L || !['p', 'c', 'n', 'r'].includes(L.st)) return json({ ok: true, req: null }, 200, h);
+  return json({ ok: true, req: { pub: L.pub, plat: L.plat, tz: L.tz, t: L.t, st: L.st, nn: L.nn || '' } }, 200, h);
 }
-async function linkAnswer(req, env, h) {
+async function linkA(req, env, h) { // pasos del dispositivo activo: commit, reveal y answer
   const o = needOrigin(req, h); if (o) return o;
   const a = await session(req, env); if (!a) return unauth(h);
   const { b, err } = await readBody(req, 1024); if (err) return json({ ok: false, error: 'json' }, err, h);
-  const l = await kvGet(env, 'l:' + a.ek);
-  if (!l || l.st !== 'p' || Date.now() - l.t > LINK_TTL || b.pub !== l.pub) return json({ ok: false, error: 'gone' }, 404, h);
-  if (b.ok === true) {
-    const f = (v, n) => typeof v === 'string' && v.length >= 8 && v.length <= n && B64U.test(v);
-    if (!f(b.apub, 140) || !f(b.iv, 24) || !f(b.ct, 80)) return json({ ok: false, error: 'bad' }, 400, h);
-    l.st = 'a'; l.apub = b.apub; l.iv = b.iv; l.ct = b.ct; l.dt = Date.now();
-    await kvPut(env, 'l:' + a.ek, l, 300);
-  } else { l.st = 'd'; await kvPut(env, 'l:' + a.ek, l, 300); }
-  return json({ ok: true }, 200, h);
+  const L = await linkGet(env, a.ek), gone = () => json({ ok: false, error: 'gone' }, 404, h), bad = () => json({ ok: false, error: 'bad' }, 400, h);
+  if (!L || b.pub !== L.pub) return gone();
+  let ok = false;
+  if (b.step === 'commit') { if (!b64ok(b.c, 40, 48)) return bad(); ok = await linkStep(env, a.ek, 'p', Object.assign({}, L, { st: 'c', c: b.c })); }
+  else if (b.step === 'reveal') { if (!b64ok(b.apub, 60, 140) || !b64ok(b.na, 20, 32)) return bad(); ok = await linkStep(env, a.ek, 'n', Object.assign({}, L, { st: 'r', apub: b.apub, na: b.na })); }
+  else if (b.step === 'answer' && b.ok === true) { if (!b64ok(b.iv, 8, 24) || !b64ok(b.ct, 8, 80)) return bad(); ok = await linkStep(env, a.ek, 'r', Object.assign({}, L, { st: 'a', iv: b.iv, ct: b.ct })); }
+  else if (b.step === 'answer') ok = await linkStep(env, a.ek, ['p', 'c', 'n', 'r'], Object.assign({}, L, { st: 'd' }));
+  else return bad();
+  return ok ? json({ ok: true }, 200, h) : json({ ok: false, error: 'state' }, 409, h);
 }
-async function linkPoll(req, env, h) {
+async function linkN(req, env, h) { // pasos del dispositivo nuevo: poll y nonce (se identifica con su rid, que solo él conoce)
   const o = needOrigin(req, h); if (o) return o;
   const { b, err } = await readBody(req, 512); if (err) return json({ ok: false, error: 'json' }, err, h);
-  const email = cleanEmail(b.email), rid = String(b.rid || ''); if (!email || rid.length < 20 || rid.length > 64) return json({ ok: false, error: 'bad' }, 400, h);
+  const email = cleanEmail(b.email), rid = String(b.rid || ''); if (!email || !b64ok(rid, 20, 64)) return json({ ok: false, error: 'bad' }, 400, h);
   const ek = await emailKey(env, email);
-  if (await hit(env, 'rl:lp:' + ek.slice(0, 24) + ':' + Math.floor(Date.now() / 60000), 40, 180)) return json({ ok: false, error: 'rate' }, 429, h);
-  const l = await kvGet(env, 'l:' + ek);
-  if (!l || Date.now() - l.t > LINK_TTL || !same(l.rh, await shaFull(rid))) return json({ ok: true, st: 'x' }, 200, h);
-  if (l.st === 'p') return json({ ok: true, st: 'p' }, 200, h);
-  await env.WAITLIST.delete('l:' + ek); // la aprobación o el rechazo se recogen una sola vez
-  if (l.st === 'd') return json({ ok: true, st: 'd' }, 200, h);
+  if (await hit(env, (await ipKey(req, env, 'rl:lp')) + ':' + minOf(), 60, 180) || await hit(env, 'rl:lp:' + ek.slice(0, 24) + ':' + minOf(), 40, 180)) return json({ ok: false, error: 'rate' }, 429, h);
+  const L = await linkGet(env, ek);
+  if (!L || !same(L.rh, await shaFull(rid))) return json({ ok: true, st: 'x' }, 200, h);
+  if (b.step === 'nonce') {
+    if (!b64ok(b.nn, 20, 32)) return json({ ok: false, error: 'bad' }, 400, h);
+    return (await linkStep(env, ek, 'c', Object.assign({}, L, { st: 'n', nn: b.nn }))) ? json({ ok: true, st: 'n' }, 200, h) : json({ ok: false, error: 'state' }, 409, h);
+  }
+  if (L.st === 'p' || L.st === 'n') return json({ ok: true, st: L.st }, 200, h);
+  if (L.st === 'c') return json({ ok: true, st: 'c', c: L.c }, 200, h);
+  if (L.st === 'r') return json({ ok: true, st: 'r', c: L.c, apub: L.apub, na: L.na }, 200, h);
+  if (!(await linkStep(env, ek, L.st, null))) return json({ ok: true, st: 'x' }, 200, h); // la aprobación o el rechazo se recogen una sola vez
+  if (L.st === 'd') return json({ ok: true, st: 'd' }, 200, h);
   const u = await kvGet(env, 'u:' + ek); if (!u) return json({ ok: true, st: 'x' }, 200, h);
-  const token = rndB64(32);
-  await kvPut(env, 's:' + (await shaFull(token)), { u: ek, dev: l.plat, t: Date.now() }, SESSION_DAYS * 86400);
-  return json({ ok: true, st: 'a', token, kc: u.kc || '', apub: l.apub, iv: l.iv, ct: l.ct }, 200, h);
+  return json({ ok: true, st: 'a', token: await newSession(env, ek, u, L.plat), kc: u.kc || '', apub: L.apub, na: L.na, iv: L.iv, ct: L.ct }, 200, h);
 }
+
 const INV_TXT = {
   es: { subject: 'Ya tienes acceso a Plata Cloud', pre: 'Tu lugar está listo. Entra cuando quieras.', title: 'Tu acceso está listo.',
     lead: 'Te autorizamos para usar Plata Cloud en la marcha blanca gratuita. Ya puedes crear tu cuenta con este mismo correo.',
@@ -623,7 +721,7 @@ async function adminInvite(req, env, h) {
 
 export default {
   async fetch(req, env, ctx) {
-    const h = cors(req, env), url = new URL(req.url);
+    const url = new URL(req.url), h = cors(req, env, isAdminReq(req, url));
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: h });
     try {
       if (url.pathname === '/health') return json({ ok: true }, 200, h);
@@ -647,6 +745,7 @@ export default {
       if (p === '/auth/start' && m === 'POST') return await authStart(req, env, h, ctx);
       if (p === '/auth/verify' && m === 'POST') return await authVerify(req, env, h);
       if (p === '/auth/logout' && m === 'POST') return await logout(req, env, h);
+      if (p === '/auth/logout-all' && m === 'POST') return await logoutAll(req, env, h);
       if (p === '/me' && m === 'GET') return await me(req, env, h);
       if (p === '/me/key' && m === 'PUT') return await setKey(req, env, h);
       if (p === '/sync' && m === 'GET') return await syncGet(req, env, h);
@@ -656,11 +755,11 @@ export default {
       if (p === '/sync/check' && m === 'POST') return await syncCheck(req, env, h);
       if (p === '/account' && m === 'DELETE') return await delAccount(req, env, h);
       if (p === '/link/start' && m === 'POST') return await linkStart(req, env, h, ctx);
-      if (p === '/link/poll' && m === 'POST') return await linkPoll(req, env, h);
+      if (p === '/link/poll' && m === 'POST') return await linkN(req, env, h);
       if (p === '/link/pending' && m === 'GET') return await linkPending(req, env, h);
-      if (p === '/link/answer' && m === 'POST') return await linkAnswer(req, env, h);
+      if (p === '/link/step' && m === 'POST') return await linkA(req, env, h);
       if (p === '/admin/invite' && m === 'POST') return await adminInvite(req, env, h);
-    } catch (e) { return json({ ok: false, error: 'server' }, 500, h); }
+    } catch (e) { return e && e.message === 'GATE' ? json({ ok: false, error: 'config' }, 503, h) : json({ ok: false, error: 'server' }, 500, h); }
     return json({ ok: false, error: 'not_found' }, 404, h);
   }
 };

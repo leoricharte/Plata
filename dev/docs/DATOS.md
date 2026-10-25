@@ -30,4 +30,4 @@ Notas:
 
 ## Cifrado para Plata Cloud
 
-Resumen (detalle en `arquitectura-seguridad.html`): una semilla de 128 bits se muestra como 12 palabras; con HKDF-SHA256 se derivan la clave de datos (AES-GCM-256) y una verificación de clave. El blob subido es `versión + indicador gzip + IV de 12 bytes + AES-GCM`. El servidor nunca ve la clave ni el contenido.
+Resumen (detalle en `arquitectura-seguridad.html`): una semilla de 128 bits se muestra como 12 palabras; con HKDF-SHA256 se derivan la clave de datos (AES-GCM-256) y una verificación de clave. El blob subido es `versión + indicador gzip + IV de 12 bytes + AES-GCM`; desde la compilación 421, lo cifrado es `{ plata: 2, rev, d: perfil }`, así la revisión no se puede falsificar. Otra rama de HKDF (`write`) da la llave de escritura que el servidor exige para pisar o borrar la copia. El servidor nunca ve la clave de datos ni el contenido. Todo perfil que entra (archivo, nube o almacenamiento) pasa por `migrate()` → `safeProfile()`, que limpia colores, iconos, identificadores y nombres antes de mostrarlos.

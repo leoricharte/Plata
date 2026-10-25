@@ -1080,6 +1080,34 @@ html.web .xbtn,html[data-theme=dark].web .xbtn{background:color-mix(in srgb,var(
 (function(){
 'use strict';
 
+/* ---------- Mudanza de plataapp.net/app a web.plataapp.net ----------
+ * Los datos del navegador no cruzan de dominio solos. La primera vez que la app abre en web.plataapp.net SIN datos, carga un puente
+ * invisible del dominio viejo (plataapp.net/app/puente.html), que le pasa los datos por postMessage dirigido solo a este origen.
+ * Al guardarlos, le pide al puente que borre la copia vieja: así no queda ninguna frase guardada en el dominio del sitio público. */
+(function () {
+  const NEW = 'https://web.plataapp.net', OLD = 'https://plataapp.net';
+  try {
+    if (location.origin !== NEW || localStorage.getItem('plata.mudanza')) return;
+    if (localStorage.getItem('finanzas.v3') || localStorage.getItem('plata.cloud')) { localStorage.setItem('plata.mudanza', 'propia'); return; } // ya hay datos aquí: no se pisa nada
+  } catch (e) { return; }
+  const f = document.createElement('iframe'); f.src = OLD + '/app/puente.html'; f.title = 'mudanza'; f.setAttribute('aria-hidden', 'true'); f.style.cssText = 'position:absolute;width:0;height:0;border:0;visibility:hidden';
+  const ok = (k) => /^(finanzas|plata)\.[\w.-]{1,40}$/.test(k) && k !== 'plata.mudanza';
+  const fin = (reload) => { clearTimeout(tm); window.removeEventListener('message', on); f.remove(); try { localStorage.setItem('plata.mudanza', String(Date.now())); } catch (e) { /* sin almacenamiento */ } if (reload) location.reload(); };
+  const tm = setTimeout(() => { window.removeEventListener('message', on); f.remove(); try { const n = Number(localStorage.getItem('plata.mudanza.n') || 0) + 1; localStorage.setItem('plata.mudanza.n', String(n)); if (n >= 3) localStorage.setItem('plata.mudanza', 'sin-respuesta'); } catch (e) { /* sin almacenamiento */ } }, 12000);
+  let got = 0;
+  function on(e) {
+    if (e.origin !== OLD || e.source !== f.contentWindow || !e.data || typeof e.data !== 'object') return;
+    if (e.data.t === 'listo') f.contentWindow.postMessage({ t: 'pedir' }, OLD);
+    else if (e.data.t === 'datos') {
+      const it = e.data.items && typeof e.data.items === 'object' ? e.data.items : {};
+      Object.keys(it).forEach((k) => { if (ok(k) && typeof it[k] === 'string' && it[k].length < 5e6) { try { localStorage.setItem(k, it[k]); got++; } catch (x) { /* sin espacio */ } } });
+      if (got) f.contentWindow.postMessage({ t: 'borrar' }, OLD); else fin(false);
+    } else if (e.data.t === 'borrado') fin(got > 0);
+  }
+  window.addEventListener('message', on);
+  (document.body || document.documentElement).appendChild(f);
+})();
+
 /* ---------- Datos de ejemplo (misma forma que el save file, versión 2) ---------- */
 function makeSample() {
   const T = getToday(), off = (n) => iso(addDays(T, n)), ms = iso(new Date(T.getFullYear(), T.getMonth(), 1));
@@ -1397,7 +1425,7 @@ const fmt2 = (n) => symOf(curP()) + Math.abs(n).toLocaleString('en-US', { minimu
 const axis = (v) => { const a = Math.abs(v), sg = v < 0 ? '−' : '', y = symOf(curP()).trim(); return a >= 1000 ? sg + y + (a / 1000).toString().replace(/\.0$/, '') + 'k' : sg + y + a; };
 const dshort = (d) => d.getDate() + ' ' + MON[d.getMonth()];
 const dlabel = (d) => DOW[d.getDay()] + ' ' + d.getDate() + ' ' + MON[d.getMonth()];
-const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
 const plural = (n, one, many) => n + ' ' + (n === 1 ? one : many);
 
 /* ---------- Monedas y utilidades de datos ---------- */
@@ -1628,7 +1656,36 @@ function migrate(o) {
   out.budgetSets.forEach((b) => Object.keys(b.budget).forEach((k) => { b.budget[k] = clampAmt(b.budget[k]); }));
   ['cushion', 'variable_weekly'].forEach((k) => { if (typeof out.settings[k] === 'number') out.settings[k] = clampAmt(out.settings[k]); });
   if (old) { D.expected_income.forEach((e) => { if (!out.expected_income.some((x) => x.id === e.id) && e.id === 'proj') out.expected_income.push(e); }); }
-  return out;
+  return safeProfile(out);
+}
+/* Seguridad: un archivo de perfil o una copia de la nube pueden venir de cualquier parte. Los campos que la app usa dentro de
+ * atributos HTML o estilos (colores, iconos, últimos 4 dígitos) se reducen a su forma válida; el texto libre se escapa al mostrarlo. */
+const SAFE_COLOR = /^#[0-9a-fA-F]{3,8}$/, SAFE_ICON = /^[a-z0-9-]{0,40}$/;
+/* Identificadores (van dentro de data-act="…") y etiquetas (nombres de categoría y de cuentas, que la app usa también como claves):
+ * se quitan los caracteres que permiten salir de un atributo o abrir una etiqueta HTML. Se aplica igual en todos lados, así las referencias
+ * entre datos siguen coincidiendo. El texto libre (notas) no se toca: se escapa al mostrarlo. */
+const SAFE_ID_KEYS = new Set(['id', 'acc', 'card', 'job', 'pair', 'from', 'to', 'srcId']), SAFE_LABEL_KEYS = new Set(['name', 'category', 'cat', 'nick', 'first', 'bank', 'brand', 'label', 'letter']);
+const safeId = (x) => String(x).replace(/[^\w.:@+\-]/g, '').slice(0, 80), safeLabel = (x) => String(x).replace(/[<>"`]/g, '').slice(0, 120);
+const safeKeys = (obj, f) => { const out = {}; Object.keys(obj).forEach((k) => { if (k !== '__proto__' && k !== 'constructor' && k !== 'prototype') out[f(k)] = obj[k]; }); return out; };
+function safeProfile(o) {
+  const seen = new Set();
+  (function walk(v) {
+    if (!v || typeof v !== 'object' || seen.has(v)) return; seen.add(v);
+    if (Array.isArray(v)) { v.forEach(walk); return; }
+    Object.keys(v).forEach((k) => {
+      const x = v[k];
+      if (k === '__proto__' || k === 'constructor' || k === 'prototype') { delete v[k]; return; }
+      if (SAFE_ID_KEYS.has(k) && typeof x === 'string') { v[k] = safeId(x); return; }
+      if (SAFE_LABEL_KEYS.has(k) && typeof x === 'string') { v[k] = safeLabel(x); return; }
+      if (k === 'budget' && x && typeof x === 'object' && !Array.isArray(x)) { v[k] = safeKeys(x, safeLabel); return; }
+      if ((k === 'ovr' || k === 'fmod') && x && typeof x === 'object' && !Array.isArray(x)) { v[k] = safeKeys(x, safeId); walk(v[k]); return; }
+      if (/colou?r$/i.test(k) && x != null && typeof x !== 'object') { if (!SAFE_COLOR.test(String(x))) v[k] = '#8E8E93'; return; }
+      if (k === 'icon' && x != null && typeof x !== 'object') { if (!SAFE_ICON.test(String(x))) v[k] = ''; return; }
+      if (k === 'last4' && x != null && typeof x !== 'object') { v[k] = String(x).replace(/\D/g, '').slice(0, 4); return; }
+      walk(x);
+    });
+  })(o);
+  return o;
 }
 /* Preparación para sincronizar: fecha de edición (mod) por elemento y lápidas (tomb) de lo borrado. Todo se calcula en persist(), sin tocar cada punto de edición. */
 const SYNC_COLS = ['accounts', 'cards', 'savings', 'subs', 'transactions', 'expected_income', 'expected_expense', 'planned', 'jobs', 'budgetSets'];
@@ -1752,13 +1809,15 @@ const PCC = (() => {
   }
   const dataKey = (seed) => hk(seed, 'data', ['encrypt', 'decrypt']);
   const keyCheck = async (seed) => b64u(await hk(seed, 'check', null, 256)); // comprobación que ve el servidor: no revela la clave de datos
+  const writeKey = async (seed) => b64u(await hk(seed, 'write', null, 256)); // permiso para escribir o borrar la copia: sin la frase no se puede pisar
   async function gz(bytes, mode) {
     const cs = new (mode === 'c' ? CompressionStream : DecompressionStream)('gzip'), w = cs.writable.getWriter(); w.write(bytes); w.close();
     return new Uint8Array(await new Response(cs.readable).arrayBuffer());
   }
-  async function seal(key, obj) {
-    let bytes = enc.encode(JSON.stringify(obj)), z = 0;
-    if (typeof CompressionStream === 'function') { try { bytes = await gz(bytes, 'c'); z = 1; } catch (e) { bytes = enc.encode(JSON.stringify(obj)); z = 0; } }
+  async function seal(key, obj, rev) { // con rev, la revisión viaja DENTRO del cifrado: el servidor no puede devolver una copia vieja como nueva
+    const body = rev ? { plata: 2, rev: rev, d: obj } : obj;
+    let bytes = enc.encode(JSON.stringify(body)), z = 0;
+    if (typeof CompressionStream === 'function') { try { bytes = await gz(bytes, 'c'); z = 1; } catch (e) { bytes = enc.encode(JSON.stringify(body)); z = 0; } }
     const iv = crypto.getRandomValues(new Uint8Array(12)), ct = new Uint8Array(await S.encrypt({ name: 'AES-GCM', iv: iv, additionalData: enc.encode('plata1') }, key, bytes));
     const out = new Uint8Array(2 + 12 + ct.length); out[0] = 1; out[1] = z; out.set(iv, 2); out.set(ct, 14); return b64u(out);
   }
@@ -1772,13 +1831,19 @@ const PCC = (() => {
   const EC = { name: 'ECDH', namedCurve: 'P-256' }, LAAD = enc.encode('plata-link1');
   async function linkNew() { const kp = await S.generateKey(EC, false, ['deriveKey']), raw = await S.exportKey('raw', kp.publicKey); return { priv: kp.privateKey, pub: b64u(new Uint8Array(raw)) }; }
   const linkKey = async (priv, pubB64) => S.deriveKey({ name: 'ECDH', public: await S.importKey('raw', unb64u(pubB64), EC, false, []) }, priv, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
-  async function linkSeal(reqPub, seed) {
-    const kp = await S.generateKey(EC, false, ['deriveKey']), apub = b64u(new Uint8Array(await S.exportKey('raw', kp.publicKey))), key = await linkKey(kp.privateKey, reqPub), iv = crypto.getRandomValues(new Uint8Array(12));
-    return { apub: apub, iv: b64u(iv), ct: b64u(new Uint8Array(await S.encrypt({ name: 'AES-GCM', iv: iv, additionalData: LAAD }, key, seed))) };
+  /* Comparación numérica con compromiso previo: el dispositivo activo se compromete con su clave y su aleatorio ANTES de ver el aleatorio
+   * del nuevo, y el código de 6 dígitos depende de las dos claves y los dos aleatorios. Nadie en medio puede fabricar una clave con el mismo código. */
+  const rnd = (n) => b64u(crypto.getRandomValues(new Uint8Array(n)));
+  const h64 = async (t) => b64u(new Uint8Array(await S.digest('SHA-256', enc.encode(t))));
+  async function linkCommit() {
+    const kp = await S.generateKey(EC, false, ['deriveKey']), apub = b64u(new Uint8Array(await S.exportKey('raw', kp.publicKey))), na = rnd(16);
+    return { priv: kp.privateKey, apub: apub, na: na, c: await h64('plata-commit1|' + apub + '|' + na) };
   }
+  const linkVerify = async (c, apub, na) => !!c && c === await h64('plata-commit1|' + apub + '|' + na);
+  async function linkCode(pub, apub, na, nn) { const d = new Uint8Array(await S.digest('SHA-256', enc.encode('plata-sas1|' + pub + '|' + apub + '|' + na + '|' + nn))); return String(((d[0] << 24 | d[1] << 16 | d[2] << 8 | d[3]) >>> 0) % 1000000).padStart(6, '0'); }
+  async function linkSeal(priv, reqPub, seed) { const key = await linkKey(priv, reqPub), iv = crypto.getRandomValues(new Uint8Array(12)); return { iv: b64u(iv), ct: b64u(new Uint8Array(await S.encrypt({ name: 'AES-GCM', iv: iv, additionalData: LAAD }, key, seed))) }; }
   async function linkOpen(priv, apub, iv, ct) { return new Uint8Array(await S.decrypt({ name: 'AES-GCM', iv: unb64u(iv), additionalData: LAAD }, await linkKey(priv, apub), unb64u(ct))); }
-  async function matchCode(pub) { const d = new Uint8Array(await S.digest('SHA-256', enc.encode(pub))); return String(((d[0] << 24 | d[1] << 16 | d[2] << 8 | d[3]) >>> 0) % 10000).padStart(4, '0'); }
-  return { newSeed, toPhrase, fromPhrase, dataKey, keyCheck, seal, open, b64u, unb64u, wordIdx, WL, linkNew, linkSeal, linkOpen, matchCode };
+  return { newSeed, toPhrase, fromPhrase, dataKey, keyCheck, writeKey, seal, open, b64u, unb64u, wordIdx, WL, linkNew, linkCommit, linkVerify, linkCode, linkSeal, linkOpen, rnd };
 })();
 
 /* Plata Cloud · combinar el perfil de este dispositivo con el de la nube.
@@ -1867,9 +1932,10 @@ function clGoneHTML() {
   if (!clGone()) return '';
   return '<div class="cstrip cloudw gone" id="clGone" data-cloud="1">' + PC_CLOUDS + '<span class="ct"><b>Cuenta borrada</b>Tu cuenta de Plata Cloud ya no existe. Guarda tu archivo local para no perder tus datos.</span><button class="cb red" data-act="save">Guardar</button><button class="cx" data-act="cl:gonex" aria-label="Cerrar">×</button></div>';
 }
-function clWipe() { CL.st = {}; CL.key = null; CL.first = null; clearTimeout(CL.t); clSave(); clBaseSet(null); CL.status = 'idle'; }
-async function clFetch(path, method, body) {
-  const h = { 'Content-Type': 'application/json' }; if (CL.st.tok) h.Authorization = 'Bearer ' + CL.st.tok;
+function clWipe() { CL.st = {}; CL.key = null; CL.wk = null; CL.wkS = null; CL.first = null; clearTimeout(CL.t); clSave(); clBaseSet(null); CL.status = 'idle'; }
+async function clFetch(path, method, body, extra) {
+  const h = Object.assign({ 'Content-Type': 'application/json' }, extra || {}); if (CL.st.tok) h.Authorization = 'Bearer ' + CL.st.tok;
+  if (CL.st.seed && !h['X-Plata-Write']) { if (CL.wkS !== CL.st.seed) { CL.wk = await PCC.writeKey(PCC.unb64u(CL.st.seed)); CL.wkS = CL.st.seed; } h['X-Plata-Write'] = CL.wk; }
   const r = await fetch(CL.api + path, { method: method || 'GET', headers: h, body: body ? JSON.stringify(body) : undefined });
   let j = {}; try { j = await r.json(); } catch (e) { /* sin cuerpo */ }
   if (r.status === 401 && CL.st.tok && path !== '/auth/logout') clDrop();
@@ -1881,9 +1947,18 @@ function clApply(m) {
   CL.applying = true;
   try { data = migrate(clone(m)); data.demo = false; persist(); renderAll(); updGdot(); if ($('#welcome') && hasData()) { hideWelcome(); setTab('resumen'); } } finally { CL.applying = false; }
 }
-async function clPut(rev, obj) {
-  const blob = await PCC.seal(await clKey(), obj);
-  return clFetch('/sync', 'PUT', { base: rev, blob: blob, v: 1, dev: syncDevice().plat, demo: false });
+async function clPut(rev, obj, next) {
+  const blob = await PCC.seal(await clKey(), obj, next);
+  const r = await clFetch('/sync', 'PUT', { base: rev, next: next, blob: blob, v: 2, dev: syncDevice().plat, demo: false });
+  if (r.s === 200) CL.st.v2 = 1;
+  return r;
+}
+/* Abre la copia de la nube y comprueba que la revisión cifrada dentro coincide con la que dice el servidor (contra copias viejas reenviadas) */
+async function clOpen(blob, rev) {
+  const x = await PCC.open(await clKey(), blob);
+  if (x && x.plata === 2) { if (x.rev !== rev) throw new Error('rev'); if (!CL.st.v2) { CL.st.v2 = 1; clSave(); } return x.d; }
+  if (CL.st.v2) throw new Error('rev'); // ya vimos copias con revisión cifrada: una sin ella no se acepta
+  return x;
 }
 function clDone(rev, obj) { CL.st.rev = rev; CL.st.last = Date.now(); clSave(); clBaseSet(obj); CL.status = 'ok'; }
 async function clSync(why) {
@@ -1894,18 +1969,19 @@ async function clSync(why) {
   try {
     for (let i = 0; i < 4; i++) {
       const g = await clFetch('/sync'); if (g.s === 401) return; if (g.s !== 200) throw new Error('http' + g.s);
-      const rev = g.j.rev || 0, base = clBaseGet(), stale = !CL.st.last || Date.now() - CL.st.last > 80 * 864e5, local = clSnap();
-      if (rev === 0) { const p = await clPut(0, local); if (p.s === 409) continue; if (p.s !== 200) throw new Error('http' + p.s); clDone(p.j.rev, local); break; }
+      const rev = g.j.rev || 0, next = g.j.next || rev + 1, base = clBaseGet(), stale = !CL.st.last || Date.now() - CL.st.last > 80 * 864e5, local = clSnap();
+      if (CL.st.v2 && rev > 0 && rev < (CL.st.rev || 0)) throw new Error('rev'); // la nube nunca retrocede
+      if (rev === 0) { const p = await clPut(0, local, next); if (p.s === 409) continue; if (p.s !== 200) throw new Error('http' + p.s); clDone(p.j.rev, local); break; }
       /* Un dispositivo sin datos nunca borra ni pisa lo que hay en la nube: se carga la nube (así volver al modo Cloud con un perfil vacío no la vacía) */
-      if (rev > 0 && !hasData()) { const rm = await PCC.open(await clKey(), g.j.blob); if (hasDataOf(rm)) { clApply(rm); clDone(rev, rm); break; } }
+      if (rev > 0 && !hasData()) { const rm = await clOpen(g.j.blob, rev); if (hasDataOf(rm)) { clApply(rm); clDone(rev, rm); break; } }
       /* Al volver al modo Cloud, la copia de este dispositivo no reemplaza la de la nube sin preguntar ni verificar el correo */
-      if (why === 'mode' && rev > 0 && hasData()) { const rm = await PCC.open(await clKey(), g.j.blob); if (clSig(local) !== clSig(rm)) { CL.status = 'idle'; clLocalUp(); return; } clDone(rev, rm); break; }
-      let remote = null; if (rev !== CL.st.rev || !base) remote = await PCC.open(await clKey(), g.j.blob);
+      if (why === 'mode' && rev > 0 && hasData()) { const rm = await clOpen(g.j.blob, rev); if (clSig(local) !== clSig(rm)) { CL.status = 'idle'; clLocalUp(); return; } clDone(rev, rm); break; }
+      let remote = null; if (rev !== CL.st.rev || !base) remote = await clOpen(g.j.blob, rev);
       if (remote && (!base || stale) && hasData() && clSig(clSnap()) !== clSig(remote)) { CL.first = { remote: remote, rev: rev }; CL.status = 'choose'; clFirstSheet(); return; }
       const merged = remote ? (((!base || stale) && !hasData()) ? remote : mergeData(base && !stale ? base : null, local, remote)) : local; /* un perfil vacío (p. ej. inicio rápido) nunca pisa lo que ya hay en la nube */
       if (clSig(merged) !== clSig(local)) clApply(merged);
       const ref = remote || base;
-      if (!ref || clSig(merged) !== clSig(ref)) { const p = await clPut(rev, merged); if (p.s === 409) continue; if (p.s === 403) { CL.status = 'demo'; return; } if (p.s !== 200) throw new Error('http' + p.s); clDone(p.j.rev, merged); }
+      if (!ref || clSig(merged) !== clSig(ref)) { const p = await clPut(rev, merged, next); if (p.s === 409) continue; if (p.s === 403) { CL.status = p.j && p.j.error === 'wk' ? 'error' : 'demo'; return; } if (p.s !== 200) throw new Error('http' + p.s); clDone(p.j.rev, merged); }
       else clDone(rev, merged);
       break;
     }
@@ -1927,6 +2003,7 @@ function clWipeRun() {
       const r = await clFetch('/sync', 'DELETE');
       if (r.s === 200) { CL.st.mode = 'local'; CL.st.modeAt = Date.now(); CL.st.last = 0; clSave(); CL.status = 'idle'; clRefresh(); setTimeout(() => askConfirm('Listo', 'Borramos los datos de tu nube. Pasaste al modo Local; lo de este dispositivo sigue intacto.', [], '', 'Entendido'), 300); }
       else if (r.s === 401) { CL.ui = { step: 'email' }; clSheet(); }
+      else if (r.s === 403) toast('Tu frase no coincide con la de la cuenta. Cierra sesión y vuelve a entrar con tu frase.');
       else toast('No pudimos borrar tus datos. Inténtalo más tarde.');
     } catch (e) { toast('No pudimos conectar. Inténtalo más tarde.'); }
   }, 1000);
@@ -1991,7 +2068,7 @@ function clSheet() {
   if (u.step === 'email') S('Plata Cloud', 'Escribe tu correo. Si ya tienes acceso, te mandamos un código para entrar, sin contraseña. Si aún no, te apuntamos a la lista de espera.', '<div class="clin"><input id="clEmail" class="sinput" type="email" inputmode="email" autocomplete="email" placeholder="correo@ejemplo.com" value="' + esc(u.email || '') + '"></div>' + err, '<button class="clb" data-act="cl:start">Enviarme el código</button><button class="clb alt" data-act="cl:link">Pedir aprobación desde otro dispositivo</button>');
   else if (u.step === 'nolist') S('Plata Cloud es solo por invitación', 'Todavía estamos en marcha blanca y vamos abriendo cupos de a poco. Este correo aún no tiene acceso, pero puedes apuntarte a la lista de espera y te avisamos cuando te toque.', '<div class="clmail" data-notr>' + esc(u.email) + '</div>' + err, '<button class="clb" data-act="cl:wljoin">Unirme a la lista de espera</button><button class="clb alt" data-act="cl:wlback">Usar otro correo</button>');
   else if (u.step === 'listed') S(u.fresh ? 'Listo, estás en la lista' : 'Ya estás en la lista de espera', 'Te avisaremos por correo cuando abramos tu cupo. No tienes que hacer nada más. Si recibes una invitación, vuelve aquí y entra con este mismo correo.', '<div class="clmail" data-notr>' + esc(u.email) + '</div>', '<button class="clb" data-act="cl:x">Entendido</button><button class="clb alt" data-act="cl:wlback">Usar otro correo</button>');
-  else if (u.step === 'linkwait') S('Aprueba desde otro dispositivo', 'Abre Plata en un dispositivo donde ya tengas sesión: en Ajustes verás la solicitud. Revisa que el código sea el mismo y apruébala. También te mandamos un aviso por correo.', '<div class="clmcode" data-notr>' + esc(u.code) + '</div><div class="clwait"><i></i>Esperando aprobación…</div>' + err, '<button class="clb alt" data-act="cl:linkmail">Usar el código del correo</button><button class="clb alt" data-act="cl:lkcancel">Cancelar</button>');
+  else if (u.step === 'linkwait') S('Aprueba desde otro dispositivo', u.code ? 'En tu otro dispositivo apareció un código. Apruébalo solo si es exactamente este:' : 'Abre Plata en un dispositivo donde ya tengas sesión: en Ajustes verás la solicitud. En unos segundos aparecerá un código aquí y allá. También te mandamos un aviso por correo.', (u.code ? '<div class="clmcode" data-notr>' + esc(u.code.slice(0, 3) + ' ' + u.code.slice(3)) + '</div>' : '') + '<div class="clwait"><i></i>' + (u.code ? 'Esperando aprobación…' : 'Esperando al otro dispositivo…') + '</div>' + err, '<button class="clb alt" data-act="cl:linkmail">Usar el código del correo</button><button class="clb alt" data-act="cl:lkcancel">Cancelar</button>');
   else if (u.step === 'code') S('Revisa tu correo', 'Te enviamos un código. Vence en 10 minutos. Si no llega, revisa spam.', '<div class="clmail" data-notr>' + esc(u.email) + '</div>' + clCodeIn + err, '<button class="clb" data-act="cl:verify">Entrar</button><button class="clb alt" data-act="cl:resend">Enviar otro código</button>');
   else if (u.step === 'newkey') S('Tu frase de recuperación', '<span>Estas 12 palabras son la llave de tus datos.</span> <b>Nadie más puede recuperarlas, ni nosotros.</b> <span>Anótalas en papel y guárdalas en un lugar seguro. Si pierdes tus dispositivos y la frase, tus datos de la nube no se podrán abrir.</span>', clWords(u.words), '<button class="clb" data-act="cl:saved">Ya las guardé</button>');
   else if (u.step === 'quiz') S('Confírmala', 'Para asegurarnos de que la anotaste, escribe estas palabras.', u.pos.map((p) => '<div class="clin"><input class="sinput clq" data-p="' + p + '" autocapitalize="none" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Palabra ' + (p + 1) + '"></div>').join('') + err, '<button class="clb" data-act="cl:quiz">Confirmar</button><button class="clb alt" data-act="cl:back">Ver la frase otra vez</button>');
@@ -2036,8 +2113,11 @@ function clWipeAsk(a, run) {
     CL.wipe = run; CL.fromProf = false; CL.ui = { step: 'wipeauth', err: '' }; clSheet(); } }]);
 }
 async function clReplace(obj, code) {
-  const blob = await PCC.seal(await clKey(), obj);
-  return clFetch('/sync', 'PUT', { base: CL.st.rev || 0, blob: blob, v: 1, dev: syncDevice().plat, demo: false, replace: true, code: code || undefined });
+  const g = await clFetch('/sync'), rev = (g.j && g.j.rev) || 0, next = (g.j && g.j.next) || rev + 1;
+  const blob = await PCC.seal(await clKey(), obj, next);
+  const r = await clFetch('/sync', 'PUT', { base: rev, next: next, blob: blob, v: 2, dev: syncDevice().plat, demo: false, replace: true, code: code || undefined });
+  if (r.s === 200) CL.st.v2 = 1;
+  return r;
 }
 async function clFileChosen(f) {
   let obj, meta = {}; try { const raw = JSON.parse(await f.text()); meta = (raw && raw.meta) || {}; obj = migrate(raw); } catch (e) { toast('No pude leer ese archivo de perfil'); return; }
@@ -2110,40 +2190,66 @@ function clTourShow(u) {
 function clLinkWait() {
   clearInterval(CL.lp);
   CL.lp = setInterval(async () => {
-    const u = CL.ui; if (!u || u.step !== 'linkwait') { clearInterval(CL.lp); return; }
+    const u = CL.ui; if (!u || u.step !== 'linkwait' || CL.lpBusy) { if (!u || u.step !== 'linkwait') clearInterval(CL.lp); return; }
     const back = (msg) => { clearInterval(CL.lp); CL.lk = null; CL.ui = { step: 'email', email: u.email, err: msg }; clSheet(); };
     if (Date.now() - u.t0 > 610000) { back('La solicitud venció. Inténtalo otra vez.'); return; }
+    CL.lpBusy = true;
     try {
-      const r = await clFetch('/link/poll', 'POST', { email: u.email, rid: u.rid }); if (r.s !== 200 || r.j.st === 'p') return;
-      if (r.j.st === 'd') { back('Rechazaron la solicitud desde el otro dispositivo.'); return; }
-      if (r.j.st !== 'a') { back('No hay un dispositivo que pueda aprobarla. Usa el código del correo.'); return; }
+      const r = await clFetch('/link/poll', 'POST', { email: u.email, rid: u.rid }); if (r.s !== 200) return;
+      const st = r.j.st;
+      if (st === 'p' || st === 'n') return;
+      if (st === 'd') { back('Rechazaron la solicitud desde el otro dispositivo.'); return; }
+      if (st === 'x') { back('No hay un dispositivo que pueda aprobarla. Usa el código del correo.'); return; }
+      if (st === 'c') { // el otro dispositivo ya se comprometió: recién ahora elegimos nuestro aleatorio
+        if (!u.c) { u.c = r.j.c; u.nn = PCC.rnd(16); }
+        if (u.c !== r.j.c) { back('La solicitud cambió a mitad de camino. Inténtalo otra vez.'); return; }
+        await clFetch('/link/poll', 'POST', { email: u.email, rid: u.rid, step: 'nonce', nn: u.nn }); return;
+      }
+      if (!u.nn || !(await PCC.linkVerify(u.c, r.j.apub, r.j.na))) { back('No pudimos verificar al otro dispositivo. Usa el código del correo.'); return; }
+      if (st === 'r') { if (!u.code) { u.apub = r.j.apub; u.code = await PCC.linkCode(u.pub, r.j.apub, r.j.na, u.nn); clSheet(); } return; }
+      if (st !== 'a' || r.j.apub !== u.apub) { back('No pudimos verificar la aprobación. Usa el código del correo.'); return; }
       clearInterval(CL.lp);
       const seed = await PCC.linkOpen(CL.lk, r.j.apub, r.j.iv, r.j.ct), kc = await PCC.keyCheck(seed);
       if (kc !== r.j.kc) { back('No pudimos verificar la aprobación. Usa el código del correo.'); return; }
       if (CL.st.email && CL.st.email !== u.email) clWipe();
       CL.st.tok = r.j.token; CL.st.email = u.email; CL.st.seed = PCC.b64u(seed); CL.st.kc = kc; CL.key = null; clSave(); CL.lk = null;
       await clAuthDone();
-    } catch (e) { /* se reintenta en el siguiente ciclo */ }
-  }, 2500);
+    } catch (e) { /* se reintenta en el siguiente ciclo */ } finally { CL.lpBusy = false; }
+  }, 2000);
 }
 const clLinkRefresh = () => { try { renderWebCloud(); if (ui.tab === 'resumen') renderResumen(); } catch (e) { /* aún sin pantalla */ } };
 async function clLinkCheck() {
-  if (!clIn() || document.hidden || !clBeta()) return;
+  if (!clIn() || document.hidden || !clBeta() || CL.lkBusy) return;
+  CL.lkBusy = true; clearTimeout(CL.lkT);
   try {
     const r = await clFetch('/link/pending'); if (r.s !== 200) return;
     const q = r.j.req;
-    if (q && (!CL.link || CL.link.pub !== q.pub)) { CL.link = { pub: q.pub, plat: q.plat, tz: q.tz, t: q.t, code: await PCC.matchCode(q.pub) }; clLinkRefresh(); }
-    else if (!q && CL.link) { CL.link = null; clLinkRefresh(); }
-  } catch (e) { /* sin red */ }
+    if (!q) { if (CL.link) { CL.link = null; clLinkRefresh(); } return; }
+    if (!CL.link || CL.link.pub !== q.pub) {
+      CL.link = { pub: q.pub, plat: q.plat, tz: q.tz, t: q.t, code: '', st: q.st };
+      if (q.st === 'p') {
+        const x = await PCC.linkCommit();
+        const c = await clFetch('/link/step', 'POST', { step: 'commit', pub: q.pub, c: x.c });
+        if (c.s === 200) Object.assign(CL.link, { priv: x.priv, apub: x.apub, na: x.na, st: 'c' });
+      }
+      clLinkRefresh();
+    } else if (CL.link.priv && CL.link.st === 'c' && q.st === 'n' && q.nn) {
+      const v = await clFetch('/link/step', 'POST', { step: 'reveal', pub: q.pub, apub: CL.link.apub, na: CL.link.na });
+      if (v.s === 200) { CL.link.code = await PCC.linkCode(q.pub, CL.link.apub, CL.link.na, q.nn); CL.link.st = 'r'; clLinkRefresh(); }
+    }
+  } catch (e) { /* sin red */ } finally {
+    CL.lkBusy = false;
+    if (CL.link && CL.link.priv && CL.link.st === 'c') CL.lkT = setTimeout(clLinkCheck, 1500); // mientras se arma el código, más seguido
+  }
 }
 async function clLinkAnswer(ok) {
   const L = CL.link; if (!L) return;
   try {
-    let body = { pub: L.pub, ok: false };
-    if (ok) { const x = await PCC.linkSeal(L.pub, PCC.unb64u(CL.st.seed)); body = { pub: L.pub, ok: true, apub: x.apub, iv: x.iv, ct: x.ct }; }
-    const r = await clFetch('/link/answer', 'POST', body);
+    let body = { step: 'answer', pub: L.pub, ok: false };
+    if (ok) { if (L.st !== 'r' || !L.priv) return; const x = await PCC.linkSeal(L.priv, L.pub, PCC.unb64u(CL.st.seed)); body = { step: 'answer', pub: L.pub, ok: true, iv: x.iv, ct: x.ct }; }
+    const r = await clFetch('/link/step', 'POST', body);
     if (r.s === 200) { CL.link = null; clLinkRefresh(); toast(ok ? 'Dispositivo aprobado' : 'Solicitud rechazada'); }
-    else if (r.s === 404) { CL.link = null; clLinkRefresh(); toast('La solicitud ya venció'); }
+    else if (r.s === 404 || r.s === 409) { CL.link = null; clLinkRefresh(); toast('La solicitud ya venció'); }
     else toast('No pudimos conectar. Inténtalo más tarde.');
   } catch (e) { toast('No pudimos conectar. Inténtalo más tarde.'); }
 }
@@ -2162,7 +2268,8 @@ function clLinkHTML() {
   const L = CL.link; if (!clIn() || !L) return '';
   let hm = ''; try { hm = new Date(L.t).toLocaleTimeString(String(resolveLang() || 'es'), { hour: 'numeric', minute: '2-digit' }); } catch (e) { /* sin formato */ }
   const pl = clPlatIco(L.plat), wh = clWhere(L.tz), it = (ic, t) => '<span class="cli">' + RMI(ic, 15, 'currentColor') + '<span data-notr>' + esc(t) + '</span></span>';
-  return '<div class="cllk"><div class="cllh"><b>Solicitud de inicio de sesión</b><span class="cllc"><span>Código</span> <b data-notr>' + esc(L.code) + '</b></span></div><div class="cllm">' + it(pl.ic, pl.os) + (wh ? it('global-line', wh) : '') + (hm ? it('time-line', hm) : '') + '</div><div class="cllb"><button class="clsm" data-act="cl:lkno">Rechazar</button><button class="clsm ok" data-act="cl:lkok">Aprobar</button></div></div>';
+  const code = L.code ? '<span class="cllc"><span>Código</span> <b data-notr>' + esc(L.code.slice(0, 3) + ' ' + L.code.slice(3)) + '</b></span>' : '<span class="cllc"><span>' + (L.priv ? 'Calculando código…' : 'Otro dispositivo está respondiendo') + '</span></span>';
+  return '<div class="cllk"><div class="cllh"><b>Solicitud de inicio de sesión</b>' + code + '</div><div class="cllm">' + it(pl.ic, pl.os) + (wh ? it('global-line', wh) : '') + (hm ? it('time-line', hm) : '') + '</div><div class="cllb"><button class="clsm" data-act="cl:lkno">Rechazar</button>' + (L.code ? '<button class="clsm ok" data-act="cl:lkok">Aprobar</button>' : '') + '</div></div>';
 }
 async function clAct(arg, el) {
   const p = arg.split(':'), a = p[0], u = CL.ui || (CL.ui = { step: 'email' });
@@ -2249,10 +2356,10 @@ async function clAct(arg, el) {
       const r = await clFetch('/link/start', 'POST', { email: em, pub: k.pub, rid: rid, plat: syncDevice().plat, tz: tz, lang: String(resolveLang() || 'es').slice(0, 2) });
       if (r.s === 429) clMsg('Demasiados intentos. Prueba en una hora.'); else if (r.s !== 200) clMsg('No pudimos conectar. Inténtalo más tarde.');
       else if (r.j && r.j.access === false) { CL.ui = { step: r.j.listed ? 'listed' : 'nolist', email: em }; clSheet(); }
-      else { CL.lk = k.priv; CL.ui = { step: 'linkwait', email: em, pub: k.pub, rid: rid, code: await PCC.matchCode(k.pub), t0: Date.now() }; clSheet(); clLinkWait(); }
+      else { CL.lk = k.priv; CL.ui = { step: 'linkwait', email: em, pub: k.pub, rid: rid, code: '', t0: Date.now() }; clSheet(); clLinkWait(); }
     } catch (e) { clMsg('No pudimos conectar. Inténtalo más tarde.'); } el.disabled = false;
   } else if (a === 'lkcancel' || a === 'linkmail') { clearInterval(CL.lp); CL.lk = null; CL.ui = { step: 'email', email: u.email }; clSheet(); }
-  else if (a === 'lkok') { const L = CL.link; if (L) askConfirm('¿Aprobar este dispositivo?', 'Solo apruébalo si fuiste tú y el código coincide.', [{ label: 'Aprobar', fn: () => clLinkAnswer(true) }]); }
+  else if (a === 'lkok') { const L = CL.link; if (L && L.code) askConfirm('¿Aprobar este dispositivo?', 'Solo apruébalo si fuiste tú y el código es exactamente el mismo que ves en el dispositivo nuevo.', [{ label: 'Aprobar', fn: () => clLinkAnswer(true) }]); }
   else if (a === 'lkno') clLinkAnswer(false);
   else if (a === 'saved') { const pos = []; while (pos.length < 3) { const x = Math.floor(Math.random() * 12); if (pos.indexOf(x) < 0) pos.push(x); } pos.sort((x, y) => x - y); u.pos = pos; u.step = 'quiz'; u.err = ''; clSheet(); }
   else if (a === 'back') { u.step = 'newkey'; clSheet(); }
@@ -2260,8 +2367,8 @@ async function clAct(arg, el) {
     const ok = [].every.call(document.querySelectorAll('.clq'), (i) => PCC.wordIdx(i.value) === PCC.wordIdx(u.words[Number(i.dataset.p)]) && PCC.wordIdx(i.value) >= 0);
     if (!ok) { clMsg('Alguna palabra no coincide. Revisa tu frase.'); return; }
     el.disabled = true; try {
-      const kc = await PCC.keyCheck(u.seed), r = await clFetch('/me/key', 'PUT', { kc: kc });
-      if (r.s === 200 || r.s === 409) { CL.st.seed = PCC.b64u(u.seed); CL.st.kc = kc; CL.key = null; await clAuthDone(true); } else clMsg('No pudimos guardar la clave. Inténtalo otra vez.');
+      const kc = await PCC.keyCheck(u.seed), r = await clFetch('/me/key', 'PUT', { kc: kc }, { 'X-Plata-Write': await PCC.writeKey(u.seed) });
+      if (r.s === 200 || r.s === 409) { CL.st.seed = PCC.b64u(u.seed); CL.st.kc = kc; CL.key = null; if (r.s === 200) CL.st.v2 = 1; await clAuthDone(true); } else clMsg('No pudimos guardar la clave. Inténtalo otra vez.');
     } catch (e) { clMsg('No pudimos conectar. Inténtalo más tarde.'); } el.disabled = false;
   } else if (a === 'enter') {
     const seed = await PCC.fromPhrase((($('#clPhrase') || {}).value || ''));
@@ -2270,7 +2377,7 @@ async function clAct(arg, el) {
     CL.st.seed = PCC.b64u(seed); CL.st.kc = kc; CL.key = null; clSave(); await clAuthDone();
   } else if (a === 'f') clFirstPick(p[1]);
   else if (a === 'sync') { clSync('manual'); }
-  else if (a === 'menu') askConfirm('Plata Cloud', CL.st.email || '', [{ label: 'Ver frase de recuperación', fn: () => clAct('phrase', el) }, { label: 'Cerrar sesión', fn: () => clAct('out', el) }].concat((typeof navigator !== 'undefined' && navigator.onLine === false) ? [] : [{ label: 'Borrar datos de la nube', dest: true, fn: () => clAct('wipe', el) }]).concat([{ label: 'Borrar cuenta', dest: true, fn: () => clAct('del', el) }]));
+  else if (a === 'menu') askConfirm('Plata Cloud', CL.st.email || '', [{ label: 'Ver frase de recuperación', fn: () => clAct('phrase', el) }, { label: 'Cerrar sesión', fn: () => clAct('out', el) }, { label: 'Cerrar sesión en otros dispositivos', fn: () => clAct('outall', el) }].concat((typeof navigator !== 'undefined' && navigator.onLine === false) ? [] : [{ label: 'Borrar datos de la nube', dest: true, fn: () => clAct('wipe', el) }]).concat([{ label: 'Borrar cuenta', dest: true, fn: () => clAct('del', el) }]));
   else if (a === 'wipe') askConfirm('¿Borrar los datos de la nube?', 'Se borra la copia que Plata Cloud guarda de tus datos (y su respaldo). Tu cuenta sigue activa y los datos de este dispositivo no se tocan, pero pasarás al modo Local. No se puede deshacer. Antes te pediremos 3 palabras de tu frase de recuperación.', [{ label: 'Continuar', dest: true, fn: async () => {
     const pos = []; while (pos.length < 3) { const x = Math.floor(Math.random() * 12); if (pos.indexOf(x) < 0) pos.push(x); } pos.sort((x, y) => x - y);
     CL.fromProf = !!ui.profSheet; CL.ui = { step: 'wipeq', pos: pos, words: await PCC.toPhrase(PCC.unb64u(CL.st.seed)), err: '' }; clSheet();
@@ -2289,6 +2396,8 @@ async function clAct(arg, el) {
     if (to === 'cloud') askConfirm('¿Activar Plata Cloud?', 'Los datos de este dispositivo se sincronizarán, cifrados, con tu cuenta.', [{ label: 'Activar', fn: go }]);
     else askConfirm('¿Volver al modo local?', 'Este dispositivo deja de sincronizarse. Tus datos se quedan aquí y la copia de la nube se conserva.', [{ label: 'Pasar a local', fn: go }]);
   } else if (a === 'out') askConfirm('¿Cerrar sesión?', 'Este dispositivo deja de sincronizarse y olvida tu frase. Tus datos locales se quedan, y para volver a entrar necesitarás el código del correo y tu frase.', [{ label: 'Cerrar sesión', fn: async () => { try { await clFetch('/auth/logout', 'POST'); } catch (e) { /* sin red */ } clWipe(); clRefresh(); toast('Sesión cerrada'); if ($('#welcome') && !ui.w) { try { welcomeHTML(); } catch (e) { /* sin bienvenida */ } } } }]);
+  else if (a === 'outall') askConfirm('¿Cerrar sesión en tus otros dispositivos?', 'Úsalo si perdiste un dispositivo o crees que alguien más entró. Este dispositivo sigue con sesión; en los demás habrá que volver a entrar.', [{ label: 'Cerrar las demás', dest: true, fn: async () => {
+    try { const r = await clFetch('/auth/logout-all', 'POST', { dev: syncDevice().plat }); if (r.s === 200 && r.j.token) { CL.st.tok = r.j.token; clSave(); toast('Listo: cerramos tus otras sesiones'); } else toast('No pudimos cerrar las sesiones. Inténtalo más tarde.'); } catch (e) { toast('No pudimos conectar. Inténtalo más tarde.'); } } }]);
   else if (a === 'del') askConfirm('¿Borrar tu cuenta?', 'Se borran tu cuenta y tu copia en la nube. Los datos de este dispositivo no se tocan. No se puede deshacer. Te enviaremos un código de verificación a tu correo.', [{ label: 'Enviar código', dest: true, fn: async () => {
     try { const r = await clFetch('/sync/confirm', 'POST', { kind: 'delete', lang: String(resolveLang() || 'es').slice(0, 2) }); if (r.s === 429) { toast('Demasiados intentos. Prueba en una hora.'); return; } if (r.s !== 200) { toast('No pudimos enviar el código. Inténtalo más tarde.'); return; } } catch (e) { toast('No pudimos conectar. Inténtalo más tarde.'); return; }
     CL.fromProf = !!ui.profSheet; CL.ui = { step: 'delcode', err: '' }; clSheet(); } }]);
@@ -2874,7 +2983,7 @@ function renderResumen() {
   const catCenter = '<text x="120" y="116" text-anchor="middle" font-size="13" fill="#6C6C70" font-family="inherit">Total</text><text x="120" y="146" text-anchor="middle" font-size="28" font-weight="700" letter-spacing="-0.8" fill="#1C1C1E" font-family="inherit">' + fmt(c.expV) + '</text>';
   const catRing = c.cats.length ? ringSVG(c.cats, 100, 22, 4, 240, catCenter) : '';
   const catList = c.cats.length
-    ? '<div class="catlist">' + c.cats.map((k) => '<div><i style="background:' + k.color + '"></i><span>' + k.name + '</span><b>' + fmt(k.v) + '</b></div>').join('') + '</div>'
+    ? '<div class="catlist">' + c.cats.map((k) => '<div><i style="background:' + k.color + '"></i><span>' + esc(k.name) + '</span><b>' + fmt(k.v) + '</b></div>').join('') + '</div>'
     : '<div class="empty" style="flex:1">Sin gastos este mes</div>';
   const status = clGone() ? '<b style="color:var(--rt)">Cuenta borrada</b>' : (clBeta() && clOn()) ? (CL.status === 'syncing' ? 'Sincronizando…' : (CL.status === 'ok' || CL.status === 'idle') ? 'Sincronizado' : '<b style="color:var(--ot)">Sin sincronizar</b>') : ui.dirty > 0 ? '<b style="color:var(--ot)">' + plural(ui.dirty, 'cambio', 'cambios') + ' sin guardar</b>' : 'Todo guardado';
   let nextCard;
@@ -3001,9 +3110,9 @@ function renderPresupuesto() {
   const rows = CAT_ORDER.map((k) => {
     const lim = vb[k] || 0, sp = c.catTot[k] || 0, pct = lim ? sp / lim : 0, over = lim && sp > lim;
     const col = over ? '#FF3B30' : pct > 0.85 ? '#FF9F0A' : CAT_COLOR[k];
-    if (prev) return rowEdit('budget', k, tile(CAT_COLOR[k], catGlyph(k)), '<div class="name" style="font-size:16px">' + k + '</div><div class="sub" style="font-size:13px">' + (lim ? 'Límite ' + fmt(lim) : 'Sin límite') + '</div>', lim ? '' : '<span class="sub">Definir</span>');
+    if (prev) return rowEdit('budget', k, tile(CAT_COLOR[k], catGlyph(k)), '<div class="name" style="font-size:16px">' + esc(k) + '</div><div class="sub" style="font-size:13px">' + (lim ? 'Límite ' + fmt(lim) : 'Sin límite') + '</div>', lim ? '' : '<span class="sub">Definir</span>');
     return rowEdit('budget', k, tile(CAT_COLOR[k], catGlyph(k)),
-      '<div class="name" style="font-size:16px">' + k + '</div><div class="bar"><i style="width:' + Math.min(100, pct * 100) + '%;background:' + col + '"></i></div><div class="sub" style="font-size:13px">' + fmt(sp) + (lim ? ' de ' + fmt(lim) : ' · sin límite') + '</div>' + budgetInsight(k, sp, lim),
+      '<div class="name" style="font-size:16px">' + esc(k) + '</div><div class="bar"><i style="width:' + Math.min(100, pct * 100) + '%;background:' + col + '"></i></div><div class="sub" style="font-size:13px">' + fmt(sp) + (lim ? ' de ' + fmt(lim) : ' · sin límite') + '</div>' + budgetInsight(k, sp, lim),
       lim ? '<span class="amt" style="color:' + (over ? 'var(--rt)' : '#1C1C1E') + '">' + fmt(lim - sp) + '</span>' : '<span class="sub">Definir</span>');
   }).join('');
   const subRows = data.subs.slice().sort((a, b) => a.day - b.day).map((s, i) => rowEdit('sub', s.id, subTile(s, i),
@@ -3471,7 +3580,7 @@ function txRow(t, sw) {
     const cat = isPay(t) ? pcat(t) : t.amount > 0 ? 'Ingreso' : (CAT_ORDER.indexOf(t.category) >= 0 ? t.category : 'Otros');
     const d = pd(t.date), cur = accOf(t.acc).cur, sb = txSub(t);
     const html = '<div class="row tap"' + (sw && isWebView() ? ' data-ctx="' + (isPay(t) ? 'p' : 't') + '"' : '') + ' data-act="tx:' + t.id + '">' + (sb ? subTile(sb, data.subs.indexOf(sb)) : '<span class="tile" style="background:' + (cat === XFER ? 'transparent' : cat === PAY ? '#B98AE6' : CAT_COLOR[cat]) + '" aria-hidden="true">' + (cat === XFER ? RMI('arrow-left-right-line', 30, t.amount < 0 ? 'var(--rt)' : '#22B573') : cat === PAY ? iconSVG('card', '#fff', 20) : catGlyph(cat)) + '</span>') +
-      '<div class="grow"><div class="name" style="font-size:16px">' + esc(t.note || cat) + '</div><div class="sub" style="font-size:13px">' + (cat === XFER ? (t.amount < 0 ? 'Salida' : 'Entrada') : sb ? 'Suscripción' : cat) + ' · ' + dshort(d) + (data.accounts.length + data.cards.length > 1 ? ' · ' + esc(accOf(t.acc).name) : '') + '</div></div>' +
+      '<div class="grow"><div class="name" style="font-size:16px">' + esc(t.note || cat) + '</div><div class="sub" style="font-size:13px">' + (cat === XFER ? (t.amount < 0 ? 'Salida' : 'Entrada') : sb ? 'Suscripción' : esc(cat)) + ' · ' + dshort(d) + (data.accounts.length + data.cards.length > 1 ? ' · ' + esc(accOf(t.acc).name) : '') + '</div></div>' +
       amtHrs(t, '<span class="amt" style="color:' + (t.amount > 0 && !isPay(t) ? 'var(--gt)' : 'var(--ink)') + '">' + fmtSC2(t.amount, cur) + '</span>') + ICON.chev + '</div>';
     return sw && !isWebView() ? swWrap(t, html, isPay(t), isXfer(t)) : html;
 }
@@ -4277,7 +4386,7 @@ document.addEventListener('change', (e) => { const el = e.target; if (el && el.m
 })();
 const APP_VERSION = 'Beta 3';
 const WSOC = '<div class="wsoc"><span class="wver">' + APP_VERSION + '</span><a href="https://instagram.com/plataapp" target="_blank" rel="noopener" data-notr>' + RMI('instagram-line', 20, 'currentColor') + 'plataapp</a><a href="https://plataapp.net" target="_blank" rel="noopener" data-notr>' + RMI('link', 20, 'currentColor') + 'plataapp.net</a></div>';
-const APP_BUILD = 420;
+const APP_BUILD = 421;
 const ALPHA_TESTERS = ['Rodrigo Espinoza', 'Mariana Richarte', 'Jeny Surichaqui', 'Carlos Flores'];
 const BETA_TESTERS = []; // los testers de la beta se añaden aquí
 const E22_LOGO = 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 1900.3 316.3%27%3E%3Cg fill=%27%233C3C43%27 fill-opacity=%27.6%27%3E%3Cpath d=%27M0,311.8V4.1h205.9v52.2H63v74.3h132.2v51.4H63v77.4h143.3v52.2H0Z%27/%3E%3Cpath d=%27M315.1,316.3c-24.6,0-46.1-3.8-64.3-11.4-18.2-7.6-32.5-18.8-42.6-33.7-10.2-14.9-15.6-33.2-16.1-54.9h61.3c.8,10.3,3.9,19,9.3,25.9,5.4,7,12.5,12.2,21.5,15.6,8.9,3.4,19.1,5.2,30.4,5.2s21.1-1.6,29.4-4.9c8.3-3.2,14.8-7.8,19.5-13.7,4.7-5.9,7-12.8,7-20.6s-2.1-12.9-6.3-17.7c-4.2-4.7-10.2-8.8-18.1-12.3-7.8-3.4-17.4-6.5-28.7-9.1l-33.9-8.5c-26-6.3-46.4-16.3-61.1-29.8-14.7-13.6-22.1-31.5-22.1-53.8s5-34.8,15-48.7c10-13.9,23.7-24.7,41.1-32.4,17.4-7.7,37.3-11.6,59.6-11.6s42.5,3.9,59.5,11.7c16.9,7.8,30.1,18.6,39.6,32.4,9.5,13.8,14.4,29.8,14.7,47.8h-60.9c-1.1-12.4-6.4-22-15.8-28.7-9.4-6.7-22-10.1-37.7-10.1s-19.7,1.5-27.3,4.5c-7.6,3-13.3,7.2-17.2,12.6-3.9,5.4-5.9,11.5-5.9,18.4s2.3,13.9,6.8,18.9c4.5,5,10.6,9.1,18.2,12.2,7.6,3.1,15.6,5.7,24.2,7.7l27.9,6.8c12.9,2.9,25,6.8,36.1,11.8,11.2,5,20.9,11,29.3,18.3,8.4,7.2,14.9,15.8,19.5,25.7,4.6,9.9,6.9,21.3,6.9,34.3,0,18.6-4.7,34.8-14,48.6-9.4,13.8-22.9,24.5-40.7,32.1-17.8,7.6-39.1,11.4-64,11.4Z%27/%3E%3Cpath d=%27M409.2,56.4V4.1h251.3v52.2h-94v255.4h-63.2V56.4h-94.2Z%27/%3E%3Cpath d=%27M776.1,316.1c-25.3,0-47.5-4.7-66.6-14.1-19.1-9.4-33.9-22.5-44.4-39.3-10.5-16.8-15.8-36.4-15.8-58.8V4.1h63v194.5c0,12,2.6,22.6,8,31.9,5.3,9.3,12.7,16.6,22.3,21.9,9.6,5.3,20.8,7.9,33.6,7.9s24.2-2.6,33.8-7.9c9.6-5.3,17-12.6,22.3-21.9,5.3-9.3,8-19.9,8-31.9V4.1h63.2v199.7c0,22.4-5.3,42.1-15.9,58.8-10.6,16.8-25.4,29.9-44.5,39.3-19.1,9.4-41.3,14.1-66.8,14.1Z%27/%3E%3Cpath d=%27M967.2,4.1v307.7h-63V4.1h63ZM1012.4,311.8h-79.7v-54.3h76.6c19.8,0,36.4-3.5,49.9-10.5,13.4-7,23.5-17.9,30.3-32.6,6.7-14.7,10.1-33.6,10.1-56.6s-3.4-41.6-10.2-56.3c-6.8-14.7-16.9-25.5-30.1-32.5-13.3-7-29.8-10.5-49.5-10.5h-78.5V4.1h82.2c30.8,0,57.4,6.2,79.6,18.5,22.2,12.3,39.3,29.9,51.3,52.9s18,50.4,18,82.3-6,59.6-18,82.6c-12,23-29.2,40.6-51.5,53-22.4,12.3-49.2,18.5-80.4,18.5Z%27/%3E%3Cpath d=%27M1218.1,4.1v307.7h-63V4.1h63Z%27/%3E%3Cpath d=%27M1354.3,315.9c-27.1,0-51.5-6.2-73.2-18.6-21.7-12.4-38.8-30.4-51.4-53.9s-18.9-52-18.9-85.3,6.3-62,18.9-85.6c12.6-23.6,29.7-41.6,51.4-54,21.7-12.4,46.1-18.6,73.2-18.6s51.7,6.2,73.3,18.6c21.6,12.4,38.7,30.4,51.3,54,12.6,23.6,18.9,52.1,18.9,85.6s-6.3,61.7-18.9,85.3-29.7,41.5-51.3,53.9c-21.6,12.4-46,18.6-73.3,18.6ZM1354.3,260c16,0,29.9-3.9,41.8-11.7,11.9-7.8,21.2-19.3,27.8-34.5,6.6-15.2,9.9-33.8,9.9-55.6s-3.3-40.8-9.9-56.1c-6.6-15.2-15.9-26.7-27.8-34.5-11.9-7.8-25.8-11.7-41.8-11.7s-29.7,3.9-41.7,11.8c-12,7.8-21.3,19.4-27.9,34.6-6.6,15.2-9.9,33.8-9.9,55.9s3.3,40.4,9.9,55.5c6.6,15.1,15.9,26.6,27.9,34.5,12,7.8,25.9,11.8,41.7,11.8Z%27/%3E%3Cpath d=%27M1533.9,311.8v-45.4l109-102.2c9.4-9.1,17.2-17.3,23.6-24.7,6.4-7.4,11.3-14.6,14.7-21.7,3.4-7.1,5.1-14.8,5.1-23s-2.1-17.1-6.2-23.7c-4.1-6.6-9.8-11.7-16.9-15.3-7.2-3.6-15.4-5.4-24.6-5.4s-17.8,1.9-25,5.8c-7.2,3.9-12.7,9.4-16.5,16.5-3.9,7.2-5.8,15.8-5.8,25.8h-60.3c0-20,4.6-37.3,13.7-52.1,9.2-14.8,21.9-26.2,38.1-34.3,16.2-8.1,35-12.1,56.2-12.1s40.7,3.9,57,11.7c16.2,7.8,28.9,18.5,37.9,32.1,9,13.6,13.5,29.3,13.5,47.1s-2.2,22.7-6.7,33.9c-4.5,11.2-12.5,23.6-24,37.5-11.5,13.8-27.8,30.4-48.8,49.7l-46.5,45.8v2.3h130.1v51.8h-217.6Z%27/%3E%3Cpath d=%27M1755.5,207.4v-30.2l72.5-68c6.2-6,11.5-11.5,15.7-16.4,4.3-4.9,7.5-9.7,9.7-14.4,2.2-4.7,3.4-9.8,3.4-15.3s-1.4-11.4-4.1-15.8c-2.7-4.4-6.5-7.8-11.3-10.2-4.8-2.4-10.2-3.6-16.3-3.6s-11.9,1.3-16.6,3.8c-4.8,2.6-8.4,6.2-11,11-2.6,4.8-3.8,10.5-3.8,17.2h-40.1c0-13.3,3-24.8,9.1-34.7,6.1-9.8,14.5-17.4,25.3-22.8,10.8-5.4,23.3-8,37.4-8s27.1,2.6,37.9,7.8c10.8,5.2,19.2,12.3,25.2,21.4,6,9.1,9,19.5,9,31.3s-1.5,15.1-4.5,22.5c-3,7.4-8.3,15.7-15.9,24.9-7.6,9.2-18.5,20.2-32.5,33l-30.9,30.5v1.5h86.5v34.5h-144.7Z%27/%3E%3C/g%3E%3C/svg%3E';
@@ -4935,7 +5044,7 @@ function saveForm() {
         data.expected_expense.forEach((t) => { if (t.cat === o.orig) t.cat = nm; });
         allBuds().forEach((b) => { if (b[o.orig] != null) { b[nm] = b[o.orig]; delete b[o.orig]; } }); if (ui.sheetCat === o.orig) ui.sheetCat = nm;
       }
-    } else data.cats.push({ name: nm, color: o.color, icon: o.icon || '' });
+    } else data.cats.push({ name: safeLabel(nm), color: SAFE_COLOR.test(o.color || '') ? o.color : '#8E8E93', icon: o.icon || '' });
     { const tb = budOf(viewSet()); if (o.limit > 0) tb[nm] = round2(usd(o.limit, bsCurOf())); else delete tb[nm]; }
     return formDone('Categoría guardada');
   }
@@ -6418,7 +6527,7 @@ const BW = {
   } },
   cats: { t: 'Gasto por categoría', d: 'En qué se va tu plata este mes.', ic: 'pie-chart-2-line', sizes: ['S', 'T', 'L'], r: (c, w, h) => {
     if (!c.cats.length) return bemp('Sin gastos este mes');
-    const list = '<div class="blist">' + c.cats.slice().sort((a, b) => b.v - a.v).slice(0, h >= 2 ? 8 : 5).map((k) => '<div><i style="background:' + k.color + '"></i><span>' + k.name + '</span><b>' + fmt(k.v) + '</b></div>').join('') + '</div>';
+    const list = '<div class="blist">' + c.cats.slice().sort((a, b) => b.v - a.v).slice(0, h >= 2 ? 8 : 5).map((k) => '<div><i style="background:' + k.color + '"></i><span>' + esc(k.name) + '</span><b>' + fmt(k.v) + '</b></div>').join('') + '</div>';
     if (w === 1 && h === 1) return '<div class="bdon">' + bDonut(c.cats, c.expV, 'Gastado') + '</div>';
     if (w === 1) return '<div style="display:flex;flex-direction:column;gap:.8em;flex:1;min-height:0"><div style="flex:1;min-height:0;display:flex">' + bDonut(c.cats, c.expV, 'Gastado') + '</div>' + list.replace('class="blist"', 'class="blist" style="flex:none;gap:.4em"') + '</div>';
     return '<div class="bdon">' + bDonut(c.cats, c.expV, 'Gastado') + list + '</div>';
@@ -6446,7 +6555,7 @@ const BW = {
   budget: { t: 'Presupuesto', d: 'Cuánto llevas contra cada límite.', ic: 'wallet-3-line', sizes: ['T', 'L', 'M'], r: (c, w, h) => {
     const lim = budOf(activeSet()) || {}, cap = bcap(h) - (w > 1 && h === 1 ? 1 : 0);
     const rows = CAT_ORDER.filter((k) => (lim[k] || 0) > 0).map((k) => ({ k: k, sp: c.catTot[k] || 0, lm: lim[k] }));
-    if (!rows.length) { const top = c.cats.slice().sort((a, b) => b.v - a.v).slice(0, cap); if (!top.length) return bemp('Define límites en Presupuesto'); const mx = top[0].v; return '<div class="bstack">' + top.map((k) => '<div class="brow"><div><span>' + k.name + '</span><b>' + fmt(k.v) + '</b></div>' + bbar(k.v / mx * 100, k.color) + '</div>').join('') + '</div>'; }
+    if (!rows.length) { const top = c.cats.slice().sort((a, b) => b.v - a.v).slice(0, cap); if (!top.length) return bemp('Define límites en Presupuesto'); const mx = top[0].v; return '<div class="bstack">' + top.map((k) => '<div class="brow"><div><span>' + esc(k.name) + '</span><b>' + fmt(k.v) + '</b></div>' + bbar(k.v / mx * 100, k.color) + '</div>').join('') + '</div>'; }
     return '<div class="bstack">' + rows.sort((a, b) => b.sp / b.lm - a.sp / a.lm).slice(0, cap).map((r) => { const p = r.sp / r.lm * 100; return '<div class="brow"><div><span>' + r.k + '</span><b' + (p > 100 ? ' class="exp"' : p > 80 ? ' class="warn"' : '') + '>' + fmt(r.sp) + ' <small>/ ' + fmt(r.lm) + '</small></b></div>' + bbar(p, p > 100 ? 'var(--rt)' : p > 80 ? '#FF9500' : CAT_COLOR[r.k]) + '</div>'; }).join('') + '</div>';
   } },
   top: { t: 'Mayores gastos', d: 'Lo que más dinero se llevó este mes.', ic: 'trophy-line', sizes: ['T', 'S', 'M'], r: (c, w, h) => {
