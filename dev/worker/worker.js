@@ -18,6 +18,8 @@ const MAIL_FROM = 'Plata Cloud <cloud@plataapp.net>';
 const MAIL_LOGO = 'https://plataapp.net/img/email-logo.png';
 const MAIL_CLOUDS = 'https://plataapp.net/img/email-clouds.png';
 const MAIL_IG = 'https://plataapp.net/img/email-ig.png';
+const MAIL_LN = 'https://plataapp.net/img/email-ln.png';
+const MAIL_WEB = 'https://plataapp.net/img/email-web.png';
 const MAIL_KEY = 'https://plataapp.net/img/email-key.gif';
 const MAIL_WARN = 'https://plataapp.net/img/email-warn.png';
 const MAIL_IC = (n) => 'https://plataapp.net/img/email-ic-' + n + '.png';
@@ -58,6 +60,10 @@ const MAIL_TXT = {
 const mailT = (lang) => MAIL_TXT[lang] || MAIL_TXT.en;
 const mailLink = (lang) => 'https://plataapp.net/cloud.html' + (lang === 'en' ? '?lang=en' : '');
 
+const socialRow = (F) => {
+  const it = (href, img, label) => '<a href="' + href + '" style="display:inline-block;margin:0 9px 6px;text-decoration:none;color:#1C1C1E;font:600 14px/1 ' + F + '"><img src="' + img + '" width="18" height="18" alt="" style="border:0;vertical-align:middle;width:18px;height:18px">&nbsp; ' + label + '</a>';
+  return '<tr><td align="center" style="text-align:center;padding:6px 0 26px">' + it('https://www.instagram.com/plataapp/', MAIL_IG, 'plataapp') + it('https://www.linkedin.com/company/plataapp', MAIL_LN, 'plataapp') + it('https://plataapp.net', MAIL_WEB, 'plataapp.net') + '</td></tr>';
+};
 function waitlistMail(lang, n) {
   const t = mailT(lang), G = '#22B573', F = "Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
   const sig = t.sig, thanks = t.thanks.replace('<', '&lt;');
@@ -78,7 +84,7 @@ function waitlistMail(lang, n) {
     + '<tr><td align="center" style="text-align:center;padding:8px 0 26px 0"><a href="' + mailLink(lang) + '" style="display:inline-block;background:' + G + ';color:#FFFFFF;text-decoration:none;border-radius:999px;padding:14px 26px;font:700 16px/1 ' + F + '">' + t.btn + '</a></td></tr>'
     + '<tr><td align="center" style="text-align:center;padding:0 0 14px 0;font:500 16px/1.4 ' + F + ';color:#1C1C1E">' + thanks + '</td></tr>'
     + '<tr><td align="center" style="text-align:center;padding:0 0 18px 0;font:700 15px/1.45 ' + F + ';color:#1C1C1E">' + sig[0] + '<br><span style="font-weight:500;color:#5B5B60">' + sig[1] + '</span></td></tr>'
-    + '<tr><td align="center" style="text-align:center;padding:0 0 30px 0"><a href="https://www.instagram.com/plataapp/" style="text-decoration:none;color:#1C1C1E;font:600 15px/1 ' + F + '"><img src="' + MAIL_IG + '" width="20" height="20" alt="Instagram" style="border:0;vertical-align:middle;width:20px;height:20px">&nbsp; plataapp</a></td></tr>'
+    + socialRow(F)
     + '</table></td></tr>'
     + '<tr><td class="pad" align="center" style="text-align:center;padding:0 34px 34px;font:400 12.5px/1.5 ' + F + ';color:#8A8A8F">' + t.foot + '</td></tr>'
     + '</table></td></tr></table></body></html>';
@@ -347,7 +353,8 @@ function codeMail(lang, code, kind, x) {
     + '<tr><td align="center" style="text-align:center;padding:0 32px 22px;font:400 16px/1.55 ' + F + ';color:#5B5B60">' + t.lead + '</td></tr>'
     + detRows + dangerRow
     + '<tr><td align="center" style="text-align:center;padding:0 32px 24px"><div style="display:inline-block;margin:0 auto;background:#E9F6EF;border-radius:18px;padding:18px 28px;font:800 40px/1 ' + F + ';letter-spacing:0.12em;color:#13774C">' + spaced + '</div></td></tr>'
-    + '<tr><td align="center" style="text-align:center;padding:0 32px 34px;font:400 13px/1.5 ' + F + ';color:#8A8A8F">' + t.warn + '</td></tr>'
+    + '<tr><td align="center" style="text-align:center;padding:0 32px 18px;font:400 13px/1.5 ' + F + ';color:#8A8A8F">' + t.warn + '</td></tr>'
+    + socialRow(F)
     + '</table></td></tr></table></body></html>';
   return { subject: t.subject, html, text: t.title + '\n\n' + spaced + '\n\n' + t.lead + (kind === 'link' ? '\n' + det : '') + '\n\n' + (t.danger ? t.danger + '\n\n' : '') + t.warn + '\n' };
 }
@@ -575,6 +582,7 @@ function inviteMail(lang) {
     + '<tr><td align="center" style="text-align:center;padding:14px 0 26px 0"><a href="' + url + '" style="display:inline-block;background:' + G + ';color:#FFFFFF;text-decoration:none;border-radius:999px;padding:14px 26px;font:700 16px/1 ' + F + '">' + t.btn + '</a></td></tr>'
     + '<tr><td align="center" style="text-align:center;padding:0 0 14px 0;font:500 16px/1.4 ' + F + ';color:#1C1C1E">' + th + '</td></tr>'
     + '<tr><td align="center" style="text-align:center;padding:0 0 30px 0;font:700 15px/1.45 ' + F + ';color:#1C1C1E">' + t.sig[0] + '<br><span style="font-weight:500;color:#5B5B60">' + t.sig[1] + '</span></td></tr>'
+    + socialRow(F)
     + '</table></td></tr><tr><td align="center" style="text-align:center;padding:0 34px 34px;font:400 12.5px/1.5 ' + F + ';color:#8A8A8F">' + t.foot + '</td></tr></table></td></tr></table></body></html>';
   const text = t.title + '\n\n' + t.lead + '\n\n' + t.steps.map((x, i) => (i + 1) + '. ' + x).join('\n') + '\n\n' + t.btn + ': ' + url + '\n\n' + t.thanks + '\n' + t.sig[0] + ' ' + t.sig[1] + '\n\n' + t.foot + '\n';
   return { subject: t.subject, html, text };
