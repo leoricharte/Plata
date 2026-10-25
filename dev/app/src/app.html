@@ -7027,6 +7027,11 @@ function bentoAct0(a, arg) {
 
 (function(){ const b = $('#wbento'); if (b) b.innerHTML = RMI('layout-grid-line', 18, 'currentColor') + '<span class="wbl">Bentos</span>'; })();
 
+/* Enlace directo a un perfil de demostración (ej. app/?demo=alessandro&lang=es). No toca datos reales: la demo guarda una copia y se restaura al salir. */
+(function () {
+  const m = /[?&]demo=([a-z]+)/.exec(location.search); if (!m || !DEMO_PROFILES[m[1]]) return;
+  try { loadDemo(m[1]); const l = /[?&]lang=([a-z]{2})/.exec(location.search); if (l && data && data.settings) { data.settings.lang = l[1]; persist(); } wMark(true); newsMark(); navNoteMark(); } catch (e) { /* si falla, abre la app normal */ }
+})();
 applyLang(); renderAll(); setTab('resumen'); movePill(true);
 if (!hasData() && !wSeen() && (!/[?&]nosplash/.test(location.search) || /[?&]welcome/.test(location.search))) { showWelcome(); } else setTimeout(checkPending, 800);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { ui.skipPending = false; updatePendingDot(); checkPending(); } });
