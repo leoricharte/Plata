@@ -1486,7 +1486,7 @@ function makeSampleG(g) {
 /*__DEMOS__*/
 const DEMO_LIST = [
   { id: 'shawn', name: 'Shawn', city: 'San Francisco, CA', age: 24, line: 'Sueldo por hora y vida social activa', color: '#22B573', icon: 'goblet-line' },
-  { id: 'brunela', name: 'Brunela', city: 'Lima, PE', age: 21, line: 'De EE. UU. a la universidad', color: '#2EC4B6', icon: 'graduation-cap-line' },
+  { id: 'brenda', name: 'Brenda', city: 'Lima, PE', age: 21, line: 'De EE. UU. a la universidad', color: '#2EC4B6', icon: 'graduation-cap-line' },
   { id: 'alessandro', name: 'Alessandro', city: 'Lima, PE', age: 23, line: 'Primer empleo y vive con su familia', color: '#FF9F0A', icon: 'home-heart-line' },
   { id: 'andrea', name: 'Andrea', city: 'Lake Placid, NY', age: 52, line: 'Dueña de un hotel con mucho capital', color: '#8E6BD8', icon: 'hotel-line' },
   { id: 'kevin', name: 'Kevin', city: 'Lima, PE', age: 14, line: 'Ayuda en el taller de su papá y ahorra para una PS5', color: '#5B8DEF', icon: 'rocket-2-line' }
@@ -5966,7 +5966,7 @@ function wClear(w) {
 const wnum = (v) => parseFloat(String(v == null ? '' : v).replace(',', '.')) || 0;
 function lookPreviewHTML() {
   const w = ui.w; if (!w) return '';
-  if (!w.lookDemo) w.lookDemo = ['brunela', 'shawn', 'andrea'][Math.floor(Math.random() * 3)];
+  if (!w.lookDemo) w.lookDemo = ['brenda', 'shawn', 'andrea'][Math.floor(Math.random() * 3)];
   const d = DEMO_PROFILES[w.lookDemo]; if (!d) return '';
   const cur = d.settings.currency, sy = symOf(cur).trim(), mf = (n) => (n < 0 ? '−' : '') + sy + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const tot = d.accounts.filter((a) => a.cur === cur && (a.type === 'checking' || a.type === 'cash')).reduce((x, a) => x + a.balance, 0);

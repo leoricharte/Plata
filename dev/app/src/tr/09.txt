@@ -118,7 +118,7 @@ Sueldo por hora y vida social activa ¦ Hourly pay and an active social life ¦ 
 De EE. UU. a la universidad ¦ From the U.S. to college ¦ アメリカから大学へ ¦ Dagli USA all'università ¦ Des États-Unis à l'université ¦ Iz SAD-a na fakultet
 Primer empleo y vive con su familia ¦ First job, lives with family ¦ 初めての仕事、家族と同居 ¦ Primo lavoro, vive con la famiglia ¦ Premier emploi, vit en famille ¦ Prvi posao i živi s porodicom
 ¿Cargar el perfil de Shawn? ¦ Load Shawn's profile? ¦ Shawnのプロフィールを読み込みますか？ ¦ Caricare il profilo di Shawn? ¦ Charger le profil de Shawn ? ¦ Učitati Shawnov profil?
-¿Cargar el perfil de Brunela? ¦ Load Brunela's profile? ¦ Brunelaのプロフィールを読み込みますか？ ¦ Caricare il profilo di Brunela? ¦ Charger le profil de Brunela ? ¦ Učitati Brunelin profil?
+¿Cargar el perfil de Brenda? ¦ Load Brenda's profile? ¦ Brendaのプロフィールを読み込みますか？ ¦ Caricare il profilo di Brenda? ¦ Charger le profil de Brenda ? ¦ Učitati Brendin profil?
 ¿Cargar el perfil de Alessandro? ¦ Load Alessandro's profile? ¦ Alessandroのプロフィールを読み込みますか？ ¦ Caricare il profilo di Alessandro? ¦ Charger le profil de Alessandro ? ¦ Učitati Alessandrov profil?
 ¿Cargar el perfil de Andrea? ¦ Load Andrea's profile? ¦ Andreaのプロフィールを読み込みますか？ ¦ Caricare il profilo di Andrea? ¦ Charger le profil de Andrea ? ¦ Učitati Andreain profil?
 
