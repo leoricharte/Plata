@@ -5,6 +5,15 @@
   Prohibida su copia, modificación o redistribución sin permiso escrito. Ver LICENSE.
   El nombre Plata, su logo e ícono son marcas de Estudio 22.
 -->
+<!--
+  Mapa del archivo (para orientarse; detalles en dev/docs/ARQUITECTURA.md)
+    <style>   Tokens y base · modo oscuro · Liquid Glass / frosted · vista web (bento, ≥ 900 px)
+    <body>    Contenedor del dispositivo · barra de pestañas · hojas
+    <script>  Datos de ejemplo y estado · utilidades y monedas · Plata Cloud · cálculos y gráficos
+              Pantallas (render*) · hojas y formularios · archivo (save file) · eventos (data-act)
+              Efectos · bienvenida · arranque · ventanas flotantes y Bento (escritorio)
+  Buscar secciones:  grep -n "^/\* ----------" dev/app/src/app.html
+-->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -1385,7 +1394,6 @@ function guessCur() {
 }
 const fmt = (n) => (n < 0 ? '−' : '') + symOf(curP()) + Math.abs(Math.round(n)).toLocaleString('en-US');
 const fmt2 = (n) => symOf(curP()) + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: decOf(curP()), maximumFractionDigits: decOf(curP()) });
-const fmtSigned2 = (n) => (n < 0 ? '−' : '+') + fmt2(n);
 const axis = (v) => { const a = Math.abs(v), sg = v < 0 ? '−' : '', y = symOf(curP()).trim(); return a >= 1000 ? sg + y + (a / 1000).toString().replace(/\.0$/, '') + 'k' : sg + y + a; };
 const dshort = (d) => d.getDate() + ' ' + MON[d.getMonth()];
 const dlabel = (d) => DOW[d.getDay()] + ' ' + d.getDate() + ' ' + MON[d.getMonth()];
@@ -1522,7 +1530,6 @@ function demoExit() {
   if (st && st.data) toast('Datos restaurados'); else showWelcome();
 }
 const syncAllowed = () => !(data && data.demo);
-const demoWarn = (name) => '¿Cargar el perfil de ' + name + '?';
 function loadDemo(id) {
   demoEnter();
   const src = DEMO_PROFILES[id]; if (!src) return;
@@ -1681,7 +1688,6 @@ function cloudCardHTML() {
   return '<div class="scard cloudw" id="cloudCard" data-cloud="1" style="padding:14px 16px">' + PC_CLOUDS + '<div class="crow">' + pcLogo(40) + '<span class="cpill">Volando en Beta 3</span></div>' + body + '</div>';
 }
 function wclHTML() {
-  const joined = cloudJoined();
   return pcLogo(34) + '<h3>Tus datos, en todos tus dispositivos</h3><p class="wclp">Plata Cloud sincroniza tu información entre tu teléfono y tu computadora, sin dejar de ser tuya.</p>' +
     '<div class="wcli"><i>1</i><span>Cifrado de extremo a extremo: solo tú puedes leer tus datos.</span></div>' +
     '<div class="wcli"><i>2</i><span>Sin contraseñas: entras con un código que te llega al correo.</span></div>' +
@@ -2721,7 +2727,6 @@ const accType = { checking: 'Corriente', savings: 'Ahorros', cash: 'Efectivo' };
 const NEWS = { id: 'b3-420', title: 'Cambios en la ' + '<span class="betapill b2" style="display:inline-block;vertical-align:middle">B E T A&nbsp;&nbsp;3</span>', items: [{ ic: RMI('dashboard-line', 22, 'currentColor'), t: 'Plata llega a tu mesa', d: 'La versión de escritorio ya está disponible. Entra a la web desde tu PC o Mac.' }, { ic: RMI('layout-grid-line', 22, 'currentColor'), t: 'Arma tu Bento.', d: 'Exclusivo para escritorio: crea un set de gráficos con tus finanzas, al estilo Bento.' }, { ic: '' + RMI('moon-line', 24, 'currentColor') + '', t: 'Modo oscuro', d: 'Elige Auto, Claro u Oscuro en tu perfil o al empezar.' }, { ic: '', t: 'Nuevas secciones en la web', d: 'En plataapp.net hay más para conocer Plata: Cómo usar, Prensa, Transparencia y Ayuda.' }] };
 function newsSeen() { try { return localStorage.getItem('plata.news') === NEWS.id; } catch (e) { return true; } }
 function newsMark() { try { localStorage.setItem('plata.news', NEWS.id); } catch (e) { /* sin almacenamiento */ } }
-const NEWS_IMG = '<div class="nimg"><svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="nsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#070B24"/><stop offset=".6" stop-color="#16225A"/><stop offset="1" stop-color="#2A3A86"/></linearGradient><radialGradient id="nhalo" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFF3B8" stop-opacity=".6"/><stop offset=".45" stop-color="#BFD0FF" stop-opacity=".16"/><stop offset="1" stop-color="#BFD0FF" stop-opacity="0"/></radialGradient><radialGradient id="nmoon" cx=".38" cy=".34" r=".8"><stop offset="0" stop-color="#FFFBE6"/><stop offset="1" stop-color="#FFF1B8"/></radialGradient></defs><rect width="400" height="300" fill="url(#nsky)"/><circle cx="173" cy="85" r="1.5" fill="#fff" opacity="0.35"/><circle cx="45" cy="282" r="0.7" fill="#fff" opacity="0.70"/><circle cx="306" cy="37" r="0.9" fill="#fff" opacity="0.35"/><circle cx="52" cy="230" r="1.5" fill="#fff" opacity="0.35"/><circle cx="131" cy="54" r="1.5" fill="#fff" opacity="0.35"/><circle cx="297" cy="71" r="0.9" fill="#fff" opacity="0.35"/><circle cx="303" cy="211" r="0.7" fill="#fff" opacity="0.50"/><circle cx="31" cy="76" r="1.2" fill="#fff" opacity="0.90"/><circle cx="81" cy="284" r="0.7" fill="#fff" opacity="0.70"/><circle cx="294" cy="100" r="0.7" fill="#fff" opacity="0.50"/><circle cx="198" cy="57" r="0.7" fill="#fff" opacity="0.35"/><circle cx="324" cy="113" r="1.5" fill="#fff" opacity="0.90"/><circle cx="168" cy="246" r="1.5" fill="#fff" opacity="0.70"/><circle cx="161" cy="135" r="0.9" fill="#fff" opacity="0.50"/><circle cx="49" cy="161" r="1.5" fill="#fff" opacity="0.70"/><circle cx="381" cy="237" r="1.2" fill="#fff" opacity="0.35"/><circle cx="68" cy="270" r="1.5" fill="#fff" opacity="0.50"/><circle cx="183" cy="85" r="1.5" fill="#fff" opacity="0.90"/><circle cx="28" cy="47" r="1.2" fill="#fff" opacity="0.70"/><circle cx="363" cy="187" r="1.5" fill="#fff" opacity="0.90"/><circle cx="43" cy="55" r="1.2" fill="#fff" opacity="0.90"/><circle cx="364" cy="41" r="0.7" fill="#fff" opacity="0.70"/><circle cx="339" cy="236" r="1.2" fill="#fff" opacity="0.90"/><circle cx="350" cy="185" r="0.7" fill="#fff" opacity="0.90"/><circle cx="189" cy="94" r="0.7" fill="#fff" opacity="0.90"/><circle cx="38" cy="119" r="1.2" fill="#fff" opacity="0.50"/><circle cx="386" cy="134" r="1.5" fill="#fff" opacity="0.90"/><circle cx="262" cy="49" r="0.9" fill="#fff" opacity="0.90"/><circle cx="213" cy="289" r="1.2" fill="#fff" opacity="0.50"/><circle cx="228" cy="289" r="1.2" fill="#fff" opacity="0.90"/><circle cx="191" cy="202" r="0.9" fill="#fff" opacity="0.50"/><circle cx="50" cy="98" r="0.9" fill="#fff" opacity="0.50"/><circle cx="345" cy="127" r="0.7" fill="#fff" opacity="0.90"/><circle cx="309" cy="101" r="1.2" fill="#fff" opacity="0.70"/><g class="nfloat"><circle cx="200" cy="150" r="130" fill="url(#nhalo)"/><circle cx="200" cy="150" r="92" fill="url(#nhalo)"/><circle cx="200" cy="150" r="56" fill="url(#nmoon)"/></g></svg></div>';
 const NEWS_URL = 'https://github.com/leoricharte/Plata/blob/main/CHANGELOG.md#beta-3';
 function newsPopup() {
   const old = document.getElementById('alertback'); if (old) old.remove();
@@ -2838,7 +2843,7 @@ function feedbackPopup(manual) {
   add('Continuar al formulario', fbOpen, true);
   const gf = document.createElement('div'); gf.className = 'fbgf'; gf.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.06364 7.50914C4.70909 4.24092 8.09084 2 12 2C14.6954 2 16.959 2.99095 18.6909 4.60455L15.8227 7.47274C14.7864 6.48185 13.4681 5.97727 12 5.97727C9.39542 5.97727 7.19084 7.73637 6.40455 10.1C6.2045 10.7 6.09086 11.3409 6.09086 12C6.09086 12.6591 6.2045 13.3 6.40455 13.9C7.19084 16.2636 9.39542 18.0227 12 18.0227C13.3454 18.0227 14.4909 17.6682 15.3864 17.0682C16.4454 16.3591 17.15 15.3 17.3818 14.05H12V10.1818H21.4181C21.5364 10.8363 21.6 11.5182 21.6 12.2273C21.6 15.2727 20.5091 17.8363 18.6181 19.5773C16.9636 21.1046 14.7 22 12 22C8.09084 22 4.70909 19.7591 3.06364 16.4909C2.38638 15.1409 2 13.6136 2 12C2 10.3864 2.38638 8.85911 3.06364 7.50914Z"/></svg><span>Este botón lleva a Google Forms</span>'; box.appendChild(gf);
   const sec = document.createElement('div'); sec.className = 'fbsec'; const keep = box;
-  { const b0 = box; const addS = (label, fn) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.addEventListener('click', (ev) => { ev.stopPropagation(); close(); if (fn) setTimeout(fn, 60); }); sec.appendChild(b); };
+  { const addS = (label, fn) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.addEventListener('click', (ev) => { ev.stopPropagation(); close(); if (fn) setTimeout(fn, 60); }); sec.appendChild(b); };
     if (manual) addS('Cerrar'); else { addS('Más tarde', () => fbSet({ snooze: Date.now() + 5 * 864e5 })); addS('No, gracias', () => fbSet({ st: 'done' })); } box.appendChild(sec); }
   bk.appendChild(box); bk.addEventListener('click', (ev) => { if (ev.target === bk) { close(); if (!manual) fbSet({ snooze: Date.now() + 5 * 864e5 }); } });
   deviceEl.appendChild(bk); requestAnimationFrame(() => bk.classList.add('in'));
@@ -2916,9 +2921,6 @@ function renderResumen() {
     '<div class="bar" style="height:8px;border-radius:4px;margin:10px 0 8px"><i style="height:8px;border-radius:4px;width:' + pct + '%;background:' + (left < 0 ? '#FF3B30' : '#1A9D63') + '"></i></div>' +
     '<div class="sub">' + (c.budgetTotal ? (left >= 0 ? 'Te quedan ' + fmt(left) : 'Te pasaste por ' + fmt(-left)) : 'Aún no defines límites') + '</div>' +
     '<button class="link" data-act="tab:presupuesto">Ver presupuesto</button></div>';
-  const accRows = data.accounts.map((a, i) => rowEdit('acct', a.id, bankPick(a) ? tileFor(a, i, 'acc') : tile(CARD_COLORS[i % CARD_COLORS.length], esc(a.name).charAt(0)),
-    '<div class="name" style="font-size:16px">' + esc(a.name) + l4tag(a) + '</div><div class="sub" style="font-size:13px">' + accType[a.type] + ' · ' + a.cur + '</div>',
-    '<span class="amt">' + fmtC(a.balance, a.cur) + '</span>')).join('');
   $('#s-resumen').innerHTML =
     '<div class="brandrow"><div class="plogo rlogo" role="img" aria-label="Plata"></div><button class="betapill" data-act="betainfo">B E T A</button></div><div class="head"><div><div class="eyebrow">' + dateLong(c.today) + '</div><h1>' + esc(greetLine()) + '</h1></div></div>' +
     '<div class="filestat">' + status + '</div>' + idleBanner(c.today) + cloudStripHTML() +
@@ -3198,7 +3200,6 @@ function insightsHTML(noHead) {
   // comprometido
   if (!half && c.subsTotal > 0) h += secHead('Ya comprometido') + '<div class="card"><div class="sub" style="font-size:15px">Tus servicios y suscripciones suman <b style="color:var(--ink)">' + fmt(c.subsTotal) + '</b> al mes' + (cur.inc > 0 ? ', el <b style="color:var(--ink)">' + Math.round(c.subsTotal / cur.inc * 100) + '%</b> de lo que has ingresado este mes' : '') + '.' + (m.sg && (m.sg.n > 0 || Math.abs(m.sg.d) > 0.005) ? '<div style="margin-top:8px;color:' + (m.sg.d > 0.005 ? BAD : GOOD) + ';font-weight:600">' + (m.sg.n > 0 ? plural(m.sg.n, 'suscripción nueva', 'suscripciones nuevas') + ' · ' : '') + (m.sg.d >= 0 ? '+' : '−') + fmt(Math.abs(m.sg.d)) + ' al mes frente a ' + pmName + '</div>' : '') + '</div></div>';
   // evaluación
-  const colL = { S: 'linear-gradient(135deg,#B98AE6,#6D8BEA)', A: '#22B573', B: '#4CC3A0', C: '#EDB03E', D: '#FF9F0A', F: '#FF3B30' }[m.letter];
   const dir = !m.hasPrev ? 0 : m.delta > 3 ? 1 : m.delta < -3 ? -1 : 0, dcol = dir > 0 ? GOOD : dir < 0 ? BAD : MUTE;
   const why = [];
   if (m.ps != null) why.push((m.ps <= 0 ? '▲' : '▼') + (closed ? ' Gastaste ' : ' Gastas ') + Math.round(Math.abs(m.ps) * 100) + '% ' + (m.ps <= 0 ? 'menos' : 'más') + ' que en ' + pmName + (closed ? '' : ' a esta altura'));
@@ -3224,7 +3225,6 @@ const GRAD = {
 /* ---------- Nombre y frases ---------- */
 const genderExample = (g, nm) => genderExampleL(g, nm);
 const userGender = () => { const g = ((data.settings || {}).gender || 'n'); return g === 'm' || g === 'f' ? g : 'n'; };
-const greetWord = () => { const h = new Date().getHours(); return h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches'; };
 const insOn = () => (data.settings || {}).insights !== false;
 const scoreOn = () => insOn() && (data.settings || {}).score !== false;
 const swHTML = (on, act, dis) => '<button class="sw2' + (on ? ' on' : '') + (dis ? ' dis' : '') + '" role="switch" aria-checked="' + !!on + '" data-act="' + act + '"><span></span></button>';
@@ -3522,13 +3522,6 @@ const SEASON_GRAD = {
   winter: ['#8EC5FF', '#4F86E6', '#1B2A66', '#E6F4FF'], spring: ['#FF9ECF', '#5FCB94', '#1B6F66', '#FFF3A8'],
   summer: ['#FFB347', '#FF7F3F', '#C2255C', '#7FE0FF'], autumn: ['#FFC857', '#E5702F', '#6B1F2E', '#FFB199']
 };
-const SEASON_SHAPES = {
-  winter: '<circle cx="330" cy="38" r="46" fill="#fff" opacity=".18"/><circle cx="70" cy="30" r="3" fill="#fff" opacity=".7"/><circle cx="120" cy="64" r="2.4" fill="#fff" opacity=".6"/><circle cx="210" cy="22" r="3.2" fill="#fff" opacity=".7"/><circle cx="290" cy="92" r="2.6" fill="#fff" opacity=".6"/><circle cx="40" cy="96" r="2.4" fill="#fff" opacity=".6"/><circle cx="370" cy="110" r="3" fill="#fff" opacity=".7"/><path d="M-10 175 L70 105 L130 150 L210 85 L300 160 L360 118 L420 175Z" fill="#fff" opacity=".16"/><path d="M-10 185 L90 135 L170 175 L250 125 L340 180 L420 140 L420 190Z" fill="#1B2A66" opacity=".22"/>',
-  spring: '<ellipse cx="60" cy="40" rx="16" ry="8" transform="rotate(-35 60 40)" fill="#fff" opacity=".35"/><ellipse cx="340" cy="30" rx="18" ry="9" transform="rotate(30 340 30)" fill="#fff" opacity=".3"/><ellipse cx="300" cy="90" rx="12" ry="6" transform="rotate(-20 300 90)" fill="#fff" opacity=".28"/><ellipse cx="110" cy="96" rx="12" ry="6" transform="rotate(25 110 96)" fill="#fff" opacity=".28"/><circle cx="215" cy="26" r="6" fill="#FFF3A8" opacity=".8"/><path d="M-10 170 Q80 110 170 150 T420 130 L420 190 L-10 190Z" fill="#fff" opacity=".18"/><path d="M-10 185 Q110 140 210 170 T420 160 L420 190 L-10 190Z" fill="#1B6F66" opacity=".25"/>',
-  summer: '<circle cx="320" cy="40" r="56" fill="#FFF3A8" opacity=".28"/><circle cx="320" cy="40" r="34" fill="#FFF3A8" opacity=".5"/><path d="M-10 125 Q40 105 90 125 T190 125 T290 125 T420 125 L420 190 L-10 190Z" fill="#fff" opacity=".16"/><path d="M-10 150 Q40 130 90 150 T190 150 T290 150 T420 150 L420 190 L-10 190Z" fill="#7FE0FF" opacity=".22"/><path d="M-10 172 Q40 154 90 172 T190 172 T290 172 T420 172 L420 190 L-10 190Z" fill="#fff" opacity=".2"/>',
-  autumn: '<path d="M60 24 Q84 40 60 66 Q36 40 60 24Z" fill="#fff" opacity=".28"/><path d="M335 44 Q362 62 335 92 Q308 62 335 44Z" fill="#fff" opacity=".22" transform="rotate(25 335 68)"/><path d="M215 18 Q232 30 215 48 Q198 30 215 18Z" fill="#FFF3A8" opacity=".35" transform="rotate(-20 215 33)"/><circle cx="130" cy="84" r="5" fill="#fff" opacity=".3"/><circle cx="262" cy="100" r="4" fill="#fff" opacity=".3"/><circle cx="390" cy="24" r="40" fill="#fff" opacity=".12"/><path d="M-10 175 Q70 135 150 165 T330 150 T420 165 L420 190 L-10 190Z" fill="#6B1F2E" opacity=".25"/>'
-};
-function seasonArt(k) { return '<svg aria-hidden="true" viewBox="0 0 400 140" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none">' + SEASON_SHAPES[k] + '</svg>'; }
 function seasonKey(d) {
   const hp = (data && data.settings && data.settings.hemi) || '';
   let tz = ''; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { /* sin zona */ }
@@ -3582,14 +3575,6 @@ function streakHTML(letter, n, plus) {
     : plus ? grad(letter + pch(letter) + ' · ' + n + ' meses seguidos') + '<div class="sub" style="font-size:13px">' + (bad ? 'Es momento de cambiar el rumbo.' : mid ? 'Nivel estable. Un ajuste más y subes.' : 'Mantienes tu nivel. ¡Sigue así!') + '</div>'
     : '<div style="font-size:14px;font-weight:600;color:var(--ink2)">Llevas ' + n + ' de 2 meses con ' + letter + '.</div><div class="sub" style="font-size:13px">' + (bad ? 'Si sigues igual, al segundo pasas a ' + letter + '-.' : 'Al segundo subes a ' + letter + '+.') + '</div>';
   return '<div style="display:flex;align-items:center;gap:12px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">' + dots + '<div class="grow">' + t + '</div></div>';
-}
-function monthBanner() {
-  const T = getToday(), g = SEASON_GRAD[seasonKey(T)], mes = cap1(MON_FULL[T.getMonth()]);
-  return '<div class="insban tap" data-act="month" role="button" style="position:relative;overflow:hidden;border-radius:26px;margin:0 0 14px;padding:18px;text-align:center;color:#fff;--tg:' + tGrad(g) + ';background:' + insBg(g) + ';box-shadow:0 8px 24px rgba(0,0,0,.12)">' +
-    '<div class="insgrain"></div>' + seasonArt(seasonKey(T)) + '<div style="position:relative">' +
-    '<div class="btx" style="font-size:26px;font-weight:800;letter-spacing:-.6px;margin:2px 0 6px">' + mes + ' hasta ahora.</div>' +
-    '<div class="btx" style="font-size:15px;line-height:1.3;opacity:.95;margin:0 6px 14px">Revisa tus movimientos del mes aquí.</div>' +
-    '<span style="display:flex;align-items:center;justify-content:center;width:100%;height:50px;border-radius:999px;background:var(--card);color:' + g[1] + ';font-size:17px;font-weight:600">' + '<b class="btg">Ver movimientos</b>' + '</span></div></div>';
 }
 const MM_PER = 10;
 function mmList() {
@@ -4407,7 +4392,6 @@ function profileViewHTML() {
   const gr = gc.length ? '<div style="display:flex;justify-content:center;flex-wrap:wrap;gap:8px 18px;padding:12px 0 2px">' + gc.map((g) => '<div style="display:flex;align-items:center;gap:8px">' + scoreTile(g[0], 28) + '<span style="font-size:17px;font-weight:600;color:var(--ink)">' + g[1] + '</span></div>').join('') + '</div>' : '';
   let gg = goldGrade(); const av = gg ? null : avatarInfo();
   const sg = !gg && av && av.letter === 'S';
-  const ltxt = (g0, g1, s) => 'font-size:' + s + 'px;font-weight:800;letter-spacing:-.5px;line-height:1;background:linear-gradient(180deg,' + g0 + ',' + g1 + ');-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent';
   const pic = (gg || sg)
     ? (() => { const gem = !!(gg && gg.gem) || (!gg && av.letter === 'S*'), dm = !gem && (!!gg || /^[SABC]\+$/.test(av.letter)), bp = gem ? 34 * GEMK : dm ? 34 * DMK : 34, hs = dm ? bp * 0.786 : bp, gp = 4, cy = 152, ac = cy - 24, hole = gem ? '<g transform="translate(' + (64 - bp / 2) + ' ' + (ac - bp / 2) + ') scale(' + (bp / 100) + ')">' + GEM(16 + 2 * (gp + 0.5) * 100 / bp) + '</g>' : dm ? '<rect x="' + (64 - hs / 2 - gp) + '" y="' + (ac - hs / 2 - gp) + '" width="' + (hs + 2 * gp) + '" height="' + (hs + 2 * gp) + '" rx="' + (bp * 0.16 + gp) + '" transform="rotate(45 64 ' + ac + ')" fill="#000"/>' : '<circle cx="64" cy="' + ac + '" r="' + (bp / 2 + gp) + '" fill="#000"/>', hm = svgU('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">' + hole + '</svg>') + ' 0 0/128px 128px no-repeat', mk = '-webkit-mask:' + hm + ',linear-gradient(#000,#000);-webkit-mask-composite:xor;mask:' + hm + ',linear-gradient(#000,#000);mask-composite:exclude';
       return '<div style="position:relative;width:176px;height:176px;margin:-8px 0 6px">' + laurelSVG(176, gg ? gg.pal : av.g, Object.assign({}, gg ? gg.cfg : LAU.S, { a0: gg ? 80 : 76 }), { cy: cy, px: bp, kind: gem ? 'g' : dm ? 'd' : 'c' }) + '<div style="position:absolute;left:24px;top:24px;' + mk + '">' + avatarHTML(128, undefined, true, true) + '</div><div style="position:absolute;left:50%;top:' + (cy - (gem ? bp / 2 : Math.round(bp / 2))) + 'px;transform:translateX(-50%)">' + gradeBadge(gg ? (gg.gem ? 'S*' : gg.l + '+') : av.letter, gg ? gg.pal : av.g, 34) + '</div></div>'; })()
@@ -6160,28 +6144,6 @@ function wGearHint() {
   w.appendChild(h); setTimeout(() => { h.style.transition = 'opacity .3s'; h.style.opacity = '0'; setTimeout(() => h.remove(), 320); }, 3800);
 }
 function wPriv(fn, demo) { ui.wpriv = true; ui.wprivDemo = !!demo; ui.wfn = fn; welcomeHTML('next'); }
-function askOk(title, msg, label, fn, extra) {
-  const old = document.getElementById('okback'); if (old) old.remove();
-  const bk = document.createElement('div'); bk.id = 'okback'; bk.className = 'alertback';
-  const close = () => { bk.classList.remove('in'); setTimeout(() => bk.remove(), 220); };
-  const box = document.createElement('div'); box.className = 'alertbox'; box.setAttribute('role', 'alertdialog');
-  box.innerHTML = '<h4>' + esc(title) + '</h4><p' + (extra ? ' style="margin-bottom:12px"' : '') + '>' + esc(msg) + '</p>' + (extra || '');
-  const bt = document.createElement('button'); bt.type = 'button'; bt.textContent = label; bt.style.fontWeight = '600';
-  bt.addEventListener('click', (ev) => { ev.stopPropagation(); close(); if (fn) setTimeout(fn, 60); }); box.appendChild(bt);
-  bk.appendChild(box); deviceEl.appendChild(bk); requestAnimationFrame(() => bk.classList.add('in'));
-}
-const isStandalone = () => { try { return !!(window.navigator.standalone || (window.matchMedia && matchMedia('(display-mode: standalone)').matches)); } catch (e) { return false; } };
-function maybeA2hs() {
-  if (document.documentElement.classList.contains('web')) return;
-  let seen = false; try { seen = !!localStorage.getItem('finanzas.a2hs'); } catch (e) { /* sin almacenamiento */ }
-  if (seen || isStandalone()) return;
-  if (/[?&]preview/.test(location.search) && !/[?&]a2hs/.test(location.search)) return;
-  const step = (ic, t) => '<div style="display:flex;align-items:center;gap:10px;margin:8px 6px"><span style="flex:none;width:28px;height:28px;border-radius:9px;background:rgba(60,60,67,.1);display:flex;align-items:center;justify-content:center">' + RMI(ic, 18, '#3A3A3C') + '</span><span style="font-size:14px;line-height:1.3;color:var(--ink)">' + t + '</span></div>';
-  const grp = (t) => '<div style="margin:12px 6px 2px;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#8E8E93">' + t + '</div>';
-  const extra = '<div style="margin-bottom:14px;max-height:300px;overflow-y:auto">' + grp('iPhone (Safari)') + step('upload-2-line', 'Toca Compartir') + step('add-box-line', 'Elige «Añadir a pantalla de inicio»') + step('check-line', 'Toca «Añadir»') +
-    grp('Android (Chrome)') + step('more-2-fill', 'Toca el menú') + step('add-box-line', 'Elige «Instalar app» o «Añadir a pantalla de inicio»') + '</div>';
-  setTimeout(() => askOk('Usa Plata como app', 'Abre este enlace desde un navegador (como Safari) y luego guarda Plata en tu pantalla de inicio para usarla en modo aplicación completa.', 'Aceptar', () => { try { localStorage.setItem('finanzas.a2hs', '1'); } catch (e) { /* sin almacenamiento */ } }, extra), 500);
-}
 let wLogoTaps = [];
 let wSel = 'B';
 function wStreakInner() {

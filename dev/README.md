@@ -66,3 +66,9 @@ No hay un ejecutor de pruebas incluido. Las pruebas se hicieron con Playwright c
 - Solo iconos Remix; el diseño sigue el de la app (hojas con tirador, tarjetas redondeadas, verde `#22B573`).
 
 - **Novedades automáticas:** `python3 dev/changelog.py [fecha]` publica en `novedades.html` el registro de cambios de la última versión de `CHANGELOG.md`, firmado por el equipo de Plata. Se ejecuta en cada versión nueva.
+
+## Documentación
+
+- [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md): cómo está organizada la app y qué patrones seguir.
+- [`docs/DATOS.md`](docs/DATOS.md): formato del save file y del cifrado.
+- [`docs/WORKER.md`](docs/WORKER.md): rutas, claves del KV y variables del servidor.
