@@ -25,6 +25,7 @@ html = html.replace("__BUILD__", re.search(r"const APP_BUILD = (\d+)", html).gro
 for key, name in (("I18N", None), ("SF", "icons_sf.js"), ("DEMOS", "demo_profiles.js"), ("WORLD", "worldmap.js"), ("RMX", "icons_rmx.js")):
     html = html.replace("/*__%s__*/" % key, i18n if name is None else (src / name).read_text(encoding="utf-8"))
 html = html.replace("__INTER_B64__", b64(assets / "inter-latin-wght-normal.woff2"))
+html = html.replace("__INTER_I_B64__", b64(assets / "inter-latin-wght-italic.woff2"))
 html = html.replace("__CARDNUM_B64__", b64(assets / "cardnum.woff2"))
 html = html.replace("__ICON_B64__", b64(icon))
 out = root / "out"; out.mkdir(exist_ok=True)
