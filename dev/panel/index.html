@@ -1,5 +1,6 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#0b1a13"><title>Panel · Plata</title>
-<link rel="icon" href="/favicon.ico" sizes="48x48">
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob: https://plata-cloud.xleoricharte.workers.dev; connect-src https://plata-cloud.xleoricharte.workers.dev https://plataapp.net http://localhost:* http://127.0.0.1:*; base-uri 'none'; form-action 'none'"><meta name="theme-color" content="#0b1a13"><title>Panel · Plata</title>
+<link rel="icon" href="data:,">
 <style>
 :root{--bg:#f4f6f5;--card:#fff;--ink:#14201a;--mute:#66736b;--line:#e3e8e5;--accent:#1A9D63;--warn:#C23B2E}
 @media (prefers-color-scheme:dark){:root{--bg:#0b1a13;--card:#12261C;--ink:#eef5f1;--mute:#9db3a7;--line:#1f3a2b;--accent:#3FD08F;--warn:#FF8A80}}
@@ -20,13 +21,14 @@ label{display:block;font-size:13px;font-weight:700;color:var(--mute);margin:12px
 .chk{display:flex;align-items:center;gap:8px;margin:10px 0 0;font-size:15px}.chk input{width:auto;margin:0}small{color:var(--mute)}.scold{border-color:var(--accent);padding:22px 22px 20px}.scold .bdg{display:inline-block;font:800 11px/1 Inter,sans-serif;letter-spacing:.16em;color:var(--warn);background:color-mix(in srgb,var(--warn) 14%,transparent);border-radius:999px;padding:6px 11px;margin:0 0 12px}.scold .t{font-size:26px;letter-spacing:-.02em;margin:0 0 12px}.scold p{margin:0 0 12px;color:var(--mute);font-size:16px;line-height:1.5;max-width:34em}.scold p b{color:var(--ink)}.scold p.last{color:var(--ink);font-weight:600;margin-bottom:16px}.scold code{font-size:.92em;background:var(--bg);padding:2px 7px;border-radius:6px;color:var(--ink)}.btnl{display:inline-block;background:var(--accent);color:#fff;font-weight:700;text-decoration:none;border-radius:999px;padding:10px 18px}
 </style></head><body><div class="w">
 <h1>Panel</h1><p class="sub" id="sub">Herramientas privadas del equipo de Plata.</p>
-<div class="card scold"><span class="bdg" id="scb"></span><div class="t" id="sct"></div><div id="scp"></div><a id="sca" class="btnl" href="./"></a></div>
+<div class="card scold"><span class="bdg" id="scb"></span><div class="t" id="sct"></div><div id="scp"></div><a id="sca" class="btnl" href="https://plataapp.net/"></a></div>
 <div class="card" id="lcard"><input id="tok" type="password" placeholder="Tu token de administrador" autocomplete="off"><button id="go">Entrar</button><div id="msg"></div></div>
 <div class="tabs" id="tabs" hidden><button id="tR" class="on" type="button">Copias recibidas</button><button id="tN" type="button">Novedades</button><button id="tW" type="button">Lista de espera</button><button id="tE" type="button">Textos de la web</button><button id="lo" class="g" type="button" style="margin-left:auto">Cerrar sesión</button></div>
 <div id="pR" hidden><div id="list"></div></div>
 <div id="pW" hidden><div class="card"><div class="t">Lista de espera de Plata Cloud</div><p class="m" id="wsum" style="margin:6px 0 0"></p>
 <div class="row"><button id="wsel" class="g" type="button">Seleccionar pendientes</button><button id="wmail" type="button">Autorizar y enviar invitación</button><button id="wauth" class="g" type="button">Solo autorizar</button><button id="wrev" class="d" type="button">Quitar acceso</button></div><div id="wmsg" class="m" style="margin-top:10px"></div></div><div id="wl"></div></div>
-<div id="pE" hidden><div class="card"><div class="t">Textos de la web</div><p class="m" style="margin:6px 0 10px">Elige una página y toca el lápiz verde junto a cualquier texto para editarlo en español e inglés. Se guarda al instante.</p><div class="row" id="epg" style="margin-top:0"></div></div><iframe id="efr" title="Editor" style="width:100%;height:72vh;border:1px solid var(--line);border-radius:20px;background:#fff" hidden></iframe></div>
+<div id="pE" hidden><div class="card"><div class="t">Textos de la web</div><p class="m" style="margin:6px 0 10px">Elige una página, busca el texto y edítalo en español e inglés. Se guarda al instante. Solo se aceptan &lt;b&gt;, &lt;i&gt;, &lt;em&gt;, &lt;strong&gt;, &lt;br&gt; y enlaces &lt;a href="…"&gt;.</p><div class="row" id="epg" style="margin-top:0"></div><input id="eq" placeholder="Buscar en esta página" style="margin:12px 0 0" hidden></div><div id="elist"></div>
+<div class="card" id="eform" hidden><div class="t" id="eft">Editar texto</div><div class="m" id="efo" style="margin-top:6px"></div><label>ESPAÑOL</label><textarea id="ees" style="min-height:110px"></textarea><label>INGLÉS</label><textarea id="een" style="min-height:110px"></textarea><div class="prev" id="epv"></div><div class="row"><button id="esv" type="button">Guardar</button><button class="g" id="ecx" type="button">Cancelar</button><button class="d" id="ers" type="button">Volver al original</button></div><div id="emsg" class="m" style="margin-top:10px"></div></div></div>
 <div id="pN" hidden>
 <div class="card" id="ed"><div class="t" id="edt">Nuevo artículo</div>
 <label>TÍTULO</label><input id="ti" maxlength="160" placeholder="Un título claro">
@@ -45,17 +47,20 @@ label{display:block;font-size:13px;font-weight:700;color:var(--mute);margin:12px
 <div class="t" style="margin:18px 4px 8px">Artículos publicados</div><div id="plist"></div></div></div>
 <p class="m" id="fn" style="margin:28px 4px 0;font-size:13px;text-align:center"></p>
 <script>
-var API='https://plata-cloud.xleoricharte.workers.dev',tok='',$=function(i){return document.getElementById(i)};
+/* Panel privado de Plata. Vive en su propio dominio (dev), NUNCA en plataapp.net ni en la app: así un fallo en el sitio público no puede leer el token,
+ * y el token nunca se escribe en el dominio público. El token solo vive en memoria mientras la pestaña está abierta. */
+var API=(/^(localhost|127\.0\.0\.1)$/.test(location.hostname)&&new URLSearchParams(location.search).get('api'))||'https://plata-cloud.xleoricharte.workers.dev',SITE='https://plataapp.net/',tok='',$=function(i){return document.getElementById(i)};
 function msg(t){$('msg').textContent=t||''}
 function call(path,method,body){return fetch(API+path,{method:method||'GET',headers:Object.assign({Authorization:'Bearer '+tok},body?{'Content-Type':'application/json'}:{}),body:body?JSON.stringify(body):undefined}).then(function(r){return r.json().catch(function(){return{}}).then(function(j){if(!r.ok||j.ok===false){var e=new Error(j.error||('error '+r.status));e.code=r.status;throw e}return j})})}
 function when(id){var n=parseInt(id.split('-')[0],36);return n?new Date(n).toLocaleString([], {day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit'}):id}
-function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function save(name,obj){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();a.remove()}
 function card(id,st,rec){
   var del=st.deleted,rev=st.reviewed,d=rec&&rec.data||{};
-  var sum=del?'Datos eliminados de los servidores.':rec?((d.transactions||[]).length+' movimientos · '+(d.accounts||[]).length+' cuentas · '+(d.cards||[]).length+' tarjetas · '+esc(rec.plat||'plataforma desconocida')+' · build '+(rec.build||'?')):'';
+  var n=function(x){return Array.isArray(x)?x.length:0}; // la copia la manda cualquiera: nada de ella entra al HTML sin pasar por número o esc()
+  var sum=del?'Datos eliminados de los servidores.':rec?(n(d.transactions)+' movimientos · '+n(d.accounts)+' cuentas · '+n(d.cards)+' tarjetas · '+esc(rec.plat||'plataforma desconocida')+' · build '+(Number(rec.build)||'?')):'';
   var el=document.createElement('div');el.className='card';
-  el.innerHTML='<div class="t">'+when(id)+(del?'<span class="pill del">Eliminada</span>':rev?'<span class="pill ok">Revisada '+rev+'</span>':'<span class="pill">Pendiente</span>')+'</div><div class="m">'+sum+'</div><div class="row"></div>';
+  el.innerHTML='<div class="t">'+esc(when(id))+(del?'<span class="pill del">Eliminada</span>':rev?'<span class="pill ok">Revisada '+esc(rev)+'</span>':'<span class="pill">Pendiente</span>')+'</div><div class="m">'+sum+'</div><div class="row"></div>';
   var row=el.querySelector('.row');
   function btn(t,c,fn){var b=document.createElement('button');b.textContent=t;b.className=c;b.onclick=function(){b.disabled=true;fn(b)};row.appendChild(b)}
   if(!del)btn('Descargar','',function(b){call('/review/get?id='+encodeURIComponent(id)).then(function(j){save('plata-revision-'+id+'.json',j.data);msg('Descargada.')}).catch(fail).then(function(){b.disabled=false})});
@@ -77,8 +82,8 @@ function load(){
         return call('/review/get?id='+encodeURIComponent(id)).then(function(r){return[id,st,r]})})
     })).then(function(rs){rs.forEach(function(x){box.appendChild(card(x[0],x[1],x[2]))})})
   }).catch(fail).then(function(){$('go').disabled=false})}
-function unlock(){if(!$('tabs').hidden)return;$('tabs').hidden=false;['lcard','scold0','fn'].forEach(function(i){var e=$(i);if(e)e.hidden=true});document.querySelector('.scold').hidden=true;$('sub').textContent=document.documentElement.lang==='en'||$('go').textContent==='Enter'?'Signed in.':'Sesión iniciada.';document.querySelector('.w').style.maxWidth='980px';try{sessionStorage.setItem('pe.t',tok)}catch(e){}tab('R');loadPosts()}
-$('lo').onclick=function(){tok='';try{$('tok').value=''}catch(e){}location.replace('./')};
+function unlock(){if(!$('tabs').hidden)return;$('tabs').hidden=false;['lcard','scold0','fn'].forEach(function(i){var e=$(i);if(e)e.hidden=true});document.querySelector('.scold').hidden=true;$('sub').textContent=document.documentElement.lang==='en'||$('go').textContent==='Enter'?'Signed in.':'Sesión iniciada.';document.querySelector('.w').style.maxWidth='980px';tab('R');loadPosts()}
+$('lo').onclick=function(){tok='';try{$('tok').value=''}catch(e){}location.replace(location.pathname)};
 function enter(){tok=$('tok').value.trim();load()}
 $('go').onclick=enter;$('tok').addEventListener('keydown',function(e){if(e.key==='Enter')enter()});
 
@@ -94,8 +99,37 @@ function today(){var d=new Date(),z=function(v){return String(v).padStart(2,'0')
 function pv(){$('pv').innerHTML=($('ti').value.trim()?'<h3>'+esc($('ti').value)+'</h3>':'')+md($('bo').value)||'<small>La vista previa aparece aquí.</small>'}
 function tab(n){$('pR').hidden=n!=='R';$('pN').hidden=n!=='N';$('pW').hidden=n!=='W';$('pE').hidden=n!=='E';$('tE').classList.toggle('on',n==='E');$('tR').classList.toggle('on',n==='R');$('tN').classList.toggle('on',n==='N');$('tW').classList.toggle('on',n==='W')}
 $('tR').onclick=function(){tab('R')};$('tN').onclick=function(){tab('N')};$('tW').onclick=function(){tab('W');loadW()};
-var EP=[['Inicio','./'],['Cómo usar','como-usar.html'],['Escritorio','escritorio.html'],['Cloud','cloud.html'],['Transparencia','transparencia.html'],['Prensa','prensa.html'],['Novedades','novedades.html'],['Ayuda','ayuda.html'],['Merch','merch.html']];
-$('tE').onclick=function(){tab('E');if($('epg').children.length)return;EP.forEach(function(x,i){var b=document.createElement('button');b.type='button';b.className='g';b.textContent=x[0];b.onclick=function(){[].forEach.call($('epg').children,function(c){c.classList.add('g')});b.classList.remove('g');try{sessionStorage.setItem('pe.t',tok)}catch(e){}var f=$('efr');f.hidden=false;f.name='pe';f.src=x[1]+'#editar'};$('epg').appendChild(b)});$('epg').children[0].click()};
+var EP=[['Inicio',''],['Cómo usar','como-usar.html'],['Escritorio','escritorio.html'],['Cloud','cloud.html'],['Transparencia','transparencia.html'],['Prensa','prensa.html'],['Novedades','novedades.html'],['Ayuda','ayuda.html'],['Merch','merch.html']];
+/* Textos de la web: se lee el HTML público de cada página, se listan sus textos [data-es] y se editan aquí. Cada texto se identifica por un hash
+ * de su versión original en español (igual que content.js en el sitio). Nada del sitio se ejecuta aquí: solo se lee como texto. */
+var CT={},ETX=[],EED=null;
+function fnv(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return ('00000000'+(h>>>0).toString(16)).slice(-8)}
+var OKT={EM:1,B:1,STRONG:1,I:1,BR:1,A:1};
+function clean(h){var d=new DOMParser().parseFromString('<body>'+String(h)+'</body>','text/html').body;(function walk(n){[].slice.call(n.childNodes).forEach(function(c){if(c.nodeType===3)return;if(c.nodeType!==1){n.removeChild(c);return}
+ if(!OKT[c.tagName]){walk(c);while(c.firstChild)n.insertBefore(c.firstChild,c);n.removeChild(c);return}
+ [].slice.call(c.attributes).forEach(function(a){var keep=c.tagName==='A'&&a.name==='href'&&/^(https?:\/\/|mailto:|[\w#\/.?=&-]+$)/i.test(a.value.trim());if(!keep)c.removeAttribute(a.name)});walk(c)})})(d);return d.innerHTML}
+function plainOf(h){var d=document.createElement('div');d.innerHTML=clean(h);return d.textContent.trim()}
+function loadCT(){return fetch(API+'/content').then(function(r){return r.json()}).then(function(j){CT=j.items||{}})}
+function renderE(){var q=$('eq').value.trim().toLowerCase(),box=$('elist');box.innerHTML='';
+ ETX.filter(function(x){return !q||(plainOf(x.es)+' '+plainOf(x.en)+' '+(CT[x.k]?plainOf(CT[x.k].es):'')).toLowerCase().indexOf(q)>=0}).forEach(function(x){
+  var it=CT[x.k],el=document.createElement('div');el.className='card';
+  el.innerHTML='<div class="m">'+(it?'<span class="pill ok" style="margin:0 6px 0 0">Editado</span>':'')+esc(x.k)+'</div><div class="t" style="margin-top:6px;font-weight:600"></div><div class="m" style="margin-top:4px"></div><div class="row"></div>';
+  el.querySelector('.t').textContent=plainOf(it?it.es:x.es);el.querySelectorAll('.m')[1].textContent=plainOf(it?it.en:x.en);
+  var b=document.createElement('button');b.className='g';b.textContent='Editar';b.onclick=function(){editE(x)};el.querySelector('.row').appendChild(b);box.appendChild(el)})}
+function editE(x){EED=x;var it=CT[x.k];$('eform').hidden=false;$('efo').textContent='Original: '+plainOf(x.es);$('ees').value=it?it.es:x.es;$('een').value=it?it.en:x.en;$('ers').hidden=!it;$('emsg').textContent='';pvE();$('eform').scrollIntoView({behavior:'smooth'})}
+function pvE(){$('epv').innerHTML='<p>'+clean($('ees').value)+'</p><p>'+clean($('een').value)+'</p>'}
+['ees','een'].forEach(function(i){$(i).addEventListener('input',pvE)});
+$('ecx').onclick=function(){$('eform').hidden=true;EED=null};
+$('esv').onclick=function(){var x=EED;if(!x)return;var es=$('ees').value.trim(),en=$('een').value.trim()||es;$('emsg').textContent='Guardando…';
+ call('/content','POST',{k:x.k,orig:x.es.slice(0,160),es:es,en:en}).then(function(){CT[x.k]={es:es,en:en};$('eform').hidden=true;renderE()}).catch(function(e){$('emsg').textContent=e.message==='html'?'Ese HTML no está permitido: usa solo <b>, <i>, <em>, <strong>, <br> y <a href="…">.':e.code===401?'El token no es correcto.':'No se pudo guardar: '+e.message})};
+$('ers').onclick=function(){var x=EED;if(!x||!confirm('¿Volver al texto original de esta frase?'))return;call('/content?k='+x.k,'DELETE').then(function(){delete CT[x.k];$('eform').hidden=true;renderE()}).catch(function(e){$('emsg').textContent='No se pudo: '+e.message})};
+$('eq').addEventListener('input',renderE);
+function pageE(path){$('elist').innerHTML='<div class="card m">Cargando…</div>';$('eform').hidden=true;
+ Promise.all([fetch(SITE+path,{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('http '+r.status);return r.text()}),loadCT()]).then(function(rs){
+  var d=new DOMParser().parseFromString(rs[0],'text/html'),seen={};ETX=[];
+  [].forEach.call(d.querySelectorAll('[data-es]'),function(e){var es=e.getAttribute('data-es'),k=fnv(es);if(seen[k])return;seen[k]=1;ETX.push({k:k,es:es,en:e.getAttribute('data-en')||es})});
+  $('eq').hidden=false;renderE()}).catch(function(e){$('elist').innerHTML='';var c=document.createElement('div');c.className='card m';c.textContent='No se pudo leer la página: '+e.message;$('elist').appendChild(c)})}
+$('tE').onclick=function(){tab('E');if($('epg').children.length)return;EP.forEach(function(x,i){var b=document.createElement('button');b.type='button';b.className='g';b.textContent=x[0];b.onclick=function(){[].forEach.call($('epg').children,function(c){c.classList.add('g')});b.classList.remove('g');pageE(x[1])};$('epg').appendChild(b)});$('epg').children[0].click()};
 /* ---------- Lista de espera ---------- */
 var wl=[];
 function wdate(t){var d=new Date(t),z=function(v){return String(v).padStart(2,'0')};return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())}
@@ -122,13 +156,13 @@ document.querySelectorAll('.tb').forEach(function(tb){var ta=$(tb.getAttribute('
  if(m){var p=m.split('|');ta.value=v.slice(0,s)+p[0]+(sel||'texto')+p[1]+v.slice(en);ta.focus();ta.setSelectionRange(s+p[0].length,s+p[0].length+(sel||'texto').length)}
  else{var a=v.lastIndexOf('\n',s-1)+1,z=v.indexOf('\n',en);if(z<0)z=v.length;var seg=v.slice(a,z).split('\n').map(function(x){return l+x}).join('\n');ta.value=v.slice(0,a)+seg+v.slice(z);ta.focus()}
  pv()})});
-function showImg(src){$('cv').innerHTML=src?'<img alt="" src="'+src+'">':'Sin imagen';$('imx').hidden=!src}
+function showImg(src){$('cv').innerHTML=src?'<img alt="" src="'+esc(src)+'">':'Sin imagen';$('imx').hidden=!src}
 $('im').onchange=function(){var f=this.files[0];if(!f)return;var u=URL.createObjectURL(f),i=new Image();i.onload=function(){var c=document.createElement('canvas');c.width=1920;c.height=1080;var x=c.getContext('2d'),r=Math.max(1920/i.width,1080/i.height),w=i.width*r,h=i.height*r;x.fillStyle='#fff';x.fillRect(0,0,1920,1080);x.drawImage(i,(1920-w)/2,(1080-h)/2,w,h);
  var q=.88,d=c.toDataURL('image/jpeg',q);while(d.length>2400000&&q>.4){q-=.08;d=c.toDataURL('image/jpeg',q)}img=d;showImg(d);URL.revokeObjectURL(u)};i.onerror=function(){$('msg2').textContent='No se pudo leer esa imagen.'};i.src=u};
 $('imx').onclick=function(){img=curImg?'remove':null;curImg='';$('im').value='';showImg('')};
 function resetForm(){editId=null;img=null;curImg='';['ti','bo','tie','boe','alt','tg','bye','tge'].forEach(function(i){$(i).value=''});$('en').checked=false;$('enb').hidden=true;$('dt').value=today();$('vf').checked=false;try{$('by').value=localStorage.getItem('plata.admin.by')||''}catch(e){$('by').value=''}$('im').value='';showImg('');$('edt').textContent='Nuevo artículo';$('pub').textContent='Publicar';$('cx').hidden=true;pv()}
 $('cx').onclick=function(){resetForm();$('msg2').textContent=''};
-function edit(p){editId=p.id;img=null;$('ti').value=p.title_es;$('bo').value=p.body_es;$('tie').value=p.title_en||'';$('boe').value=p.body_en||'';$('en').checked=!!(p.title_en&&p.body_en);$('enb').hidden=!$('en').checked;$('alt').value=p.alt||'';$('tg').value=p.tag||'';$('bye').value=p.by_en||'';$('tge').value=p.tag_en||'';$('by').value=p.by;$('dt').value=p.date;$('vf').checked=!!p.vf;curImg=p.hasImg?API+'/posts/img?id='+p.id+'&v='+p.v:'';showImg(curImg);$('edt').textContent='Editando artículo';$('pub').textContent='Guardar cambios';$('cx').hidden=false;$('ed').scrollIntoView({behavior:'smooth'});pv()}
+function edit(p){editId=p.id;img=null;$('ti').value=p.title_es;$('bo').value=p.body_es;$('tie').value=p.title_en||'';$('boe').value=p.body_en||'';$('en').checked=!!(p.title_en&&p.body_en);$('enb').hidden=!$('en').checked;$('alt').value=p.alt||'';$('tg').value=p.tag||'';$('bye').value=p.by_en||'';$('tge').value=p.tag_en||'';$('by').value=p.by;$('dt').value=p.date;$('vf').checked=!!p.vf;curImg=p.hasImg?API+'/posts/img?id='+encodeURIComponent(p.id)+'&v='+Number(p.v):'';showImg(curImg);$('edt').textContent='Editando artículo';$('pub').textContent='Guardar cambios';$('cx').hidden=false;$('ed').scrollIntoView({behavior:'smooth'});pv()}
 $('pub').onclick=function(){
  if(!tok){$('msg2').textContent='Escribe tu token arriba y pulsa Entrar.';return}
  var b={id:editId,title_es:$('ti').value,body_es:$('bo').value,title_en:$('en').checked?$('tie').value:'',body_en:$('en').checked?$('boe').value:'',alt:$('alt').value,tag:$('tg').value,tag_en:$('en').checked?$('tge').value:'',by:$('by').value,by_en:$('en').checked?$('bye').value:'',date:$('dt').value,vf:$('vf').checked};
@@ -152,7 +186,7 @@ $('legacyb').onclick=function(){var miss=LEGACY.filter(function(x){return !posts
 if(!es){$('sub').textContent='Private tools for the Plata team.';$('tok').placeholder='Your admin token';$('go').textContent='Enter'}
 $('scb').textContent=es?'ACCESO RESTRINGIDO':'RESTRICTED ACCESS';
 $('sct').textContent=es?'¿Qué fue mano?':'What’s up, bro?';
-var P=es?['Esta es la puertaza gigante que dice en rojo <b>ACCESO RESTRINGIDO</b>.','Aquí guardamos todos nuestros más oscuros pensamientos, cables sueltos, un par de cositas, ideas que todavía no salen y nuestros sueños más bonitos. También, cafés que se enfriaron y un par de cosas que ni recordamos.','Si no eres del equipo, ¿cómo carajo llegaste aquí? ¿Escribiste <code>/devtools-admin</code> a ver qué pasaba? Pues pasó esto: <b>nada</b>. No hay botón oculto, ni descuentos, nada.','Ni intentes probar contraseñas: el token es tan largo que lo tenemos guardado en un rollo de papel higiénico. (Lo chévere es que no puedes verificar si eso es real o no).','Safa nomás, ve a registrar esos movimientos a Plata.']:['This is the giant door that says <b>RESTRICTED ACCESS</b> in red.','This is where we keep all our darkest thoughts, loose cables, a couple of little things, ideas that haven’t come out yet and our most beautiful dreams. Also, cold coffees and a couple of things we don’t even remember.','If you’re not on the team, how the heck did you get here? Did you type <code>/devtools-admin</code> to see what would happen? This is what happened: <b>nothing</b>. No hidden button, no discounts, nothing.','Don’t even try guessing passwords: the token is so long we keep it written on a roll of toilet paper. (The cool part is you can’t check whether that’s true or not.)','Just go away and log those transactions in Plata.'];
+var P=es?['Esta es la puertaza gigante que dice en rojo <b>ACCESO RESTRINGIDO</b>.','Aquí guardamos todos nuestros más oscuros pensamientos, cables sueltos, un par de cositas, ideas que todavía no salen y nuestros sueños más bonitos. También, cafés que se enfriaron y un par de cosas que ni recordamos.','Si no eres del equipo, ¿cómo carajo llegaste aquí? ¿Encontraste esta dirección y entraste a ver qué pasaba? Pues pasó esto: <b>nada</b>. No hay botón oculto, ni descuentos, nada.','Ni intentes probar contraseñas: el token es tan largo que lo tenemos guardado en un rollo de papel higiénico. (Lo chévere es que no puedes verificar si eso es real o no).','Safa nomás, ve a registrar esos movimientos a Plata.']:['This is the giant door that says <b>RESTRICTED ACCESS</b> in red.','This is where we keep all our darkest thoughts, loose cables, a couple of little things, ideas that haven’t come out yet and our most beautiful dreams. Also, cold coffees and a couple of things we don’t even remember.','If you’re not on the team, how the heck did you get here? Did you find this address and come in to see what would happen? This is what happened: <b>nothing</b>. No hidden button, no discounts, nothing.','Don’t even try guessing passwords: the token is so long we keep it written on a roll of toilet paper. (The cool part is you can’t check whether that’s true or not.)','Just go away and log those transactions in Plata.'];
 $('scp').innerHTML=P.map(function(t,i){return '<p'+(i===P.length-1?' class="last"':'')+'>'+t+'</p>'}).join('');
 $('fn').textContent=es?'Y si sí eres del equipo y no puedes entrar, avisa a Leo nomás. No dejaremos ni correo porque, ¿para qué? Esa huevada es demasiado performativa.':'And if you’re on the team and can’t get in, just tell Leo. We won’t leave an email either because, why? That stuff is way too performative.';
 $('sca').textContent=es?'Volver a Plata →':'Back to Plata →'})();

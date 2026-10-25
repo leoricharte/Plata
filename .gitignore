@@ -7,3 +7,4 @@ dev/app/out/
 node_modules/
 __pycache__/
 *.bak
+dist-web/

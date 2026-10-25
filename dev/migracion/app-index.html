@@ -1,0 +1,12 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-qoKaQwB0qTm7I87fmlxUhkH4qYAgatbaG2NtTZBia3Q='; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'"><title>Plata se mudó</title><style>body{margin:0;font:17px/1.5 -apple-system,system-ui,sans-serif;background:#F2F2F7;color:#1C1C1E;display:grid;place-items:center;min-height:100vh;padding:24px;box-sizing:border-box;text-align:center}a,button{color:#fff;background:#22B573;border:0;border-radius:999px;padding:12px 20px;font:600 16px system-ui;text-decoration:none;display:inline-block;margin-top:12px;cursor:pointer}</style></head><body><main><h1>Plata se mudó</h1><p id="m">Ahora vive en <b>web.plataapp.net</b>. Te llevamos en un momento.</p><p><a href="https://web.plataapp.net/">Abrir Plata</a></p><button id="dl" hidden>Descargar mi archivo de perfil</button></main><script>(function(){
+/* plataapp.net/app se mudó a web.plataapp.net. Esta página redirige; la app nueva trae los datos sola (puente.html) y luego los borra de aquí.
+ * Si algo falla (por ejemplo, un navegador que aísla el almacenamiento), con ?exportar se puede descargar el archivo de perfil a mano. */
+var NEW='https://web.plataapp.net/';
+var q=new URLSearchParams(location.search);
+if(!q.has('exportar')){location.replace(NEW);return}
+var raw=null;try{raw=localStorage.getItem('finanzas.v3')||localStorage.getItem('finanzas.v2')}catch(e){}
+var b=document.getElementById('dl'),m=document.getElementById('m');
+if(!raw){m.textContent='En este navegador ya no hay datos de Plata en la dirección vieja. Tus datos están en web.plataapp.net.';return}
+b.hidden=false;m.textContent='Descarga tu archivo y cárgalo en web.plataapp.net (Ajustes → Cargar archivo de perfil).';
+b.addEventListener('click',function(){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([raw],{type:'application/json'}));a.download='plata-perfil.json';document.body.appendChild(a);a.click();a.remove()});
+})();</script></body></html>

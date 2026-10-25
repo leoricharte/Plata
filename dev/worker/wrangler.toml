@@ -1,0 +1,25 @@
+# Plata Cloud · servidor. Despliegue: cd dev/worker && npx wrangler deploy
+# (El Durable Object "Gate" necesita desplegarse con wrangler: el editor del panel de Cloudflare no crea migraciones.)
+name = "plata-cloud"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+workers_dev = true
+keep_vars = true   # conserva las variables que ya están en el panel (CLOUD_TESTERS, ADMIN_ORIGINS...)
+
+[[kv_namespaces]]
+binding = "WAITLIST"
+id = "REEMPLAZA_CON_EL_ID_DEL_KV_WAITLIST"   # Cloudflare → Storage & Databases → KV → WAITLIST → ID
+
+# Contadores, límites y códigos atómicos (ver class Gate en worker.js). Gratis en el plan Free (Durable Objects con SQLite).
+[[durable_objects.bindings]]
+name = "GATE"
+class_name = "Gate"
+
+[[migrations]]
+tag = "v1-gate"
+new_sqlite_classes = ["Gate"]
+
+# Secretos (no van aquí; ya existen en el panel y wrangler los conserva):
+#   ADMIN_TOKEN (mínimo 32 caracteres), RL_SALT, RESEND_API_KEY
+# Variables nuevas (Settings → Variables):
+#   ADMIN_ORIGINS = "https://plata-dev.pages.dev"   ← origen del panel privado (separado por comas si hay más)

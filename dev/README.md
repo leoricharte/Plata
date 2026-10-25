@@ -24,40 +24,56 @@ CHANNEL=alpha python3 dev/app/build.py   # variante con icono blanco
 - `i18n*.js`, `icons_rmx.js` (Remix Icon, Apache-2.0), `icons_sf.js`, `demo_profiles.js`, `worldmap.js`.
 - `../assets/`: la fuente Inter, la fuente de números de tarjeta y los iconos. Se incrustan en el archivo final.
 
+## Tres dominios
+
+| Dominio | Qué es | Dónde vive |
+|---|---|---|
+| `plataapp.net` | El sitio informativo | GitHub Pages (este repo) |
+| `web.plataapp.net` | La app | Cloudflare Pages (este repo, `sh dev/web/build.sh` → `dist-web/`) |
+| panel privado | Herramientas del equipo | Repo privado + Cloudflare Pages + Cloudflare Access (ver `dev/panel/README.md`) |
+
+Los datos de cada persona viven en el navegador **por dominio**: un fallo en el sitio público no puede leer la frase de la app, y el token del admin nunca se escribe en un dominio público. La mudanza de `plataapp.net/app` a `web.plataapp.net` está en `dev/migracion/README.md`.
+
 ## Publicar una versión nueva de la app
 
-1. En `dev/app/src/app.html` sube `APP_BUILD` (busca `const APP_BUILD`) y el mismo número en la pantalla de inicio (busca `class="sp-b"`).
-2. Compila: `python3 dev/app/build.py`.
-3. Copia el resultado: `cp dev/app/out/finanzas.html app/index.html`.
-4. En `app/sw.js` sube `CACHE` (`finanzas-vNNN`) al mismo número; sin eso los usuarios siguen viendo la versión vieja por el caché.
-5. En `README.md` (línea de "Compilación") pon el mismo número.
-6. Haz commit y push a `main`. GitHub Pages publica en un par de minutos.
+1. En `dev/app/src/app.html` sube `APP_BUILD` (busca `const APP_BUILD`). El número de la pantalla de inicio sale de ahí.
+2. Compila: `python3 dev/app/build.py`. La compilación agrega la Content-Security-Policy con el hash de cada script; si alguien agrega un `onclick="…"` o un `<script src>`, la compilación se detiene.
+3. Sube `CACHE` (`finanzas-vNNN`) al mismo número en `dev/web/sw.js` (y en `app/sw.js` mientras exista la app vieja).
+4. En `README.md` (línea de "Compilación") pon el mismo número.
+5. Mientras dure la app vieja en `plataapp.net/app`: `cp dev/app/out/finanzas.html app/index.html`.
+6. Commit y push a `main`. Cloudflare Pages compila `web.plataapp.net` solo; GitHub Pages publica el sitio.
 
 ## El servidor (Cloudflare Worker)
 
-El Worker se despliega **a mano**: Cloudflare → Workers & Pages → `plata-cloud` → Edit code → pegar `dev/worker/worker.js` → Deploy. (La carpeta `cloud/` del repo es una versión antigua solo de lista de espera.)
+Desde la compilación 421 se despliega con wrangler (el Durable Object `Gate` lo necesita):
 
-Variables y secretos (Settings → Variables and Secrets):
+```
+cd dev/worker
+# una vez: pon el ID del KV WAITLIST en wrangler.toml
+npx wrangler deploy
+```
 
-- `ADMIN_TOKEN`: contraseña del panel `plataapp.net/devtools-admin` y de las rutas de administración. Debe ser larga y aleatoria.
-- `RL_SALT`: texto aleatorio para anonimizar las direcciones IP en los límites de uso.
-- `RESEND_API_KEY`: para enviar correos (confirmación de lista de espera e invitaciones). Sin ella el Worker funciona pero no manda correos.
-- KV namespace enlazado como `WAITLIST`.
+Los secretos que ya están en el panel se conservan. Revisa:
 
-Límites del plan gratis (por día): 100.000 lecturas, 1.000 escrituras y 1.000 listados de KV; 100 correos al día en Resend. Cada alta o envío de copia hace unas 3 escrituras.
+- `ADMIN_TOKEN`: mínimo 32 caracteres (con menos, el admin queda desactivado). Genera uno con `openssl rand -base64 48`.
+- `RL_SALT`: **no lo cambies**; de él salen los identificadores de las cuentas.
+- `RESEND_API_KEY`: correos.
+- Nueva variable `ADMIN_ORIGINS`: el origen del panel privado (por ejemplo `https://plata-dev.pages.dev`).
+
+Detalle de rutas, claves y del protocolo de aprobación: [`docs/WORKER.md`](docs/WORKER.md). (La carpeta `cloud/` es una versión antigua solo de lista de espera; no se usa.)
 
 ## Panel de administración
 
-`plataapp.net/devtools-admin` (entra con `ADMIN_TOKEN`):
+Ya no está en `plataapp.net`: vive en `dev/panel/` para moverlo a un repo privado detrás de Cloudflare Access. Pasos en [`panel/README.md`](panel/README.md).
 
-- **Copias recibidas:** perfiles enviados por usuarios para análisis; descargar, marcar revisado, eliminar del servidor.
-- **Novedades:** crear y editar artículos (el orden no cambia al editar).
-- **Lista de espera:** autorizar, enviar invitación por correo, quitar acceso.
-- **Textos de la web:** editar cualquier texto de las páginas públicas con un lápiz (también con 5 toques en el pie de página o `#editar`).
+- **Copias recibidas:** perfiles enviados por usuarios para análisis; descargar, marcar revisado, eliminar. Caducan solas a los 30 días.
+- **Novedades:** crear y editar artículos.
+- **Lista de espera:** autorizar, invitar, quitar acceso.
+- **Textos de la web:** lista de los textos de cada página, con buscador; se editan en español e inglés. El sitio solo muestra `<b>`, `<i>`, `<em>`, `<strong>`, `<br>` y enlaces.
 
 ## Pruebas
 
-No hay un ejecutor de pruebas incluido. Las pruebas se hicieron con Playwright contra una compilación con el gancho `window.__ev` (solo en `localhost`, **no** está en la compilación pública) y un servidor local que imita el Worker. Para reproducir algo, abre la app compilada en un navegador y usa los perfiles de demo (Ajustes → cargar demo).
+Pruebas de seguridad en [`tests/`](tests/README.md): carrera contra los códigos, llave de escritura, revisiones, sesiones, admin y un fuzz de XSS que recorre la app con un perfil malicioso.
 
 ## Reglas
 

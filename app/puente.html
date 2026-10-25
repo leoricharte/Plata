@@ -1,0 +1,15 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-noe86lb62i4yrn4tpwTNK2OWCRIp6TX0bSelTOpJi7k='; base-uri 'none'; form-action 'none'"><meta name="robots" content="noindex"><title>Plata · mudanza</title></head><body><script>(function(){
+/* Puente de mudanza: solo responde a la app nueva (web.plataapp.net), solo le habla a ese origen, y borra la copia vieja cuando la app confirma que la guardó. */
+var NEW='https://web.plataapp.net';
+if(window.parent===window){location.replace(NEW+'/');return}
+function keys(){var o=[];try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(/^(finanzas|plata)\./.test(k))o.push(k)}}catch(e){}return o}
+window.addEventListener('message',function(e){
+ if(e.origin!==NEW||e.source!==window.parent||!e.data||typeof e.data!=='object')return;
+ if(e.data.t==='pedir'){var it={};keys().forEach(function(k){it[k]=localStorage.getItem(k)});parent.postMessage({t:'datos',items:it},NEW)}
+ else if(e.data.t==='borrar'){var ks=keys();ks.forEach(function(k){try{localStorage.removeItem(k)}catch(x){}});
+  var fin=function(){parent.postMessage({t:'borrado',n:ks.length},NEW)};
+  Promise.all([navigator.serviceWorker?navigator.serviceWorker.getRegistrations().then(function(rs){return Promise.all(rs.map(function(r){return r.unregister()}))}):0,
+   window.caches?caches.keys().then(function(cs){return Promise.all(cs.map(function(c){return caches.delete(c)}))}):0]).then(fin,fin)}
+});
+parent.postMessage({t:'listo'},NEW);
+})();</script></body></html>
