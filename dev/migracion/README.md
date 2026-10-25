@@ -16,7 +16,9 @@ Probado con Chromium simulando los dominios reales: los datos llegan, la copia v
 
 ## Pasos, en este orden
 
-**1. Servidor (antes que nada).** Despliega el Worker nuevo (`dev/README.md` → El servidor). Ya acepta `web.plataapp.net`.
+**1. Servidor y app, juntos.** La app nueva y el servidor nuevo no son compatibles con sus versiones viejas (la app manda la cabecera
+`X-Plata-Write`, que el servidor viejo no permite; el servidor nuevo exige esa cabecera para escribir). Prepara todo, mezcla la rama
+a `main` (GitHub Pages publica la app en 1–2 minutos) y despliega el Worker justo después (`dev/README.md` → El servidor).
 
 **2. App en Cloudflare Pages (gratis).**
 - Workers & Pages → Create → Pages → conecta este repo (`leoricharte/Plata`).

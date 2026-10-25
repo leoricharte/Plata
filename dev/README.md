@@ -45,7 +45,7 @@ Los datos de cada persona viven en el navegador **por dominio**: un fallo en el 
 
 ## El servidor (Cloudflare Worker)
 
-Desde la compilación 421 se despliega con wrangler (el Durable Object `Gate` lo necesita):
+Desde la compilación 421 se despliega con wrangler (el Durable Object `Gate` lo necesita). Despliégalo **justo después** de publicar la app 421: la app y el servidor nuevos no funcionan con sus versiones anteriores.
 
 ```
 cd dev/worker
