@@ -279,3 +279,6 @@ No se pudo enviar. Revisa tu conexión e inténtalo de nuevo. ¦ Couldn't send. 
 Enséñale a Nazca ¦ Teach Nazca ¦ Nazcaに教える ¦ Insegna a Nazca ¦ Apprends à Nazca ¦ Nauči Nazcu
 Mándale este archivo y aprenderá a leerlo ¦ Send it this file and it will learn to read it ¦ このファイルを送ると読み方を学びます ¦ Mandale questo file e imparerà a leggerlo ¦ Envoie-lui ce fichier et il apprendra à le lire ¦ Pošalji mu ovu datoteku i naučit će je čitati
 Mandar este archivo a Nazca para que aprenda ¦ Send this file to Nazca so it can learn ¦ このファイルをNazcaに送って学習させる ¦ Invia questo file a Nazca perché impari ¦ Envoyer ce fichier à Nazca pour qu'il apprenne ¦ Pošalji ovu datoteku Nazci da nauči
+Este archivo está protegido ¦ This file is protected ¦ このファイルは保護されています ¦ Questo file è protetto ¦ Ce fichier est protégé ¦ Ova je datoteka zaštićena
+Esa contraseña no abre este archivo ¦ That password doesn't open this file ¦ そのパスワードではこのファイルを開けません ¦ Quella password non apre questo file ¦ Ce mot de passe n'ouvre pas ce fichier ¦ Ta lozinka ne otvara ovu datoteku
+Abrir ¦ Open ¦ 開く ¦ Apri ¦ Ouvrir ¦ Otvori

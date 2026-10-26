@@ -1058,11 +1058,12 @@ html.web .imlogo,html.web .imav,html.web .imbk:not(.dis) .imglyph{color:#22B573}
 .imdone{display:grid;place-items:center;width:72px;height:72px;border-radius:50%;background:var(--accent);box-shadow:0 10px 28px -8px rgba(34,181,115,.6)}
 .imn{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:13px;font-weight:700;display:grid;place-items:center}
 .imok{display:flex;gap:10px;align-items:flex-start;border-radius:14px;padding:10px 12px;margin:0 0 12px;font-size:14.5px;background:rgba(34,181,115,.14);color:var(--gt)}.imok .sub{color:inherit;opacity:.85;font-size:13px}.imok svg{flex:none;margin-top:1px}.imok.warn{background:var(--obg);color:var(--ot)}
-.imerr{display:flex;align-items:flex-start;gap:12px;background:var(--card);border-radius:18px;padding:14px 16px;margin:0 0 14px}.imerr .imq{flex:none;line-height:0;color:#8E8E93;margin-top:1px}.imerr .imt{display:block;font-size:17px;font-weight:600}.imerr .sub{display:block;font-size:14px;margin-top:2px}.imsend{display:flex;align-items:center;gap:8px;margin-top:10px;border:0;border-radius:999px;background:rgba(120,120,128,.12);color:var(--mute);color:color-mix(in srgb,var(--ink) 62%,transparent);font:inherit;font-size:14px;font-weight:600;padding:7px 12px;cursor:pointer;text-align:left}.imsend svg{flex:none}.imsend:active{opacity:.7}
+.imerr{display:flex;align-items:flex-start;gap:12px;background:var(--card);border-radius:18px;padding:14px 16px;margin:0 0 14px}.imerr .imq{flex:none;line-height:0;color:#8E8E93;margin-top:1px}.imerr .imt{display:block;font-size:17px;font-weight:600}.imerr .sub{display:block;font-size:14px;margin-top:2px}.imlock .imlk{display:flex;gap:8px;margin-top:10px}.imlock input{flex:1;min-width:0;border:1px solid var(--line);border-radius:12px;background:var(--bg,transparent);color:var(--ink);font:inherit;font-size:16px;padding:9px 12px}.imlock .imlk .primary{width:auto;padding:0 18px;border-radius:12px;font-size:15px}.imlock .imt{overflow-wrap:anywhere}
+.imsend{display:flex;align-items:center;gap:8px;margin-top:10px;border:0;border-radius:999px;background:rgba(120,120,128,.12);color:var(--mute);color:color-mix(in srgb,var(--ink) 62%,transparent);font:inherit;font-size:14px;font-weight:600;padding:7px 12px;cursor:pointer;text-align:left}.imsend svg{flex:none}.imsend:active{opacity:.7}
 .imstrip{display:flex;align-items:center;justify-content:center;gap:9px;margin:0 0 12px}.imstrip span{font-size:13px;color:var(--mute);font-variant-numeric:tabular-nums;margin-left:4px}.imdot{width:9px;height:9px;padding:0;border:0;border-radius:50%;background:var(--fill);transition:transform .2s,background .2s;cursor:pointer}.imdot.ok{background:var(--accent)}.imdot.bad{background:#FF9500}.imdot.on{transform:scale(1.45);box-shadow:0 0 0 3px rgba(128,128,128,.25)}
 #impslide{touch-action:pan-y}.imsl-l{animation:imsll .28s cubic-bezier(.2,.8,.2,1)}.imsl-r{animation:imslr .28s cubic-bezier(.2,.8,.2,1)}@keyframes imsll{from{transform:translateX(56px);opacity:.2}to{transform:none;opacity:1}}@keyframes imslr{from{transform:translateX(-56px);opacity:.2}to{transform:none;opacity:1}}
 .imbar2{display:flex;gap:10px;margin-top:10px}.imbar2 button{flex:1;height:48px;border-radius:24px;border:1px solid var(--line2);background:var(--card);color:var(--ink);font:inherit;font-size:16px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:6px;cursor:pointer}.imbar2 button.off{opacity:.45}.imextra{margin:2px 0 10px}.imextra .linkrow{width:100%}
-#impnav{display:none}html.web #impnav.on{display:block}#impnav button{position:fixed;top:50%;z-index:81;width:52px;height:52px;margin-top:-26px;border-radius:50%;border:1px solid var(--wline,rgba(60,60,67,.14));background:var(--wtile,var(--card));color:var(--ink);display:grid;place-items:center;cursor:pointer;box-shadow:0 10px 28px rgba(8,30,20,.25);transition:transform .15s,opacity .2s}#impnav button:hover:not(:disabled){transform:scale(1.07)}#impnav button:disabled{opacity:.3;cursor:default}#impnav .l{right:calc(50% + min(460px,100vw - 32px) / 2 + 18px)}#impnav .r{left:calc(50% + min(460px,100vw - 32px) / 2 + 18px)}
+#impnav{display:none}html.web #impnav.on{display:block}#impnav button{position:fixed;top:50%;z-index:81;width:54px;height:54px;margin-top:-27px;border-radius:50%;border:0;background:#22B573;color:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 0 0 6px rgba(34,181,115,.22),0 10px 28px rgba(0,0,0,.35);transition:transform .15s,opacity .2s}#impnav button:hover:not(:disabled){transform:scale(1.08);background:#1FA467}#impnav button:disabled{opacity:0;pointer-events:none}#impnav .l{right:calc(50% + min(460px,100vw - 32px) / 2 + 18px)}#impnav .r{left:calc(50% + min(460px,100vw - 32px) / 2 + 18px)}
 .imlist{padding-top:2px;padding-bottom:2px}.imfilt{margin:2px 0 10px}.imfrow{display:flex;align-items:center;gap:10px}.imfbtn{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;border:1px solid rgba(60,60,67,.14);background:var(--card);color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.06);cursor:pointer;padding:0}.imfbtn.on{background:var(--accent);border-color:var(--accent);color:#fff}html[data-theme=dark] .imfbtn:not(.on){background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.16);box-shadow:none;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}.imfcur{font-size:15px;font-weight:600;color:var(--ink)}.imchips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.imchip{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:17px;border:1px solid var(--line2);background:transparent;color:var(--ink);font:inherit;font-size:14px;cursor:pointer}.imchip.on{background:var(--accent);border-color:var(--accent);color:#fff}.imcn{opacity:.6;font-size:12.5px;font-variant-numeric:tabular-nums}.imfall{justify-content:flex-start;margin-top:6px;font-size:15px}.impager{display:flex;align-items:center;justify-content:center;gap:18px;padding:2px 0 14px;color:var(--mute);font-size:15px;font-variant-numeric:tabular-nums}.impager button{width:44px;height:44px;border-radius:50%;border:0;background:var(--card);color:var(--ink);display:grid;place-items:center;cursor:pointer}.impager button:disabled{opacity:.35;cursor:default}.imrow{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}.imrow:first-child{border-top:0}.imrow.off .grow,.imrow.off .imr{opacity:.45}
 .imck{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--sec);background:transparent;padding:0;display:grid;place-items:center;cursor:pointer;box-sizing:border-box}.imck.on{background:var(--accent);border-color:var(--accent)}
 .imd{font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.imwhy{color:var(--ot);font-weight:600}
@@ -5451,13 +5452,13 @@ const IMP_KEY = { bcp: { label: 'DNI', num: true, note: 'El BCP protege el estad
 const IMP_PREV = { how: 'start', country: 'start', banks: 'country', bank: 'banks', key: 'start' };
 function impPick() { ui.impAt = ui.impStep || null; const i = $('#impfile'); if (i) { i.value = ''; i.click(); } }
 function impOpen() {
-  ui.imp = null; ui.impSet = null; impBatch = null; ui.impErr = null; ui.impBank = null; ui.impAt = null; ui.impDone = null; impKey = ''; impPend = null;
+  ui.imp = null; ui.impSet = null; impBatch = null; ui.impErr = null; ui.impLocked = null; ui.impBank = null; ui.impAt = null; ui.impDone = null; impKey = ''; impPend = null;
   ui.impFrom = ui.tab === 'cuenta' && ui.itemKind === 'settings' && ui.itemId != null ? 'settings' : 'tab';
   ui.impStep = 'start'; openItem('imp', 'x'); navSlide('push');
 }
 function impShow(step, dir) { if (step === 'start' || step === 'how' || step === 'country' || step === 'banks') { impKey = ''; impPend = null; } ui.impStep = step; renderCuenta(); navSlide(dir || 'tab'); impNavSync(); }
 function impExit() {
-  const from = ui.impFrom; { const nv = document.getElementById('impnav'); if (nv) nv.remove(); } ui.imp = null; ui.impSet = null; ui.impErr = null; ui.impStep = null; ui.impBank = null; ui.impDone = null; impKey = ''; impPend = null;
+  const from = ui.impFrom; { const nv = document.getElementById('impnav'); if (nv) nv.remove(); } ui.imp = null; ui.impSet = null; ui.impErr = null; ui.impLocked = null; ui.impStep = null; ui.impBank = null; ui.impDone = null; impKey = ''; impPend = null;
   if (from === 'settings') { ui.itemKind = 'settings'; ui.itemId = 's'; renderCuenta(); navSlide('pop'); } else itemBackNav();
 }
 function impBack() {
@@ -5576,11 +5577,14 @@ async function impFiles(files) {
   const adding = ui.impStep === 'review' && ui.impSet && ui.impSet.list.length > 0;
   if (files.length === 1 && !adding) { await impFile(files[0]); return; }   /* un solo archivo: el camino de siempre (incluye pedir la contraseña) */
   if (!ui.impSet) ui.impSet = { list: [], idx: 0 };
-  impBatch = { fails: [], over: [], last: -1, cur: '' };
+  impBatch = { fails: [], over: [], last: -1, cur: '', locked: [] };
+  if (!adding) ui.impLocked = [];
   if (adding) toast('Leyendo…'); else impShow('busy');
   const S = ui.impSet; let B;
   try { for (const f of files) { impBatch.cur = String((f && f.name) || '').slice(0, 60); await impFile(f); } }
   finally { B = impBatch; impBatch = null; }
+  ui.impLocked = (ui.impLocked || []).concat(B.locked);
+  if (!S.list.length && ui.impLocked.length) { ui.impSet = null; const L = ui.impLocked.shift(); ui.impLocked = []; impPend = L.f; ui.impErr = L.bad ? { t: 'Esa contraseña no abre el estado de cuenta', m: 'Revísala e inténtalo otra vez.' } : null; impShow('key', 'push'); return; }   /* ninguno se pudo abrir: la pantalla de contraseña de siempre */
   if (!S.list.length) { ui.impSet = null; const F = B.fails[0] || { t: 'Nazca no pudo leer esos archivos', m: 'Revisa que sean los archivos que descargaste de tu banco.' }; impFail(F.t, F.m); return; }
   const bad = B.fails.length;
   ui.impErr = B.over.length ? { t: 'Se revisan 3 archivos a la vez', m: 'Los demás quedaron sin cargar. Importa o quita uno y usa «Cargar más».' + (bad ? ' ' + B.fails.map((x) => (x.name ? x.name + ': ' : '') + x.t).join(' · ').slice(0, 160) : '') } : bad ? { t: bad === 1 ? 'Un archivo no se pudo leer' : bad + ' archivos no se pudieron leer', m: B.fails.map((x) => (x.name ? x.name + ': ' : '') + x.t).join(' · ').slice(0, 220) } : null;
@@ -5635,7 +5639,7 @@ function impNavSync() {
 })();
 function impPdfError(e, f) {
   const c = e && e.code;
-  if (impBatch && (c === 'need_password' || c === 'bad_password')) { impFail('Este estado de cuenta está protegido', 'Súbelo por separado para escribir su contraseña.'); return; }
+  if (impBatch && (c === 'need_password' || c === 'bad_password')) { impBatch.locked.push({ f: f, name: impBatch.cur || String((f && f.name) || '').slice(0, 60), bad: c === 'bad_password' }); return; }   /* varios archivos: se pide la contraseña en la misma pantalla de revisión */
   if (c === 'need_password' && ui.impAt !== 'key' && !(ui.impAt === 'bank' && IMP_KEY[ui.impBank])) { impPend = f; ui.impErr = null; impShow('key', 'push'); }   /* entró por «Importar archivo»: pide la contraseña en su propia pantalla */
   else if (c === 'need_password') { impPend = f; impFail('Este estado de cuenta está protegido', 'Escribe tu DNI y súbelo otra vez.'); }
   else if (c === 'bad_password') { impPend = f; ui.impAt === 'bank' && IMP_KEY[ui.impBank] ? impFail('Ese DNI no abre el estado de cuenta', 'Revísalo e inténtalo otra vez.') : impFail('Esa contraseña no abre el estado de cuenta', 'Revísala e inténtalo otra vez.'); }
@@ -5686,10 +5690,27 @@ function impPageHTML() {
     '<div class="head"><div><div class="eyebrow">' + H[0] + '</div><h1>' + H[1] + '</h1></div></div><div id="impbody">' + impErrHTML() + impBodyHTML(st) + '</div>';
 }
 function impErrHTML() {
+  return impLockHTML() + impErrCard();
+}
+function impErrCard() {
   const E = ui.impErr; if (!E) return '';
   return '<div class="imerr" role="alert"><span class="imq">' + RMI('question-fill', 26, 'currentColor') + '</span><span class="grow"><span class="imt">' + esc(E.t) + '</span><span class="sub">' + esc(E.m) + '</span>' +
     (E.send && impSendF ? '<button class="imsend" data-act="imp:send">' + RMI('graduation-cap-line', 18, 'currentColor') + '<span>Mandar este archivo a Nazca para que aprenda</span></button>' : '') + '</span></div>';
 }
+/* Archivos protegidos que se añadieron junto a otros: se les pide la contraseña aquí mismo, sin salir de la revisión. */
+function impLockHTML() {
+  const L = ui.impLocked; if (!L || !L.length) return '';
+  const k = IMP_KEY[ui.impBank], lab = k ? k.label : 'Contraseña';
+  return L.map((x, i) => '<div class="imerr imlock"><span class="imq">' + RMI('file-lock-line', 26, 'currentColor') + '</span><span class="grow"><span class="imt">' + (x.bad ? 'Esa contraseña no abre este archivo' : 'Este archivo está protegido') + '</span><span class="sub" data-notr>' + esc(x.name) + '</span>' +
+    '<span class="imlk"><input type="password" id="impkl' + i + '" data-unlock="' + i + '" placeholder="' + esc(lab) + '" autocomplete="off" autocapitalize="off" spellcheck="false"' + (k && k.num ? ' inputmode="numeric"' : '') + ' maxlength="64"><button class="primary" data-act="imp:unlock:' + i + '">Abrir</button></span></span></div>').join('');
+}
+async function impUnlock(i) {
+  const L = ui.impLocked && ui.impLocked[i], inp = document.getElementById('impkl' + i); if (!L || !inp) return;
+  const v = inp.value; if (!v || v.length > 64) { inp.focus(); return; }
+  ui.impLocked.splice(i, 1); impKey = v; ui.impErr = null;
+  await impFiles([L.f]);
+}
+document.addEventListener('keydown', (e) => { const t = e.target; if (e.key === 'Enter' && t && t.matches && t.matches('input[data-unlock]')) { e.preventDefault(); impUnlock(+t.getAttribute('data-unlock')); } });
 /* Mandar un archivo que Nazca no reconoció: la persona lo decide, ve qué pasa con él y recién entonces se envía (para entrenar a Nazca, nada más). */
 function impSendDlg() {
   if (!impSendF) return;
@@ -5855,6 +5876,7 @@ function impCheckHTML(ck) {
 function impRender() { const b = $('#impbody'); if (!b || !ui.imp) return; const d = b.querySelector('details.imcols'); if (d) ui.imp.colsOpen = d.open; b.innerHTML = impErrHTML() + impCarouselHTML(); }
 function impAct(arg) {
   const I = ui.imp, p = String(arg).split(':');
+  if (p[0] === 'unlock') { impUnlock(+p[1]); return; }
   if (p[0] === 'send') { impSendDlg(); return; }
   if (p[0] === 'sendgo') { impSendGo(); return; }
   if (p[0] === 'start') { impOpen(); return; }
