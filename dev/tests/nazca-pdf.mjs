@@ -269,5 +269,17 @@ const sum = (it) => Math.round(it.reduce((s, x) => s + x.amount, 0) * 100) / 100
   ok(r.check.have && r.check.ok === true && r.check.prev === 500, 'bcp tarjeta: cuadra en soles y en dólares (sub total, monto total facturado y plan de cuotas)');
   const d2 = await P.read(bytes('bcp-tarjeta-no-cuadra.pdf'), lib); ok(B.detect(d2, 'bcp').read(d2).check.ok === false, 'bcp tarjeta: monto total facturado mal impreso → no cuadra'); }
 
+// Mercado Pago (Chile) · estado de cuenta horizontal: monto con signo, punto de miles y coma decimal, nombre del comercio en una o dos líneas
+{ const d = await P.read(bytes('mercadopago-cuenta.pdf'), lib), rd = B.detect(d, 'mercadopago'); ok(rd && rd.id === 'mercadopago-cuenta' && B.detect(d).id === 'mercadopago-cuenta', 'mercado pago: se reconoce por el contenido (y solo si eligen Mercado Pago o ninguno)');
+  ok(B.detect(await P.read(bytes('bbva-cuenta.pdf'), lib), 'mercadopago') === null && B.detect(await P.read(bytes('bcp-ahorros.pdf'), lib)).id === 'bcp-ahorros', 'mercado pago: un PDF de otro banco no se lee como Mercado Pago');
+  const r = rd.read(d); ok(r.cur === 'CLP' && r.label === 'Mercado Pago · Cuenta' && r.account.last4 === '4567' && d.pages.length === 2, 'mercado pago: moneda CLP, últimos 4 del ID de usuario, 2 páginas');
+  ok(r.period.from === '2026-09-01' && r.period.to === '2026-09-30', 'mercado pago: periodo sale de DESDE y HASTA');
+  ok(r.items.length === 12 && r.skipped.unreadable === 0, 'mercado pago: 12 movimientos, también los de la segunda página (' + r.items.length + ')');
+  ok(r.items[0].amount === 50000 && r.items[1].amount === -4500 && r.items[0].date === '2026-09-02', 'mercado pago: Abono → ingreso, Cargo → gasto; "50.000,00" son 50000');
+  ok(r.items[0].desc === 'Transferencia recibida · Ana María Gómez Pérez' && r.items[1].desc === 'Cafetería ejemplo' && r.items[3].desc === 'Pago', 'mercado pago: nombre en dos líneas se une; sin comercio queda "Pago"');
+  ok(r.check.have && r.check.ok === true && r.check.prev === 1250 && r.check.end === 7290 && r.check.sumCredits === 73000 && r.check.sumCharges === 66960, 'mercado pago: cuadra (balance inicial + depósitos − débitos = balance final)');
+  const d2 = await P.read(bytes('mercadopago-no-cuadra.pdf'), lib); ok(B.detect(d2, 'mercadopago').read(d2).check.ok === false, 'mercado pago: balance final mal impreso → no cuadra');
+  const ch = B.CATALOG.find((c) => c.id === 'CL'); ok(ch && ch.banks.length === 1 && ch.banks[0].id === 'mercadopago' && ch.banks[0].active, 'catálogo: Chile con Mercado Pago activo'); }
+
 console.log(f ? '\n' + f + ' FALLAS' : '\nTodo bien');
 process.exit(f ? 1 : 0);
