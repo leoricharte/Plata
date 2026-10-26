@@ -1961,6 +1961,8 @@ const CL = { st: {}, busy: false, t: null, status: 'idle', ui: null, api: PLATA_
     if (location.hostname === 'localhost') { const a = /[?&]cloudapi=([^&]+)/.exec(location.search); if (a) sessionStorage.setItem('plata.cloudapi', decodeURIComponent(a[1])); const s = sessionStorage.getItem('plata.cloudapi'); if (s) CL.api = s; }
   } catch (e) { /* sin almacenamiento */ }
 })();
+/* Nazca (importar datos de banco) está oculto: se activa tocando varias veces «Claude» en Créditos. */
+const nazcaOn = () => { try { return localStorage.getItem('plata.nazca') === '1'; } catch (e) { return false; } };
 const clBeta = () => { try { return !!PLATA_CLOUD_API && localStorage.getItem('plata.cloudbeta') !== '0'; } catch (e) { return !!PLATA_CLOUD_API; } };
 const clSave = () => { try { localStorage.setItem(CLK, JSON.stringify(CL.st)); } catch (e) { /* sin almacenamiento */ } };
 const clIn = () => !!(CL.st.tok && CL.st.seed);
@@ -3099,7 +3101,7 @@ function renderResumen() {
     '<div class="brandrow"><div class="plogo rlogo" role="img" aria-label="Plata"></div><button class="betapill" data-act="betainfo">B E T A</button></div><div class="head"><div><div class="eyebrow">' + dateLong(c.today) + '</div><h1>' + esc(greetLine()) + '</h1></div></div>' +
     '<div class="filestat">' + status + '</div>' + idleBanner(c.today) + cloudStripHTML() +
     (hasData() ? '' : '<div class="card"><div class="name" style="font-size:20px">Empieza aquí</div><div class="sub" style="padding:4px 0 6px">Tu app... no tiene (casi) nada. Pero no te me abrumes, empieza en la pestaña Cuentas: ajusta tu saldo y añade tus tarjetas, añade movimientos o carga tu archivo de perfil.</div>' +
-      '<button class="linkrow" data-act="add">' + IC_ADD + 'Añadir un movimiento</button><button class="linkrow" data-act="imp:start">' + RMI('folder-chart-line', 22, '#1A9D63') + 'Importar datos de banco</button><button class="linkrow" data-act="load">' + ICON.folder.replace(/#1C1C1E/g, '#1A9D63') + 'Cargar mi archivo de perfil</button><button class="linkrow" data-act="demo">' + ICON.info + 'Ver con datos de ejemplo</button></div>') +
+      '<button class="linkrow" data-act="add">' + IC_ADD + 'Añadir un movimiento</button>' + (nazcaOn() ? '<button class="linkrow" data-act="imp:start">' + RMI('folder-chart-line', 22, '#1A9D63') + 'Importar datos de banco</button>' : '') + '<button class="linkrow" data-act="load">' + ICON.folder.replace(/#1C1C1E/g, '#1A9D63') + 'Cargar mi archivo de perfil</button><button class="linkrow" data-act="demo">' + ICON.info + 'Ver con datos de ejemplo</button></div>') +
     '<div class="grid2">' +
       '<div class="kpi tap" data-act="tab:deuda"><span class="lbl">Balance actual</span><span class="big">' + fmt(sum(visAcc, (a) => usd(a.balance, a.cur))) + '</span><span class="sub">' + plural(visAcc.length, 'cuenta', 'cuentas') + '</span>' + inclNote(visAcc, (a) => a.balance) + '</div>' +
       '<div class="kpi tap" data-act="mmin"><span class="lbl">Ingresos del mes</span><span class="big">' + fmt(c.income) + '</span><span class="sub">' + plural(c.incomeCount, 'ingreso', 'ingresos') + '</span></div>' +
@@ -3825,7 +3827,7 @@ function renderMovimientos() {
     '<button class="back" data-act="tab:resumen" aria-label="Regresar">' + IC_BACK + '</button>' +
     '<div class="head"><div><div class="eyebrow">Últimos movimientos</div><h1>Movimientos</h1></div></div>' +
     segHTML('mov', [{ k: 'all', label: 'Todos', act: 'mov:all' }, { k: 'in', label: 'Ingresos', act: 'mov:in' }, { k: 'out', label: 'Gastos', act: 'mov:out' }], ui.mov) +
-    '<div class="card" style="padding:2px 18px;margin-bottom:12px"><button class="linkrow" data-act="add">' + IC_ADD + 'Añadir movimiento</button><button class="linkrow" data-act="imp:start" style="border-top:1px solid var(--line);width:100%">' + RMI('folder-chart-line', 22, '#22B573') + 'Importar datos de banco</button></div>' +
+    '<div class="card" style="padding:2px 18px;margin-bottom:12px"><button class="linkrow" data-act="add">' + IC_ADD + 'Añadir movimiento</button>' + (nazcaOn() ? '<button class="linkrow" data-act="imp:start" style="border-top:1px solid var(--line);width:100%">' + RMI('folder-chart-line', 22, '#22B573') + 'Importar datos de banco</button>' : '') + '</div>' +
     '<div class="card" style="padding-top:6px;padding-bottom:6px" id="movList">' + movRows() + '</div>';
 }
 
@@ -4663,7 +4665,7 @@ function settingsHTML(noHead) {
     '<div class="scard" style="margin-top:14px">' +
     '<button class="linkrow" data-act="' + (clBeta() && clOn() ? 'cl:load' : 'load') + '">' + blue(ICON.folder) + 'Cargar archivo de perfil</button>' +
     '<button class="linkrow" data-act="save" style="border-top:1px solid var(--line);width:100%">' + blue(ICON.save) + (clBeta() && clOn() ? 'Guardar copia de archivo local' : 'Guardar archivo de perfil') + '</button>' +
-    (data.demo ? '' : '<button class="linkrow" data-act="imp:start" style="border-top:1px solid var(--line);width:100%">' + blue(RMI('folder-chart-line', 22, '#1C1C1E')) + 'Importar datos de banco</button>') +
+    (data.demo || !nazcaOn() ? '' : '<button class="linkrow" data-act="imp:start" style="border-top:1px solid var(--line);width:100%">' + blue(RMI('folder-chart-line', 22, '#1C1C1E')) + 'Importar datos de banco</button>') +
     '</div>' +
     (clBeta() ? '' : cloudCardHTML()) +
     '<div class="scard"><div class="row"><span class="grow" style="font-size:17px">Insights y half‑time</span>' + swHTML(insOn(), 'setopt:insights') + '</div>' +
@@ -5442,7 +5444,12 @@ function markSaved() { clGoneClear(); stampSaved(); ui.dirty = 0; persist(); ren
 /* ---------- Importar movimientos desde un CSV del banco (Beta 4) ----------
  * El archivo se lee y se interpreta aquí mismo (el núcleo es Nazca, en core/nazca/): no se sube a ningún servidor. */
 /*__NAZCA__*/
-const IMP_MAX = 3, IMP_PER = 20, IMP_WHY = { exact: 'Ya importado', near: 'Parece repetido', cur: 'Otra moneda', future: 'Fecha futura' };
+const IMP_MAX = 3, IMP_PER = 20, IMP_WHY = { exact: 'Ya importado', near: 'Parece repetido', cur: 'Otra moneda', future: 'Fecha futura', fxc: 'Convertido', fxs: 'Otra cuenta' };
+/* Movimientos en otra moneda que la cuenta (p. ej. dólares en una tarjeta en soles): se dejan fuera, se convierten con un tipo de cambio o se mandan a una cuenta aparte en esa moneda. */
+const impForeign = (I, acc) => { const c = {}; I.x.items.forEach((it) => { if (it.cur && it.cur !== acc.cur) c[it.cur] = (c[it.cur] || 0) + 1; }); return Object.keys(c).sort((p, q) => c[q] - c[p])[0] || ''; };
+const impConv = (n, from, to) => { if (from === to) return n; const a = activeCurs(); if (a.indexOf(from) >= 0 && a.indexOf(to) >= 0) { const inP = from === curP() ? n : n / fxRate(); return to === curP() ? inP : inP * fxRate(); } return n * CURRENCIES[to].rate / CURRENCIES[from].rate; };
+const impSplitOk = (F) => F === curP() || F === curS() || !curS();
+const impFxPool = (acc, F) => (isCredit(acc) ? data.cards.filter((o) => o.kind === 'card') : data.accounts).filter((o) => o.cur === F && o.id !== acc.id);
 /* Pasarela de importación: PANTALLA COMPLETA (como Ajustes), no ventana emergente. Pasos en ui.impStep:
  * start → how · country → banks → bank → busy → review → done. La contraseña vive solo en la variable impKey, nunca en ui, data ni el perfil. */
 var impKey = '', impPend = null;   /* contraseña del PDF y el archivo que espera su contraseña: solo en memoria */
@@ -5453,6 +5460,7 @@ const IMP_KEY = { bcp: { label: 'DNI', num: true, note: 'El BCP protege el estad
 const IMP_PREV = { how: 'start', country: 'start', banks: 'country', bank: 'banks', key: 'start' };
 function impPick() { ui.impAt = ui.impStep || null; const i = $('#impfile'); if (i) { i.value = ''; i.click(); } }
 function impOpen() {
+  if (!nazcaOn()) return;
   ui.imp = null; ui.impSet = null; impBatch = null; ui.impErr = null; ui.impLocked = null; ui.impBank = null; ui.impAt = null; ui.impDone = null; impKey = ''; impPend = null;
   ui.impFrom = ui.tab === 'cuenta' && ui.itemKind === 'settings' && ui.itemId != null ? 'settings' : 'tab';
   ui.impStep = 'start'; openItem('imp', 'x'); navSlide('push');
@@ -5814,12 +5822,25 @@ function impBuild() {
   const I = ui.imp, acc = impAcc(), credit = isCredit(acc), today = iso(getToday());
   if (I.flip === null) I.flip = credit && I.x.items.filter((it) => it.amount > 0).length > I.x.items.length / 2; // estado de tarjeta: los consumos vienen en positivo
   const items = I.x.items.map((it) => Object.assign({}, it, { amount: I.flip ? -it.amount : it.amount }));
+  const F = impForeign(I, acc); I.fcur = F;
+  if (F) {
+    if (!I.fxMode) I.fxMode = F === curP() || F === curS() ? 'split' : 'skip';
+    if (I.fxMode === 'split' && !impSplitOk(F)) I.fxMode = 'skip';
+    if (!(I.fxRate > 0)) I.fxRate = Number(impConv(1, F, acc.cur).toPrecision(4));
+    const pool = impFxPool(acc, F);
+    if (!I.fxAcc || (I.fxAcc !== '__new' && !pool.some((o) => o.id === I.fxAcc))) { const m = pool.find((o) => o.last4 && o.last4 === acc.last4); I.fxAcc = m ? m.id : '__new'; }
+  }
+  const mode = F ? I.fxMode : 'skip';
+  if (mode === 'convert') items.forEach((it) => { if (it.cur === F) { it.orig = { amount: it.amount, cur: F }; it.amount = round2(it.amount * I.fxRate); } });
   const dups = Nazca.markDuplicates(items, data.transactions, acc.id), guess = Nazca.categorizer(data.cats, data.transactions);
+  let dupF = {};
+  if (mode === 'split' && I.fxAcc !== '__new') { const idx = []; items.forEach((it, i) => { if (it.cur === F) idx.push(i); }); const d2 = Nazca.markDuplicates(idx.map((i) => items[i]), data.transactions, I.fxAcc); idx.forEach((i, k) => { dupF[i] = d2[k].dup; }); }
   I.rows = items.map((it, i) => {
-    const why = it.date > today ? 'future' : (it.cur && it.cur !== acc.cur) ? 'cur' : dups[i].dup;
+    const fx = !!F && it.cur === F && mode !== 'skip', foreign = !!(it.cur && it.cur !== acc.cur);
+    const why = it.date > today ? 'future' : (foreign && !fx) ? 'cur' : fx ? ((mode === 'split' ? dupF[i] : dups[i].dup) || (mode === 'split' ? 'fxs' : 'fxc')) : dups[i].dup;
     const cat = it.amount > 0 ? (credit ? PAY : 'Ingreso') : (I.cat[i] && CAT_ORDER.indexOf(I.cat[i]) >= 0 ? I.cat[i] : guess(it.desc, it.amount));
-    const hard = why === 'future' || why === 'cur';
-    return Object.assign(it, { i: i, fp: dups[i].fp, why: why, cat: cat, on: hard ? false : I.sel[i] != null ? I.sel[i] : !why });
+    const hard = why === 'future' || why === 'cur', soft = why === 'fxc' || why === 'fxs';
+    return Object.assign(it, { i: i, fp: dups[i].fp, why: why, cat: cat, side: fx && mode === 'split', dc: fx && mode === 'split' ? F : acc.cur, on: hard ? false : I.sel[i] != null ? I.sel[i] : (soft || !why) });
   });
   if (I.bal === null || (I.bal === 'stmt' && !impStmt())) { // si el archivo trae el saldo y es más reciente que lo que ya hay en la cuenta, ese es el saldo correcto
     const st = impStmt(), last = data.transactions.filter((t) => t.acc === acc.id).reduce((m, t) => (t.date > m ? t.date : m), '');
@@ -5835,10 +5856,10 @@ function impStmt() {
 }
 function impReviewHTML() {
   const I = ui.imp, acc = impAcc(), credit = isCredit(acc), rows = I.rows, on = rows.filter((r) => r.on), cnt = (w) => rows.filter((r) => r.why === w).length, S = ui.impSet, multi = !!(S && S.list.length > 1), tot = multi ? S.list.reduce((n, x) => n + (x.rows || []).filter((r) => r.on).length, 0) : on.length;
-  const net = round2(on.reduce((s, r) => s + r.amount, 0)), after = credit ? round2(acc.balance - net) : round2(acc.balance + net), st = impStmt();
+  const net = round2(on.filter((r) => !r.side).reduce((s, r) => s + r.amount, 0)), after = credit ? round2(acc.balance - net) : round2(acc.balance + net), st = impStmt();
   const dates = rows.map((r) => r.date).sort(), span = dates.length ? 'Del ' + dshort(pd(dates[0])) + ' al ' + dshort(pd(dates[dates.length - 1])) : '';
   const chip = (n, one, many) => (n ? '<span>' + plural(n, one, many) + '</span>' : '');
-  const sum = chip(cnt('exact') + cnt('near'), 'repetido', 'repetidos') + chip(cnt('cur'), 'de otra moneda', 'de otra moneda') + chip(cnt('future'), 'con fecha futura', 'con fecha futura') + chip(I.x.skipped.unreadable, 'fila no se pudo leer', 'filas no se pudieron leer') + chip(I.names && I.names.length > 1 ? I.names.length : 0, 'archivo unido', 'archivos unidos') + chip(I.mdup, 'fila repetida entre archivos omitida', 'filas repetidas entre archivos omitidas');
+  const sum = chip(cnt('exact') + cnt('near'), 'repetido', 'repetidos') + chip(cnt('cur') + cnt('fxc') + cnt('fxs'), 'de otra moneda', 'de otra moneda') + chip(cnt('future'), 'con fecha futura', 'con fecha futura') + chip(I.x.skipped.unreadable, 'fila no se pudo leer', 'filas no se pudieron leer') + chip(I.names && I.names.length > 1 ? I.names.length : 0, 'archivo unido', 'archivos unidos') + chip(I.mdup, 'fila repetida entre archivos omitida', 'filas repetidas entre archivos omitidas');
   const opt = (k, t, sub) => '<button class="imopt' + (I.bal === k ? ' on' : '') + '" data-act="imp:bal:' + k + '"><span class="imrad"></span><span class="grow"><span class="imt">' + t + '</span><span class="sub">' + sub + '</span></span></button>';
   const hs = I.a.headers, ncol = Math.max(I.a.width, hs.length), cols = Object.assign({}, I.a.cols, I.cols || {});
   const colSel = (role, label) => '<label class="srow"><span class="grow"><span class="slabel">' + label + '</span><select class="sinput" data-imp-col="' + role + '"><option value="-1">—</option>' +
@@ -5857,8 +5878,8 @@ function impReviewHTML() {
   const pages = Math.max(1, Math.ceil(frows.length / IMP_PER)); I.page = Math.min(Math.max(I.page || 0, 0), pages - 1);
   const shown = frows.slice(I.page * IMP_PER, (I.page + 1) * IMP_PER);   /* de 20 en 20: con 100 o más movimientos la pantalla se hace eterna */
   const list = shown.map((r) => '<div class="imrow' + (r.on ? '' : ' off') + '"><button class="imck' + (r.on ? ' on' : '') + '" data-act="imp:t:' + r.i + '" role="checkbox" aria-checked="' + r.on + '" aria-label="Importar este movimiento">' + (r.on ? RMI('check-line', 16, '#fff') : '') + '</button>' +
-    '<div class="grow" style="min-width:0"><div class="imd" data-notr>' + esc(r.desc || '—') + '</div><div class="sub" style="font-size:12.5px">' + dshort(pd(r.date)) + (r.why ? ' · <span class="imwhy">' + IMP_WHY[r.why] + '</span>' : '') + '</div></div>' +
-    '<div class="imr"><div class="amt" style="font-size:15px;font-weight:600;color:' + (r.amount > 0 ? 'var(--gt)' : 'var(--ink)') + '">' + fmtSC2(r.amount, acc.cur) + '</div>' + catSel(r) + '</div></div>').join('');
+    '<div class="grow" style="min-width:0"><div class="imd" data-notr>' + esc(r.desc || '—') + '</div><div class="sub" style="font-size:12.5px">' + dshort(pd(r.date)) + (r.why ? ' · <span class="imwhy">' + IMP_WHY[r.why] + '</span>' : '') + (r.orig ? ' · <span data-notr>' + fmtC2(Math.abs(r.orig.amount), r.orig.cur) + '</span>' : '') + '</div></div>' +
+    '<div class="imr"><div class="amt" style="font-size:15px;font-weight:600;color:' + (r.amount > 0 ? 'var(--gt)' : 'var(--ink)') + '">' + fmtSC2(r.amount, r.dc || acc.cur) + '</div>' + catSel(r) + '</div></div>').join('');
   const pdf = I.src === 'pdf', bk = pdf && I.bank ? impBankName(I.bank) : '', title = bk ? impBankShort(I.bank) : (I.label && pdf ? I.label : I.guess ? I.guess : I.gen ? 'Archivo PDF' : 'Archivo CSV');
   const ci = I.cardInfo || {}, cmeta = (ci.dueDate ? '<span>' + RMI('calendar-line', 16, 'currentColor') + 'Pagar antes del ' + dshort(pd(ci.dueDate)) + '</span>' : '') + (ci.apr != null ? '<span>' + RMI('percent-line', 16, 'currentColor') + '<span data-notr>' + ci.apr + ' %</span> de tasa anual</span>' : '');
   const meta = '<div class="immeta"><span>' + RMI('arrow-left-right-line', 16, 'currentColor') + plural(rows.length, 'movimiento', 'movimientos') + '</span>' + (span ? '<span>' + RMI('calendar-line', 16, 'currentColor') + span + '</span>' : '') + cmeta + '</div>';
@@ -5872,7 +5893,20 @@ function impReviewHTML() {
       (merge ? radio('merge', 'Fusionar con otra cuenta', 'Suma estos movimientos a una que ya tienes.', I.acc !== '__new', I.acc !== '__new' ? '<div class="imacc"><select class="sinput" id="impAcc" aria-label="Cuenta">' + acctOpts(I.acc, !!I.card) + '</select></div>' : '') : '') + '</div>'
     : '<div class="scard"><label class="srow">' + fico(['#22B573', 'card']) + '<span class="grow"><span class="slabel">Cuenta</span><select class="sinput" id="impAcc">' + acctOpts(acc.id, true) + '</select></span></label>' +
       '<div class="row"><span class="grow"><span style="font-size:17px">Invertir ingresos y gastos</span><span class="sub" style="display:block;font-size:14px">Actívalo si en tu archivo los gastos aparecen como ingresos, y al revés.</span></span>' + swHTML(I.flip, 'imp:flip') + '</div></div>';
-  return profile + foot + (sum ? '<div class="imsum">' + sum + '</div>' : '') + accCard +
+  const F = I.fcur, fxn = F ? rows.filter((r) => r.cur === F).length : 0;
+  const fxo = (k, t, sub, off) => '<button class="imopt' + (I.fxMode === k ? ' on' : '') + '"' + (off ? ' style="opacity:.45" aria-disabled="true"' : ' data-act="imp:fx:' + k + '"') + '><span class="imrad"></span><span class="grow"><span class="imt">' + t + '</span><span class="sub">' + sub + '</span></span></button>';
+  const fxPool = F ? impFxPool(acc, F) : [], sideNew = F ? String(acc.name || '').replace(/\s+(Soles|Dólares)$/, '') + ' ' + (F === 'USD' ? 'Dólares' : F) : '';
+  const fxCard = F ? '<div class="scard"><div class="slabel" style="padding:10px 0 0">Movimientos en otra moneda <span data-notr>(' + fxn + ' · ' + esc(symOf(F).trim()) + ')</span></div>' +
+    fxo('skip', 'No importarlos', 'Se dejan fuera de la importación.') +
+    fxo('convert', 'Convertirlos a la moneda de la cuenta', 'Se importan en la cuenta con un tipo de cambio.') +
+    (I.fxMode === 'convert' ? '<div class="imacc"><label class="srow"><span class="grow"><span class="slabel">Tipo de cambio</span><span style="display:flex;align-items:center;gap:8px"><span data-notr>1 ' + esc(symOf(F).trim()) + ' =</span><input class="sinput" id="impFxRate" type="number" inputmode="decimal" step="any" min="0" value="' + I.fxRate + '" style="max-width:120px"><span data-notr>' + esc(symOf(acc.cur).trim()) + '</span></span></span></label></div>' : '') +
+    fxo('split', 'Mandarlos a una cuenta aparte', impSplitOk(F) ? 'Entran a una cuenta en esa moneda.' : 'Ya usas dos monedas en Plata; no se puede abrir otra.', !impSplitOk(F)) +
+    (I.fxMode === 'split' ? '<div class="imacc">' +
+      '<button class="imopt' + (I.fxAcc === '__new' ? ' on' : '') + '" data-act="imp:fxacc:new" style="border-top:0"><span class="imrad"></span><span class="grow"><span class="imt">Crear cuenta nueva</span><span class="sub" data-notr>' + esc(sideNew) + '</span></span></button>' +
+      (fxPool.length ? '<button class="imopt' + (I.fxAcc !== '__new' ? ' on' : '') + '" data-act="imp:fxacc:merge"><span class="imrad"></span><span class="grow"><span class="imt">Fusionar con otra cuenta</span><span class="sub">Suma estos movimientos a una que ya tienes.</span></span></button>' +
+        (I.fxAcc !== '__new' ? '<div class="imacc" style="padding-left:0"><select class="sinput" id="impFxAcc" aria-label="Cuenta">' + fxPool.map((o) => '<option value="' + o.id + '"' + (o.id === I.fxAcc ? ' selected' : '') + ' data-notr>' + esc(o.name + l4(o)) + ' · ' + o.cur + '</option>').join('') + '</select></div>' : '') : '') +
+      (F !== curP() && F !== curS() ? '<div class="sub" style="padding:4px 0 10px">Se activará esa moneda como segunda moneda de Plata.</div>' : '') + '</div>' : '') + '</div>' : '';
+  return profile + foot + (sum ? '<div class="imsum">' + sum + '</div>' : '') + accCard + fxCard +
     '<div class="scard"><div class="slabel" style="padding:10px 0 0">' + (credit ? 'Deuda de la tarjeta' : 'Saldo de la cuenta') + '</div>' +
     opt('adjust', credit ? 'Sumar a la deuda' : 'Sumar al saldo', fmtC2(acc.balance, acc.cur) + ' → ' + fmtC2(after, acc.cur)) +
     opt('keep', credit ? 'No cambiar la deuda' : 'No cambiar el saldo', credit ? 'Si tu deuda en Plata ya incluye estos movimientos.' : 'Si tu saldo en Plata ya incluye estos movimientos.') +
@@ -5922,7 +5956,9 @@ function impAct(arg) {
     const r = I.rows[+p[1]]; if (!r) return;
     if (r.why === 'future' || r.why === 'cur') { toast(r.why === 'future' ? 'No se importan movimientos con fecha futura' : 'Este movimiento es de otra moneda que la cuenta'); return; }
     r.on = !r.on; I.sel[r.i] = r.on; impRender();
-  } else if (p[0] === 'acc') { I.acc = p[1] === 'new' ? '__new' : mergeId(); I.flip = null; I.bal = null; I.sel = {}; impBuild(); impRender(); }
+  } else if (p[0] === 'acc') { I.acc = p[1] === 'new' ? '__new' : mergeId(); I.flip = null; I.bal = null; I.sel = {}; I.fxMode = null; I.fxRate = null; I.fxAcc = null; impBuild(); impRender(); }
+  else if (p[0] === 'fx') { I.fxMode = p[1]; I.sel = {}; impBuild(); impRender(); }
+  else if (p[0] === 'fxacc') { if (p[1] === 'new') I.fxAcc = '__new'; else { const pl = impFxPool(impAcc(), I.fcur); I.fxAcc = pl.length ? pl[0].id : '__new'; } I.sel = {}; impBuild(); impRender(); }
   else if (p[0] === 'flip') { I.flip = !I.flip; I.sel = {}; I.cat = {}; impBuild(); impRender(); }
   else if (p[0] === 'bal') { I.bal = p[1]; impRender(); }
   else if (p[0] === 'fo') { I.fopen = !I.fopen; impRender(); }
@@ -5939,21 +5975,44 @@ function impGoOne(I) {   /* importa una revisión del carrusel; devuelve lo nece
   const keep = ui.imp; ui.imp = I;
   try {
     const acc = impAcc(), on = I.rows.filter((r) => r.on); if (!on.length) return null;
-    let created = null; if (I.acc === '__new') { acc.id = uid(); (acc.kind === 'card' ? data.cards : data.accounts).push(acc); created = acc.id; } /* cuenta nueva: se crea al importar, no antes */
-    const before = acc.balance, ids = [], st = impStmt();
-    on.slice().sort((p, q) => (p.date < q.date ? -1 : p.date > q.date ? 1 : p.i - q.i)).forEach((r) => {
-      const amt = round2(clampAmt(r.amount)), t = { id: nextTxId(), date: r.date, amount: amt, category: r.cat, note: r.desc || r.cat, acc: acc.id, imp: r.fp };
-      data.transactions.push(t); ids.push(t.id);
-      if (I.bal === 'adjust') applyTo(acc, amt);
-    });
-    if (I.bal === 'stmt' && st) acc.balance = round2(st.balance);
-    return { part: { ids: ids, acc: acc.id, before: before, created: created }, done: { n: ids.length, acc: acc.name + l4(acc), bal: acc.balance, cur: acc.cur, credit: isCredit(acc), created: !!created } };
+    const mainRows = on.filter((r) => !r.side), sideRows = on.filter((r) => r.side), byDate = (p, q) => (p.date < q.date ? -1 : p.date > q.date ? 1 : p.i - q.i), parts = [], dones = [];
+    if (mainRows.length) {
+      let created = null; if (I.acc === '__new') { acc.id = uid(); (acc.kind === 'card' ? data.cards : data.accounts).push(acc); created = acc.id; } /* cuenta nueva: se crea al importar, no antes */
+      const before = acc.balance, ids = [], st = impStmt();
+      mainRows.slice().sort(byDate).forEach((r) => {
+        const amt = round2(clampAmt(r.amount)), t = { id: nextTxId(), date: r.date, amount: amt, category: r.cat, note: (r.desc || r.cat) + (r.orig ? ' (' + fmtC2(Math.abs(r.orig.amount), r.orig.cur) + ')' : ''), acc: acc.id, imp: r.fp };
+        data.transactions.push(t); ids.push(t.id);
+        if (I.bal === 'adjust') applyTo(acc, amt);
+      });
+      if (I.bal === 'stmt' && st) acc.balance = round2(st.balance);
+      parts.push({ ids: ids, acc: acc.id, before: before, created: created });
+      dones.push({ n: ids.length, acc: acc.name + l4(acc), bal: acc.balance, cur: acc.cur, credit: isCredit(acc), created: !!created });
+    }
+    if (sideRows.length) {   /* los de otra moneda van a su propia cuenta (nueva o una que ya existe) */
+      const F = I.fcur; let a2 = I.fxAcc !== '__new' ? accOf(I.fxAcc) : null, created2 = null, cur2 = null;
+      if (!a2) {
+        const nm = String(acc.name || '').replace(/\s+(Soles|Dólares)$/, '') + ' ' + (F === 'USD' ? 'Dólares' : F);
+        a2 = isCredit(acc) ? { id: uid(), kind: 'card', name: nm, cur: F, limit: 0, balance: 0, apr: acc.apr, payment: 0, due_day: acc.due_day || 1, color: '', icon: '', last4: acc.last4 || '' }
+          : { id: uid(), name: nm, type: 'checking', cur: F, apy: 0, balance: 0, color: '', icon: '', last4: acc.last4 || '' };
+        (a2.kind === 'card' ? data.cards : data.accounts).push(a2); created2 = a2.id;
+      }
+      if (F !== curP() && F !== curS() && !curS()) { data.settings.currency2 = F; cur2 = F; }
+      const before2 = a2.balance, ids2 = [];
+      sideRows.slice().sort(byDate).forEach((r) => {
+        const amt = round2(clampAmt(r.amount)), t = { id: nextTxId(), date: r.date, amount: amt, category: r.cat, note: r.desc || r.cat, acc: a2.id, imp: r.fp };
+        data.transactions.push(t); ids2.push(t.id);
+        if (I.bal !== 'keep') applyTo(a2, amt);
+      });
+      parts.push({ ids: ids2, acc: a2.id, before: before2, created: created2, cur2: cur2 });
+      dones.push({ n: ids2.length, acc: a2.name + l4(a2), bal: a2.balance, cur: a2.cur, credit: isCredit(a2), created: !!created2 });
+    }
+    return { parts: parts, dones: dones };
   } finally { ui.imp = keep; }
 }
 function impGo() {
   const S = ui.impSet || (ui.imp ? { list: [ui.imp] } : null); if (!S) return;
   const parts = [], dones = [];
-  S.list.forEach((I) => { const r = impGoOne(I); if (r) { parts.push(r.part); dones.push(r.done); } });
+  S.list.forEach((I) => { const r = impGoOne(I); if (r) { r.parts.forEach((x) => parts.push(x)); r.dones.forEach((x) => dones.push(x)); } });
   if (!parts.length) return;
   ui.impLast = { parts: parts };
   ui.impDone = { n: dones.reduce((n, d) => n + d.n, 0), parts: dones, created: dones.some((d) => d.created) };
@@ -5965,6 +6024,7 @@ function impUndo() {
     const set = new Set(P.ids), acc = data.accounts.concat(data.cards).find((o) => o.id === P.acc);
     data.transactions = data.transactions.filter((t) => !set.has(t.id));
     if (acc) acc.balance = P.before;
+    if (P.cur2 && curS() === P.cur2 && !data.accounts.concat(data.cards).some((o) => o.cur === P.cur2 && o.id !== P.created)) data.settings.currency2 = '';   /* la segunda moneda que activó la importación */
     if (P.created && !data.transactions.some((t) => t.acc === P.created)) { data.accounts = data.accounts.filter((o) => o.id !== P.created); data.cards = data.cards.filter((o) => o.id !== P.created); if (ui.acctId === P.created) ui.acctId = data.accounts[0].id; } /* la cuenta que creó la importación */
   });
   ui.impLast = null; ui.dirty++; persist(); renderAll(); toast('Importación deshecha');
@@ -5975,7 +6035,9 @@ $('#impfile').addEventListener('change', (e) => { const fs = Array.prototype.sli
 document.addEventListener('change', (e) => {
   const el = e.target, I = ui.imp; if (!I || !el || !el.matches) return;
   if (el.matches('select[data-imp-cat]')) { const i = +el.getAttribute('data-imp-cat'), r = I.rows[i]; I.cat[i] = el.value; if (r) r.cat = el.value; }
-  else if (el.id === 'impAcc') { I.acc = el.value; I.mergeId = el.value; I.flip = null; I.bal = null; I.sel = {}; impBuild(); impRender(); }
+  else if (el.id === 'impAcc') { I.acc = el.value; I.mergeId = el.value; I.flip = null; I.bal = null; I.sel = {}; I.fxMode = null; I.fxRate = null; I.fxAcc = null; impBuild(); impRender(); }
+  else if (el.id === 'impFxAcc') { I.fxAcc = el.value; I.sel = {}; impBuild(); impRender(); }
+  else if (el.id === 'impFxRate') { const v = parseFloat(String(el.value).replace(',', '.')); if (v > 0) { I.fxRate = v; I.sel = {}; impBuild(); impRender(); } }
   else if (el.matches('select[data-imp-col]')) {
     I.cols = Object.assign({}, I.a.cols, I.cols || {}); I.cols[el.getAttribute('data-imp-col')] = +el.value;
     I.x = Nazca.extract(I.a, { cols: I.cols }); I.sel = {}; I.cat = {}; I.flip = null; I.bal = null; impBuild(); impRender();
@@ -6176,7 +6238,7 @@ document.addEventListener('click', (e) => {
   else if (a === 'tx') openTx(arg);
   else if (a === 'swedit' || a === 'swpost' || a === 'swdel') swAct(a, arg);
   else if (a === 'pxconf' || a === 'pxedit' || a === 'pxdel' || a === 'pxcontrib' || a === 'pxadd' || a === 'pxhide') pxAct(a, arg);
-  else if (a === 'cldbg') { const t = Date.now(); CL.taps = (CL.taps || []).filter((x) => t - x < 2500); CL.taps.push(t); if (CL.taps.length >= 4) { CL.taps = []; const on = !clBeta(); try { localStorage.setItem('plata.cloudbeta', on ? '1' : '0'); } catch (e) { /* sin almacenamiento */ } toast(on ? 'Plata Cloud activado (debug)' : 'Plata Cloud desactivado (debug)'); try { renderAll(); } catch (e) { /* aún sin pantalla */ } } }
+  else if (a === 'cldbg') { const t = Date.now(); CL.taps = (CL.taps || []).filter((x) => t - x < 2500); CL.taps.push(t); if (CL.taps.length >= 4) { CL.taps = []; const on = !nazcaOn(); try { localStorage.setItem('plata.nazca', on ? '1' : '0'); } catch (e) { /* sin almacenamiento */ } toast(on ? 'Nazca activado' : 'Nazca desactivado'); try { renderAll(); } catch (e) { /* aún sin pantalla */ } } }
   else if (a === 'cl') clAct(arg, el);
   else if (a === 'cloudjoin') cloudJoin(el);
   else if (a === 'cloudstrip') { const s = $('#cloudStrip'); if (s) { s.classList.add('open'); const i = s.querySelector('input'); if (i) i.focus(); } }
@@ -6659,7 +6721,7 @@ async function wcloudGo() {
 }
 function wCopyLink() { const u = 'https://plataapp.net', ok = () => toast('Enlace copiado'); try { navigator.clipboard.writeText(u).then(ok, () => toast(u)); } catch (e) { toast(u); } }
 const W_OPT = ['name', 'imp', 'inc', 'fixed', 'budget', 'subs', 'debt', 'goal'];
-const wSteps = (w) => { const b = W_STEPS[w.level] || []; return w.cloud && b.length ? b.concat('dev') : b; };
+const wSteps = (w) => { const b = (W_STEPS[w.level] || []).filter((x) => x !== 'imp' || nazcaOn()); return w.cloud && b.length ? b.concat('dev') : b; };
 const wSid = (w) => wSteps(w)[w.step];
 function wClear(w) {
   const sid = wSid(w);
