@@ -110,7 +110,7 @@ const NazcaPDFGen = (() => {
    * En una tarjeta, Plata guarda las compras como gasto (−) y los pagos y créditos como ingreso (+). Cada banco los imprime a su manera:
    *  · lo más común (EE. UU.): compras en positivo y pagos en negativo; · otros: compras en negativo y pagos en positivo.
    * Se mira cómo vienen impresos los movimientos que parecen pagos ("payment", "pago", "thank you", "abono", "reembolso", "refund"…) y de ahí se decide la convención. */
-  const CARD_CUES = [/credit card|tarjeta de cr[eé]dito|\bvisa\b|master ?card|american express|\bamex\b/i, /credit limit|l[ií]nea de cr[eé]dito|credit line|cr[eé]dito disponible|available credit/i, /minimum (?:payment|amount) due|pago m[ií]nimo|min(?:imum)? payment/i,
+  const CARD_CUES = [/credit card|tarjeta de cr[eé]dito|\bvisa\b|master ?card|american express|\bamex\b/i, /credit limit|l[ií]nea de cr[eé]dito|l[ií]mite de cr[eé]dito|credit line|cr[eé]dito disponible|available credit/i, /minimum (?:payment|amount) due|pago m[ií]nimo|min(?:imum)? payment/i,
     /payment due(?: date)?|fecha (?:l[ií]mite )?de pago|vencimiento|due date/i, /\bAPR\b|annual percentage rate|\bTEA\b|\bTCEA\b|tasa de inter[eé]s|interest rate/i, /new balance|previous balance|nuevo saldo|saldo anterior|statement closing|fecha de corte/i];
   const PAYMENT = /payment|pago|thank you|gracias|abono|refund|reembolso|devoluci|credit adjustment|reward|cashback|ajuste a favor|\bcr[eé]dito\b/i;
   function cardInfo(doc, rows) {
@@ -121,10 +121,10 @@ const NazcaPDFGen = (() => {
     if (isCard) {
       let m = /(?:\bAPR\b|annual percentage rate|\bTEA\b|\bTCEA\b|tasa(?: de inter[eé]s)?(?: anual)?|interest rate)[^\d%]{0,40}(\d{1,3}(?:[.,]\d{1,2})?)\s?%/i.exec(t) || /(\d{1,3}(?:[.,]\d{1,2})?)\s?%\s?\(?(?:Fixed|Variable|APR|TEA)/i.exec(t); if (m) info.apr = num(m[1].replace(',', '.'));
       m = /(?:minimum (?:payment|amount) due|pago m[ií]nimo)[^\d$]{0,30}(?:S\/\.?|US\$|\$)?\s?([\d,]+\.\d{2})/i.exec(t); if (m) info.minPayment = num(m[1]);
-      m = /(?:credit limit|l[ií]nea de cr[eé]dito)(?! available| disponible)[^\d$]{0,30}(?:S\/\.?|US\$|\$)?\s?([\d,]+\.\d{2})/i.exec(t); if (m) info.limit = num(m[1]);
+      m = /(?:credit limit|l[ií]nea de cr[eé]dito|l[ií]mite de cr[eé]dito)(?! available| disponible)[^\d$]{0,30}(?:S\/\.?|US\$|\$)?\s?([\d,]+\.\d{2})/i.exec(t); if (m) info.limit = num(m[1]);
       m = /(?:payment due(?: date)?|due date|fecha (?:l[ií]mite )?de pago|vencimiento)[:\s-]{0,6}([A-Za-z0-9/.,\s-]{6,24})/i.exec(t);
       if (m) { const d = takeDate(m[1].trim()); if (d) { const yr = (t.match(/\b20\d{2}\b/g) || []).map(Number); const Y = Math.max.apply(null, yr.length ? yr : [new Date().getFullYear()]);
-        const iso = d.v ? (d.short ? null : (/^\d{4}-/.test(d.v) ? d.v : (() => { const q = d.v.split('/').map(Number); return q[2] + '-' + pad(q[0] > 12 ? q[1] : q[0]) + '-' + pad(q[0] > 12 ? q[0] : q[1]); })())) : (d.yr || Y) + '-' + pad(d.mo) + '-' + pad(d.d);
+        const iso = d.v ? (d.short ? null : (/^\d{4}-/.test(d.v) ? d.v : (() => { const q = d.v.split('/').map(Number), es = /fecha|vencimiento/i.test(m[0]); const dm = q[0] > 12 || es; return q[2] + '-' + pad(dm ? q[1] : q[0]) + '-' + pad(dm ? q[0] : q[1]); })())) : (d.yr || Y) + '-' + pad(d.mo) + '-' + pad(d.d);
         if (iso) { info.dueDate = iso; info.dueDay = +iso.slice(8, 10); } } }
     }
     const l4 = /(?:ending in|terminad[ao] en|account (?:number )?\*?|n[uú]mero de tarjeta|card (?:no\.?|number))[^\d]{0,12}(?:\*{2,}|x{2,}|•{2,}|\.{3,})?\s?(\d{4})\b/i.exec(t) || /(?:\*{2,}|x{3,}|•{3,})\s?(\d{4})\b/i.exec(t);

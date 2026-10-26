@@ -570,6 +570,9 @@ if __name__ == "__main__":
     tarjeta(OUT / "tarjeta-sigma.pdf", "Banco Sigma - Tarjeta de crédito Visa (PRUEBA)", ["Estado de cuenta de tarjeta de crédito - terminada en 5566", "Fecha de corte: 05/04/2026", "Saldo anterior S/ 300.00   Nuevo saldo S/ 365.00", "Línea de crédito S/ 5,000.00", "Pago mínimo S/ 60.00", "Fecha límite de pago: 25/04/2026", "TEA 49.90%"],
         [(40, "Fecha", 'l'), (120, "Descripción", 'l'), (540, "Importe", 'r')],
         [("08/03/2026", "COMPRA SUPERMERCADO", "-S/ 120.00"), ("15/03/2026", "PAGO RECIBIDO GRACIAS", "S/ 300.00"), ("22/03/2026", "COMPRA FARMACIA", "-S/ 45.00"), ("30/03/2026", "COMPRA RESTAURANTE", "-S/ 80.00")])
+    tarjeta(OUT / "tarjeta-generica.pdf", "Banco Genérico - Tarjeta de crédito (PRUEBA)", ["Estado de cuenta de tarjeta de crédito - terminada en 9021", "Fecha de corte: 15/10/2026", "Saldo anterior US$ 250.00   Nuevo saldo US$ 391.34", "Límite de crédito US$ 3,000.00", "Pago mínimo US$ 35.00", "Fecha límite de pago: 05/11/2026", "TEA 34.90%"],
+        [(40, "Fecha", 'l'), (120, "Descripción", 'l'), (540, "Importe", 'r')],
+        [("18/09/2026", "COMPRA SUPERMERCADO CENTRAL", "-US$ 86.40"), ("22/09/2026", "PAGO RECIBIDO GRACIAS", "US$ 250.00"), ("27/09/2026", "COMPRA TIENDA ONLINE", "-US$ 129.90"), ("02/10/2026", "COMPRA RESTAURANTE EL PUERTO", "-US$ 42.00"), ("09/10/2026", "COMPRA GASOLINERA", "-US$ 38.50"), ("14/10/2026", "SUSCRIPCION MUSICA", "-US$ 9.99"), ("15/10/2026", "INTERES DEL PERIODO", "-US$ 4.55")])
     bofa(OUT / "bofa-cheques.pdf", BOFA_DEP, BOFA_ATM, BOFA_OTH)
     bofa(OUT / "bofa-no-cuadra.pdf", BOFA_DEP, BOFA_ATM, BOFA_OTH, extra_impreso=3.00)
     apple_card(OUT / "apple-card.pdf", AC_PAGOS, AC_COMPRAS)

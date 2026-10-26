@@ -251,5 +251,11 @@ const sum = (it) => Math.round(it.reduce((s, x) => s + x.amount, 0) * 100) / 100
   const d3 = await P.read(bytes('interbank-tarjeta-consumos.pdf'), lib), r3 = B.detect(d3, 'interbank').read(d3);
   ok(r3.items.length === 7 && r3.items.filter((x) => x.amount < 0 && /WONG|TOTTUS/.test(x.desc)).length === 2 && r3.items.filter((x) => x.amount > 0).length === 2 && r3.check.ok === true, 'interbank tarjeta: consumos del mes → negativos, varios pagos → positivos, y cuadra'); }
 
+// 21) Banco genérico de crédito (inventado, en dólares): ningún lector de banco lo reconoce y el lector genérico lo lee como tarjeta
+{ const d = await P.read(bytes('tarjeta-generica.pdf'), lib), g = G.read(d);
+  ok(B.detect(d) === null && g.isCard && g.cur === 'USD' && g.last4 === '9021', 'banco genérico: sin lector propio, se lee como tarjeta en dólares (terminada en 9021)');
+  ok(g.card.apr === 34.9 && g.card.limit === 3000 && g.card.minPayment === 35 && g.card.dueDate === '2026-11-05', 'banco genérico: tasa, límite, pago mínimo y fecha de pago ' + JSON.stringify(g.card));
+  ok(/COMPRA SUPERMERCADO CENTRAL",-86\.40/.test(g.text) && /PAGO RECIBIDO GRACIAS",250\.00/.test(g.text) && g.count === 7, 'banco genérico: compras → gasto, pago → ingreso, 7 movimientos (' + g.count + ')'); }
+
 console.log(f ? '\n' + f + ' FALLAS' : '\nTodo bien');
 process.exit(f ? 1 : 0);
