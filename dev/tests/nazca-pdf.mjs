@@ -113,5 +113,10 @@ const sum = (it) => Math.round(it.reduce((s, x) => s + x.amount, 0) * 100) / 100
   ok(B.detect(bz) === null && gz.count === 4 && /2026-03-05,"CAFETERIA CENTRAL",-12\.90/.test(gz.text), 'genérico: Banco Zeta con fecha "05 mar 2026" → 4 movimientos');
   const none = G.read(await P.read(bytes('otro-banco.pdf'), lib)); ok(none.count === 1, 'genérico: una línea con fecha y monto basta (' + none.count + ')'); }
 
+// 9) nombre probable en archivos que Nazca no conoce
+{ ok(G.nameFromFile('prueba-capital-one.csv') === 'Capital One' && G.nameFromFile('Banco_Zeta_marzo.pdf') === 'Banco Zeta Marzo', 'nombre: sale del nombre del archivo');
+  ok(G.nameFromFile('IMG_2231.csv') === '' && G.nameFromFile('1234.csv') === '' && G.nameFromFile('estado de cuenta.pdf') === '', 'nombre: sin nada con sentido → vacío');
+  ok(G.guessName(await P.read(bytes('banco-equis-falso.pdf'), lib)) === 'Banco Equis (PRUEBA)' && G.guessName(await P.read(bytes('banco-zeta-falso.pdf'), lib)) === 'Banco Zeta (PRUEBA)', 'nombre: sale de la primera línea del encabezado del PDF'); }
+
 console.log(f ? '\n' + f + ' FALLAS' : '\nTodo bien');
 process.exit(f ? 1 : 0);

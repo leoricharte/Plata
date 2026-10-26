@@ -5453,14 +5453,14 @@ async function impFile(f) {
   let a, x;
   try { a = Nazca.analyze(Nazca.decode(await f.arrayBuffer())); x = Nazca.extract(a); }
   catch (e) { impFail('Nazca no pudo leer ese archivo', 'Revisa que sea el archivo CSV que descargaste de tu banca por internet.'); return; }
-  impCsvReview(f.name, a, x, false);
+  impCsvReview(f.name, a, x, false, NazcaPDFGen.nameFromFile(f.name));
 }
-function impCsvReview(fname, a, x, fromPdf) {
+function impCsvReview(fname, a, x, fromPdf, guess) {
   if (!x.items.length) { impFail('Nazca no encontró movimientos', 'No hallamos filas con fecha y monto. Revisa que sea el CSV de movimientos de tu banco.'); return; }
   const curs = {}; x.items.forEach((it) => { if (it.cur) curs[it.cur] = (curs[it.cur] || 0) + 1; });
   const fileCur = Object.keys(curs).sort((p, q) => curs[q] - curs[p])[0] || '', all = data.accounts.concat(data.cards);
   const acc = all.find((o) => o.id === ui.acctId) || (fileCur && data.accounts.find((o) => o.cur === fileCur)) || data.accounts[0];
-  ui.imp = { name: String(fname || '').slice(0, 80), a: a, x: x, cols: null, acc: acc.id, flip: null, bal: null, sel: {}, cat: {}, all: false, gen: !!fromPdf };
+  ui.imp = { name: String(fname || '').slice(0, 80), a: a, x: x, cols: null, acc: acc.id, flip: null, bal: null, sel: {}, cat: {}, all: false, gen: !!fromPdf, guess: String(guess || '').slice(0, 40) };
   impBuild(); impShow('review', 'push');
 }
 /* PDF: la librería (pdf.js) se descarga solo ahora y corre en este dispositivo. Nazca reconoce el banco por el contenido y usa su lector. */
@@ -5475,7 +5475,7 @@ async function impPdf(f) {
   const rd = NazcaBancos.detect(doc, ui.impBank || null);
   if (!rd && !ui.impBank) {   /* banco que Nazca no conoce: lectura genérica, sin sello de verificado */
     let g = null; try { g = NazcaPDFGen.read(doc); } catch (e) { g = null; }
-    if (g && g.count) { const a = Nazca.analyze(g.text), x = Nazca.extract(a); if (x.items.length) { impCsvReview(name, a, x, true); return; } }
+    if (g && g.count) { const a = Nazca.analyze(g.text), x = Nazca.extract(a); if (x.items.length) { impCsvReview(name, a, x, true, g.name || NazcaPDFGen.nameFromFile(name)); return; } }
   }
   if (!rd) { impFail(ui.impBank === 'interbank' ? 'Este archivo no parece de Interbank' : ui.impBank ? 'Este archivo no parece del BCP' : 'Nazca todavía no reconoce este archivo', ui.impBank === 'interbank' ? 'Por ahora Nazca lee el estado de cuenta de la cuenta de ahorros de Interbank. Revisa que sea ese archivo.' : ui.impBank ? 'Por ahora Nazca lee el estado de cuenta de ahorros del BCP. Revisa que sea ese archivo.' : 'No encontramos movimientos con fecha y monto. Si tu banco ofrece un archivo CSV, importa ese.'); return; }
   const r = rd.read(doc);
@@ -5607,7 +5607,7 @@ function impReviewHTML() {
   const list = shown.map((r) => '<div class="imrow' + (r.on ? '' : ' off') + '"><button class="imck' + (r.on ? ' on' : '') + '" data-act="imp:t:' + r.i + '" role="checkbox" aria-checked="' + r.on + '" aria-label="Importar este movimiento">' + (r.on ? RMI('check-line', 16, '#fff') : '') + '</button>' +
     '<div class="grow" style="min-width:0"><div class="imd" data-notr>' + esc(r.desc || '—') + '</div><div class="sub" style="font-size:12.5px">' + dshort(pd(r.date)) + (r.why ? ' · <span class="imwhy">' + IMP_WHY[r.why] + '</span>' : '') + '</div></div>' +
     '<div class="imr"><div class="amt" style="font-size:15px;font-weight:600;color:' + (r.amount > 0 ? 'var(--gt)' : 'var(--ink)') + '">' + fmtSC2(r.amount, acc.cur) + '</div>' + catSel(r) + '</div></div>').join('');
-  const pdf = I.src === 'pdf', bk = pdf && I.bank ? impBankName(I.bank) : '', title = bk ? impBankShort(I.bank) : (I.label && pdf ? I.label : I.gen ? 'Archivo PDF' : 'Archivo CSV');
+  const pdf = I.src === 'pdf', bk = pdf && I.bank ? impBankName(I.bank) : '', title = bk ? impBankShort(I.bank) : (I.label && pdf ? I.label : I.guess ? I.guess : I.gen ? 'Archivo PDF' : 'Archivo CSV');
   const ci = I.cardInfo || {}, cmeta = (ci.dueDate ? '<span>' + RMI('calendar-line', 16, 'currentColor') + 'Pagar antes del ' + dshort(pd(ci.dueDate)) + '</span>' : '') + (ci.apr != null ? '<span>' + RMI('percent-line', 16, 'currentColor') + '<span data-notr>' + ci.apr + ' %</span> de tasa anual</span>' : '');
   const meta = '<div class="immeta"><span>' + RMI('arrow-left-right-line', 16, 'currentColor') + plural(rows.length, 'movimiento', 'movimientos') + '</span>' + (span ? '<span>' + RMI('calendar-line', 16, 'currentColor') + span + '</span>' : '') + cmeta + '</div>';
   const profile = '<div class="scard improf"><div class="imtop"><span class="imav">' + (pdf && I.bank ? impMark(I.bank, 'glyph') : RMI('file-chart-line', 30, 'currentColor')) + '</span><div style="min-width:0;flex:1"><div class="imname"><span data-notr>' + esc(title) + '</span>' +

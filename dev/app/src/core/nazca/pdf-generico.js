@@ -35,6 +35,25 @@ const NazcaPDFGen = (() => {
     return { v: (neg ? '-' : '') + v, cur };
   }
 
+  /* Nombre probable del banco o emisor: la primera línea de arriba de la primera página que parezca un nombre (no un título genérico, ni fechas, ni números). */
+  const GENERIC = /estado|statement|extracto|cuenta|account|p[aá]gina|page|fecha|date|documento|movimientos|resumen|summary|saldo|balance|detalle|transacc|period/i;
+  function guessName(doc) {
+    const pdf = typeof NazcaPDF !== 'undefined' ? NazcaPDF : require('./pdf.js');
+    const page = doc.pages[0]; if (!page) return '';
+    for (const l of pdf.lines(page, 3).slice(0, 8)) {
+      const t = l.items.map((i) => i.str).join(' ').replace(/\s+/g, ' ').trim();
+      if (t.length < 3 || t.length > 32 || (t.match(/[A-Za-zÁÉÍÓÚáéíóúñÑ]/g) || []).length < 3 || /\d{3,}/.test(t) || GENERIC.test(t) || /[$%@]/.test(t)) continue;
+      return t;
+    }
+    return '';
+  }
+  /* Nombre probable a partir del nombre del archivo: "prueba-capital-one.csv" → "Capital One". Si no queda nada con sentido, ''. */
+  function nameFromFile(fname) {
+    let t = String(fname || '').replace(/\.[A-Za-z0-9]{2,4}$/, '').replace(/[_\-.]+/g, ' ').replace(/\b(prueba|test|falso|estado|cuenta|movimientos|statement|export|descarga|download|csv|pdf|copia|copy|final|nuevo)\b/gi, ' ').replace(/\d+/g, ' ').replace(/\s+/g, ' ').trim();
+    if ((t.match(/[A-Za-zÁÉÍÓÚáéíóúñÑ]/g) || []).length < 3 || t.length > 28 || /^(img|dsc|scan|doc|file|data|untitled|sin titulo|whatsapp)\b/i.test(t)) return '';
+    return t.replace(/(^|\s)\S/g, (c) => c.toUpperCase());
+  }
+
   function read(doc) {
     const pdf = typeof NazcaPDF !== 'undefined' ? NazcaPDF : require('./pdf.js');
     const all = doc.pages.flatMap((p) => p.items.map((i) => i.str)).join(' ');
@@ -59,8 +78,8 @@ const NazcaPDFGen = (() => {
     const cur = Object.keys(curs).sort((a, b) => curs[b] - curs[a])[0] || '';
     const q = (v) => '"' + String(v).replace(/"/g, '""') + '"';
     const text = out.length ? 'Fecha,Descripción,Monto\n' + out.map((r) => r[0] + ',' + q(r[1]) + ',' + r[2]).join('\n') + '\n' : '';
-    return { text, count: out.length, cur, year };
+    return { text, count: out.length, cur, year, name: guessName(doc) };
   }
-  return { read };
+  return { read, nameFromFile, guessName };
 })();
 if (typeof module !== 'undefined' && module.exports) module.exports = NazcaPDFGen;
