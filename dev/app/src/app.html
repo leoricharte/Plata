@@ -1038,8 +1038,18 @@ html.web .xbtn,html[data-theme=dark].web .xbtn{background:color-mix(in srgb,var(
 .imopt .sub{display:block;font-size:13px}.imt{display:block;font-size:16px}
 .imrad{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid var(--sec);box-sizing:border-box}.imopt.on .imrad{border:7px solid var(--accent)}
 .imcols>summary{cursor:pointer;font-size:16px;font-weight:600;padding:12px 0;list-style:none}.imcols>summary::-webkit-details-marker{display:none}.imcols>summary::after{content:'›';float:right;color:var(--sec);transition:transform .2s}.imcols[open]>summary::after{transform:rotate(90deg)}
-.imgo{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:0;padding:14px 0;border-top:1px solid var(--line);color:var(--ink);font:inherit;cursor:pointer}.imgo:first-child{border-top:0}.imgo .sub{display:block;font-size:13.5px}.imgo.dis{opacity:.55;cursor:default}.imbk{padding:14px 0;gap:16px}.imbk .imt{font-size:17px;font-weight:600;line-height:1.2}.imbk .sub{font-size:14px;margin-top:1px}.imlogo{display:block;color:var(--ink);padding:6px 0 12px}.imlogo svg{display:block;height:40px;width:auto}html.web .imglyph{color:var(--ink)}html.web .imglyph svg{opacity:.6}.imglyph{flex:none;width:40px;height:40px;color:var(--sec);display:grid;place-items:center}.imglyph svg{width:34px;height:34px}.imgo svg{flex:none}
-.imlead{font-size:16px;line-height:1.4;color:var(--mute);margin:0;padding:0 4px 14px}.imnote{font-size:13px;line-height:1.4;color:var(--mute);text-align:center;padding:4px 14px 14px}
+.imgo{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:0;padding:14px 0;border-top:1px solid var(--line);color:var(--ink);font:inherit;cursor:pointer}.imgo:first-child{border-top:0}.imgo .sub{display:block;font-size:13.5px}.imgo.dis{opacity:.55;cursor:default}.imbk{padding:14px 0;gap:16px}.imbk .imt{font-size:17px;font-weight:600;line-height:1.2}.imbk .sub{font-size:14px;margin-top:1px}
+.imlogo{display:block;color:var(--mute);color:color-mix(in srgb,var(--ink) 46%,transparent);padding:8px 0 14px}.imlogo svg{display:block;height:40px;width:auto}
+.imglyph{flex:none;width:40px;height:40px;color:var(--mute);color:color-mix(in srgb,var(--ink) 46%,transparent);display:grid;place-items:center}.imglyph svg{width:34px;height:34px}.imgo svg{flex:none}
+.imlead{font-size:16px;line-height:1.4;color:var(--mute);margin:0;padding:0 4px 14px}.improf{padding:16px}.improf .imtop{display:flex;align-items:center;gap:14px}
+.imav{flex:none;width:60px;height:60px;border-radius:18px;background:var(--fill);color:color-mix(in srgb,var(--ink) 50%,transparent);display:grid;place-items:center}.imav svg{width:38px;height:38px}
+.improf .imname{font-size:19px;font-weight:700;line-height:1.2;display:flex;align-items:flex-start;gap:6px;min-width:0}.improf .imname>span:first-child{overflow-wrap:anywhere}.improf .imname svg{margin-top:1px}.improf .imname svg{flex:none}
+.improf .immeta{display:flex;flex-wrap:wrap;gap:2px 14px;margin-top:5px;font-size:14.5px;color:var(--mute)}.improf .immeta span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}.improf .immeta svg{flex:none}
+.improf .imfile{margin-top:5px;font-size:12.5px;color:var(--sec);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.imchk{display:flex;align-items:flex-start;gap:12px;margin:14px -16px -16px;padding:14px 16px 16px;border-top:1px solid var(--line)}.imchk .imt{font-size:17px}.imchk .sub{display:block;font-size:14px;margin-top:1px}.imchk svg{flex:none;margin-top:1px}.imchk.warn{color:var(--ot)}
+.imfoot{display:flex;align-items:flex-start;justify-content:center;gap:6px;font-size:13px;line-height:1.4;color:var(--mute);text-align:center;padding:2px 18px 16px}.imfoot svg{flex:none;margin-top:1px}
+.imopt .imt{font-size:17px}.imopt .sub{font-size:14px}.imacc{padding:0 0 12px 34px}.imacc select{width:100%}
+.imnote{font-size:13px;line-height:1.4;color:var(--mute);text-align:center;padding:4px 14px 14px}
 .imbar{position:sticky;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:5;padding-top:12px}.imbar::before{content:'';position:absolute;left:-16px;right:-16px;top:0;bottom:-12px;background:linear-gradient(to top,var(--bg) 60%,transparent);z-index:-1;pointer-events:none}html.web .imbar::before{background:linear-gradient(to top,var(--wtile) 60%,transparent)}
 .imdni{font-size:24px;font-weight:600;letter-spacing:.08em;padding-top:2px}.imdni::placeholder{color:var(--mute);opacity:.45;font-weight:500;letter-spacing:.04em}.imspin{width:36px;height:36px;border-radius:50%;border:3px solid var(--fill);border-top-color:var(--accent);animation:imspin .8s linear infinite;margin:44px auto 18px}@keyframes imspin{to{transform:rotate(360deg)}}@media (prefers-reduced-motion:reduce){.imspin{animation-duration:2.4s}}
 .imdone{display:grid;place-items:center;width:72px;height:72px;border-radius:50%;background:var(--accent);box-shadow:0 10px 28px -8px rgba(34,181,115,.6)}
@@ -5439,8 +5449,8 @@ async function impFile(f) {
   if (f.size > Nazca.MAX_BYTES) { impFail('El archivo es muy grande', 'El máximo es 5 MB. Descarga un periodo más corto desde tu banca por internet.'); return; }
   let a, x;
   try { a = Nazca.analyze(Nazca.decode(await f.arrayBuffer())); x = Nazca.extract(a); }
-  catch (e) { impFail('No pude leer ese archivo', 'Revisa que sea el archivo CSV que descargaste de tu banca por internet.'); return; }
-  if (!x.items.length) { impFail('No encontramos movimientos', 'No hallamos filas con fecha y monto. Revisa que sea el CSV de movimientos de tu banco.'); return; }
+  catch (e) { impFail('Nazca no pudo leer ese archivo', 'Revisa que sea el archivo CSV que descargaste de tu banca por internet.'); return; }
+  if (!x.items.length) { impFail('Nazca no encontró movimientos', 'No hallamos filas con fecha y monto. Revisa que sea el CSV de movimientos de tu banco.'); return; }
   const curs = {}; x.items.forEach((it) => { if (it.cur) curs[it.cur] = (curs[it.cur] || 0) + 1; });
   const fileCur = Object.keys(curs).sort((p, q) => curs[q] - curs[p])[0] || '', all = data.accounts.concat(data.cards);
   const acc = all.find((o) => o.id === ui.acctId) || (fileCur && data.accounts.find((o) => o.cur === fileCur)) || data.accounts[0];
@@ -5457,21 +5467,21 @@ async function impPdf(f) {
   catch (e) { impPdfError(e); return; }
   impDni = '';
   const rd = NazcaBancos.detect(doc, ui.impBank || null);
-  if (!rd) { impFail(ui.impBank ? 'Este PDF no parece del BCP' : 'Todavía no reconocemos este PDF', ui.impBank ? 'Por ahora Nazca lee el estado de cuenta de ahorros del BCP. Revisa que sea ese PDF.' : 'Por ahora Nazca lee el estado de cuenta de ahorros del BCP. Si tu banco ofrece un archivo CSV, importa ese.'); return; }
+  if (!rd) { impFail(ui.impBank ? 'Este PDF no parece del BCP' : 'Nazca todavía no reconoce este PDF', ui.impBank ? 'Por ahora Nazca lee el estado de cuenta de ahorros del BCP. Revisa que sea ese PDF.' : 'Por ahora Nazca lee el estado de cuenta de ahorros del BCP. Si tu banco ofrece un archivo CSV, importa ese.'); return; }
   const r = rd.read(doc);
-  if (!r || r.error) { impFail('No pude leer el estado de cuenta', 'No encontramos el periodo del estado de cuenta en el PDF.'); return; }
-  if (!r.items.length) { impFail('No encontramos movimientos', 'No hallamos movimientos en el PDF. Revisa que sea el estado de cuenta de tu banco.'); return; }
+  if (!r || r.error) { impFail('Nazca no pudo leer el estado de cuenta', 'No encontramos el periodo del estado de cuenta en el PDF.'); return; }
+  if (!r.items.length) { impFail('Nazca no encontró movimientos', 'No hallamos movimientos en el PDF. Revisa que sea el estado de cuenta de tu banco.'); return; }
   impFromPdf(name, r);
 }
 function impPdfError(e) {
   const c = e && e.code;
   if (c === 'need_password') impFail('Este PDF tiene clave', 'Para abrirlo, elige tu banco en «Elegir banco» e ingresa tu DNI.');
   else if (c === 'bad_password') impFail('Ese DNI no abre el PDF', 'Revisa el número e inténtalo otra vez.');
-  else if (c === 'unavailable') impFail('No pude cargar el lector de PDF', 'Abre Plata desde web.plataapp.net con conexión para leer PDF, o importa el CSV de tu banco.');
+  else if (c === 'unavailable') impFail('Nazca no pudo cargar el lector de PDF', 'Abre Plata desde web.plataapp.net con conexión para leer PDF, o importa el CSV de tu banco.');
   else if (c === 'no_text') impFail('Este PDF no tiene texto', 'Parece una foto o un escaneo. Descarga el estado de cuenta en PDF desde la banca por internet de tu banco.');
   else if (c === 'not_pdf') impFail('Ese archivo no es un PDF', 'Elige el estado de cuenta en PDF que descargaste de tu banco.');
   else if (c === 'too_big') impFail('El PDF es muy grande', 'El máximo es 15 MB.');
-  else impFail('No pude leer ese PDF', 'Revisa que sea el estado de cuenta en PDF que descargaste de tu banco.' + ' (' + (e && (e.detail || ((e.name || 'Error') + ': ' + String(e.message || '').slice(0, 90))) || 'sin detalle') + ' · build ' + APP_BUILD + ')');
+  else impFail('Nazca no pudo leer ese PDF', 'Revisa que sea el estado de cuenta en PDF que descargaste de tu banco.' + ' (' + (e && (e.detail || ((e.name || 'Error') + ': ' + String(e.message || '').slice(0, 90))) || 'sin detalle') + ' · build ' + APP_BUILD + ')');
 }
 function impFromPdf(name, r) {
   const bankIs = (o) => { const b = bankOf(o); return !!(b && b.keys.indexOf(r.bank) >= 0); }, last4 = (r.account && r.account.last4) || '';
@@ -5479,14 +5489,17 @@ function impFromPdf(name, r) {
   const hit = data.accounts.find((o) => bankIs(o) && last4 && o.last4 === last4) || data.accounts.find((o) => bankIs(o) && o.cur === r.cur && !o.last4);
   const nueva = { id: '__new', name: r.bank === 'bcp' ? (r.cur === 'USD' ? 'BCP Dólares' : 'BCP Soles') : r.label, type: 'checking', cur: r.cur, apy: 0, balance: 0, color: '', icon: '', last4: last4 };
   ui.imp = { src: 'pdf', label: r.label, check: r.check, name: name, a: { headers: [], width: 0, cols: {}, truncated: false }, x: { items: r.items, skipped: { unreadable: r.skipped.unreadable, blank: 0, total: 0 } },
-    cols: null, acc: hit ? hit.id : '__new', newAcc: nueva, flip: null, bal: null, sel: {}, cat: {}, all: false };
+    cols: null, bank: r.bank, mergeId: hit ? hit.id : null, acc: hit ? hit.id : '__new', newAcc: nueva, flip: null, bal: null, sel: {}, cat: {}, all: false };
   impBuild(); impShow('review', 'push');
 }
+const impBankName = (id) => { const b = NazcaBancos.CATALOG.flatMap((c) => c.banks).find((x) => x.id === id); return b ? b.name : ''; };
+/* La cuenta a la que se fusiona al elegir «Fusionar»: la sugerida, la que ya eligió o la primera de la misma moneda. null si no tiene cuentas. */
+const mergeId = () => { const I = ui.imp; if (!data.accounts.length) return null; return (I.mergeId && accOf(I.mergeId)) ? I.mergeId : ((data.accounts.find((o) => o.cur === I.newAcc.cur) || data.accounts[0]).id); };
 const impAcc = () => { const I = ui.imp; return I.acc === '__new' ? I.newAcc : accOf(I.acc); };
 
 /* ---- Pantallas ---- */
 /* Marcas de cada banco: glyph (cuadrado, para listas) y logo (completo, para la pantalla del banco). Se llenan con el SVG de cada banco. */
-const IMP_MARKS = { bcp: { glyph: '<svg viewBox="125 125 210 210" aria-hidden="true"><path fill="currentColor" opacity=".42" d="M236.83,132.12c30,15.2,54.1,37.1,71.7,65.4,10.8,17.4,9.5,36.7-2.6,53.5-24.9,34.9-58.1,60.5-96.5,78.2-25.8,11.9-54.3-2-65.3-30,15.5-8.2,30.9-16.6,45-26.9,21.2-15.5,39.5-33.4,48.6-58.8,12.4-27.3,13.5-54.5-.9-81.4Z"/><path fill="currentColor" d="M236.83,132.12c14.3,26.9,13,53.9.7,81.1-18.8-20.4-42.2-34.3-66.9-45.3,13-35.2,42.6-50.6,66.2-35.8Z"/></svg>', logo: '<svg viewBox="0 0 1000 252" role="img" aria-label="Banco de Crédito del Perú"><path fill="currentColor" d="M343.5,118.6c24.5,8.2,38.4,22.3,40.2,46.8c2,27.2-9.7,47.5-31.6,62.5c-12.6,8.8-26.9,14.1-41.9,16.8 c-28.5,5.3-57.2,5.5-85.6,0.9c-28.7-4.6-41.3-22.1-35.1-50.8c12.8-59.2,26.5-118.4,40-177.4c1.1-4.6,2.4-8.2,8.4-8.6 C270,6,302,1.1,334.4,6.6c11.9,2,23.4,4.9,34,10.2c36.6,18.1,40.4,61.8,7.9,86.4C367.1,110,356.7,114.4,343.5,118.6z M259.1,141.2 c-4.2,19.2-8.2,36.9-12.1,54.3c-1.5,6.6-0.7,11.9,7.3,12.4c18.5,0.9,37.1,0,53.6-9.7c12.6-7.3,17.9-18.8,16.1-33.4 c-1.8-13.9-11.7-19.4-23.8-23.2C286.7,137.6,273.7,144.3,259.1,141.2z M300,44.6c-5.7,3.8-16.6-5.3-20.1,6.6 c-3.8,13.3-6.4,26.9-9.5,40.6c-1.1,4.6,0.4,8.8,5.5,9.1c19.9,1.1,39.7,1.3,55.8-12.8c15.7-13.7,10.8-34.9-9.1-41.3 C315.6,44.9,308.4,44.9,300,44.6z"/><path fill="currentColor" d="M822.7,48C811.4,17,782.9,9.7,753.8,6.9c-26.9-2.7-54.1-1.3-81,1.8c-9.3,1.1-13.9,4.6-16.1,14.4 c-15.9,72.5-32.4,144.9-48.6,217.4c-0.7,2.7-2,5.5,1.5,8.8c6.4,0,13.9,0,21.2,0c26.9,0,34.9-6.4,40.8-32.5 c3.5-15.5,7.1-31.1,10.4-46.2c5.5-2,9.9-0.4,14.3-0.2c38.8,1.3,75.7-5.1,104.2-34.2C824.9,111.3,835,81.3,822.7,48z M774.1,86.6 c-5.3,25.2-26.9,40.9-56.7,41.1c-19.4,0-21.2-2.2-17-21.9c3.5-16.1,7.3-32,10.2-48.2c1.3-8,5.3-11,13-11c8.2-0.2,16.3-0.7,24.5,0.9 C769.3,51.5,778.5,65.4,774.1,86.6z"/><path fill="currentColor" d="M604.8,11.1c-51-18.6-100-15.2-142.2,21.2c-40.4,34.9-53.2,81.3-48.1,133.4c2.9,29.8,15.5,54.8,42.2,70 c34,19.4,70.4,20.1,107.1,9.3c8.2-2.4,14.3-8.2,16.6-16.8c3.3-13,6.2-26.1,9.5-40.9c-11.5,6.2-20.7,11.9-31.3,15.2 c-33.3,10.4-66.7-2.4-78.4-30.3c-16.1-38.4,6.8-99,45-116.6c31.3-14.4,61.6-8,91.8,8.8c1.8-6.6,3.5-12.6,5.1-18.6 C626.4,27.6,622.7,17.7,604.8,11.1z"/><path fill="currentColor" opacity=".42" d="M92.7,29.2c30,15.2,54.1,37.1,71.7,65.4c10.8,17.4,9.5,36.7-2.6,53.5c-24.9,34.9-58.1,60.5-96.5,78.2 c-25.8,11.9-54.3-2-65.3-30c15.5-8.2,30.9-16.6,45-26.9c21.2-15.5,39.5-33.4,48.6-58.8C106,83.3,107.1,56.1,92.7,29.2z"/><path fill="currentColor" opacity=".42" d="M920.5,29.2c30,15,54.1,37.3,72,65.4c10.8,17,9.9,35.8-1.8,52.3c-25.2,35.8-58.9,61.8-98.2,79.7 c-25.6,11.5-53.4-2.7-64.2-30c14.6-8,29.4-15.9,42.8-25.8c21.9-15.9,41.3-34,50.5-60.3C934.1,83.1,935,55.9,920.5,29.2z"/><path fill="currentColor" d="M92.7,29.2c14.3,26.9,13,53.9,0.7,81.1C74.6,89.9,51.2,76,26.5,65C39.5,29.8,69.1,14.4,92.7,29.2z"/><path fill="currentColor" d="M920.5,29.2c14.6,26.9,13.7,53.9,0.9,81.3c-18.5-20.3-41.7-34-67.8-45.7c8.6-19.4,21-33.6,40.4-40.9 C903.9,19.9,912.5,22.8,920.5,29.2z"/></svg>' } };
+const IMP_MARKS = { bcp: { glyph: '<svg viewBox="125 125 210 210" aria-hidden="true"><path fill="currentColor" d="M236.83,132.12c30,15.2,54.1,37.1,71.7,65.4,10.8,17.4,9.5,36.7-2.6,53.5-24.9,34.9-58.1,60.5-96.5,78.2-25.8,11.9-54.3-2-65.3-30,15.5-8.2,30.9-16.6,45-26.9,21.2-15.5,39.5-33.4,48.6-58.8,12.4-27.3,13.5-54.5-.9-81.4Z"/><path fill="currentColor" d="M236.83,132.12c14.3,26.9,13,53.9.7,81.1-18.8-20.4-42.2-34.3-66.9-45.3,13-35.2,42.6-50.6,66.2-35.8Z"/></svg>', logo: '<svg viewBox="0 0 1000 252" role="img" aria-label="Banco de Crédito del Perú"><path fill="currentColor" d="M343.5,118.6c24.5,8.2,38.4,22.3,40.2,46.8c2,27.2-9.7,47.5-31.6,62.5c-12.6,8.8-26.9,14.1-41.9,16.8 c-28.5,5.3-57.2,5.5-85.6,0.9c-28.7-4.6-41.3-22.1-35.1-50.8c12.8-59.2,26.5-118.4,40-177.4c1.1-4.6,2.4-8.2,8.4-8.6 C270,6,302,1.1,334.4,6.6c11.9,2,23.4,4.9,34,10.2c36.6,18.1,40.4,61.8,7.9,86.4C367.1,110,356.7,114.4,343.5,118.6z M259.1,141.2 c-4.2,19.2-8.2,36.9-12.1,54.3c-1.5,6.6-0.7,11.9,7.3,12.4c18.5,0.9,37.1,0,53.6-9.7c12.6-7.3,17.9-18.8,16.1-33.4 c-1.8-13.9-11.7-19.4-23.8-23.2C286.7,137.6,273.7,144.3,259.1,141.2z M300,44.6c-5.7,3.8-16.6-5.3-20.1,6.6 c-3.8,13.3-6.4,26.9-9.5,40.6c-1.1,4.6,0.4,8.8,5.5,9.1c19.9,1.1,39.7,1.3,55.8-12.8c15.7-13.7,10.8-34.9-9.1-41.3 C315.6,44.9,308.4,44.9,300,44.6z"/><path fill="currentColor" d="M822.7,48C811.4,17,782.9,9.7,753.8,6.9c-26.9-2.7-54.1-1.3-81,1.8c-9.3,1.1-13.9,4.6-16.1,14.4 c-15.9,72.5-32.4,144.9-48.6,217.4c-0.7,2.7-2,5.5,1.5,8.8c6.4,0,13.9,0,21.2,0c26.9,0,34.9-6.4,40.8-32.5 c3.5-15.5,7.1-31.1,10.4-46.2c5.5-2,9.9-0.4,14.3-0.2c38.8,1.3,75.7-5.1,104.2-34.2C824.9,111.3,835,81.3,822.7,48z M774.1,86.6 c-5.3,25.2-26.9,40.9-56.7,41.1c-19.4,0-21.2-2.2-17-21.9c3.5-16.1,7.3-32,10.2-48.2c1.3-8,5.3-11,13-11c8.2-0.2,16.3-0.7,24.5,0.9 C769.3,51.5,778.5,65.4,774.1,86.6z"/><path fill="currentColor" d="M604.8,11.1c-51-18.6-100-15.2-142.2,21.2c-40.4,34.9-53.2,81.3-48.1,133.4c2.9,29.8,15.5,54.8,42.2,70 c34,19.4,70.4,20.1,107.1,9.3c8.2-2.4,14.3-8.2,16.6-16.8c3.3-13,6.2-26.1,9.5-40.9c-11.5,6.2-20.7,11.9-31.3,15.2 c-33.3,10.4-66.7-2.4-78.4-30.3c-16.1-38.4,6.8-99,45-116.6c31.3-14.4,61.6-8,91.8,8.8c1.8-6.6,3.5-12.6,5.1-18.6 C626.4,27.6,622.7,17.7,604.8,11.1z"/><path fill="currentColor" d="M92.7,29.2c30,15.2,54.1,37.1,71.7,65.4c10.8,17.4,9.5,36.7-2.6,53.5c-24.9,34.9-58.1,60.5-96.5,78.2 c-25.8,11.9-54.3-2-65.3-30c15.5-8.2,30.9-16.6,45-26.9c21.2-15.5,39.5-33.4,48.6-58.8C106,83.3,107.1,56.1,92.7,29.2z"/><path fill="currentColor" d="M920.5,29.2c30,15,54.1,37.3,72,65.4c10.8,17,9.9,35.8-1.8,52.3c-25.2,35.8-58.9,61.8-98.2,79.7 c-25.6,11.5-53.4-2.7-64.2-30c14.6-8,29.4-15.9,42.8-25.8c21.9-15.9,41.3-34,50.5-60.3C934.1,83.1,935,55.9,920.5,29.2z"/><path fill="currentColor" d="M92.7,29.2c14.3,26.9,13,53.9,0.7,81.1C74.6,89.9,51.2,76,26.5,65C39.5,29.8,69.1,14.4,92.7,29.2z"/><path fill="currentColor" d="M920.5,29.2c14.6,26.9,13.7,53.9,0.9,81.3c-18.5-20.3-41.7-34-67.8-45.7c8.6-19.4,21-33.6,40.4-40.9 C903.9,19.9,912.5,22.8,920.5,29.2z"/></svg>' } };
 const impMark = (id, kind) => { const m = IMP_MARKS[id]; return m && m[kind] ? m[kind] : RMI('bank-line', 26, 'currentColor'); };
 const IMP_HEAD = { start: ['Importar', 'Datos de banco'], how: ['Importar CSV', 'Cómo funciona'], country: ['Datos de banco', 'Tu país'], banks: ['Perú', 'Tu banco'], bank: ['Perú', '<span class="imlogo">' + impMark('bcp', 'logo') + '</span>'], busy: ['Datos de banco', 'Leyendo…'], done: ['Listo', 'Importado'] };
 function impPageHTML() {
@@ -5516,7 +5529,7 @@ function impBodyHTML(st) {
     '<div class="scard"><label class="srow" style="padding:12px 0"><span class="grow"><span class="slabel">DNI</span><input class="sinput imdni" id="impDni" type="text" inputmode="numeric" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="12" placeholder="········" value="' + esc(impDni) + '" data-notr></span></label></div>' +
     impNote('Es la clave de tu PDF. Plata no guarda ni revisa este número: solo sirve para abrirlo en este dispositivo.') +
     '<div class="imbar"><button class="primary" id="impPickBtn" data-act="imp:pdf"' + (impDniOk() ? '' : ' disabled') + '>Elegir PDF</button></div>';
-  if (st === 'busy') return '<div class="imspin" role="status" aria-label="Leyendo"></div><div class="imlead" style="text-align:center">Leyendo tu estado de cuenta en este dispositivo.</div>';
+  if (st === 'busy') return '<div class="imspin" role="status" aria-label="Leyendo"></div><div class="imlead" style="text-align:center">Nazca está leyendo tu estado de cuenta en este dispositivo.</div>';
   if (st === 'done') {
     const D = ui.impDone || { n: 0, acc: '', bal: 0, cur: 'PEN' };
     return '<div style="display:flex;justify-content:center;padding:4px 0 16px"><span class="imdone">' + RMI('check-line', 40, '#fff') + '</span></div>' +
@@ -5571,12 +5584,19 @@ function impReviewHTML() {
   const list = shown.map((r) => '<div class="imrow' + (r.on ? '' : ' off') + '"><button class="imck' + (r.on ? ' on' : '') + '" data-act="imp:t:' + r.i + '" role="checkbox" aria-checked="' + r.on + '" aria-label="Importar este movimiento">' + (r.on ? RMI('check-line', 16, '#fff') : '') + '</button>' +
     '<div class="grow" style="min-width:0"><div class="imd" data-notr>' + esc(r.desc || '—') + '</div><div class="sub" style="font-size:12.5px">' + dshort(pd(r.date)) + (r.why ? ' · <span class="imwhy">' + IMP_WHY[r.why] + '</span>' : '') + '</div></div>' +
     '<div class="imr"><div class="amt" style="font-size:15px;font-weight:600;color:' + (r.amount > 0 ? 'var(--gt)' : 'var(--ink)') + '">' + fmtSC2(r.amount, acc.cur) + '</div>' + catSel(r) + '</div></div>').join('');
-  return impNote('<span style="display:inline-block;vertical-align:-2px;margin-right:4px">' + RMI('shield-check-line', 14, 'currentColor') + '</span><span>El archivo se leyó en este dispositivo y no se subió a ningún servidor.</span>') +
-    '<div class="imhead"><div class="imt" data-notr>' + esc(I.name) + '</div>' + (I.label ? '<div class="sub">' + esc(I.label) + '</div>' : '') + '<div class="sub">' + plural(rows.length, 'movimiento', 'movimientos') + (span ? ' · ' + span : '') + '</div></div>' +
-    (sum ? '<div class="imsum">' + sum + '</div>' : '') + impCheckHTML(I.check) +
-    '<div class="scard"><label class="srow">' + fico(['#22B573', 'card']) + '<span class="grow"><span class="slabel">Cuenta</span><select class="sinput" id="impAcc">' + (I.src === 'pdf' ? '<option value="__new"' + (I.acc === '__new' ? ' selected' : '') + '>Cuenta nueva</option>' : '') + acctOpts(I.acc === '__new' ? '' : acc.id, true) + '</select></span></label>' +
-    (I.acc === '__new' ? '<div class="sub" style="font-size:13px;padding:0 0 10px">Se creará la cuenta <b data-notr>' + esc(acc.name + l4(acc)) + '</b></div>' : '') +
-    '<div class="row"><span class="grow"><span style="font-size:17px">Invertir signos</span><span class="sub" style="display:block;font-size:13px">Úsalo si los gastos aparecen como ingresos.</span></span>' + swHTML(I.flip, 'imp:flip') + '</div></div>' +
+  const pdf = I.src === 'pdf', bk = pdf && I.bank ? impBankName(I.bank) : '', title = bk || (I.label && pdf ? I.label : 'Archivo CSV');
+  const meta = '<div class="immeta"><span>' + RMI('arrow-left-right-line', 16, 'currentColor') + plural(rows.length, 'movimiento', 'movimientos') + '</span>' + (span ? '<span>' + RMI('calendar-line', 16, 'currentColor') + span + '</span>' : '') + '</div>';
+  const profile = '<div class="scard improf"><div class="imtop"><span class="imav">' + (pdf && I.bank ? impMark(I.bank, 'glyph') : RMI('file-chart-line', 30, 'currentColor')) + '</span><div style="min-width:0;flex:1"><div class="imname"><span data-notr>' + esc(title) + '</span>' +
+    (bk ? '<span aria-label="Banco verificado" title="Nazca reconoció el banco en el archivo">' + RMI('verified-badge-fill', 20, 'var(--accent)') + '</span>' : '') + '</div>' + meta + '<div class="imfile" data-notr>' + esc(I.name) + '</div></div></div>' + impCheckHTML(I.check) + '</div>';
+  const foot = '<div class="imfoot">' + RMI('file-chart-line', 16, 'currentColor') + '<span>Nazca leyó el archivo en este dispositivo. No se subió a ningún servidor.</span></div>';
+  const radio = (k, t, sub, on, extra) => '<button class="imopt' + (on ? ' on' : '') + '" data-act="imp:acc:' + k + '"><span class="imrad"></span><span class="grow"><span class="imt">' + t + '</span><span class="sub">' + sub + '</span></span></button>' + (extra || '');
+  const merge = pdf ? mergeId() : null;
+  const accCard = pdf
+    ? '<div class="scard"><div class="slabel" style="padding:10px 0 0">Cuenta</div>' + radio('new', 'Crear cuenta nueva', '<span data-notr>' + esc(I.newAcc.name + l4(I.newAcc)) + '</span>', I.acc === '__new') +
+      (merge ? radio('merge', 'Fusionar con otra cuenta', 'Suma estos movimientos a una que ya tienes.', I.acc !== '__new', I.acc !== '__new' ? '<div class="imacc"><select class="sinput" id="impAcc" aria-label="Cuenta">' + acctOpts(I.acc, false) + '</select></div>' : '') : '') + '</div>'
+    : '<div class="scard"><label class="srow">' + fico(['#22B573', 'card']) + '<span class="grow"><span class="slabel">Cuenta</span><select class="sinput" id="impAcc">' + acctOpts(acc.id, true) + '</select></span></label>' +
+      '<div class="row"><span class="grow"><span style="font-size:17px">Invertir ingresos y gastos</span><span class="sub" style="display:block;font-size:14px">Actívalo si en tu archivo los gastos aparecen como ingresos, y al revés.</span></span>' + swHTML(I.flip, 'imp:flip') + '</div></div>';
+  return profile + foot + (sum ? '<div class="imsum">' + sum + '</div>' : '') + accCard +
     '<div class="scard"><div class="slabel" style="padding:10px 0 0">' + (credit ? 'Deuda de la tarjeta' : 'Saldo de la cuenta') + '</div>' +
     opt('adjust', credit ? 'Sumar a la deuda' : 'Sumar al saldo', fmtC2(acc.balance, acc.cur) + ' → ' + fmtC2(after, acc.cur)) +
     opt('keep', credit ? 'No cambiar la deuda' : 'No cambiar el saldo', credit ? 'Si tu deuda en Plata ya incluye estos movimientos.' : 'Si tu saldo en Plata ya incluye estos movimientos.') +
@@ -5590,8 +5610,8 @@ function impReviewHTML() {
 }
 function impCheckHTML(ck) {
   if (!ck || ck.ok === null || ck.ok === undefined) return '';
-  return ck.ok ? '<div class="imok">' + RMI('shield-check-line', 20, 'currentColor') + '<span><b>Cuadra con tu estado de cuenta</b><span class="sub" style="display:block">Lo que leímos coincide con los totales y el saldo final del banco.</span></span></div>'
-    : '<div class="imok warn"><b style="font-size:18px;line-height:1">!</b><span><b>No cuadra con tu estado de cuenta</b><span class="sub" style="display:block">Lo que leímos no coincide con los totales del banco. Revisa la lista antes de importar.</span></span></div>';
+  return ck.ok ? '<div class="imchk"><span style="color:var(--gt)">' + RMI('shield-check-line', 24, 'currentColor') + '</span><span class="grow"><span class="imt">Cuadra con tu estado de cuenta</span><span class="sub">Nazca comprobó que los movimientos suman los totales y el saldo final de tu banco.</span></span></div>'
+    : '<div class="imchk warn">' + RMI('error-warning-line', 24, 'currentColor') + '<span class="grow"><span class="imt">No cuadra con tu estado de cuenta</span><span class="sub">Nazca leyó los movimientos, pero no suman los totales de tu banco. Revisa la lista antes de importar.</span></span></div>';
 }
 function impRender() { const b = $('#impbody'); if (!b || !ui.imp) return; const d = b.querySelector('details.imcols'); if (d) ui.imp.colsOpen = d.open; b.innerHTML = impErrHTML() + impReviewHTML(); }
 function impAct(arg) {
@@ -5610,7 +5630,8 @@ function impAct(arg) {
     const r = I.rows[+p[1]]; if (!r) return;
     if (r.why === 'future' || r.why === 'cur') { toast(r.why === 'future' ? 'No se importan movimientos con fecha futura' : 'Este movimiento es de otra moneda que la cuenta'); return; }
     r.on = !r.on; I.sel[r.i] = r.on; impRender();
-  } else if (p[0] === 'flip') { I.flip = !I.flip; I.sel = {}; I.cat = {}; impBuild(); impRender(); }
+  } else if (p[0] === 'acc') { I.acc = p[1] === 'new' ? '__new' : mergeId(); I.flip = null; I.bal = null; I.sel = {}; impBuild(); impRender(); }
+  else if (p[0] === 'flip') { I.flip = !I.flip; I.sel = {}; I.cat = {}; impBuild(); impRender(); }
   else if (p[0] === 'bal') { I.bal = p[1]; impRender(); }
   else if (p[0] === 'all') { I.all = true; impRender(); }
   else if (p[0] === 'go') impGo();
@@ -5644,7 +5665,7 @@ $('#impfile').addEventListener('change', (e) => { const f = e.target.files && e.
 document.addEventListener('change', (e) => {
   const el = e.target, I = ui.imp; if (!I || !el || !el.matches) return;
   if (el.matches('select[data-imp-cat]')) { const i = +el.getAttribute('data-imp-cat'), r = I.rows[i]; I.cat[i] = el.value; if (r) r.cat = el.value; }
-  else if (el.id === 'impAcc') { I.acc = el.value; I.flip = null; I.bal = null; I.sel = {}; impBuild(); impRender(); }
+  else if (el.id === 'impAcc') { I.acc = el.value; I.mergeId = el.value; I.flip = null; I.bal = null; I.sel = {}; impBuild(); impRender(); }
   else if (el.matches('select[data-imp-col]')) {
     I.cols = Object.assign({}, I.a.cols, I.cols || {}); I.cols[el.getAttribute('data-imp-col')] = +el.value;
     I.x = Nazca.extract(I.a, { cols: I.cols }); I.sel = {}; I.cat = {}; I.flip = null; I.bal = null; impBuild(); impRender();
