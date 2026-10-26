@@ -5365,7 +5365,7 @@ function reviewDlg() {
     row('lock-unlock-line', 'La copia no va cifrada de extremo a extremo: el equipo puede leerla.') +
     row('delete-bin-line', 'Al terminar la revisión, la copia se elimina de los servidores y te lo avisamos aquí.') + '</div>' +
     '<div class="slabel rvl">Qué no se hará</div><div class="scard">' +
-    row('eye-off-line', 'No se publica, no se comparte con terceros y no se vende.', 1) +
+    row('eye-off-line', 'No se publica ni se vende. Si se revisa con una herramienta de IA, esa herramienta recibe la copia.', 1) +
     row('camera-line', 'No se usa para imágenes ni videos públicos.', 1) +
     row('checkbox-circle-fill', 'No cambia tu perfil: tus datos siguen igual en tu dispositivo.', 1) + '</div>' +
     '<button class="primary rvgo" data-act="rvgo" disabled style="margin-top:4px;opacity:.5">Enviar a Plata (5)</button>');
@@ -5751,8 +5751,8 @@ function impSendDlg() {
     row('lock-unlock-line', 'La copia no va cifrada de extremo a extremo: el equipo puede leerla.') +
     row('delete-bin-line', 'Se borra de los servidores como máximo a los 30 días.') + '</div>' +
     '<div class="slabel rvl">Qué no se hará</div><div class="scard">' +
-    row('graduation-cap-line', 'Solo se usa para entrenar a Nazca, nada más.', 1) +
-    row('eye-off-line', 'No se publica, no se comparte con terceros y no se vende.', 1) +
+    row('graduation-cap-line', 'Solo se usa para añadir ese formato a Nazca, nada más.', 1) +
+    row('eye-off-line', 'No se publica ni se vende. Si se revisa con una herramienta de IA, esa herramienta recibe el archivo.', 1) +
     row('checkbox-circle-fill', 'No se guarda en tu perfil: tus datos siguen igual en tu dispositivo.', 1) + '</div>' +
     '<button class="primary rvgo" data-act="imp:sendgo" disabled style="margin-top:4px;opacity:.5">Mandar archivo (5)</button>');
   let n = 5; const tm = setInterval(() => {
@@ -5787,7 +5787,7 @@ function impBodyHTML(st) {
     '<div class="imbar"><button class="primary" id="impPickBtn" data-act="imp:open"' + (impKeyOk() ? '' : ' disabled') + '>Abrir estado de cuenta</button></div>';
   if (st === 'how') {
     const stp = (n, t, d) => '<div class="row" style="align-items:flex-start;gap:14px"><span class="imn" data-notr>' + n + '</span><span class="grow"><span class="imt" style="font-size:17px">' + t + '</span><span class="sub" style="display:block;font-size:14px">' + d + '</span></span></div>';
-    return '<div class="scard">' + stp(1, 'Descarga el archivo', 'En la banca por internet de tu banco busca Descargar o Exportar movimientos y elige CSV, o descarga tu estado de cuenta.') + stp(2, 'Elígelo aquí', 'Plata lo lee en tu dispositivo con Nazca. No se sube a ningún servidor.') +
+    return '<div class="scard">' + stp(1, 'Descarga el archivo', 'En la banca por internet de tu banco busca Descargar o Exportar movimientos y elige CSV, o descarga tu estado de cuenta.') + stp(2, 'Elígelo aquí', 'Plata lo lee en tu dispositivo con Nazca. No se sube a ningún servidor, salvo que tú decidas mandarlo.') +
       stp(3, 'Revisa la lista', 'Nazca reconoce el banco y detecta solo las fechas, los montos y la moneda, y marca los movimientos repetidos.') + stp(4, 'Importa', 'Eliges qué hacer con el saldo y, si algo sale mal, puedes deshacerlo.') + '</div>' +
       '<div class="imbar"><button class="primary" data-act="imp:csv">Elegir archivo</button></div>';
   }
@@ -6831,7 +6831,7 @@ function welcomeHTML(dir) {
     } else if (sid === 'imp') {
       const on = w.impAfter === '1', banks = NazcaBancos.CATALOG.map((c) => c.banks.filter((b) => b.active).map((b) => b.name)).reduce((x, y) => x.concat(y), []);
       const opt = (k, t, d, ic, sel) => '<button class="wopt' + (sel ? ' on' : '') + '" data-act="wset:impAfter:' + k + '" style="margin-top:10px">' + tile('#22B573', RMI(ic, 24, '#fff')) + '<span style="flex:1"><b>' + t + '</b><span class="s">' + d + '</span></span>' + (sel ? RMI('checkbox-circle-fill', 24, '#22B573') : '') + '</button>';
-      body = '<h1>¿Traes tus movimientos?</h1><div class="wsub">Opcional. Sube el estado de cuenta de tu banco (PDF o CSV) y Nazca llena tu historial. Lo lee tu dispositivo: no se sube a ningún servidor.</div>' +
+      body = '<h1>¿Traes tus movimientos?</h1><div class="wsub">Opcional. Sube el estado de cuenta de tu banco (PDF o CSV) y Nazca llena tu historial. Lo lee tu dispositivo: no se sube a ningún servidor, salvo que tú decidas mandarlo.</div>' +
         opt('1', 'Importar al terminar', 'Al acabar el recorrido te abrimos el importador. Puedes unirlo a la cuenta que acabas de crear.', 'upload-2-line', on) +
         opt('0', 'Lo haré después', 'Siempre lo encuentras en Movimientos y en Ajustes.', 'time-line', !on) +
         '<div class="wnote" style="text-align:left;margin:14px 4px 0;font-size:13px"><span>Nazca reconoce estados de</span> <span data-notr>' + esc(banks.join(', ')) + '</span><span>, y lee otros bancos por su contenido.</span></div>';
