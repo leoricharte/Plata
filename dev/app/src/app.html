@@ -5397,15 +5397,15 @@ async function saveFile() {
 function markSaved() { clGoneClear(); stampSaved(); ui.dirty = 0; persist(); renderAll(); toast('Archivo de perfil guardado'); }
 
 /* ---------- Importar movimientos desde un CSV del banco (Beta 4) ----------
- * El archivo se lee y se interpreta aquí mismo (el núcleo está en core/csv.js): no se sube a ningún servidor. */
-/*__CSV__*/
+ * El archivo se lee y se interpreta aquí mismo (el núcleo es Nazca, en core/nazca/): no se sube a ningún servidor. */
+/*__NAZCA__*/
 const IMP_SHOW = 300, IMP_WHY = { exact: 'Ya importado', near: 'Parece repetido', cur: 'Otra moneda', future: 'Fecha futura' };
 function impPick() { const i = $('#impfile'); if (i) { i.value = ''; i.click(); } }
 async function impFile(f) {
   if (!f) return;
-  if (f.size > PlataCSV.MAX_BYTES) { askConfirm('El archivo es muy grande', 'El máximo es 5 MB. Descarga un periodo más corto desde tu banca por internet.', [], '', 'Entendido'); return; }
+  if (f.size > Nazca.MAX_BYTES) { askConfirm('El archivo es muy grande', 'El máximo es 5 MB. Descarga un periodo más corto desde tu banca por internet.', [], '', 'Entendido'); return; }
   let a, x;
-  try { a = PlataCSV.analyze(PlataCSV.decode(await f.arrayBuffer())); x = PlataCSV.extract(a); }
+  try { a = Nazca.analyze(Nazca.decode(await f.arrayBuffer())); x = Nazca.extract(a); }
   catch (e) { askConfirm('No pude leer ese archivo', 'Revisa que sea el archivo CSV que descargaste de tu banca por internet.', [], '', 'Entendido'); return; }
   if (!x.items.length) { askConfirm('No encontramos movimientos', 'No hallamos filas con fecha y monto. Revisa que sea el CSV de movimientos de tu banco.', [], '', 'Entendido'); return; }
   const curs = {}; x.items.forEach((it) => { if (it.cur) curs[it.cur] = (curs[it.cur] || 0) + 1; });
@@ -5418,7 +5418,7 @@ function impBuild() {
   const I = ui.imp, acc = accOf(I.acc), credit = isCredit(acc), today = iso(getToday());
   if (I.flip === null) I.flip = credit && I.x.items.filter((it) => it.amount > 0).length > I.x.items.length / 2; // estado de tarjeta: los consumos vienen en positivo
   const items = I.x.items.map((it) => Object.assign({}, it, { amount: I.flip ? -it.amount : it.amount }));
-  const dups = PlataCSV.markDuplicates(items, data.transactions, acc.id), guess = PlataCSV.categorizer(data.cats, data.transactions);
+  const dups = Nazca.markDuplicates(items, data.transactions, acc.id), guess = Nazca.categorizer(data.cats, data.transactions);
   I.rows = items.map((it, i) => {
     const why = it.date > today ? 'future' : (it.cur && it.cur !== acc.cur) ? 'cur' : dups[i].dup;
     const cat = it.amount > 0 ? (credit ? PAY : 'Ingreso') : (I.cat[i] && CAT_ORDER.indexOf(I.cat[i]) >= 0 ? I.cat[i] : guess(it.desc, it.amount));
@@ -5511,7 +5511,7 @@ document.addEventListener('change', (e) => {
   else if (el.id === 'impAcc') { I.acc = el.value; I.flip = null; I.bal = null; I.sel = {}; impBuild(); impRender(); }
   else if (el.matches('select[data-imp-col]')) {
     I.cols = Object.assign({}, I.a.cols, I.cols || {}); I.cols[el.getAttribute('data-imp-col')] = +el.value;
-    I.x = PlataCSV.extract(I.a, { cols: I.cols }); I.sel = {}; I.cat = {}; I.flip = null; I.bal = null; impBuild(); impRender();
+    I.x = Nazca.extract(I.a, { cols: I.cols }); I.sel = {}; I.cat = {}; I.flip = null; I.bal = null; impBuild(); impRender();
   }
 });
 

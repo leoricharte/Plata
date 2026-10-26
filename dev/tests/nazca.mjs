@@ -1,9 +1,9 @@
-// Pruebas del importador de CSV (dev/app/src/core/csv.js) con los archivos inventados de dev/tests/csv/.
-// Uso: node dev/tests/csv.mjs   · Cada prueba imprime OK/FALLA.
+// Pruebas de Nazca, el motor de importación (dev/app/src/core/nazca/), con los archivos inventados de dev/tests/csv/.
+// Uso: node dev/tests/nazca.mjs   · Cada prueba imprime OK/FALLA.
 import { createRequire } from 'node:module';
 import { readFileSync } from 'node:fs';
 const require = createRequire(import.meta.url);
-const C = require('../app/src/core/csv.js');
+const C = require('../app/src/core/nazca/csv.js');
 const dir = new URL('./csv/', import.meta.url);
 let f = 0;
 const ok = (c, m) => { console.log((c ? 'OK    ' : 'FALLA ') + m); if (!c) f++; };

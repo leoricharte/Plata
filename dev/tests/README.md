@@ -9,12 +9,12 @@ Corren sin conexión, con Node 20 o más reciente. No tocan producción.
 | `servidor-local.mjs` | Levanta `dev/worker/worker.js` en `localhost:8787` con KV y Durable Objects simulados. Los correos quedan en `GET /__mails`. |
 | `servidor.mjs` | Llave de escritura, revisiones, cerrar sesiones, origen y bloqueo del admin, textos con HTML peligroso. Requiere `servidor-local.mjs` corriendo. |
 | `servidor-2.mjs` | Tope diario de fallos por correo, llave de escritura que no se reemplaza, tope global de escrituras públicas. Requiere `servidor-local.mjs` (reinícialo antes). |
-| `csv.mjs` | Importador de CSV: separadores, codificación, encabezados, cargo/abono, tipo D/C, monedas, fechas y números, categorías, repetidos, límites. Usa los archivos inventados de `csv/`. |
+| `nazca.mjs` | Nazca, el motor de importación (CSV): separadores, codificación, encabezados, cargo/abono, tipo D/C, monedas, fechas y números, categorías, repetidos, límites. Usa los archivos inventados de `csv/`. |
 | `fuzz-perfil.js` | Carga un perfil donde cada texto es HTML malicioso y recorre la app (móvil y escritorio). Debe dar `HITS 0`. Requiere Playwright. |
 
 ```
 node dev/tests/carrera.mjs
-node dev/tests/csv.mjs
+node dev/tests/nazca.mjs
 node dev/tests/cors.mjs
 node dev/tests/servidor-local.mjs &   # en otra terminal
 node dev/tests/servidor.mjs

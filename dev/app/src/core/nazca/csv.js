@@ -1,11 +1,11 @@
-/* ---------- Importar movimientos desde CSV (núcleo, sin pantalla) ----------
+/* ---------- Nazca, el motor de importación de Plata: lectura de CSV (núcleo, sin pantalla) ----------
  * Todo ocurre en el dispositivo: el archivo nunca se sube a ningún servidor.
  * Este archivo no usa el DOM ni el estado de la app, para poder probarlo en Node y reusarlo en otras plataformas.
  * Entrada: el contenido del archivo. Salida: movimientos { date: 'AAAA-MM-DD', desc, amount (negativo = sale dinero), cur, balance }.
  * Formatos que entiende: separador , ; tabulador |, comillas, UTF-8 o Windows-1252, líneas de encabezado del banco antes de la tabla,
  * un solo monto con signo, columnas separadas de cargo y abono, o monto sin signo más una columna de tipo (cargo/abono, D/C),
  * números como 1,234.56 · 1.234,56 · (12.50) · 12.50- · S/ 12.50, y fechas como 25/10/2026 · 2026-10-25 · 25-oct-2026 · 10/25/2026. */
-const PlataCSV = (() => {
+const Nazca = (() => {
   const MAX_ROWS = 5000, MAX_BYTES = 5 * 1024 * 1024;
   const norm = (s) => String(s == null ? '' : s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9/$ ]+/g, ' ').replace(/\s+/g, ' ').trim();
 
@@ -270,4 +270,4 @@ const PlataCSV = (() => {
 
   return { decode, analyze, extract, parseAmount, parseDate, dateParts, curOf, categorizer, merchant, markDuplicates, fingerprints, roleOf, MAX_BYTES, MAX_ROWS, norm };
 })();
-if (typeof module !== 'undefined' && module.exports) module.exports = PlataCSV;
+if (typeof module !== 'undefined' && module.exports) module.exports = Nazca;

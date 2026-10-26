@@ -2,7 +2,7 @@
 
 Ningún archivo de esta carpeta es una exportación real de un banco: los formatos imitan variantes comunes
 (separadores, encabezados, signos, monedas, fechas) y los datos son ficticios. Cuando haya exportaciones reales
-de un banco, con los datos borrados, se agregan aquí como `banco-<nombre>.csv` con su resultado esperado en `csv.mjs`.
+de un banco, con los datos borrados, se agregan aquí como `banco-<nombre>.csv` con su resultado esperado en `nazca.mjs`.
 
 | Archivo | Qué prueba |
 |---|---|

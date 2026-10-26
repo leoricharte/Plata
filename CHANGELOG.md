@@ -2,7 +2,7 @@
 
 ## Beta 4 (en desarrollo)
 
-- **Importar desde tu banco (CSV):** en Movimientos o en Ajustes, eliges el archivo CSV que descargaste de tu banca por internet y Plata lo lee en tu dispositivo, sin subirlo a ningún servidor. Detecta solas las columnas, el formato de fechas y números, cargos y abonos, y la moneda. Antes de importar ves cada movimiento con su categoría sugerida (aprende de lo que ya registraste), quitas los que no quieras, y Plata marca los que parecen repetidos o ya importados. Eliges si sumar al saldo, no tocarlo o usar el saldo que trae el archivo. Se puede deshacer.
+- **Importar desde tu banco (CSV), con Nazca:** Nazca es el nuevo motor de importación de Plata. En Movimientos o en Ajustes, eliges el archivo CSV que descargaste de tu banca por internet y Plata lo lee en tu dispositivo, sin subirlo a ningún servidor. Detecta solas las columnas, el formato de fechas y números, cargos y abonos, y la moneda. Antes de importar ves cada movimiento con su categoría sugerida (aprende de lo que ya registraste), quitas los que no quieras, y Plata marca los que parecen repetidos o ya importados. Eliges si sumar al saldo, no tocarlo o usar el saldo que trae el archivo. Se puede deshacer.
 
 ## Beta 3
 

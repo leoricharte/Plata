@@ -21,8 +21,8 @@ jobs:
         with:
           node-version: 22
 
-      - name: Importador de CSV
-        run: node dev/tests/csv.mjs
+      - name: Nazca (importador de CSV)
+        run: node dev/tests/nazca.mjs
 
       - name: Pruebas de seguridad del servidor
         run: |
