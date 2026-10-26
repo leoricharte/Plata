@@ -580,6 +580,54 @@ BT_MOVS = [("27Abr", "24Abr", "SUPERMERCADO UNO LIMA PE", "CONSUMO", 71.70, 'S')
     ("27Abr", "25Abr", "SERVICIO ONLINE Estonia EE", "CONSUMO", 3.92, 'D'), ("07May", "07May", "PAGO BANCA MOVIL", "PAGO", 20.00, 'D'), ("20May", "19May", "COMPRA EXTERIOR 800-000-0000 AR", "CONSUMO", 120.00, 'D')]
 BT_CUOTAS = [("02Abr", "TIENDA CUATRO", "02/02", 23.57, 1.65, 'S'), ("01May", "TIENDA CINCO", "01/03", 60.11, 10.58, 'S'), ("19May", "PASE CUOTAS BM", "01/12", 64.31, 45.61, 'D')]
 
+def mp_money(v): 
+    t = f"{abs(v):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    return ("-" if v < 0 else "") + t
+
+def mercadopago(path, filas, prev, final_impreso=None):
+    """Imita el estado de cuenta de Mercado Pago Chile: PDF horizontal (1080 x 768), resumen con títulos y valores debajo, tabla con la fecha completa,
+    ABONO/CARGO, monto con signo, punto de miles y coma decimal, y el nombre del comercio (a veces en dos líneas, a veces vacío).
+    filas: (fecha hora, 'Abono'|'Cargo', tipo de transacción, id, monto con signo, comercio | None)"""
+    dep = round(sum(f[4] for f in filas if f[4] > 0), 2); deb = round(-sum(f[4] for f in filas if f[4] < 0), 2)
+    final = round(prev + dep - deb, 2)
+    c = canvas.Canvas(str(path), pagesize=(1080, 768)); c.setTitle("Estado de cuenta de prueba (inventado)")
+    X = (45, 173, 293, 425, 545, 665, 794, 914)
+    def encabezado_tabla(y):
+        c.setFont("Helvetica-Bold", 7.5)
+        for x, t in zip(X, ("FECHA DE ACREDITACIÓN", "TIPO DE MOVIMIENTO", "TIPO DE TRANSACCIÓN", "ID DE TRANSACCIÓN", "MONEDA", "MONTO DE TRANSACCIÓN", "OTROS CONCEPTOS", "NOMBRE DEL COMERCIO")): c.drawString(x, y, t)
+        c.setFont("Helvetica", 8)
+    def titulos(y, pares):
+        for x, t, v in pares:
+            c.setFont("Helvetica-Bold", 7.5); c.drawString(x, y, t); c.setFont("Helvetica", 8); c.drawString(x, y - 16, v)
+    c.setFont("Helvetica-Bold", 7.5)
+    for x, t in ((45, "DENOMINACIÓN SOCIAL"), (195, "RUT"), (345, "DOMICILIO"), (495, "NOMBRE")): c.drawString(x, 627, t)
+    c.setFont("Helvetica", 8); c.drawString(45, 611, "Mercado Pago Emisora S.A."); c.drawString(195, 598, "99.999.999-9"); c.drawString(345, 604, "Avenida Ejemplo 1000, piso 1,"); c.drawString(345, 592, "Santiago, Chile."); c.drawString(495, 598, "Ana María Gómez Pérez")
+    titulos(559, ((45, "DESDE", "01-09-2026 01:00:00"), (195, "HASTA", "30-09-2026 23:59:59"), (345, "FECHA DE GENERACIÓN", "01-10-2026 10:00:00"), (495, "ID DE USUARIO", "100234567")))
+    titulos(516, ((45, "BALANCE INICIAL", mp_money(prev)), (195, "DEPÓSITOS", mp_money(dep)), (345, "DÉBITOS", mp_money(deb)), (495, "COMISIONES", "0,00"), (595, "RETENCIONES POR", "0,00"),
+                  (743, "PROMEDIO DIARIO DE", "1.234,56"), (912, "BALANCE FINAL", mp_money(final if final_impreso is None else final_impreso))))
+    c.setFont("Helvetica-Bold", 7.5); c.drawString(595, 504, "IMPUESTOS"); c.drawString(743, 504, "SALDOS")
+    encabezado_tabla(461)
+    y, cap = 431, 8
+    for n, (fh, mov, trx, ide, monto, com) in enumerate(filas):
+        if n == cap:
+            c.showPage(); encabezado_tabla(729); y, cap = 699, cap + 12
+        c.setFont("Helvetica", 8)
+        for x, t in zip(X[:7], (fh, mov, trx, ide, "CLP", mp_money(monto), "0,00")): c.drawString(x, y, t)
+        if com and " " in com and mov == "Abono":          # nombre largo: una línea arriba de la fila y otra abajo
+            a, b = com.rsplit(" ", 1); c.drawString(X[7], y + 7, a); c.drawString(X[7], y - 6, b)
+        elif com: c.drawString(X[7], y, com)
+        y -= 35
+    c.setFont("Helvetica", 8); c.drawString(45, 182, "Infórmese sobre las entidades autorizadas para emitir Tarjetas de Pago en el país, quienes se encuentran inscritas en los Registros de Emisores de Tarjetas que lleva la CMF, en www.cmfchile.cl.")
+    c.showPage(); c.save()
+    return dep, deb, final
+
+MP_FILAS = [("02-09-2026 09:15:00", "Abono", "Transferencia recibida", "100000000001", 50000.00, "Ana María Gómez Pérez"), ("02-09-2026 12:30:10", "Cargo", "Pago", "100000000002", -4500.00, "Cafetería ejemplo"),
+    ("03-09-2026 18:02:44", "Cargo", "Pago", "100000000003", -12990.00, "Supermercado uno"), ("05-09-2026 08:00:01", "Cargo", "Pago", "100000000004", -2300.00, None),
+    ("06-09-2026 20:10:00", "Cargo", "Pago", "100000000005", -7490.00, "Mercadopago *tienda"), ("08-09-2026 11:11:11", "Abono", "Transferencia recibida", "100000000006", 15000.00, "Ana María Gómez Pérez"),
+    ("09-09-2026 13:45:30", "Cargo", "Pago", "100000000007", -3200.00, "Farmacia dos"), ("10-09-2026 19:20:00", "Cargo", "Pago", "100000000008", -18000.00, "Restaurante tres"),
+    ("12-09-2026 10:00:00", "Cargo", "Pago", "100000000009", -1500.00, "Kiosco cuatro"), ("15-09-2026 16:40:00", "Cargo", "Pago", "100000000010", -6990.00, "Tienda cinco"),
+    ("20-09-2026 21:00:00", "Abono", "Transferencia recibida", "100000000011", 8000.00, "Ana María Gómez Pérez"), ("28-09-2026 09:30:00", "Cargo", "Pago", "100000000012", -9990.00, "Servicio seis")]
+
 if __name__ == "__main__":
     bcp(OUT / "bcp-ahorros.pdf", ("01/03/26", "31/03/26"), 120.30, MARZO)
     bcp(OUT / "bcp-ahorros-enero.pdf", ("01/01/26", "31/01/26"), 35.10, ENERO)
@@ -640,3 +688,5 @@ if __name__ == "__main__":
     io_tarjeta(OUT / "io-no-cuadra.pdf", IO_ABONOS, IO_CONSUMOS, extra_impreso=2.00)
     subprocess.run(["qpdf", "--encrypt", "12345678", "12345678", "256", "--", str(OUT / "io-tarjeta.pdf"), str(OUT / "io-tarjeta-clave.pdf")], check=True)
     print("listo")
+    mercadopago(OUT / "mercadopago-cuenta.pdf", MP_FILAS, 1250.00)
+    mercadopago(OUT / "mercadopago-no-cuadra.pdf", MP_FILAS, 1250.00, final_impreso=9999.99)

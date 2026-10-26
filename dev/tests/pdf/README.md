@@ -42,3 +42,4 @@ Se regeneran con `python3 dev/tests/pdf/hacer-pdfs.py` (necesita `reportlab` y `
 - `capital-one-cuenta.pdf`, `capital-one-cuenta-no-cuadra.pdf`: estados inventados de la cuenta Capital One 360 Checking (monto con signo, saldo corrido, descripciones de dos líneas).
 - `capital-one-nuevo.pdf`, `capital-one-nuevo-no-cuadra.pdf`: estados inventados con el diseño actual de Capital One (Quicksilver/Savor): periodo sin título, "Transactions +", "Other Credits", intereses del resumen.
 - `io-tarjeta.pdf`, `io-no-cuadra.pdf`, `io-tarjeta-clave.pdf`: estado inventado de la tarjeta iO (Perú); el último va cifrado con la clave `12345678` (como si fuera el DNI).
+- `mercadopago-cuenta.pdf`, `mercadopago-no-cuadra.pdf`: estados inventados con el diseño del estado de cuenta de Mercado Pago Chile (horizontal, 2 páginas, monto con signo y coma decimal, nombre del comercio en una o dos líneas). El segundo trae el balance final mal impreso: debe avisar que no cuadra.
