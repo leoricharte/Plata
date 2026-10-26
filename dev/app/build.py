@@ -49,7 +49,7 @@ if re.search(r"<[a-z][^>]*\son[a-z]+\s*=", re.sub(r"<script>.*?</script>", "", h
     raise SystemExit("build: hay atributos on…= en el HTML; con la CSP no funcionarían")
 _hashes = " ".join("'sha256-%s'" % base64.b64encode(hashlib.sha256(x.encode("utf-8")).digest()).decode() for x in _p.found)
 CSP = ("default-src 'none'; script-src %s; style-src 'unsafe-inline'; img-src 'self' data: blob:; font-src data:; "
-       "connect-src 'self' https://plata-cloud.xleoricharte.workers.dev http://localhost:* http://127.0.0.1:*; "
+       "connect-src 'self' https://plata-cloud.xleoricharte.workers.dev http://localhost:* http://127.0.0.1:* ipc: http://ipc.localhost; "
        "frame-src https://plataapp.net; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'") % _hashes
 _m = re.search(r'<meta charset="[^"]*">', html)
 if not _m: raise SystemExit("build: falta <meta charset> para colocar la CSP")

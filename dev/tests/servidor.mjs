@@ -14,7 +14,7 @@ const code = await lastCode('ana@prueba.co');
 const guesses = Array.from({ length: 300 }, (_, i) => i === 250 ? code : String((Number(code) + 1 + i) % 1e6).padStart(6, '0'));
 const rs = await Promise.all(guesses.map((g, i) => j('/auth/verify', 'POST', { email: 'ana@prueba.co', code: g }, { 'X-Test-IP': '2.2.' + (i % 250) + '.1' })));
 ok(!rs.some((r) => r.j.token), '300 intentos en paralelo (el correcto en el #251) no entran: ' + rs.filter((r) => r.s === 400).length + ' rechazados');
-ok((await j('/auth/verify', 'POST', { email: 'ana@prueba.co', code }, { 'X-Test-IP': '3.3.3.3' })).s === 400, 'tras 5 fallos, ni el código correcto sirve');
+ok([400, 429].includes((await j('/auth/verify', 'POST', { email: 'ana@prueba.co', code }, { 'X-Test-IP': '3.3.3.3' })).s), 'tras 5 fallos, ni el código correcto sirve');
 
 // 2) Cuenta nueva con llave de escritura
 const tok = await login('beto@prueba.co'); ok(!!tok, 'inicio de sesión normal funciona');

@@ -32,6 +32,8 @@ Almacenamiento:
 | `c:<usuario>` / `c2:<usuario>` | Código de entrada / de confirmación (hash, 10 min, máx. 5 intentos) |
 | `link:<usuario>` | Estado de la aprobación de un dispositivo nuevo (10 min) |
 | `rl:…`, `af:…` | Límites de uso por IP anonimizada o por usuario, y fallos del admin |
+| `rl:vf:<usuario>:<día>` | Fallos de código de entrada en el día (máx. 15; después, 429 hasta el día siguiente) |
+| `rl:pub:<día>` | Escrituras de rutas públicas en el día (máx. 150 altas o copias), para no agotar el cupo de KV de la sincronización |
 
 ## Rutas
 

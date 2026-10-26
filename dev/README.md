@@ -38,10 +38,11 @@ Los datos de cada persona viven en el navegador **por dominio**: un fallo en el 
 
 1. En `dev/app/src/app.html` sube `APP_BUILD` (busca `const APP_BUILD`). El número de la pantalla de inicio sale de ahí.
 2. Compila: `python3 dev/app/build.py`. La compilación agrega la Content-Security-Policy con el hash de cada script; si alguien agrega un `onclick="…"` o un `<script src>`, la compilación se detiene.
-3. Sube `CACHE` (`finanzas-vNNN`) al mismo número en `dev/web/sw.js` (y en `app/sw.js` mientras exista la app vieja).
+3. Sube `CACHE` (`finanzas-vNNN`) al mismo número en `dev/web/sw.js`.
 4. En `README.md` (línea de "Compilación") pon el mismo número.
-5. Mientras dure la app vieja en `plataapp.net/app`: `cp dev/app/out/finanzas.html app/index.html`.
-6. Commit y push a `main`. Cloudflare Pages compila `web.plataapp.net` solo; GitHub Pages publica el sitio.
+5. Commit y push a `main`. Cloudflare Pages compila `web.plataapp.net` solo; GitHub Pages publica el sitio.
+
+`app/index.html` ya no es la app: desde la mudanza es la página que redirige a `web.plataapp.net` (y `app/puente.html` pasa los datos). No copies la app ahí.
 
 ## El servidor (Cloudflare Worker)
 
