@@ -30,8 +30,9 @@ jobs:
       - name: Preparar la app (misma que la web)
         shell: bash
         run: |
+          python3 dev/app/build.py
           mkdir -p dev/desktop/dist
-          cp app/index.html dev/desktop/dist/index.html
+          cp dev/app/out/finanzas.html dev/desktop/dist/index.html
 
       - name: Instalar dependencias
         working-directory: dev/desktop

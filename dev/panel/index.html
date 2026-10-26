@@ -49,6 +49,7 @@ label{display:block;font-size:13px;font-weight:700;color:var(--mute);margin:12px
 <script>
 /* Panel privado de Plata. Vive en su propio dominio (dev), NUNCA en plataapp.net ni en la app: así un fallo en el sitio público no puede leer el token,
  * y el token nunca se escribe en el dominio público. El token solo vive en memoria mientras la pestaña está abierta. */
+if(/(^|\.)plataapp\.net$/.test(location.hostname)){document.body.innerHTML='<div class="w"><h1>Panel</h1><p class="sub">Este panel no funciona en plataapp.net. Ábrelo desde el panel privado o desde tu computadora.</p></div>';throw new Error('dominio público')}
 var API=(/^(localhost|127\.0\.0\.1)$/.test(location.hostname)&&new URLSearchParams(location.search).get('api'))||'https://plata-cloud.xleoricharte.workers.dev',SITE='https://plataapp.net/',tok='',$=function(i){return document.getElementById(i)};
 function msg(t){$('msg').textContent=t||''}
 function call(path,method,body){return fetch(API+path,{method:method||'GET',headers:Object.assign({Authorization:'Bearer '+tok},body?{'Content-Type':'application/json'}:{}),body:body?JSON.stringify(body):undefined}).then(function(r){return r.json().catch(function(){return{}}).then(function(j){if(!r.ok||j.ok===false){var e=new Error(j.error||('error '+r.status));e.code=r.status;throw e}return j})})}

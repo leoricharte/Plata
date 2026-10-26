@@ -179,8 +179,11 @@ async function gate(env, name, body) {
 async function hit(env, key, max, ttl) { return (await gate(env, key, { op: 'hit', max, ttl })).limited; } // true si ya se pasó del límite
 const ipKey = async (req, env, tag) => tag + ':' + (await sha((env.RL_SALT || 'plata') + (req.headers.get('CF-Connecting-IP') || 'x')));
 async function rateLimited(req, env) {
-  return hit(env, (await ipKey(req, env, 'rl')) + ':' + Math.floor(Date.now() / 3600000), LIMIT_PER_HOUR, 7200);
+  if (await hit(env, (await ipKey(req, env, 'rl')) + ':' + Math.floor(Date.now() / 3600000), LIMIT_PER_HOUR, 7200)) return true;
+  // Tope global: aunque alguien rote IPs, las rutas públicas no pueden gastar más de 300 escrituras de KV al día (de 1.000 en el plan gratis).
+  return hit(env, 'rl:pub:' + Math.floor(Date.now() / 86400000), PUBLIC_WRITES_DAY, 2 * 86400);
 }
+const PUBLIC_WRITES_DAY = 150; // cada alta o copia hace ~2 escrituras
 
 async function join(req, env, h, ctx) {
   const origin = req.headers.get('Origin') || '';
@@ -429,7 +432,8 @@ async function codeTry(env, tag, ek, code, keep) {
   return (await gate(env, tag + ':' + ek, { op: 'try', val: await codeHash(env, tag, ek, code), max: MAX_TRIES, keep: !!keep })).ok;
 }
 const isTester = (env, email) => env.CLOUD_OPEN === '1' || list(String(env.CLOUD_TESTERS || '').toLowerCase()).includes(email);
-const hourOf = () => Math.floor(Date.now() / 3600000), minOf = () => Math.floor(Date.now() / 60000);
+const hourOf = () => Math.floor(Date.now() / 3600000), minOf = () => Math.floor(Date.now() / 60000), dayOf = () => Math.floor(Date.now() / 86400000);
+const MAX_FAILS_DAY = 15;
 
 async function authStart(req, env, h, ctx) {
   const o = needOrigin(req, h); if (o) return o;
@@ -460,8 +464,10 @@ async function authVerify(req, env, h) {
   const email = cleanEmail(b.email), code = String(b.code || '').replace(/\s/g, '');
   if (!email || !/^\d{6}$/.test(code)) return json({ ok: false, error: 'code' }, 400, h);
   if (await hit(env, (await ipKey(req, env, 'rl:av')) + ':' + minOf(), 30, 180)) return json({ ok: false, error: 'rate' }, 429, h);
-  const ek = await emailKey(env, email);
-  if (!(await codeTry(env, 'c', ek, code))) return json({ ok: false, error: 'code' }, 400, h);
+  const ek = await emailKey(env, email), vf = 'rl:vf:' + ek.slice(0, 24) + ':' + dayOf();
+  // Cada código admite 5 intentos, pero se pueden pedir 5 códigos por hora: este tope corta la suma (máx. 15 fallos al día por correo).
+  if ((await gate(env, vf, { op: 'peek' })).n >= MAX_FAILS_DAY) return json({ ok: false, error: 'rate' }, 429, h);
+  if (!(await codeTry(env, 'c', ek, code))) { await hit(env, vf, MAX_FAILS_DAY, 2 * 86400); return json({ ok: false, error: 'code' }, 400, h); }
   let u = await kvGet(env, 'u:' + ek), isNew = false;
   if (!u) { isNew = true; u = { email, t: Date.now(), kc: '' }; await kvPut(env, 'u:' + ek, u); }
   const token = await newSession(env, ek, u, b.dev);
@@ -493,6 +499,7 @@ const revFloor = async (env, ek) => Number(await env.WAITLIST.get('n:' + ek)) ||
 
 async function me(req, env, h) {
   const a = await session(req, env); if (!a) return unauth(h);
+  if (!a.u.wh && a.u.kc) await writeOk(req, env, a); // cuentas anteriores a la 421: la llave se fija apenas un dispositivo con la frase se conecta
   const d = await kvGet(env, 'd:' + a.ek);
   return json({ ok: true, email: a.u.email, hasKey: !!a.u.kc, kc: a.u.kc || '', hasData: !!d, rev: d ? d.rev : 0, t: d ? d.t : 0 }, 200, h);
 }
@@ -509,6 +516,7 @@ async function setKey(req, env, h) {
 }
 async function syncGet(req, env, h) {
   const a = await session(req, env); if (!a) return unauth(h);
+  if (!a.u.wh && a.u.kc) await writeOk(req, env, a);
   const d = await kvGet(env, 'd:' + a.ek), next = Math.max(d ? d.rev : 0, await revFloor(env, a.ek)) + 1;
   return json(d ? { ok: true, rev: d.rev, next, blob: d.blob, t: d.t, v: d.v, dev: d.dev } : { ok: true, rev: 0, next }, 200, h);
 }
