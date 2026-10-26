@@ -77,6 +77,7 @@ El nuevo consulta con `POST /link/poll` y el activo con `GET /link/pending`. Amb
 - `ADMIN_TOKEN` (secreto, **mínimo 32 caracteres**; si es más corto, el admin queda desactivado), `RL_SALT` (secreto; no cambiarlo: de él salen los identificadores de las cuentas), `RESEND_API_KEY` (secreto).
 - `ADMIN_ORIGINS` (variable): origen del panel privado, por ejemplo `https://plata-dev.pages.dev`.
 - `CLOUD_TESTERS`, `CLOUD_OPEN` (variables, como antes).
+- `REVIEW_OFF = 1` (variable, opcional): desactiva el envío de copias para análisis (por ejemplo, durante un piloto). Así no entra nada legible al servidor.
 - KV `WAITLIST` y Durable Object `GATE` (en `wrangler.toml`). Sin `GATE`, las rutas que lo necesitan responden 503 (`config`): fallan cerradas.
 
 ## Límites del plan gratis

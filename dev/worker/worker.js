@@ -222,6 +222,7 @@ async function exportList(req, env, h) {
 /* ---------- Copias enviadas para revisión del equipo (texto plano, solo con permiso expreso del usuario) ---------- */
 const MAX_REVIEW = 4000000, REVIEW_TTL = 30 * 86400, REVIEW_WAIT = [10, 30, 60, 120, 1440].map((m) => m * 60000);
 async function reviewPut(req, env, h) {
+  if (env.REVIEW_OFF === '1') return json({ ok: false, error: 'off' }, 403, h); // p. ej. durante un piloto: no entra nada legible al servidor
   const origin = req.headers.get('Origin') || '';
   if (!h['Access-Control-Allow-Origin'] && origin) return json({ ok: false, error: 'origin' }, 403, h);
   const raw = await req.text();
