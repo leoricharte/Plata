@@ -5508,7 +5508,7 @@ function impBodyHTML(st) {
   if (st === 'banks') {
     const c = NazcaBancos.CATALOG[0];
     const row = (b) => { const on = b.active, tag = on ? 'button' : 'div';
-      return '<' + tag + ' class="imgo imbk' + (on ? '' : ' dis') + '"' + (on ? ' data-act="imp:bank:' + b.id + '"' : '') + '><span class="imglyph">' + impMark(b.id, 'glyph') + '</span><span class="grow"><span class="imt" data-notr>' + esc(b.name) + '</span><span class="sub">' + (on ? 'Cuenta de ahorros' : 'Próximamente') + '</span></span>' + (on ? impChev() : '') + '</' + tag + '>'; };
+      return '<' + tag + ' class="imgo imbk' + (on ? '' : ' dis') + '"' + (on ? ' data-act="imp:bank:' + b.id + '"' : '') + '><span class="imglyph">' + impMark(b.id, 'glyph') + '</span><span class="grow"><span class="imt" data-notr>' + esc(b.name) + '</span><span class="sub">' + esc(b.hq) + '</span></span>' + (on ? impChev() : '<span class="sub" style="display:inline;font-size:14px">Próximamente</span>') + '</' + tag + '>'; };
     return '<div class="scard">' + c.banks.map(row).join('') + '</div>';
   }
   if (st === 'bank') return '<p class="imlead">Sube el PDF de tu estado de cuenta de ahorros. Lo descargas de la banca por internet del BCP o te llega por correo.</p>' +

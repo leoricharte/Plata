@@ -8,10 +8,10 @@ const NazcaBancos = (() => {
   /* Lo que se ve al elegir país y banco. active: hay lector. Los demás salen como "Próximamente". */
   const CATALOG = [
     { id: 'PE', name: 'Perú', banks: [
-      { id: 'bcp', name: 'BCP', active: true },
-      { id: 'interbank', name: 'Interbank', active: false },
-      { id: 'bbva', name: 'BBVA', active: false },
-      { id: 'scotiabank', name: 'Scotiabank', active: false } ] } ];
+      { id: 'bcp', name: 'Banco de Crédito del Perú', hq: 'Lima, Perú', active: true },
+      { id: 'interbank', name: 'Interbank', hq: 'Lima, Perú', active: false },
+      { id: 'bbva', name: 'BBVA Perú', hq: 'Lima, Perú', active: false },
+      { id: 'scotiabank', name: 'Scotiabank Perú', hq: 'Lima, Perú', active: false } ] } ];
   /* Devuelve el lector que reconoce el documento (el resultado de NazcaPDF.read) o null. onlyBank: si la persona ya eligió un banco, solo prueba ese. */
   function detect(doc, onlyBank) {
     for (const r of READERS) if ((!onlyBank || r.bank === onlyBank) && r.detect(doc) >= 1) return r;
