@@ -8,6 +8,7 @@
 const NazcaPDF = (() => {
   const MAX_BYTES = 15 * 1024 * 1024, MAX_PAGES = 60, MAX_ITEMS = 200000;
   const fail = (code) => { const e = new Error(code); e.code = code; return e; };
+  const tag = (e) => { if (!e || !e.code) { const x = fail('invalid'); x.detail = String((e && e.name || 'Error') + ': ' + (e && e.message || '')).slice(0, 110); return x; } return e; };
 
   /* Carga pdf.js desde `base` (una dirección que termina en "/", con pdf.mjs y pdf.worker.mjs). El navegador la pide una sola vez. */
   async function load(base) {
@@ -34,7 +35,7 @@ const NazcaPDF = (() => {
       try { task.destroy(); } catch (x) { /* nada */ }
       const n = e && e.name;
       if (n === 'PasswordException') throw fail(e.code === 2 ? 'bad_password' : 'need_password');
-      throw fail('invalid');
+      const x = fail('invalid'); x.detail = String((n || 'Error') + ': ' + (e && e.message || '')).slice(0, 110); throw x;   // solo el tipo y el mensaje técnico de pdf.js: no incluye el contenido del PDF ni la clave
     }
     try {
       const pages = []; let count = 0;
@@ -54,7 +55,7 @@ const NazcaPDF = (() => {
       }
       if (!count) throw fail('no_text');
       return { pages, total: doc.numPages, truncated: doc.numPages > MAX_PAGES };
-    } finally { try { await doc.destroy(); } catch (e) { /* nada */ } }
+    } catch (e) { throw tag(e); } finally { try { await doc.destroy(); } catch (e) { /* nada */ } }
   }
 
   /* Agrupa los textos de una página en líneas (de arriba hacia abajo) y ordena cada una de izquierda a derecha. tol: tolerancia vertical. */

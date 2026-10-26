@@ -5470,7 +5470,7 @@ function impPdfError(e) {
   else if (c === 'unavailable') impFail('No pude cargar el lector de PDF', 'Abre Plata desde web.plataapp.net con conexión para leer PDF, o importa el CSV de tu banco.');
   else if (c === 'no_text') impFail('Este PDF no tiene texto', 'Parece una foto o un escaneo. Descarga el estado de cuenta en PDF desde la banca por internet de tu banco.');
   else if (c === 'too_big') impFail('El PDF es muy grande', 'El máximo es 15 MB.');
-  else impFail('No pude leer ese PDF', 'Revisa que sea el estado de cuenta en PDF que descargaste de tu banco.');
+  else impFail('No pude leer ese PDF', 'Revisa que sea el estado de cuenta en PDF que descargaste de tu banco.' + (e && e.detail ? ' (' + e.detail + ')' : ''));
 }
 function impFromPdf(name, r) {
   const bankIs = (o) => { const b = bankOf(o); return !!(b && b.keys.indexOf(r.bank) >= 0); }, last4 = (r.account && r.account.last4) || '';
