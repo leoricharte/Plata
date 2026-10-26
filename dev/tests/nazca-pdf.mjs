@@ -53,6 +53,12 @@ const sum = (it) => Math.round(it.reduce((s, x) => s + x.amount, 0) * 100) / 100
 { const doc = await P.read(bytes('otro-banco.pdf'), lib);
   ok(B.detect(doc) === null && B.detect(doc, 'bcp') === null, 'banco: un PDF de otro banco no se reconoce');
   ok(await fail(P.read(bytes('sin-texto.pdf'), lib)) === 'no_text', 'pdf: sin texto (foto escaneada) → no_text');
+{ // algunos bancos anteponen bytes antes de "%PDF-": el estándar lo permite (hasta 1024 bytes)
+  const src = bytes('bcp-ahorros.pdf'), pre = new TextEncoder().encode('\xEF\xBB\xBF\r\n'.replace(/\\x/g, '') + 'basura previa\r\n');
+  const joined = new Uint8Array(pre.length + src.length); joined.set(pre); joined.set(src, pre.length);
+  const doc = await P.read(joined, lib); ok(doc.pages.length === 2 && B.detect(doc), 'pdf: acepta bytes antes de la marca %PDF-');
+  const far = new Uint8Array(3000 + src.length); far.set(src, 3000);
+  ok(await fail(P.read(far, lib)) === 'not_pdf', 'pdf: la marca más allá de 1024 bytes → not_pdf'); }
   ok(await fail(P.read(new TextEncoder().encode('Fecha,Monto\n01/03/2026,-5\n'), lib)) === 'not_pdf', 'pdf: un CSV no es PDF → not_pdf');
   const big = new Uint8Array(P.MAX_BYTES + 1); big.set(new TextEncoder().encode('%PDF-1.4'));
   ok(await fail(P.read(big, lib)) === 'too_big', 'pdf: más de 15 MB → too_big');

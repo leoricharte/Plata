@@ -110,3 +110,5 @@ Para abrirlo, elige tu banco en «Elegir banco» e ingresa tu DNI. ¦ To open it
 Ese DNI no abre el PDF ¦ That DNI doesn’t open the PDF ¦ そのDNIではPDFを開けません ¦ Quel DNI non apre il PDF ¦ Ce DNI n’ouvre pas le PDF ¦ Taj DNI ne otvara PDF
 Revisa el número e inténtalo otra vez. ¦ Check the number and try again. ¦ 番号を確認してもう一度お試しください。 ¦ Controlla il numero e riprova. ¦ Vérifie le numéro et réessaie. ¦ Provjeri broj i pokušaj ponovno.
 No disponible ¦ Not available ¦ 利用できません ¦ Non disponibile ¦ Indisponible ¦ Nedostupno
+Ese archivo no es un PDF ¦ That file is not a PDF ¦ このファイルはPDFではありません ¦ Quel file non è un PDF ¦ Ce fichier n’est pas un PDF ¦ Ta datoteka nije PDF
+Elige el estado de cuenta en PDF que descargaste de tu banco. ¦ Choose the account statement PDF you downloaded from your bank. ¦ 銀行からダウンロードした取引明細のPDFを選んでください。 ¦ Scegli il PDF dell’estratto conto scaricato dalla tua banca. ¦ Choisis le relevé de compte en PDF téléchargé depuis ta banque. ¦ Odaberi PDF izvoda koji si preuzeo iz banke.

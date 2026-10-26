@@ -10,6 +10,13 @@ const NazcaPDF = (() => {
   const fail = (code) => { const e = new Error(code); e.code = code; return e; };
   const tag = (e) => { if (!e || !e.code) { const x = fail('invalid'); x.detail = String((e && e.name || 'Error') + ': ' + (e && e.message || '')).slice(0, 110); return x; } return e; };
 
+  /* El estándar deja que "%PDF-" aparezca dentro de los primeros 1024 bytes (algunos bancos anteponen texto o bytes de más). */
+  function hasHeader(src) {
+    const n = Math.min(src.length - 4, 1024);
+    for (let i = 0; i < n; i++) if (src[i] === 37 && src[i + 1] === 80 && src[i + 2] === 68 && src[i + 3] === 70 && src[i + 4] === 45) return true;
+    return false;
+  }
+
   /* Carga pdf.js desde `base` (una dirección que termina en "/", con pdf.mjs y pdf.worker.mjs). El navegador la pide una sola vez. */
   async function load(base) {
     try {
@@ -24,7 +31,7 @@ const NazcaPDF = (() => {
   async function read(bytes, lib, password) {
     const src = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
     if (src.length > MAX_BYTES) throw fail('too_big');
-    if (src.length < 8 || String.fromCharCode(src[0], src[1], src[2], src[3], src[4]) !== '%PDF-') throw fail('not_pdf');
+    if (!hasHeader(src)) throw fail('not_pdf');
     const opts = { data: new Uint8Array(src), isEvalSupported: false, enableScripting: false, useSystemFonts: false, disableFontFace: true,
       disableAutoFetch: true, disableStream: true, verbosity: 0 };
     if (password) opts.password = String(password);
