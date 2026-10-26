@@ -22,7 +22,10 @@ for f in sorted((src / "tr").glob("*.txt")):
 i18n = (src / "i18n.js").read_text(encoding="utf-8").replace("__TR_DATA__", json.dumps(rows, ensure_ascii=False))
 i18n += "\n" + (src / "i18n_phr.js").read_text(encoding="utf-8") + "\n" + (src / "i18n_demo.js").read_text(encoding="utf-8")
 html = html.replace("__BUILD__", re.search(r"const APP_BUILD = (\d+)", html).group(1))  # el número de la pantalla de inicio sale de APP_BUILD
-for key, name in (("I18N", None), ("SF", "icons_sf.js"), ("DEMOS", "demo_profiles.js"), ("WORLD", "worldmap.js"), ("RMX", "icons_rmx.js"), ("NAZCA", "core/nazca/csv.js")):
+for key, name in (("I18N", None), ("SF", "icons_sf.js"), ("DEMOS", "demo_profiles.js"), ("WORLD", "worldmap.js"), ("RMX", "icons_rmx.js"), ("NAZCA", None)):
+    if key == "NAZCA":  # Nazca: lector de CSV + lector de PDF + un lector por banco (core/nazca/); el orden importa: los bancos usan lo anterior
+        html = html.replace("/*__NAZCA__*/", "\n".join((src / "core/nazca" / n).read_text(encoding="utf-8") for n in ("csv.js", "pdf.js", "bancos/bcp-ahorros.js", "bancos/index.js")))
+        continue
     html = html.replace("/*__%s__*/" % key, i18n if name is None else (src / name).read_text(encoding="utf-8"))
 html = html.replace("__INTER_B64__", b64(assets / "inter-latin-wght-normal.woff2"))
 html = html.replace("__INTER_I_B64__", b64(assets / "inter-latin-wght-italic.woff2"))
@@ -48,7 +51,7 @@ _p = _Scripts(); _p.feed(html); _p.close()
 if re.search(r"<[a-z][^>]*\son[a-z]+\s*=", re.sub(r"<script>.*?</script>", "", html, flags=re.S), re.I):
     raise SystemExit("build: hay atributos on…= en el HTML; con la CSP no funcionarían")
 _hashes = " ".join("'sha256-%s'" % base64.b64encode(hashlib.sha256(x.encode("utf-8")).digest()).decode() for x in _p.found)
-CSP = ("default-src 'none'; script-src %s; style-src 'unsafe-inline'; img-src 'self' data: blob:; font-src data:; "
+CSP = ("default-src 'none'; script-src %s 'self'; style-src 'unsafe-inline'; img-src 'self' data: blob:; font-src data:; "
        "connect-src 'self' https://plata-cloud.xleoricharte.workers.dev http://localhost:* http://127.0.0.1:* ipc: http://ipc.localhost; "
        "frame-src https://plataapp.net; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'") % _hashes
 _m = re.search(r'<meta charset="[^"]*">', html)

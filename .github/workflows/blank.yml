@@ -24,6 +24,9 @@ jobs:
       - name: Nazca (importador de CSV)
         run: node dev/tests/nazca.mjs
 
+      - name: Nazca (PDF y bancos)
+        run: node dev/tests/nazca-pdf.mjs
+
       - name: Pruebas de seguridad del servidor
         run: |
           node dev/tests/carrera.mjs
