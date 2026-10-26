@@ -134,6 +134,24 @@ MALICIOSO = [
     ("04MAR", "04MAR", "SUELDO", 'a', 100.00, ""),
 ]
 
+def falso(path, banco, titulo, filas, cols, pie):
+    """Estado de cuenta de un banco que Nazca NO conoce. Todo es inventado y dice "DOCUMENTO DE PRUEBA". filas: (columnas de fecha..., descripción, monto)"""
+    c = canvas.Canvas(str(path), pagesize=A4); c.setTitle(banco + " - documento de prueba (inventado)")
+    c.setFont("Helvetica-Bold", 14); c.drawString(40, 790, banco); c.setFont("Helvetica", 9); c.drawString(40, 774, titulo)
+    c.setFillColorRGB(.8, 0, 0); c.setFont("Helvetica-Bold", 9); c.drawString(40, 758, "DOCUMENTO DE PRUEBA - DATOS INVENTADOS - NO ES UN ESTADO DE CUENTA REAL"); c.setFillColorRGB(0, 0, 0)
+    c.setFont("Helvetica", 8); y = 720
+    for x, t in cols: c.drawString(x, y, t)
+    y -= 16
+    for f in filas:
+        for (x, _), v in zip(cols[:-1], f[:-1]): c.drawString(x, y, v)
+        c.drawRightString(cols[-1][0] + 60, y, f[-1]); y -= 13
+    c.drawString(40, y - 20, pie); c.showPage(); c.save()
+
+CAPITAL_ONE = [("Mar 3", "Mar 4", "AMAZON MKTPLACE PMTS", "$23.99"), ("Mar 5", "Mar 6", "UBER *TRIP HELP.UBER.COM", "$14.50"), ("Mar 9", "Mar 10", "WHOLEFDS MKT #10234", "$67.12"),
+    ("Mar 12", "Mar 12", "NETFLIX.COM", "$15.49"), ("Mar 15", "Mar 16", "SHELL OIL 57444", "$41.30"), ("Mar 18", "Mar 18", "CAPITAL ONE MOBILE PYMT", "-$150.00"), ("Mar 21", "Mar 22", "SPOTIFY USA", "$11.99")]
+BANCO_EQUIS = [("02/03/2026", "SUPERMERCADO LA ESQUINA", "-85.40"), ("04/03/2026", "DEPOSITO SUELDO EMPRESA DEMO", "2,500.00"), ("07/03/2026", "TRANSFERENCIA A JUAN PEREZ", "-300.00"),
+    ("11/03/2026", "FARMACIA CENTRAL", "-42.75"), ("16/03/2026", "PAGO LUZ ELECTRICA", "-96.20"), ("23/03/2026", "RETIRO CAJERO", "-200.00")]
+
 if __name__ == "__main__":
     bcp(OUT / "bcp-ahorros.pdf", ("01/03/26", "31/03/26"), 120.30, MARZO)
     bcp(OUT / "bcp-ahorros-enero.pdf", ("01/01/26", "31/01/26"), 35.10, ENERO)
@@ -149,4 +167,8 @@ if __name__ == "__main__":
     c.setFont("Helvetica", 7); c.drawString(40, 700, "01/03/2026  COMPRA EJEMPLO  -12.50"); c.showPage(); c.save()
     # PDF sin texto (como una foto escaneada): solo un dibujo
     c = canvas.Canvas(str(OUT / "sin-texto.pdf"), pagesize=A4); c.rect(50, 50, 200, 100); c.showPage(); c.save()
+    falso(OUT / "capital-one-falso.pdf", "Capital One (PRUEBA)", "Statement period Mar 1 - Mar 31, 2026 - Credit card ending 0000", CAPITAL_ONE,
+          [(40, "Trans Date"), (110, "Post Date"), (180, "Description"), (440, "Amount")], "New Balance $0.00 - Minimum Payment Due $0.00 - Payment Due Date Apr 25, 2026")
+    falso(OUT / "banco-equis-falso.pdf", "Banco Equis (PRUEBA)", "Estado de cuenta - Cuenta corriente 000-0000000 - Marzo 2026", BANCO_EQUIS,
+          [(40, "Fecha"), (130, "Descripcion"), (430, "Monto")], "Saldo final 1,775.65")
     print("listo")

@@ -17,3 +17,6 @@ Imitan el diseño del «Estado de Cuenta de Ahorros Cuenta Digital BCP» y del �
 | `sin-texto.pdf` | Sin texto (como una foto escaneada). |
 
 Se regeneran con `python3 dev/tests/pdf/hacer-pdfs.py` (necesita `reportlab` y `qpdf`); no hace falta para correr las pruebas. Para sumar un banco: un PDF inventado con su diseño, su lector en `dev/app/src/core/nazca/bancos/` y sus pruebas en `nazca-pdf.mjs`.
+
+## Documentos de prueba de bancos que Nazca no conoce
+`capital-one-falso.pdf` (tarjeta de crédito, estilo estadounidense, USD) y `banco-equis-falso.pdf` (cuenta corriente). Son INVENTADOS, dicen "DOCUMENTO DE PRUEBA" y no copian ningún diseño real. Sirven para probar la lectura genérica (`pdf-generico.js`): se importan como "Archivo PDF", sin sello de verificado y sin la comprobación "Cuadra".

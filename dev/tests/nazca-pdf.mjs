@@ -6,6 +6,7 @@ import { pathToFileURL } from 'node:url';
 const require = createRequire(import.meta.url);
 const P = require('../app/src/core/nazca/pdf.js');
 const B = require('../app/src/core/nazca/bancos/index.js');
+const G = require('../app/src/core/nazca/pdf-generico.js');
 const dir = new URL('./pdf/', import.meta.url);
 let f = 0;
 const ok = (c, m) => { console.log((c ? 'OK    ' : 'FALLA ') + m); if (!c) f++; };
@@ -89,6 +90,17 @@ const sum = (it) => Math.round(it.reduce((s, x) => s + x.amount, 0) * 100) / 100
 // 6) catálogo: el BCP y Interbank están activos
 { const pe = B.CATALOG.find((c) => c.id === 'PE'); const act = pe.banks.filter((b) => b.active).map((b) => b.id);
   ok(pe.banks.length === 4 && act.join() === 'bcp,interbank', 'catálogo: Perú con 4 bancos, activos el BCP e Interbank'); }
+
+// 7) lectura genérica: bancos que Nazca no conoce (documentos de prueba inventados)
+{ const ce = await P.read(bytes('capital-one-falso.pdf'), lib), ge = G.read(ce);
+  ok(B.detect(ce) === null, 'genérico: Capital One no está en el catálogo → sin banco reconocido (sin verificado)');
+  ok(ge.count === 7 && ge.cur === 'USD' && ge.year === 2026, 'genérico: 7 movimientos, USD, año 2026 (' + ge.count + ' ' + ge.cur + ')');
+  ok(/2026-03-03,"AMAZON MKTPLACE PMTS",23\.99/.test(ge.text) && /2026-03-18,"CAPITAL ONE MOBILE PYMT",-150\.00/.test(ge.text), 'genérico: fecha de operación (no la de proceso) y pago en negativo');
+  ok(!/Trans Date|New Balance|Minimum/i.test(ge.text.split('\n').slice(1).join('\n')), 'genérico: encabezados y saldos no entran como movimientos');
+  const bx = await P.read(bytes('banco-equis-falso.pdf'), lib), gb = G.read(bx);
+  ok(B.detect(bx) === null && gb.count === 6, 'genérico: Banco Equis → 6 movimientos (' + gb.count + ')');
+  ok(/2026-03-04|04\/03\/2026,"DEPOSITO SUELDO EMPRESA DEMO",2500\.00/.test(gb.text) && /RETIRO CAJERO",-200\.00/.test(gb.text), 'genérico: miles con coma y signo menos');
+  const none = G.read(await P.read(bytes('otro-banco.pdf'), lib)); ok(none.count === 1, 'genérico: una línea con fecha y monto basta (' + none.count + ')'); }
 
 console.log(f ? '\n' + f + ' FALLAS' : '\nTodo bien');
 process.exit(f ? 1 : 0);
