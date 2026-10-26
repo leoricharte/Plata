@@ -89,7 +89,7 @@ const sum = (it) => Math.round(it.reduce((s, x) => s + x.amount, 0) * 100) / 100
 
 // 6) catálogo: el BCP y Interbank están activos
 { const pe = B.CATALOG.find((c) => c.id === 'PE'); const act = pe.banks.filter((b) => b.active).map((b) => b.id);
-  ok(pe.banks.length === 5 && act.join() === 'bcp,interbank,io', 'catálogo: Perú con 5 bancos, activos el BCP, Interbank e iO'); }
+  ok(pe.banks.length === 6 && act.join() === 'bcp,interbank,io', 'catálogo: Perú con 6 bancos (Yape aún sin lector), activos el BCP, Interbank e iO'); }
 
 // 7) Capital One (tarjeta): banco reconocido y verificado · documentos de prueba inventados
 { const d1 = await P.read(bytes('capital-one-marzo.pdf'), lib), rd = B.detect(d1);
