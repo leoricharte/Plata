@@ -109,3 +109,4 @@ Deshacer importación ¦ Undo import ¦ 取り込みを元に戻す ¦ Annulla i
 Para abrirlo, elige tu banco en «Elegir banco» e ingresa tu DNI. ¦ To open it, choose your bank under “Choose a bank” and enter your DNI. ¦ 開くには「銀行を選ぶ」から銀行を選び、DNIを入力してください。 ¦ Per aprirlo, scegli la tua banca in «Scegli la banca» e inserisci il tuo DNI. ¦ Pour l’ouvrir, choisis ta banque dans « Choisir une banque » et saisis ton DNI. ¦ Za otvaranje odaberi svoju banku u «Odaberi banku» i unesi svoj DNI.
 Ese DNI no abre el PDF ¦ That DNI doesn’t open the PDF ¦ そのDNIではPDFを開けません ¦ Quel DNI non apre il PDF ¦ Ce DNI n’ouvre pas le PDF ¦ Taj DNI ne otvara PDF
 Revisa el número e inténtalo otra vez. ¦ Check the number and try again. ¦ 番号を確認してもう一度お試しください。 ¦ Controlla il numero e riprova. ¦ Vérifie le numéro et réessaie. ¦ Provjeri broj i pokušaj ponovno.
+No disponible ¦ Not available ¦ 利用できません ¦ Non disponibile ¦ Indisponible ¦ Nedostupno
