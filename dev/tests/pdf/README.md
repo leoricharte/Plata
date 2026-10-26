@@ -26,3 +26,5 @@ Se regeneran con `python3 dev/tests/pdf/hacer-pdfs.py` (necesita `reportlab` y `
 `chime-checking.pdf`, `chime-no-cuadra.pdf`: cuenta corriente Chime INVENTADA (lector `chime-checking.js`). `banco-eta/theta/iota/kappa/lambda.pdf`: distintos diseños de bancos desconocidos para probar el lector genérico. `sin-movimientos.pdf`: texto sin movimientos.
 
 `seen-tarjeta.pdf`, `seen-no-cuadra.pdf`: tarjeta Seen INVENTADA (lector `seen-tarjeta.js`).
+
+`tarjeta-omega.pdf` (inglés, compras en positivo) y `tarjeta-sigma.pdf` (español, compras en negativo): tarjetas de crédito de bancos que Nazca no conoce, para probar el reconocimiento por pistas.

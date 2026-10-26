@@ -259,6 +259,20 @@ def seen(path, creditos, compras, interes=3.10, previo=100.00, extra_impreso=0.0
 SEEN_CR = [("03/10/2026", "Cash Rewards Redemption", 0.50), ("03/20/2026", "Debit Card Payment from *1111", 40.00)]
 SEEN_BUY = [("03/08/2026", "TIENDA EJEMPLO NEW YORK NYUSA", 21.30), ("03/15/2026", "SERVICIO DEMO 8000000000 CAUSA", 25.00), ("03/28/2026", "CAFE DEMO LAKE CITY UTUSA", 9.99)]
 
+def tarjeta(path, banco, cues, cols, filas):
+    """Tarjeta de crédito de un banco que Nazca NO conoce, con las pistas típicas (límite, pago mínimo, fecha de pago, tasa). Todo inventado."""
+    c = canvas.Canvas(str(path), pagesize=A4); c.setTitle(banco + " - documento de prueba (inventado)")
+    c.setFont("Helvetica-Bold", 14); c.drawString(40, 790, banco); c.setFillColorRGB(.8, 0, 0); c.setFont("Helvetica-Bold", 9); c.drawString(40, 772, "DOCUMENTO DE PRUEBA - DATOS INVENTADOS"); c.setFillColorRGB(0, 0, 0)
+    c.setFont("Helvetica", 8); y = 750
+    for t in cues: c.drawString(40, y, t); y -= 12
+    y -= 14; c.setFont("Helvetica-Bold", 8)
+    for x, t, a in cols: (c.drawRightString if a == 'r' else c.drawString)(x, y, t)
+    y -= 16; c.setFont("Helvetica", 8)
+    for f in filas:
+        for (x, _, a), v in zip(cols, f): (c.drawRightString if a == 'r' else c.drawString)(x, y, v)
+        y -= 13
+    c.showPage(); c.save()
+
 CAPITAL_ONE_OLD = [("Mar 3", "Mar 4", "AMAZON MKTPLACE PMTS", "$23.99"), ("Mar 5", "Mar 6", "UBER *TRIP HELP.UBER.COM", "$14.50"), ("Mar 9", "Mar 10", "WHOLEFDS MKT #10234", "$67.12"),
     ("Mar 12", "Mar 12", "NETFLIX.COM", "$15.49"), ("Mar 15", "Mar 16", "SHELL OIL 57444", "$41.30"), ("Mar 18", "Mar 18", "CAPITAL ONE MOBILE PYMT", "-$150.00"), ("Mar 21", "Mar 22", "SPOTIFY USA", "$11.99")]
 BANCO_EQUIS = [("02/03/2026", "SUPERMERCADO LA ESQUINA", "-85.40"), ("04/03/2026", "DEPOSITO SUELDO EMPRESA DEMO", "2,500.00"), ("07/03/2026", "TRANSFERENCIA A JUAN PEREZ", "-300.00"),
@@ -292,4 +306,10 @@ if __name__ == "__main__":
     c.drawString(40, 750, "Este documento no trae movimientos, solo texto informativo sobre tu cuenta."); c.showPage(); c.save()
     seen(OUT / "seen-tarjeta.pdf", SEEN_CR, SEEN_BUY)
     seen(OUT / "seen-no-cuadra.pdf", SEEN_CR, SEEN_BUY, extra_impreso=7.00)
+    tarjeta(OUT / "tarjeta-omega.pdf", "Omega Bank Visa Card (PRUEBA)", ["Credit Card Statement - Account ending in 7788", "Statement closing date: Apr 5, 2026", "Previous Balance $120.00   New Balance $155.50", "Credit Limit $2,000.00", "Minimum Payment Due $25.00", "Payment Due Date: Apr 30, 2026", "Purchase APR 27.99%"],
+        [(40, "Date", 'l'), (120, "Description", 'l'), (540, "Amount", 'r')],
+        [("Mar 8", "GROCERY MART #44", "$62.10"), ("Mar 12", "ONLINE STORE", "$18.40"), ("Mar 20", "PAYMENT THANK YOU", "-$100.00"), ("Mar 27", "GAS STATION 12", "$40.00"), ("Apr 2", "RESTAURANT DEMO", "$15.00")])
+    tarjeta(OUT / "tarjeta-sigma.pdf", "Banco Sigma - Tarjeta de crédito Visa (PRUEBA)", ["Estado de cuenta de tarjeta de crédito - terminada en 5566", "Fecha de corte: 05/04/2026", "Saldo anterior S/ 300.00   Nuevo saldo S/ 365.00", "Línea de crédito S/ 5,000.00", "Pago mínimo S/ 60.00", "Fecha límite de pago: 25/04/2026", "TEA 49.90%"],
+        [(40, "Fecha", 'l'), (120, "Descripción", 'l'), (540, "Importe", 'r')],
+        [("08/03/2026", "COMPRA SUPERMERCADO", "-S/ 120.00"), ("15/03/2026", "PAGO RECIBIDO GRACIAS", "S/ 300.00"), ("22/03/2026", "COMPRA FARMACIA", "-S/ 45.00"), ("30/03/2026", "COMPRA RESTAURANTE", "-S/ 80.00")])
     print("listo")

@@ -143,5 +143,15 @@ const sum = (it) => Math.round(it.reduce((s, x) => s + x.amount, 0) * 100) / 100
   ok(r.check.ok === true && r.card.apr === 29.99 && r.card.dueDate === '2026-05-03' && r.card.minPayment === 25 && r.card.limit === 500, 'seen: cuadra y trae tasa, fecha de pago, mínimo y límite ' + JSON.stringify(r.card));
   const nc = B.detect(await P.read(bytes('seen-no-cuadra.pdf'), lib)).read(await P.read(bytes('seen-no-cuadra.pdf'), lib)); ok(nc.check.ok === false, 'seen: si el saldo nuevo no coincide → no cuadra'); }
 
+// 12) tarjetas de crédito de bancos que Nazca no conoce: se reconocen por sus pistas y se acomodan los signos
+{ const go = await P.read(bytes('tarjeta-omega.pdf'), lib), gs = await P.read(bytes('tarjeta-sigma.pdf'), lib), a = G.read(go), b = G.read(gs);
+  ok(B.detect(go) === null && B.detect(gs) === null && a.isCard && b.isCard, 'tarjeta genérica: sin banco registrado, pero se reconoce como tarjeta de crédito');
+  ok(a.last4 === '7788' && a.card.apr === 27.99 && a.card.limit === 2000 && a.card.minPayment === 25 && a.card.dueDate === '2026-04-30', 'tarjeta genérica (inglés): últimos 4, tasa, límite, mínimo y fecha de pago ' + JSON.stringify(a.card));
+  ok(/GROCERY MART #44",-62\.10/.test(a.text) && /PAYMENT THANK YOU",100\.00/.test(a.text), 'tarjeta genérica: compras impresas en positivo → gasto (−); pago impreso en negativo → ingreso (+)');
+  ok(b.last4 === '5566' && b.card.apr === 49.9 && b.card.limit === 5000 && b.card.minPayment === 60 && b.card.dueDate === '2026-04-25' && b.cur === 'PEN', 'tarjeta genérica (español): TEA, línea de crédito, pago mínimo y fecha límite ' + JSON.stringify(b.card));
+  ok(/COMPRA SUPERMERCADO",-120\.00/.test(b.text) && /PAGO RECIBIDO GRACIAS",300\.00/.test(b.text), 'tarjeta genérica: compras impresas en negativo se quedan gasto y el pago en positivo ingreso');
+  ok(!G.read(await P.read(bytes('banco-equis-falso.pdf'), lib)).isCard && !G.read(await P.read(bytes('chime-checking.pdf'), lib)).isCard, 'tarjeta genérica: una cuenta corriente no se confunde con una tarjeta');
+  const sn = G.read(await P.read(bytes('seen-tarjeta.pdf'), lib)); ok(sn.isCard && /TIENDA EJEMPLO NEW YORK NYUSA",-21\.30/.test(sn.text) && /Payment from \*1111",40\.00/.test(sn.text), 'tarjeta genérica: todo impreso en positivo (como Seen) → la descripción distingue pagos de compras'); }
+
 console.log(f ? '\n' + f + ' FALLAS' : '\nTodo bien');
 process.exit(f ? 1 : 0);
