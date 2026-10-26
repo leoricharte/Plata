@@ -30,4 +30,5 @@ Se regeneran con `python3 dev/tests/pdf/hacer-pdfs.py` (necesita `reportlab` y `
 `tarjeta-omega.pdf` (inglés, compras en positivo) y `tarjeta-sigma.pdf` (español, compras en negativo): tarjetas de crédito de bancos que Nazca no conoce, para probar el reconocimiento por pistas.
 
 - `bofa-cheques.pdf`, `bofa-no-cuadra.pdf`, `apple-card.pdf`, `apple-card-no-cuadra.pdf`, `community-bank.pdf`, `community-bank-no-cuadra.pdf`: estados inventados con el diseño de Bank of America (español), Apple Card y Community Bank; los "no-cuadra" traen el saldo final alterado. `../csv/prueba-apple-card.csv`: el CSV de Apple Card (se reconoce por sus columnas).
+- `capital-one-nuevo.pdf`, `capital-one-nuevo-no-cuadra.pdf`: estados inventados con el diseño actual de Capital One (Quicksilver/Savor): periodo sin título, "Transactions +", "Other Credits", intereses del resumen.
 - `io-tarjeta.pdf`, `io-no-cuadra.pdf`, `io-tarjeta-clave.pdf`: estado inventado de la tarjeta iO (Perú); el último va cifrado con la clave `12345678` (como si fuera el DNI).

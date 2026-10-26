@@ -168,6 +168,38 @@ def capital_one(path, desde, hasta, filas, previo, ultimos="4242", total_compras
     c.showPage(); c.save()
     return nuevo
 
+def capital_one_nuevo(path, filas, previo=172.30, interes=6.91, ultimos="4242", impreso_nuevo=None):
+    """Estado INVENTADO con el diseño que usan hoy los estados de Capital One (Quicksilver/Savor): periodo sin título "Statement period", resumen con
+    "Transactions +", "Other Credits", "Interest Charged" y "New Balance =", e importes del pago mínimo en la línea de abajo. filas: (op, post, desc, monto) con compras (+) y pagos/créditos (-)."""
+    compras = round(sum(f[3] for f in filas if f[3] > 0 and not f[2].startswith("CREDIT")), 2)
+    otros = round(-sum(f[3] for f in filas if f[2].startswith("CREDIT")), 2); pagos = round(-sum(f[3] for f in filas if f[3] < 0 and not f[2].startswith("CREDIT")), 2)
+    nuevo = round(previo - pagos - otros + compras + interes, 2)
+    d = lambda v: ("- " if v < 0 else "") + "$" + f"{abs(v):,.2f}"
+    c = canvas.Canvas(str(path), pagesize=(612, 792)); c.setTitle("Capital One - documento de prueba (inventado)")
+    c.setFont("Helvetica-Bold", 9); c.drawString(25, 775, "Capital One"); c.setFillColorRGB(.8, 0, 0); c.drawString(120, 775, "DOCUMENTO DE PRUEBA - DATOS INVENTADOS"); c.setFillColorRGB(0, 0, 0)
+    c.setFont("Helvetica", 9); c.drawString(349, 754, f"Ejemplo Card | World Elite Mastercard ending in {ultimos}"); c.drawString(393, 744, "Jun 16, 2026 - Jul 16, 2026"); c.drawString(503, 744, "|"); c.drawString(510, 744, "31 days in Billing Cycle")
+    c.setFont("Helvetica-Bold", 9); c.drawString(104, 716, "Payment Information"); c.drawString(410, 716, "Account Summary"); c.setFont("Helvetica", 9)
+    c.drawString(25, 699, "Payment Due Date"); c.drawString(25, 679, "Aug 10, 2026")
+    for y, k, v in ((699, "Previous Balance", d(previo)), (679, "Payments", d(-pagos)), (661, "Other Credits", d(-otros)), (643, "Transactions", "+ " + d(compras)), (608, "Fees Charged", "+ $0.00"), (590, "Interest Charged", "+ " + d(interes)), (572, "New Balance", "= " + d(impreso_nuevo if impreso_nuevo is not None else nuevo)), (551, "Credit Limit", "$300.00")):
+        c.drawString(322, y, k); c.drawRightString(580, y, v)
+    c.drawString(25, 625, "New Balance"); c.drawString(166, 625, "Minimum Payment Due"); c.drawString(25, 604, d(nuevo)); c.drawString(166, 604, "$25.00")
+    c.drawString(29, 107, "Payment Due Date:"); c.drawString(109, 107, "Aug 10, 2026"); c.drawString(219, 107, f"Account ending in {ultimos}")
+    c.showPage()
+    c.setFont("Helvetica", 9); c.drawString(349, 754, f"Ejemplo Card | World Elite Mastercard ending in {ultimos}"); c.drawString(393, 744, "Jun 16, 2026 - Jul 16, 2026")
+    y = 678; c.setFont("Helvetica-Bold", 8); c.drawString(45, y, "TITULAR PRUEBA #" + ultimos + ": Payments, Credits and Adjustments"); y -= 17
+    for x, t in ((45, "Trans Date"), (105, "Post Date"), (164, "Description"), (560, "Amount")): c.drawString(x, y, t)
+    y -= 17; c.setFont("Helvetica", 8)
+    pag = [f for f in filas if f[3] < 0]; comp = [f for f in filas if f[3] > 0]
+    for f in pag: c.drawString(45, y, f[0]); c.drawString(105, y, f[1]); c.drawString(164, y, f[2]); c.drawRightString(580, y, d(f[3])); y -= 17
+    y -= 10; c.setFont("Helvetica-Bold", 8); c.drawString(45, y, "TITULAR PRUEBA #" + ultimos + ": Transactions"); y -= 17; c.setFont("Helvetica", 8)
+    for f in comp: c.drawString(45, y, f[0]); c.drawString(105, y, f[1]); c.drawString(164, y, f[2]); c.drawRightString(580, y, d(f[3])); y -= 17
+    c.drawString(45, y - 10, "Total Transactions for This Period"); c.drawRightString(580, y - 10, d(compras))
+    c.showPage(); c.setFont("Helvetica", 8); c.drawString(47, 662, "Purchases"); c.drawString(212, 662, "28.99% P"); c.drawString(391, 662, "$0.00"); c.save()
+    return nuevo
+
+CO_NUEVO = [("Jun 16", "Jun 16", "CREDIT-CASH BACK REWARD", -0.28), ("Jun 17", "Jun 17", "CAPITAL ONE MOBILE PYMT", -195.81), ("Jun 19", "Jun 19", "CAPITAL ONE MOBILE PYMT", -55.00),
+    ("Jun 15", "Jun 16", "TIENDA EJEMPLO ONLINE NY", 5.99), ("Jun 16", "Jun 17", "SUPER DEMO 227 NY", 12.20), ("Jun 25", "Jun 26", "TRANSPORTE DEMO WHITE PLAINS NY", 98.59), ("Jul 11", "Jul 11", "MARKET PRUEBA SEATTLE WA", 21.55)]
+
 CO_MARZO = [("Mar 3", "Mar 4", "AMAZON MKTPLACE PMTS", 23.99), ("Mar 5", "Mar 6", "UBER *TRIP HELP.UBER.COM", 14.50), ("Mar 9", "Mar 10", "WHOLEFDS MKT #10234", 67.12),
     ("Mar 12", "Mar 12", "NETFLIX.COM", 15.49), ("Mar 15", "Mar 16", "SHELL OIL 57444", 41.30), ("Mar 18", "Mar 18", "CAPITAL ONE MOBILE PYMT", -150.00), ("Mar 21", "Mar 22", "SPOTIFY USA", 11.99)]
 CO_ABRIL = [("Apr 2", "Apr 3", "TRADER JOE'S #552", 54.80), ("Apr 6", "Apr 7", "LYFT *RIDE", 18.25), ("Apr 10", "Apr 11", "TARGET 00012345", 82.40), ("Apr 14", "Apr 14", "CAPITAL ONE MOBILE PYMT", -100.00),
@@ -410,6 +442,8 @@ if __name__ == "__main__":
     n = capital_one(OUT / "capital-one-marzo.pdf", "Mar 1, 2026", "Mar 31, 2026", CO_MARZO, 0.00)
     capital_one(OUT / "capital-one-abril.pdf", "Apr 1, 2026", "Apr 30, 2026", CO_ABRIL, n, vence="May 25, 2026")
     capital_one(OUT / "capital-one-no-cuadra.pdf", "Mar 1, 2026", "Mar 31, 2026", CO_MARZO, 0.00, total_compras_impreso=999.99)
+    capital_one_nuevo(OUT / "capital-one-nuevo.pdf", CO_NUEVO)
+    capital_one_nuevo(OUT / "capital-one-nuevo-no-cuadra.pdf", CO_NUEVO, impreso_nuevo=999.99)
     falso(OUT / "banco-zeta-falso.pdf", "Banco Zeta (PRUEBA)", "Extracto de movimientos - Marzo 2026", BANCO_ZETA, [(40, "Fecha"), (130, "Detalle"), (430, "Importe")], "Fin del extracto")
     falso(OUT / "banco-equis-falso.pdf", "Banco Equis (PRUEBA)", "Estado de cuenta - Cuenta corriente 000-0000000 - Marzo 2026", BANCO_EQUIS,
           [(40, "Fecha"), (130, "Descripcion"), (430, "Monto")], "Saldo final 1,775.65")

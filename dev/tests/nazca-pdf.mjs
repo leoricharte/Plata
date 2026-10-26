@@ -207,5 +207,13 @@ const sum = (it) => Math.round(it.reduce((s, x) => s + x.amount, 0) * 100) / 100
   ok(!Y.detect([['a', 'b'], ['1', '2']]) && !Y.detect(await X.read(xb('yape-reporte.xlsx')).then((r) => r.map((x) => x.slice(0, 2)))), 'yape: otro Excel no se confunde');
   ok((await fail(X.read(bytes('bcp-ahorros.pdf')))) === 'not_xlsx', 'xlsx: un PDF no se abre como Excel'); }
 
+// 17) Capital One con el diseño real de hoy (Quicksilver / Savor): periodo sin título, "Transactions +", "Other Credits", intereses del resumen
+{ const d = await P.read(bytes('capital-one-nuevo.pdf'), lib), rd = B.detect(d, 'capitalone'); ok(rd && rd.id === 'capitalone-tarjeta', 'capital one (nuevo): se reconoce');
+  const r = rd.read(d); ok(r.period && r.period.from === '2026-06-16' && r.period.to === '2026-07-16' && r.account.last4 === '4242', 'capital one (nuevo): periodo "Jun 16, 2026 - Jul 16, 2026" y últimos 4');
+  ok(r.items.length === 8 && r.items.find((x) => x.desc === 'Interest charge').amount === -6.91 && r.items.find((x) => x.desc.startsWith('CREDIT-CASH')).amount === 0.28, 'capital one (nuevo): 8 movimientos, el interés del resumen como gasto y el cash back como ingreso (' + r.items.length + ')');
+  ok(r.check.have && r.check.ok === true && r.check.prev === 172.3, 'capital one (nuevo): cuadra (anterior + compras + intereses − pagos y créditos = nuevo)');
+  ok(r.card.apr === 28.99 && r.card.minPayment === 25 && r.card.limit === 300 && r.card.dueDate === '2026-08-10', 'capital one (nuevo): tasa, pago mínimo (línea de abajo), límite y fecha de pago');
+  const d2 = await P.read(bytes('capital-one-nuevo-no-cuadra.pdf'), lib); ok(B.detect(d2, 'capitalone').read(d2).check.ok === false, 'capital one (nuevo): un saldo nuevo mal impreso → no cuadra'); }
+
 console.log(f ? '\n' + f + ' FALLAS' : '\nTodo bien');
 process.exit(f ? 1 : 0);
