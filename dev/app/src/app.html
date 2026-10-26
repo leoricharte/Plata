@@ -1060,6 +1060,7 @@ html.web .imlogo,html.web .imav,html.web .imbk:not(.dis) .imglyph{color:#22B573}
 .imok{display:flex;gap:10px;align-items:flex-start;border-radius:14px;padding:10px 12px;margin:0 0 12px;font-size:14.5px;background:rgba(34,181,115,.14);color:var(--gt)}.imok .sub{color:inherit;opacity:.85;font-size:13px}.imok svg{flex:none;margin-top:1px}.imok.warn{background:var(--obg);color:var(--ot)}
 .imerr{display:flex;align-items:flex-start;gap:12px;background:var(--card);border-radius:18px;padding:14px 16px;margin:0 0 14px}.imerr .imq{flex:none;line-height:0;color:#8E8E93;margin-top:1px}.imerr .imt{display:block;font-size:17px;font-weight:600}.imerr .sub{display:block;font-size:14px;margin-top:2px}.imlock .imlk{display:flex;gap:8px;margin-top:10px}.imlock input{flex:1;min-width:0;border:1px solid var(--line);border-radius:12px;background:var(--bg,transparent);color:var(--ink);font:inherit;font-size:16px;padding:9px 12px}.imlock .imlk .primary{width:auto;padding:0 18px;border-radius:12px;font-size:15px}.imlock .imt{overflow-wrap:anywhere}
 .imsend{display:flex;align-items:center;gap:8px;margin-top:10px;border:0;border-radius:999px;background:rgba(120,120,128,.12);color:var(--mute);color:color-mix(in srgb,var(--ink) 62%,transparent);font:inherit;font-size:14px;font-weight:600;padding:7px 12px;cursor:pointer;text-align:left}.imsend svg{flex:none}.imsend:active{opacity:.7}
+.imas{display:flex;align-items:center;gap:8px;margin-top:10px;border:0;border-radius:999px;background:var(--green,#22B573);color:#fff;font:inherit;font-size:14px;font-weight:700;padding:8px 14px;cursor:pointer;text-align:left}.imas svg{flex:none}.imas:active{opacity:.75}
 .imstrip{display:flex;align-items:center;justify-content:center;gap:9px;margin:0 0 12px}.imstrip span{font-size:13px;color:var(--mute);font-variant-numeric:tabular-nums;margin-left:4px}.imdot{width:9px;height:9px;padding:0;border:0;border-radius:50%;background:var(--fill);transition:transform .2s,background .2s;cursor:pointer}.imdot.ok{background:var(--accent)}.imdot.bad{background:#FF9500}.imdot.on{transform:scale(1.45);box-shadow:0 0 0 3px rgba(128,128,128,.25)}
 #impslide{touch-action:pan-y}.imsl-l{animation:imsll .28s cubic-bezier(.2,.8,.2,1)}.imsl-r{animation:imslr .28s cubic-bezier(.2,.8,.2,1)}@keyframes imsll{from{transform:translateX(56px);opacity:.2}to{transform:none;opacity:1}}@keyframes imslr{from{transform:translateX(-56px);opacity:.2}to{transform:none;opacity:1}}
 .imbar2{display:flex;gap:10px;margin-top:10px}.imbar2 button{flex:1;height:48px;border-radius:24px;border:1px solid var(--line2);background:var(--card);color:var(--ink);font:inherit;font-size:16px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:6px;cursor:pointer}.imbar2 button.off{opacity:.45}.imextra{margin:2px 0 10px}.imextra .linkrow{width:100%}
@@ -5470,6 +5471,7 @@ function impBack() {
 }
 let impSendF = null;   /* el archivo que Nazca no reconoció: solo en memoria, para ofrecer mandarlo a entrenar a Nazca */
 function impFail(t, m, f) { if (impBatch) { impBatch.fails.push({ t: t, m: m, name: impBatch.cur || '' }); return; } impSendF = f || null; ui.impErr = { t: t, m: m, send: !!f }; ui.imp = null; impShow(ui.impAt || 'start', 'tab'); }
+let impAsDoc = null;   /* PDF ya leído que Nazca reconoció de OTRO banco que el elegido: se guarda para leerlo con el banco correcto si la persona lo confirma */
 let impCur = null;   /* el archivo que se está leyendo (para ofrecer mandarlo si Nazca no lo reconoce) */
 async function impFile(f) {
   if (!f) return; impCur = f;
@@ -5511,6 +5513,20 @@ function impCsvReview(fname, a, x, fromPdf, guess) {
 }
 /* PDF: la librería (pdf.js) se descarga solo ahora y corre en este dispositivo. Nazca reconoce el banco por el contenido y usa su lector. */
 const IMP_ONLY = { bcp: ['del BCP', 'el estado de cuenta de ahorros del BCP'], interbank: ['de Interbank', 'el estado de cuenta de ahorros o de la tarjeta de crédito de Interbank'], bbva: ['de BBVA', 'el estado de cuenta de las cuentas de BBVA'], io: ['de iO', 'el estado de cuenta de la tarjeta de crédito iO'], capitalone: ['de Capital One', 'el estado de cuenta de las tarjetas de crédito de Capital One'], chime: ['de Chime', 'el estado de cuenta de la cuenta Chime Checking'], seen: ['de Seen', 'el estado de cuenta de la tarjeta Seen'], bofa: ['de Bank of America', 'el estado de cuenta de la cuenta de cheques de Bank of America'], applecard: ['de Apple Card', 'el estado de cuenta de Apple Card (PDF o CSV)'], communitybank: ['de Community Bank', 'el estado de cuenta de la cuenta de Community Bank'] };   /* banco elegido → cómo se nombra en el aviso y qué lee Nazca de él */
+function impWrongBank(b, doc, name) {
+  const t = 'Este archivo es de ' + impBankShort(b), m = 'Elegiste otro banco, pero Nazca reconoció este archivo.';
+  if (impBatch) { impBatch.fails.push({ t: t, m: m, name: impBatch.cur || '' }); return; }
+  impAsDoc = { doc: doc, name: name, bank: b }; impSendF = null; ui.impErr = { t: t, m: m, send: false, as: b }; ui.imp = null; impShow(ui.impAt || 'start', 'tab');
+}
+/* «Leerlo como X»: se cambia el banco elegido y se lee el mismo PDF (ya abierto) con el lector del banco que Nazca reconoció. */
+function impAsGo() {
+  const A = impAsDoc; if (!A) return; impAsDoc = null; ui.impErr = null; ui.impBank = A.bank;
+  const c = NazcaBancos.CATALOG.find((x) => x.banks.some((k) => k.id === A.bank)); if (c) ui.impCountry = c.id;
+  const rd = NazcaBancos.detect(A.doc, A.bank), r = rd && rd.read(A.doc);
+  if (!r || r.error) { impFail('Nazca no pudo leer el estado de cuenta', 'No encontramos el periodo del estado de cuenta en el archivo.'); return; }
+  if (!r.items.length) { impFail('Nazca no encontró movimientos', 'No hallamos movimientos en el archivo. Revisa que sea el estado de cuenta de tu banco.'); return; }
+  impFromPdf(A.name, r);
+}
 async function impPdf(f) {
   if (f.size > NazcaPDF.MAX_BYTES) { impFail('El archivo es muy grande', 'El máximo es 15 MB.'); return; }
   const key = impKey, name = String(f.name || '').slice(0, 80);
@@ -5529,6 +5545,7 @@ async function impPdf(f) {
           items: x.items.map((it, i) => ({ line: i + 1, date: it.date, desc: it.desc, amount: it.amount, cur: it.cur || '' })), skipped: { unreadable: x.skipped.unreadable || 0, zero: 0 } }); return; }
       if (x.items.length) { impCsvReview(name, a, x, true, g.name || NazcaPDFGen.nameFromFile(name)); return; } }
   }
+  if (!rd && ui.impBank) { const o = NazcaBancos.detect(doc, null); if (o && o.bank !== ui.impBank) { impWrongBank(o.bank, doc, name); return; } }   /* Nazca lo reconoce, pero es de otro banco */
   if (!rd && ui.impBank === 'yape') { impFail('Este archivo no parece de Yape', 'Yape no da estado de cuenta en PDF: descarga el reporte de movimientos en Excel y súbelo.', key ? null : f); return; }
   if (!rd) { const ob = ui.impBank && IMP_ONLY[ui.impBank];   /* con un banco elegido, el aviso nombra a ese banco y dice qué archivo lee Nazca de él */
     impFail(ob ? 'Este archivo no parece ' + ob[0] : 'Nazca todavía no reconoce este archivo', ob ? 'Por ahora Nazca lee ' + ob[1] + '. Revisa que sea ese archivo.' : 'No encontramos movimientos con fecha y monto. Si tu banco ofrece un archivo CSV, importa ese.', key ? null : f); return; }
@@ -5696,6 +5713,7 @@ function impErrHTML() {
 function impErrCard() {
   const E = ui.impErr; if (!E) return '';
   return '<div class="imerr" role="alert"><span class="imq">' + RMI('question-fill', 26, 'currentColor') + '</span><span class="grow"><span class="imt">' + esc(E.t) + '</span><span class="sub">' + esc(E.m) + '</span>' +
+    (E.as && impAsDoc ? '<button class="imas" data-act="imp:as">' + RMI('check-line', 18, 'currentColor') + '<span>Leerlo como ' + esc(impBankShort(E.as)) + '</span></button>' : '') +
     (E.send && impSendF ? '<button class="imsend" data-act="imp:send">' + RMI('graduation-cap-line', 18, 'currentColor') + '<span>Mandar este archivo a Nazca para que aprenda</span></button>' : '') + '</span></div>';
 }
 /* Archivos protegidos que se añadieron junto a otros: se les pide la contraseña aquí mismo, sin salir de la revisión. */
@@ -5878,6 +5896,7 @@ function impRender() { const b = $('#impbody'); if (!b || !ui.imp) return; const
 function impAct(arg) {
   const I = ui.imp, p = String(arg).split(':');
   if (p[0] === 'unlock') { impUnlock(+p[1]); return; }
+  if (p[0] === 'as') { impAsGo(); return; }
   if (p[0] === 'send') { impSendDlg(); return; }
   if (p[0] === 'sendgo') { impSendGo(); return; }
   if (p[0] === 'start') { impOpen(); return; }

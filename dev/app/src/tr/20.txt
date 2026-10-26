@@ -288,3 +288,24 @@ Entra a la banca por internet o a la app de BBVA. ¦ Go to BBVA online banking o
 Abre Movimientos y saldos. ¦ Open Transactions and balances. ¦ 取引と残高を開く。 ¦ Apri Movimenti e saldi. ¦ Ouvre Mouvements et soldes. ¦ Otvori Promete i stanja.
 Elige el periodo a consultar. ¦ Choose the period to check. ¦ 確認する期間を選択。 ¦ Scegli il periodo da consultare. ¦ Choisis la période à consulter. ¦ Odaberi razdoblje za pregled.
 Por ahora Nazca lee el estado de cuenta de ahorros o de la tarjeta de crédito de Interbank. Revisa que sea ese archivo. ¦ For now Nazca reads the Interbank savings account or credit card statement. Check that it’s that file. ¦ 現在、NazcaはInterbankの普通預金またはクレジットカードの明細を読み取れます。そのファイルか確認してください。 ¦ Per ora Nazca legge l’estratto conto di risparmio o della carta di credito di Interbank. Controlla che sia quel file. ¦ Pour l’instant, Nazca lit le relevé du compte d’épargne ou de la carte de crédit Interbank. Vérifie que c’est bien ce fichier. ¦ Za sada Nazca čita izvod štednog računa ili kreditne kartice Interbanka. Provjeri je li to ta datoteka.
+Este archivo es de BCP ¦ This file is from BCP ¦ このファイルはBCPのものです ¦ Questo file è di BCP ¦ Ce fichier provient de BCP ¦ Ova datoteka je od BCP
+Este archivo es de Interbank ¦ This file is from Interbank ¦ このファイルはInterbankのものです ¦ Questo file è di Interbank ¦ Ce fichier provient d’Interbank ¦ Ova datoteka je od Interbank
+Este archivo es de iO ¦ This file is from iO ¦ このファイルはiOのものです ¦ Questo file è di iO ¦ Ce fichier provient d’iO ¦ Ova datoteka je od iO
+Este archivo es de BBVA Perú ¦ This file is from BBVA Perú ¦ このファイルはBBVA Perúのものです ¦ Questo file è di BBVA Perú ¦ Ce fichier provient de BBVA Perú ¦ Ova datoteka je od BBVA Perú
+Este archivo es de Capital One ¦ This file is from Capital One ¦ このファイルはCapital Oneのものです ¦ Questo file è di Capital One ¦ Ce fichier provient de Capital One ¦ Ova datoteka je od Capital One
+Este archivo es de Chime ¦ This file is from Chime ¦ このファイルはChimeのものです ¦ Questo file è di Chime ¦ Ce fichier provient de Chime ¦ Ova datoteka je od Chime
+Este archivo es de Seen ¦ This file is from Seen ¦ このファイルはSeenのものです ¦ Questo file è di Seen ¦ Ce fichier provient de Seen ¦ Ova datoteka je od Seen
+Este archivo es de Bank of America ¦ This file is from Bank of America ¦ このファイルはBank of Americaのものです ¦ Questo file è di Bank of America ¦ Ce fichier provient de Bank of America ¦ Ova datoteka je od Bank of America
+Este archivo es de Apple Card ¦ This file is from Apple Card ¦ このファイルはApple Cardのものです ¦ Questo file è di Apple Card ¦ Ce fichier provient d’Apple Card ¦ Ova datoteka je od Apple Card
+Este archivo es de Community Bank, N.A. ¦ This file is from Community Bank, N.A. ¦ このファイルはCommunity Bank, N.A.のものです ¦ Questo file è di Community Bank, N.A. ¦ Ce fichier provient de Community Bank, N.A. ¦ Ova datoteka je od Community Bank, N.A.
+Leerlo como BCP ¦ Read it as BCP ¦ BCPとして読み込む ¦ Leggilo come BCP ¦ Le lire comme BCP ¦ Pročitaj kao BCP
+Leerlo como Interbank ¦ Read it as Interbank ¦ Interbankとして読み込む ¦ Leggilo come Interbank ¦ Le lire comme Interbank ¦ Pročitaj kao Interbank
+Leerlo como iO ¦ Read it as iO ¦ iOとして読み込む ¦ Leggilo come iO ¦ Le lire comme iO ¦ Pročitaj kao iO
+Leerlo como BBVA Perú ¦ Read it as BBVA Perú ¦ BBVA Perúとして読み込む ¦ Leggilo come BBVA Perú ¦ Le lire comme BBVA Perú ¦ Pročitaj kao BBVA Perú
+Leerlo como Capital One ¦ Read it as Capital One ¦ Capital Oneとして読み込む ¦ Leggilo come Capital One ¦ Le lire comme Capital One ¦ Pročitaj kao Capital One
+Leerlo como Chime ¦ Read it as Chime ¦ Chimeとして読み込む ¦ Leggilo come Chime ¦ Le lire comme Chime ¦ Pročitaj kao Chime
+Leerlo como Seen ¦ Read it as Seen ¦ Seenとして読み込む ¦ Leggilo come Seen ¦ Le lire comme Seen ¦ Pročitaj kao Seen
+Leerlo como Bank of America ¦ Read it as Bank of America ¦ Bank of Americaとして読み込む ¦ Leggilo come Bank of America ¦ Le lire comme Bank of America ¦ Pročitaj kao Bank of America
+Leerlo como Apple Card ¦ Read it as Apple Card ¦ Apple Cardとして読み込む ¦ Leggilo come Apple Card ¦ Le lire comme Apple Card ¦ Pročitaj kao Apple Card
+Leerlo como Community Bank, N.A. ¦ Read it as Community Bank, N.A. ¦ Community Bank, N.A.として読み込む ¦ Leggilo come Community Bank, N.A. ¦ Le lire comme Community Bank, N.A. ¦ Pročitaj kao Community Bank, N.A.
+Elegiste otro banco, pero Nazca reconoció este archivo. ¦ You chose another bank, but Nazca recognized this file. ¦ 別の銀行を選びましたが、Nazcaはこのファイルを認識しました。 ¦ Hai scelto un’altra banca, ma Nazca ha riconosciuto questo file. ¦ Tu as choisi une autre banque, mais Nazca a reconnu ce fichier. ¦ Odabrao si drugu banku, ali Nazca je prepoznala ovu datoteku.
