@@ -89,7 +89,7 @@ const sum = (it) => Math.round(it.reduce((s, x) => s + x.amount, 0) * 100) / 100
 
 // 6) catálogo: el BCP y Interbank están activos
 { const pe = B.CATALOG.find((c) => c.id === 'PE'); const act = pe.banks.filter((b) => b.active).map((b) => b.id);
-  ok(pe.banks.length === 6 && act.join() === 'bcp,interbank,io', 'catálogo: Perú con 6 bancos (Yape aún sin lector), activos el BCP, Interbank e iO'); }
+  ok(pe.banks.length === 6 && act.join() === 'bcp,interbank,io,yape', 'catálogo: Perú con 6 bancos, activos el BCP, Interbank, iO y Yape'); }
 
 // 7) Capital One (tarjeta): banco reconocido y verificado · documentos de prueba inventados
 { const d1 = await P.read(bytes('capital-one-marzo.pdf'), lib), rd = B.detect(d1);
@@ -194,6 +194,18 @@ const sum = (it) => Math.round(it.reduce((s, x) => s + x.amount, 0) * 100) / 100
   const dn = await P.read(bytes('io-no-cuadra.pdf'), lib); ok(B.detect(dn).read(dn).check.ok === false, 'io: si el pago total no coincide → no cuadra');
   let err = null; try { await P.read(bytes('io-tarjeta-clave.pdf'), lib); } catch (e) { err = e; } ok(err && err.code === 'need_password', 'io: protegido con DNI → pide la contraseña');
   const dd = await P.read(bytes('io-tarjeta-clave.pdf'), lib, '12345678'); ok(B.detect(dd, 'io') && B.detect(dd, 'io').read(dd).items.length === 8, 'io: con el DNI correcto se abre'); }
+
+// 16) Yape: reporte de movimientos en Excel (.xlsx) · lector de xlsx y lector de Yape
+{ const X = require('../app/src/core/nazca/xlsx.js'), Y = require('../app/src/core/nazca/bancos/yape-movimientos.js'), xb = (n) => readFileSync(new URL('./xlsx/' + n, import.meta.url));
+  for (const n of ['yape-reporte.xlsx', 'yape-reporte-compartidas.xlsx']) {
+    const rows = await X.read(xb(n)); ok(Y.detect(rows), 'yape (' + n + '): se reconoce por sus columnas');
+    const r = Y.read(rows); ok(r.items.length === 7 && r.skipped.unreadable === 0 && r.cur === 'PEN' && r.check === null, 'yape: 7 movimientos en soles, sin comprobación de saldo');
+    ok(r.period.from === '2026-10-01' && r.period.to === '2026-10-20', 'yape: periodo = primera y última fecha');
+    ok(r.items.find((x) => x.desc.startsWith('Tienda Ejemplo')).amount === -16.08 && r.items.find((x) => x.desc.startsWith('Luis Demo')).amount === 30, 'yape: PAGASTE → negativo (destino), TE PAGÓ → positivo (origen)');
+    ok(r.items.find((x) => x.date === '2026-10-01').amount === -1250, 'yape: monto con coma de miles "1,250.00"');
+    ok(r.items.some((x) => x.desc === 'DELIVERY EJEMPLO · Pago por internet'), 'yape: el mensaje se suma sin el número de operación'); }
+  ok(!Y.detect([['a', 'b'], ['1', '2']]) && !Y.detect(await X.read(xb('yape-reporte.xlsx')).then((r) => r.map((x) => x.slice(0, 2)))), 'yape: otro Excel no se confunde');
+  ok((await fail(X.read(bytes('bcp-ahorros.pdf')))) === 'not_xlsx', 'xlsx: un PDF no se abre como Excel'); }
 
 console.log(f ? '\n' + f + ' FALLAS' : '\nTodo bien');
 process.exit(f ? 1 : 0);

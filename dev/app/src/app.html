@@ -1113,7 +1113,7 @@ button.primary[disabled]{opacity:.45;pointer-events:none}
 </div>
 <input type="file" id="file" accept=".json,application/json" hidden>
 <input type="file" id="clfile" accept=".json,application/json" hidden>
-<input type="file" id="impfile" multiple accept=".csv,.tsv,.txt,.pdf,text/csv,text/plain,text/tab-separated-values,application/pdf" hidden>
+<input type="file" id="impfile" multiple accept=".csv,.tsv,.txt,.pdf,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv,text/plain,text/tab-separated-values,application/pdf" hidden>
 
 <script>
 (function(){
@@ -5472,6 +5472,8 @@ async function impFile(f) {
   ui.impErr = null; if (ui.impStep === 'start' || ui.impStep === 'how' || ui.impStep === 'bank' || ui.impStep === 'key') ui.impAt = ui.impStep; /* si falla, vuelve a la pantalla donde elegiste el archivo */
   const head = String.fromCharCode.apply(null, new Uint8Array(await f.slice(0, 5).arrayBuffer()));
   if (head === '%PDF-' || /\.pdf$/i.test(f.name || '') || f.type === 'application/pdf') { await impPdf(f); return; }
+  if (head.slice(0, 2) === 'PK' || /\.xlsx$/i.test(f.name || '')) { await impXlsx(f); return; }
+  if (head.slice(0, 2) === 'PK' || /\.xlsx$/i.test(f.name || '')) { await impXlsx(f); return; }
   if (f.size > Nazca.MAX_BYTES) { impFail('El archivo es muy grande', 'El máximo es 5 MB. Descarga un periodo más corto desde tu banca por internet.'); return; }
   let a, x;
   try { a = Nazca.analyze(Nazca.decode(await f.arrayBuffer())); x = Nazca.extract(a); }
@@ -5481,6 +5483,19 @@ async function impFile(f) {
     impFromPdf(String(f.name || '').slice(0, 80), { bank: sig.bank, kind: sig.kind, label: sig.label, cur: sig.cur, account: { last4: '' }, card: {}, check: null, period: null,
       items: x.items.map((it, i) => ({ line: i + 1, date: it.date, desc: it.desc, amount: sig.flip ? -it.amount : it.amount, cur: it.cur || '' })), skipped: { unreadable: x.skipped.unreadable || 0, zero: 0 } }); return; }
   impCsvReview(f.name, a, x, false, NazcaPDFGen.nameFromFile(f.name));
+}
+/* Excel (.xlsx): hoy solo el reporte de movimientos de Yape. Se abre en el dispositivo (xlsx.js) y se revisa igual que un estado de cuenta. */
+async function impXlsx(f) {
+  if (f.size > NazcaXLSX.MAX_BYTES) { impFail('El archivo es muy grande', 'El máximo es 5 MB.'); return; }
+  const name = String(f.name || '').slice(0, 80); let rows;
+  if (!impBatch) impShow('busy');
+  try { rows = await NazcaXLSX.read(new Uint8Array(await f.arrayBuffer())); }
+  catch (e) { impFail('Nazca no pudo leer ese archivo', 'Revisa que sea el reporte de movimientos en Excel que descargaste.'); return; }
+  if (!NazcaYape.detect(rows)) { impFail(ui.impBank === 'yape' ? 'Este archivo no parece de Yape' : 'Nazca todavía no reconoce este archivo', 'Por ahora Nazca lee el reporte de movimientos en Excel que descargas desde Yape. Revisa que sea ese archivo.'); return; }
+  const r = NazcaYape.read(rows);
+  if (!r || r.error) { impFail('Nazca no pudo leer el reporte', 'No encontramos las columnas del reporte de movimientos de Yape.'); return; }
+  if (!r.items.length) { impFail('Nazca no encontró movimientos', 'No hallamos movimientos en el archivo. Revisa que sea el reporte de movimientos de Yape.'); return; }
+  impFromPdf(name, r);
 }
 function impCsvReview(fname, a, x, fromPdf, guess) {
   if (!x.items.length) { impFail('Nazca no encontró movimientos', 'No hallamos filas con fecha y monto. Revisa que sea el CSV de movimientos de tu banco.'); return; }
@@ -5509,6 +5524,7 @@ async function impPdf(f) {
           items: x.items.map((it, i) => ({ line: i + 1, date: it.date, desc: it.desc, amount: it.amount, cur: it.cur || '' })), skipped: { unreadable: x.skipped.unreadable || 0, zero: 0 } }); return; }
       if (x.items.length) { impCsvReview(name, a, x, true, g.name || NazcaPDFGen.nameFromFile(name)); return; } }
   }
+  if (!rd && ui.impBank === 'yape') { impFail('Este archivo no parece de Yape', 'Yape no da estado de cuenta en PDF: descarga el reporte de movimientos en Excel y súbelo.'); return; }
   if (!rd) { impFail(ui.impBank === 'interbank' ? 'Este archivo no parece de Interbank' : ui.impBank ? 'Este archivo no parece del BCP' : 'Nazca todavía no reconoce este archivo', ui.impBank === 'interbank' ? 'Por ahora Nazca lee el estado de cuenta de la cuenta de ahorros de Interbank. Revisa que sea ese archivo.' : ui.impBank ? 'Por ahora Nazca lee el estado de cuenta de ahorros del BCP. Revisa que sea ese archivo.' : 'No encontramos movimientos con fecha y monto. Si tu banco ofrece un archivo CSV, importa ese.'); return; }
   const r = rd.read(doc);
   if (!r || r.error) { impFail('Nazca no pudo leer el estado de cuenta', 'No encontramos el periodo del estado de cuenta en el archivo.'); return; }
@@ -5639,6 +5655,7 @@ function impFromPdf(name, r) {
 const impBankShort = (id) => (id === 'bcp' ? 'BCP' : impBankName(id));
 const IMP_STEPS = {
   bcp: ['Ve a la Banca por Internet.', 'Elige la cuenta a consultar.', 'Selecciona la opción Más, y después Estado de Cuenta.', 'Elige el mes y año a consultar.', 'Genera el estado de cuenta y descárgalo de tu correo.'],
+  yape: ['Abre la app de Yape.', 'Toca Movimientos.', 'Descarga el reporte de movimientos en Excel.', 'Guarda el archivo en tu celular o en tu PC.'],
   io: ['Abre la app iO.', 'Entra a tu tarjeta de crédito.', 'Abre Estados de cuenta.', 'Elige el ciclo a consultar.', 'Descarga el estado de cuenta en PDF.'],
   communitybank: ['Entra a la banca en línea o a la app de Community Bank.', 'Abre tu cuenta y luego eStatements.', 'Elige el mes a consultar.', 'Descarga el estado de cuenta en PDF.'],
   bofa: ['Entra a la app o a bankofamerica.com.', 'Elige tu cuenta.', 'Abre Statements & Documents.', 'Elige el mes a consultar.', 'Descarga el estado de cuenta.'],
@@ -5687,7 +5704,7 @@ function impBodyHTML(st) {
   }
   if (st === 'bank') return (IMP_STEPS[ui.impBank] ? '<div class="scard imsteps">' + IMP_STEPS[ui.impBank].map((t, i) => '<div class="imstep"><span class="imn" data-notr>' + (i + 1) + '</span><span class="grow">' + t + '</span></div>').join('') + '</div>' : '<p class="imlead">Descarga tu estado de cuenta de ahorros desde Interbank APP o la banca por internet de Interbank.</p>') +
     (IMP_KEY[ui.impBank] ? keyField('impKey', IMP_KEY[ui.impBank]) : '') +
-    '<div class="imbar"><button class="primary" id="impPickBtn" data-act="imp:pdf"' + (!IMP_KEY[ui.impBank] || impKeyOk() ? '' : ' disabled') + '>Subir estado de cuenta</button></div>';
+    '<div class="imbar"><button class="primary" id="impPickBtn" data-act="imp:pdf"' + (!IMP_KEY[ui.impBank] || impKeyOk() ? '' : ' disabled') + '>' + (ui.impBank === 'yape' ? 'Subir reporte de movimientos' : 'Subir estado de cuenta') + '</button></div>';
   if (st === 'busy') return '<div class="imspin" role="status" aria-label="Leyendo"></div><div class="imlead" style="text-align:center">Nazca está leyendo tu estado de cuenta en este dispositivo.</div>';
   if (st === 'done') {
     const D = ui.impDone || { n: 0, parts: [] }, parts = D.parts && D.parts.length ? D.parts : [{ n: D.n, acc: D.acc, bal: D.bal, cur: D.cur || 'PEN', credit: D.credit }];
