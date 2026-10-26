@@ -352,6 +352,41 @@ def community_bank(path, filas, previo=100.00, extra_impreso=0.0):
 
 CB_FILAS = [("03/20", "Payroll Empresa Demo", 800.00), ("03/25", "Debit Card Purchase Tienda Ejemplo", -45.30), ("04/02", "ATM Withdrawal Calle Demo", -60.00), ("04/10", "Service Charge Fee Refund", 1.50)]
 
+def io_tarjeta(path, abonos, consumos, seguro=1.25, previo=0.00, extra_impreso=0.0):
+    """Estado INVENTADO de la tarjeta iO (mismos textos y columnas SOLES/DÓLARES que el real; ningún dato real). abonos/consumos: (dd-MES, descripción, monto positivo)."""
+    ab = round(sum(a[2] for a in abonos), 2); co = round(sum(c[2] for c in consumos), 2); tot = round(previo - ab + co + seguro + extra_impreso, 2)
+    m2 = lambda v: f"{v:.2f}"
+    c = canvas.Canvas(str(path), pagesize=A4); c.setTitle("iO - documento de prueba (inventado)"); W = 595
+    c.setFont("Helvetica", 9); c.setFillColorRGB(.8, 0, 0); c.drawString(150, 740, "DOCUMENTO DE PRUEBA - DATOS INVENTADOS"); c.setFillColorRGB(0, 0, 0)
+    c.drawString(227, 709, "¡Hola, Persona!"); c.drawString(120, 660, "sobre tu Tarjeta de Crédito"); c.drawString(266, 660, "iO"); c.drawString(281, 660, "del"); c.drawString(299, 660, "29/03/2026"); c.drawString(363, 660, "hasta el"); c.drawString(405, 660, "25/04/2026")
+    c.drawString(179, 631, "Número de tarjeta de crédito:"); c.drawString(322, 631, "**** **** **** 1234")
+    c.drawString(54, 592, "Tu línea de crédito"); c.drawString(236, 592, "Tu saldo disponible"); c.drawString(419, 592, "Tu línea de crédito utilizada"); c.drawString(54, 580, "actual es:"); c.drawString(236, 580, "al 25/04/2026 es:")
+    c.drawString(54, 556, "S/500.00"); c.drawString(236, 556, "S/" + m2(500 - tot)); c.drawString(419, 556, "S/" + m2(tot))
+    c.drawString(79, 484, "ÚLTIMO DÍA DE PAGO"); c.drawString(297, 484, "SOLES"); c.drawString(447, 484, "DÓLARES"); c.drawString(272, 464, "Pago total del mes"); c.drawString(430, 464, "Pago total del mes")
+    c.drawString(114, 455, "Domingo"); c.drawString(282, 445, "S/" + m2(tot)); c.drawString(449, 445, "$0.00"); c.drawString(101, 436, "12 may 26"); c.drawString(284, 421, "Pago mínimo"); c.drawString(442, 421, "Pago mínimo"); c.drawString(292, 403, "S/25.00"); c.drawString(454, 403, "$0.00")
+    c.showPage()
+    c.setFont("Helvetica-Bold", 11); c.drawString(196, 769, "Detalle de movimientos"); c.setFont("Helvetica", 9); c.drawString(247, 704, "Ciclo de facturación:"); c.drawString(233, 689, "29/03/2026"); c.drawString(293, 689, "al"); c.drawString(304, 689, "25/04/2026")
+    def tabla(y, titulo, filas, neg):
+        c.setFont("Helvetica-Bold", 10); c.drawString(211, y, titulo); y -= 26; c.setFont("Helvetica", 8)
+        for x, t in ((42, "FECHA"), (170, "DESCRIPCIÓN"), (439, "SOLES"), (513, "DÓLARES")): c.drawString(x, y, t)
+        y -= 26
+        for f, d, m in filas: c.drawString(42, y, f); c.drawString(170, y, d); c.drawString(447, y, m2(m)); y -= 26
+        c.drawString(42, y, "SUBTOTAL"); c.drawString(442, y, m2(sum(f[2] for f in filas))); c.drawString(523, y, "0.00"); return y - 40
+    y = tabla(631, "Abonos", abonos, False); y = tabla(y, "Consumos directos (Sin cuotas)", consumos, True)
+    c.showPage()
+    c.setFont("Helvetica-Bold", 10); c.drawString(198, 778, "Plan de cuotas de los próximos 6 meses"); c.setFont("Helvetica-Bold", 11); c.drawString(185, 636, "Resumen de movimientos"); c.setFont("Helvetica", 9); c.drawString(198, 498, "Tu pago del mes esta compuesto por:")
+    c.setFont("Helvetica", 8); c.drawString(62, 471, "DESCRIPCIÓN"); c.drawString(357, 471, "SOLES"); c.drawString(477, 471, "DÓLARES")
+    for y, sg, lab, v in ((446, "", "SALDO PENDIENTE DEL MES ANTERIOR", previo), (420, "-", "ABONOS DEL MES ACTUAL", ab), (394, "+", "CONSUMOS DIRECTOS (SIN CUOTAS)", co), (368, "+", "CONSUMOS EN CUOTAS", 0), (342, "+", "INTERÉS COMPENSATORIO", 0), (316, "+", "INTERÉS MORATORIO", 0), (291, "+", "SEGURO DE DESGRAVAMEN", seguro)):
+        if sg: c.drawString(48, y, sg)
+        c.drawString(59 if sg else 62, y, lab); c.drawString(364, y, m2(v)); c.drawString(488, y, "0.00")
+    c.drawString(48, 252, "="); c.drawString(61, 252, "PAGO TOTAL DEL MES"); c.drawString(353, 252, m2(tot)); c.drawString(483, 252, "0.00"); c.drawString(62, 225, "PAGO MÍNIMO DEL MES"); c.drawString(360, 225, "25.00"); c.drawString(483, 225, "0.00")
+    c.showPage()
+    c.setFont("Helvetica", 8); c.drawString(199, 706, "TASAS"); c.drawString(452, 706, "SOLES"); c.drawString(514, 706, "DÓLARES"); c.drawString(199, 677, "TEA de Interés compensatorio"); c.drawString(457, 677, "32.99%"); c.drawString(531, 677, "32.99%")
+    c.showPage(); c.save()
+
+IO_ABONOS = [("06-ABR", "DEVOLUCIÓN DE COMPRA - TIENDA EJEMPLO", 4.50), ("17-ABR", "ABONO CON CASHBACK", 12.30)]
+IO_CONSUMOS = [("29-MAR", "CAFE DEMO CENTRO", 12.80), ("30-MAR", "TAXI DEMO PE", 9.60), ("02-ABR", "SUPER DEMO SAN MIGUEL", 85.40), ("11-ABR", "TIENDA EJEMPLO ONLINE", 39.99), ("21-ABR", "FARMACIA DEMO", 17.25)]
+
 CAPITAL_ONE_OLD = [("Mar 3", "Mar 4", "AMAZON MKTPLACE PMTS", "$23.99"), ("Mar 5", "Mar 6", "UBER *TRIP HELP.UBER.COM", "$14.50"), ("Mar 9", "Mar 10", "WHOLEFDS MKT #10234", "$67.12"),
     ("Mar 12", "Mar 12", "NETFLIX.COM", "$15.49"), ("Mar 15", "Mar 16", "SHELL OIL 57444", "$41.30"), ("Mar 18", "Mar 18", "CAPITAL ONE MOBILE PYMT", "-$150.00"), ("Mar 21", "Mar 22", "SPOTIFY USA", "$11.99")]
 BANCO_EQUIS = [("02/03/2026", "SUPERMERCADO LA ESQUINA", "-85.40"), ("04/03/2026", "DEPOSITO SUELDO EMPRESA DEMO", "2,500.00"), ("07/03/2026", "TRANSFERENCIA A JUAN PEREZ", "-300.00"),
@@ -397,4 +432,7 @@ if __name__ == "__main__":
     apple_card(OUT / "apple-card-no-cuadra.pdf", AC_PAGOS, AC_COMPRAS, extra_impreso=3.00)
     community_bank(OUT / "community-bank.pdf", CB_FILAS)
     community_bank(OUT / "community-bank-no-cuadra.pdf", CB_FILAS, extra_impreso=2.00)
+    io_tarjeta(OUT / "io-tarjeta.pdf", IO_ABONOS, IO_CONSUMOS)
+    io_tarjeta(OUT / "io-no-cuadra.pdf", IO_ABONOS, IO_CONSUMOS, extra_impreso=2.00)
+    subprocess.run(["qpdf", "--encrypt", "12345678", "12345678", "256", "--", str(OUT / "io-tarjeta.pdf"), str(OUT / "io-tarjeta-clave.pdf")], check=True)
     print("listo")

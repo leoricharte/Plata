@@ -89,7 +89,7 @@ const sum = (it) => Math.round(it.reduce((s, x) => s + x.amount, 0) * 100) / 100
 
 // 6) catálogo: el BCP y Interbank están activos
 { const pe = B.CATALOG.find((c) => c.id === 'PE'); const act = pe.banks.filter((b) => b.active).map((b) => b.id);
-  ok(pe.banks.length === 4 && act.join() === 'bcp,interbank', 'catálogo: Perú con 4 bancos, activos el BCP e Interbank'); }
+  ok(pe.banks.length === 5 && act.join() === 'bcp,interbank,io', 'catálogo: Perú con 5 bancos, activos el BCP, Interbank e iO'); }
 
 // 7) Capital One (tarjeta): banco reconocido y verificado · documentos de prueba inventados
 { const d1 = await P.read(bytes('capital-one-marzo.pdf'), lib), rd = B.detect(d1);
@@ -181,6 +181,19 @@ const sum = (it) => Math.round(it.reduce((s, x) => s + x.amount, 0) * 100) / 100
   ok(r.items[0].amount === 800 && r.items[1].amount === -45.3 && r.items[2].amount === -60 && r.items[3].amount === 1.5 && r.items[3].date === '2026-04-10', 'community bank: el signo sale de la columna Balance (abono +, cargo −) y el año del periodo');
   ok(r.check.ok === true, 'community bank: cuadra');
   const dn = await P.read(bytes('community-bank-no-cuadra.pdf'), lib); ok(B.detect(dn).read(dn).check.ok === false, 'community bank: si el saldo final no coincide → no cuadra'); }
+
+// 15) iO (Perú, tarjeta de crédito protegida con el DNI)
+{ const d = await P.read(bytes('io-tarjeta.pdf'), lib), rd = B.detect(d);
+  ok(rd && rd.id === 'io-tarjeta' && B.detect(d, 'bcp') === null && B.detect(d, 'io') === rd, 'io: reconocido por el contenido');
+  const r = rd.read(d);
+  ok(r.kind === 'tarjeta' && r.cur === 'PEN' && r.account.last4 === '1234' && r.period.from === '2026-03-29' && r.period.to === '2026-04-25' && r.items.length === 8, 'io: tarjeta, últimos 4, periodo y 8 movimientos (con el seguro)');
+  ok(r.items.find((x) => /CASHBACK/.test(x.desc)).amount === 12.3 && r.items.find((x) => /CAFE DEMO/.test(x.desc)).amount === -12.8 && r.items.find((x) => /desgravamen/i.test(x.desc)).amount === -1.25 && r.items.find((x) => /desgravamen/i.test(x.desc)).date === '2026-04-25', 'io: abonos +, consumos −, el seguro − a la fecha de cierre');
+  ok(r.items.find((x) => /SUPER DEMO/.test(x.desc)).date === '2026-04-02' && r.items.find((x) => /CAFE DEMO/.test(x.desc)).date === '2026-03-29', 'io: fechas sin año (29-MAR, 02-ABR) con el año del ciclo');
+  ok(r.check.ok === true && r.check.end === 149.49, 'io: cuadra, pago total S/ 149.49');
+  ok(r.card.apr === 32.99 && r.card.limit === 500 && r.card.minPayment === 25 && r.card.dueDate === '2026-05-12', 'io: tasa, límite, mínimo y fecha de pago ' + JSON.stringify(r.card));
+  const dn = await P.read(bytes('io-no-cuadra.pdf'), lib); ok(B.detect(dn).read(dn).check.ok === false, 'io: si el pago total no coincide → no cuadra');
+  let err = null; try { await P.read(bytes('io-tarjeta-clave.pdf'), lib); } catch (e) { err = e; } ok(err && err.code === 'need_password', 'io: protegido con DNI → pide la contraseña');
+  const dd = await P.read(bytes('io-tarjeta-clave.pdf'), lib, '12345678'); ok(B.detect(dd, 'io') && B.detect(dd, 'io').read(dd).items.length === 8, 'io: con el DNI correcto se abre'); }
 
 console.log(f ? '\n' + f + ' FALLAS' : '\nTodo bien');
 process.exit(f ? 1 : 0);
