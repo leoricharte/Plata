@@ -443,6 +443,44 @@ CAPITAL_ONE_OLD = [("Mar 3", "Mar 4", "AMAZON MKTPLACE PMTS", "$23.99"), ("Mar 5
 BANCO_EQUIS = [("02/03/2026", "SUPERMERCADO LA ESQUINA", "-85.40"), ("04/03/2026", "DEPOSITO SUELDO EMPRESA DEMO", "2,500.00"), ("07/03/2026", "TRANSFERENCIA A JUAN PEREZ", "-300.00"),
     ("11/03/2026", "FARMACIA CENTRAL", "-42.75"), ("16/03/2026", "PAGO LUZ ELECTRICA", "-96.20"), ("23/03/2026", "RETIRO CAJERO", "-200.00")]
 
+def bbva(path, fecha_estado, saldo_ant, filas, moneda="SOLES", saldo_final_impreso=None):
+    """Imita el "MOVIMIENTO Y SALDO A LA FECHA" de una cuenta de BBVA Perú: fechas dd-mm sin año (el año sale de la fecha del pie), un solo monto
+    (CARGO con "-" al final, ABONO sin signo), ITF aparte, saldo contable por fila, SALDO ANTERIOR arriba y SALDO A SU FAVOR al pie.
+    filas: (dd-mm oper, dd-mm valor, descripcion, monto con signo, itf) · todo inventado"""
+    c = canvas.Canvas(str(path), pagesize=A4); c.setTitle("Estado de cuenta de prueba (inventado)")
+    def mm(v): return m(v)
+    c.setFont("Helvetica-Bold", 9); c.drawString(21, 794, "MOVIMIENTO Y SALDO A LA FECHA"); c.drawString(21, 781, "CUENTA SUELDO")
+    c.setFont("Helvetica", 7); c.drawString(50, 770, "TITULARES:"); c.drawString(444, 770, "CODIGO DE CUENTA"); c.drawString(50, 759, "PEREZ LOPEZ MARIA ELENA")
+    c.drawString(385, 759, "ENTIDAD"); c.drawString(417, 759, "OFICINA"); c.drawString(482, 759, "CUENTA"); c.drawString(550, 759, "D.C")
+    c.drawString(391, 748, "0011"); c.drawString(422, 748, "0999"); c.drawString(476, 748, "0100020003"); c.drawString(551, 748, "00")
+    c.drawString(50, 743, "AV. EJEMPLO 100"); c.drawString(414, 734, "CODIGO CUENTA INTERBANCARIO (CCI)"); c.drawString(438, 721, "01109900010002000300")
+    c.drawString(21, 680, "MONEDA:"); c.drawString(57, 680, moneda); c.drawString(222, 680, "DNI 10000000")
+    c.drawString(27, 669, "FECHA"); c.drawString(58, 669, "FECHA"); c.drawString(343, 669, "NRO."); c.drawString(135, 665, "DESCRIPCION"); c.drawString(252, 665, "OFICINA"); c.drawString(305, 665, "CAN.")
+    c.drawString(390, 665, "CARGO/ABONO"); c.drawString(476, 665, "ITF"); c.drawString(515, 665, "SALDO CONTABLE"); c.drawString(28, 661, "OPER."); c.drawString(58, 661, "VALOR"); c.drawString(333, 661, "OPERACIÓN")
+    y = 651; c.drawString(85, y, "SALDO ANTERIOR"); c.drawRightString(574, y, mm(saldo_ant)); y -= 10.2
+    saldo = saldo_ant; n = 800
+    for oper, valor, desc, monto, itf in filas:
+        saldo = round(saldo + monto - itf, 2); n += 1
+        c.drawString(29, y, oper); c.drawString(60, y, valor); c.drawString(85, y, desc)
+        if len(desc) > 60: pass
+        c.drawString(230, y, "BCA. INTERNET"); c.drawString(307, y, "BIE"); c.drawString(346, y, str(n))
+        c.drawRightString(448, y, mm(abs(monto)) + ("-" if monto < 0 else ""))
+        if itf: c.drawRightString(485, y, mm(itf))
+        c.drawRightString(574, y, mm(saldo)); y -= 10.2
+    c.drawString(8, 281, "BBVA Av. Ejemplo 3055 Lima R.U.C. 20000000000")
+    c.drawString(398, 142, "SALDO A NUESTRO FAVOR"); c.drawString(501, 142, "SALDO A SU FAVOR"); c.drawString(21, 126, "www.bbva.pe")
+    c.drawRightString(482, 131, "0.00"); c.drawRightString(569, 131, mm(saldo if saldo_final_impreso is None else saldo_final_impreso))
+    c.drawString(129, 30, "OFICINA"); c.drawString(283, 30, "FECHA"); c.drawString(555, 30, "HOJA"); c.drawString(95, 19, "OFICINA DE PRUEBA"); c.drawString(277, 19, fecha_estado); c.drawString(562, 19, "1")
+    c.showPage(); c.save()
+    return saldo
+
+BB_SETIEMBRE = [
+    ("02-09", "02-09", "PLIN-ANA GOMEZ/455170******1234", -500.00, 0), ("09-09", "08-09", "PLIN-ANA GOMEZ/455170******1234", -120.00, 0),
+    ("15-09", "15-09", "*A/ HAB5ta EMPRESA EJEMPLO SAC", 1267.59, 0), ("15-09", "15-09", "YAPE-Luis P Rojas/455170******1234", -2.00, 0),
+    ("16-09", "16-09", "TRANSF.INTERBANCARIA.CCE 000000001", -1000.00, 0), ("30-09", "30-09", "*A/ HAB5ta EMPRESA EJEMPLO SAC", 1267.59, 0),
+]
+BB_DICIEMBRE = [("29-12", "29-12", "PLIN-ANA GOMEZ/455170******1234", -50.00, 0), ("02-01", "02-01", "*A/ HAB5ta EMPRESA EJEMPLO SAC", 900.00, 0), ("05-01", "05-01", "RETIRO CAJERO", -200.00, 0.02)]
+
 if __name__ == "__main__":
     bcp(OUT / "bcp-ahorros.pdf", ("01/03/26", "31/03/26"), 120.30, MARZO)
     bcp(OUT / "bcp-ahorros-enero.pdf", ("01/01/26", "31/01/26"), 35.10, ENERO)
@@ -452,6 +490,10 @@ if __name__ == "__main__":
     interbank(OUT / "interbank-enero.pdf", "DEL 29 DE DICIEMBRE AL 27 DE ENERO", "ENERO", 80.00, IB_ENERO, fin="27/01")
     interbank(OUT / "interbank-no-cuadra.pdf", "DEL 28 DE FEBRERO AL 27 DE MARZO", "MARZO", 220.40, IB_MARZO, total_gastos_impreso=999.99)
     interbank(OUT / "interbank-dolares.pdf", "DEL 1 AL 30 DE NOVIEMBRE", "NOVIEMBRE", 100.00, [("04/11/2026", "TRANSF WEB/APP", +50.00), ("09/11/2026", "Amazon", -19.99)], producto="CUENTA SIMPLE DÓLARES", fin="30/11")
+    bbva(OUT / "bbva-cuenta.pdf", "30-09-2026", 1931.74, BB_SETIEMBRE)
+    bbva(OUT / "bbva-enero.pdf", "15-01-2027", 400.00, BB_DICIEMBRE)
+    bbva(OUT / "bbva-no-cuadra.pdf", "30-09-2026", 1931.74, BB_SETIEMBRE, saldo_final_impreso=9999.99)
+    bbva(OUT / "bbva-dolares.pdf", "30-09-2026", 100.00, [("04-09", "04-09", "COMPRA EJEMPLO", -19.99, 0)], moneda="DOLARES")
     subprocess.run(["qpdf", "--encrypt", "12345678", "12345678", "256", "--", str(OUT / "bcp-ahorros.pdf"), str(OUT / "bcp-ahorros-clave.pdf")], check=True)
     # otro banco: mismo tipo de tabla pero no es el BCP
     c = canvas.Canvas(str(OUT / "otro-banco.pdf"), pagesize=A4); c.setFont("Helvetica-Bold", 9); c.drawString(40, 780, "Banco Ejemplo · Estado de cuenta")

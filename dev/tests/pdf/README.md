@@ -12,6 +12,10 @@ Imitan el diseño del «Estado de Cuenta de Ahorros Cuenta Digital BCP» y del �
 | `interbank-ahorros.pdf` | Imita el «ESTADO DE CUENTA» de ahorros de Interbank: fecha completa, monto con signo, saldo por fila, `EMPEZASTE … CON` / `SALDO CONTABLE AL …` y una página-guía con movimientos de ejemplo que no se leen. Cuadra. |
 | `interbank-enero.pdf` | Periodo de diciembre a enero (el año cambia). Cuadra. |
 | `interbank-no-cuadra.pdf` | El total de gastos impreso está mal: debe avisar que no cuadra. |
+| `bbva-cuenta.pdf` | Imita el «MOVIMIENTO Y SALDO A LA FECHA» de una cuenta sueldo de BBVA Perú: fechas `dd-mm` sin año, cargo con `-` al final, saldo por fila, `SALDO ANTERIOR` y `SALDO A SU FAVOR`. Cuadra. |
+| `bbva-enero.pdf` | Estado de enero con movimientos de diciembre (el año cambia) y un ITF aparte. Cuadra. |
+| `bbva-no-cuadra.pdf` | El saldo final impreso está mal: debe avisar que no cuadra. |
+| `bbva-dolares.pdf` | `MONEDA: DOLARES` → USD. |
 | `interbank-dolares.pdf` | Cuenta en dólares y periodo «DEL 1 AL 30 DE NOVIEMBRE». |
 | `otro-banco.pdf` | No es del BCP: no se reconoce. |
 | `sin-texto.pdf` | Sin texto (como una foto escaneada). |

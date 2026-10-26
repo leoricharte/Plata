@@ -89,7 +89,7 @@ const sum = (it) => Math.round(it.reduce((s, x) => s + x.amount, 0) * 100) / 100
 
 // 6) catálogo: el BCP y Interbank están activos
 { const pe = B.CATALOG.find((c) => c.id === 'PE'); const act = pe.banks.filter((b) => b.active).map((b) => b.id);
-  ok(pe.banks.length === 6 && act.join() === 'bcp,interbank,io,yape', 'catálogo: Perú con 6 bancos, activos el BCP, Interbank, iO y Yape'); }
+  ok(pe.banks.length === 6 && act.join() === 'bcp,interbank,io,yape,bbva', 'catálogo: Perú con 6 bancos, activos el BCP, Interbank, iO, Yape y BBVA'); }
 
 // 7) Capital One (tarjeta): banco reconocido y verificado · documentos de prueba inventados
 { const d1 = await P.read(bytes('capital-one-marzo.pdf'), lib), rd = B.detect(d1);
@@ -222,6 +222,20 @@ const sum = (it) => Math.round(it.reduce((s, x) => s + x.amount, 0) * 100) / 100
   ok(r.items.find((x) => x.amount === -300).desc === 'ATM Withdrawal - CAJERO PRUEBA 316 SAN FRANCISCO, CA', 'capital one 360: descripción de dos líneas (una arriba y otra abajo de la fecha)');
   ok(r.check.have && r.check.ok === true && r.check.prev === 5 && r.check.running, 'capital one 360: cuadra con el saldo corrido y el saldo final');
   const d2 = await P.read(bytes('capital-one-cuenta-no-cuadra.pdf'), lib); ok(B.detect(d2, 'capitalone').read(d2).check.ok === false, 'capital one 360: saldo final mal impreso → no cuadra'); }
+
+// 19) BBVA Perú · "Movimiento y saldo a la fecha": cargo con "-" al final, fechas dd-mm (el año sale de la fecha del pie), ITF aparte
+{ const d = await P.read(bytes('bbva-cuenta.pdf'), lib), rd = B.detect(d, 'bbva'); ok(rd && rd.id === 'bbva-cuenta' && B.detect(d).id === 'bbva-cuenta', 'bbva: se reconoce por el contenido (y solo si eligen BBVA o ninguno)');
+  ok(B.detect(await P.read(bytes('bcp-ahorros.pdf'), lib), 'bbva') === null, 'bbva: un PDF del BCP no se lee como BBVA');
+  const r = rd.read(d); ok(r.label === 'BBVA · Cuenta Sueldo' && r.cur === 'PEN' && r.account.last4 === '0003', 'bbva: tipo de cuenta, moneda y últimos 4');
+  ok(r.period.from === '2026-09-01' && r.period.to === '2026-09-30', 'bbva: periodo sale de la fecha del estado');
+  ok(r.items.length === 6 && r.items[0].amount === -500 && r.items[2].amount === 1267.59 && r.items[3].amount === -2, 'bbva: "500.00-" → gasto, sin signo → ingreso (' + r.items.length + ')');
+  ok(r.items[0].desc === 'PLIN-ANA GOMEZ' && r.items[0].date === '2026-09-02', 'bbva: sin el número de tarjeta enmascarado; fecha con año');
+  ok(r.check.have && r.check.ok === true && r.check.prev === 1931.74 && r.check.running, 'bbva: cuadra (saldo anterior + movimientos = saldo a su favor) y el saldo corre fila por fila');
+  const d2 = await P.read(bytes('bbva-no-cuadra.pdf'), lib); ok(B.detect(d2, 'bbva').read(d2).check.ok === false, 'bbva: saldo final mal impreso → no cuadra');
+  const d3 = await P.read(bytes('bbva-enero.pdf'), lib), r3 = B.detect(d3, 'bbva').read(d3);
+  ok(r3.items[0].date === '2026-12-29' && r3.items[1].date === '2027-01-02' && r3.period.to === '2027-01-15', 'bbva: movimientos de diciembre en un estado de enero llevan el año anterior');
+  ok(r3.items.length === 4 && r3.items[3].desc === 'ITF' && r3.items[3].amount === -0.02 && r3.check.ok === true, 'bbva: el ITF sale como gasto aparte y el saldo igual cuadra');
+  const d4 = await P.read(bytes('bbva-dolares.pdf'), lib); ok(B.detect(d4, 'bbva').read(d4).cur === 'USD', 'bbva: MONEDA: DOLARES → USD'); }
 
 console.log(f ? '\n' + f + ' FALLAS' : '\nTodo bien');
 process.exit(f ? 1 : 0);

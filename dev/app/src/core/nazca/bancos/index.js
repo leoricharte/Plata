@@ -4,7 +4,7 @@
  * Un banco solo pasa a "activo" cuando hay un lector probado con un estado de cuenta real de ese banco (con los datos cambiados en las pruebas).
  * Para agregar un banco: archivo nuevo en esta carpeta con detect(doc) y read(doc), lo agregas a READERS y lo marcas activo en CATALOG. */
 const NazcaBancos = (() => {
-  const READERS = [typeof NazcaBCP !== 'undefined' ? NazcaBCP : require('./bcp-ahorros.js'), typeof NazcaInterbank !== 'undefined' ? NazcaInterbank : require('./interbank-ahorros.js'), typeof NazcaCapitalOne !== 'undefined' ? NazcaCapitalOne : require('./capitalone-tarjeta.js'), typeof NazcaChime !== 'undefined' ? NazcaChime : require('./chime-checking.js'), typeof NazcaSeen !== 'undefined' ? NazcaSeen : require('./seen-tarjeta.js'), typeof NazcaBofA !== 'undefined' ? NazcaBofA : require('./bofa-cheques.js'), typeof NazcaAppleCard !== 'undefined' ? NazcaAppleCard : require('./applecard-tarjeta.js'), typeof NazcaCommunityBank !== 'undefined' ? NazcaCommunityBank : require('./communitybank-cuenta.js'), typeof NazcaIO !== 'undefined' ? NazcaIO : require('./io-tarjeta.js'), typeof NazcaCapitalOneCuenta !== 'undefined' ? NazcaCapitalOneCuenta : require('./capitalone-cuenta.js')];
+  const READERS = [typeof NazcaBCP !== 'undefined' ? NazcaBCP : require('./bcp-ahorros.js'), typeof NazcaInterbank !== 'undefined' ? NazcaInterbank : require('./interbank-ahorros.js'), typeof NazcaCapitalOne !== 'undefined' ? NazcaCapitalOne : require('./capitalone-tarjeta.js'), typeof NazcaChime !== 'undefined' ? NazcaChime : require('./chime-checking.js'), typeof NazcaSeen !== 'undefined' ? NazcaSeen : require('./seen-tarjeta.js'), typeof NazcaBofA !== 'undefined' ? NazcaBofA : require('./bofa-cheques.js'), typeof NazcaAppleCard !== 'undefined' ? NazcaAppleCard : require('./applecard-tarjeta.js'), typeof NazcaCommunityBank !== 'undefined' ? NazcaCommunityBank : require('./communitybank-cuenta.js'), typeof NazcaIO !== 'undefined' ? NazcaIO : require('./io-tarjeta.js'), typeof NazcaCapitalOneCuenta !== 'undefined' ? NazcaCapitalOneCuenta : require('./capitalone-cuenta.js'), typeof NazcaBBVA !== 'undefined' ? NazcaBBVA : require('./bbva-cuenta.js')];
   /* Lo que se ve al elegir país y banco. active: hay lector. Los demás salen como "Próximamente". */
   const CATALOG = [
     { id: 'PE', name: 'Perú', banks: [
@@ -12,7 +12,7 @@ const NazcaBancos = (() => {
       { id: 'interbank', name: 'Interbank', hq: 'La Victoria, Lima', active: true },
       { id: 'io', name: 'iO', hq: 'La Molina, Lima', active: true },
     { id: 'yape', name: 'Yape', hq: 'La Molina, Lima', active: true },
-      { id: 'bbva', name: 'BBVA Perú', hq: 'San Isidro, Lima', active: false },
+      { id: 'bbva', name: 'BBVA Perú', hq: 'San Isidro, Lima', active: true },
       { id: 'scotiabank', name: 'Scotiabank Perú', hq: 'San Isidro, Lima', active: false } ] },
     { id: 'US', name: 'Estados Unidos', banks: [
       { id: 'capitalone', name: 'Capital One', hq: 'McLean, Virginia', active: true },
