@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Nazca · Lee tu estado de cuenta en tu dispositivo</title>
+<meta name="description" content="Nazca convierte el estado de cuenta que descargas de tu banco en movimientos que puedes revisar, sin salir de tu dispositivo.">
+<!-- PÁGINA OCULTA: sin enlaces desde el resto del sitio y fuera de los buscadores hasta que se decida publicarla. Para publicarla: quitar esta línea y enlazarla. -->
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+<meta name="theme-color" content="#241a15">
+<link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" type="image/png" href="/favicon-48.png" sizes="48x48"><link rel="apple-touch-icon" href="app/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --piedra:#241a15;      /* la pampa oscura */
+  --lecho:#31241d;       /* superficies sobre la piedra */
+  --linea:#efe3c8;       /* el trazo claro */
+  --tenue:#b9a98a;       /* texto secundario sobre piedra */
+  --arena:#e6d3aa;       /* bandas claras */
+  --tinta:#2a1f18;       /* texto sobre arena */
+  --tinta2:#6a5845;      /* texto secundario sobre arena */
+  --verde:#22b573;       /* el verde de Plata, solo para "en tu dispositivo" */
+  --display:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;
+  --texto:"Newsreader",Georgia,"Times New Roman",serif;
+  --gut:clamp(20px,5vw,64px);
+  --medida:34rem;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--piedra);color:var(--linea);font:400 clamp(18px,1.15vw + 14px,21px)/1.6 var(--texto);font-optical-sizing:auto;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--verde);outline-offset:3px;border-radius:4px}
+.skip{position:absolute;left:-999px;top:8px;background:var(--linea);color:var(--tinta);padding:8px 14px;border-radius:8px;z-index:9}
+.skip:focus{left:8px}
+
+/* ---------- estructura ---------- */
+.banda{padding:clamp(64px,10vw,128px) var(--gut)}
+.banda.clara{background:var(--arena);color:var(--tinta)}
+.banda.lecho{background:var(--lecho)}
+.cols{max-width:1120px;margin:0 auto}
+.dos{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(28px,6vw,96px);align-items:start}
+@media (max-width:820px){.dos{grid-template-columns:1fr}}
+h1,h2,h3{font-family:var(--display);margin:0;font-variation-settings:"wdth" 82;letter-spacing:-.025em;text-wrap:balance}
+h2{font-weight:700;font-size:clamp(32px,4.6vw,58px);line-height:1.04}
+h3{font-weight:650;font-size:clamp(20px,1.6vw + 12px,26px);line-height:1.2;letter-spacing:-.015em;font-variation-settings:"wdth" 90}
+p{margin:0 0 1em;max-width:var(--medida)}
+.suave{color:var(--tenue)}
+.clara .suave{color:var(--tinta2)}
+.chico{font-size:.84em;line-height:1.5}
+
+/* ---------- cabecera ---------- */
+.cab{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px var(--gut);max-width:calc(1120px + var(--gut)*2);margin:0 auto}
+.marca{font:700 22px/1 var(--display);font-variation-settings:"wdth" 80;letter-spacing:-.02em;text-decoration:none}
+.marca span{color:var(--tenue);font-weight:500}
+.cab a.sec{font:500 16px/1 var(--display);text-decoration:none;color:var(--tenue);padding:10px 0}
+.cab a.sec:hover{color:var(--linea)}
+
+/* ---------- portada ---------- */
+.portada{padding:clamp(24px,5vw,56px) var(--gut) 0;overflow:hidden}
+.portada .cols{position:relative}
+.portada h1{font-weight:800;font-size:clamp(46px,9.6vw,128px);line-height:.94;letter-spacing:-.04em;font-variation-settings:"wdth" 75;max-width:11.5em}
+.portada .bajada{margin:clamp(24px,3vw,40px) 0 0;max-width:30rem;font-size:1.08em}
+.acciones{display:flex;flex-wrap:wrap;gap:12px 28px;align-items:center;margin-top:28px}
+.btn{display:inline-block;font:650 17px/1 var(--display);text-decoration:none;background:var(--linea);color:var(--tinta);padding:16px 24px;border-radius:999px;transition:background .2s}
+.btn:hover{background:#fff}
+.enlace{font:600 17px/1 var(--display);text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:5px;text-decoration-color:var(--tenue)}
+.enlace:hover{text-decoration-color:var(--linea)}
+.estado{margin-top:22px;font-size:.84em;color:var(--tenue);max-width:30rem}
+.pampa{display:block;width:calc(100% + var(--gut)*2);margin:clamp(20px,4vw,56px) calc(var(--gut)*-1) 0;height:auto}
+.pampa .fondo{stroke:var(--linea);stroke-opacity:.14;stroke-width:1.2;fill:none;vector-effect:non-scaling-stroke}
+.pampa .traza{stroke:var(--linea);stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke;stroke-dasharray:1;stroke-dashoffset:1;animation:trazar 5.2s cubic-bezier(.55,.1,.25,1) .4s forwards}
+@keyframes trazar{to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion:reduce){.pampa .traza{animation:none;stroke-dashoffset:0}}
+
+/* ---------- propósito ---------- */
+.principios{list-style:none;margin:0;padding:0;display:grid;gap:clamp(22px,3vw,34px)}
+.principios li{padding-left:22px;border-left:2px solid var(--verde)}
+.principios h3{margin-bottom:6px}
+.principios p{margin:0;color:var(--tenue)}
+.objetivo{margin-top:clamp(40px,6vw,72px);display:grid;gap:clamp(20px,3vw,48px);grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:720px){.objetivo{grid-template-columns:1fr}}
+.objetivo h3{margin-bottom:8px}
+.objetivo p{margin:0;color:var(--tenue)}
+.objetivo>div{border-top:1px solid rgba(239,227,200,.28);padding-top:18px}
+
+/* ---------- bancos que lee hoy ---------- */
+.paises{display:grid;gap:clamp(28px,4vw,48px)}
+.pais h3{margin-bottom:6px}
+.fila{display:grid;grid-template-columns:96px minmax(0,1fr);gap:6px 20px;align-items:center;padding:14px 0;border-top:1px solid rgba(42,31,24,.18)}
+.fila:last-child{border-bottom:1px solid rgba(42,31,24,.18)}
+.fila b{font:650 19px/1.2 var(--display);font-variation-settings:"wdth" 92;display:block}
+.fila span.q{color:var(--tinta2);font-size:.88em}
+.nota-clara{margin-top:30px;color:var(--tinta2);font-size:.9em;max-width:36rem}
+
+/* ---------- espacios para logos y capturas (para rellenar luego) ---------- */
+.slot{display:grid;place-items:center;text-align:center;border:1.5px dashed currentColor;border-radius:14px;opacity:.5;font:500 13px/1.3 var(--display);padding:8px;color:inherit}
+.slot.logo{aspect-ratio:96/44;width:96px;border-radius:8px;font-size:11px}
+.slot.tel{aspect-ratio:9/19;width:100%;max-width:230px;border-radius:30px}
+.slot.ancho{aspect-ratio:16/10;width:100%;border-radius:18px}
+
+/* ---------- cómo funciona ---------- */
+.pasos{list-style:none;counter-reset:p;margin:clamp(36px,6vw,64px) 0 0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(24px,4vw,56px)}
+@media (max-width:860px){.pasos{grid-template-columns:1fr;max-width:34rem}}
+.pasos li{counter-increment:p;display:flex;flex-direction:column}
+.pasos li::before{content:counter(p);display:block;font:300 clamp(56px,7vw,92px)/1 var(--display);font-variation-settings:"wdth" 75;color:var(--verde);margin-bottom:14px}
+.pasos h3{margin-bottom:8px}
+.pasos p{color:var(--tenue)}
+.pasos .slot{margin-top:auto}.pasos p{margin-bottom:22px}
+.garantia{margin-top:clamp(36px,5vw,56px);display:flex;gap:14px;align-items:flex-start;max-width:44rem}
+.garantia svg{flex:none;width:26px;height:26px;margin-top:4px;color:var(--verde)}
+.garantia p{margin:0}
+
+/* ---------- futuro ---------- */
+.horizontes{display:grid;gap:0;margin-top:clamp(32px,5vw,56px)}
+.hz{display:grid;grid-template-columns:minmax(120px,1fr) minmax(0,4fr);gap:8px clamp(20px,5vw,72px);padding:clamp(22px,3vw,34px) 0;border-top:1px solid rgba(42,31,24,.22)}
+.hz:last-child{border-bottom:1px solid rgba(42,31,24,.22)}
+@media (max-width:640px){.hz{grid-template-columns:1fr}}
+.hz h3{font-size:clamp(24px,2.4vw + 10px,34px)}
+.hz ul{margin:0;padding:0;list-style:none;display:grid;gap:10px;max-width:38rem}
+.hz li{padding-left:20px;position:relative}
+.hz li::before{content:"";position:absolute;left:0;top:.72em;width:10px;height:1.5px;background:currentColor}
+li.pronto::after{content:"en preparación";font:500 .72em/1 var(--display);margin-left:10px;padding:4px 9px;border:1px solid currentColor;border-radius:999px;white-space:nowrap;opacity:.7}
+
+/* ---------- aportar ---------- */
+.aporte{display:grid;grid-template-columns:minmax(0,6fr) minmax(0,5fr);gap:clamp(28px,6vw,88px);align-items:start}
+@media (max-width:820px){.aporte{grid-template-columns:1fr}}
+.cuidado{list-style:none;margin:22px 0 0;padding:0;display:grid;gap:14px;max-width:34rem}
+.cuidado li{padding-left:28px;position:relative}
+.cuidado li::before{content:"";position:absolute;left:0;top:.5em;width:14px;height:14px;border-radius:50%;border:2px solid var(--verde)}
+.nunca{margin-top:28px;padding:18px 20px;background:var(--lecho);border-radius:14px;max-width:34rem}
+.nunca b{font:650 18px/1.2 var(--display);display:block;margin-bottom:6px}
+.nunca p{margin:0;color:var(--tenue)}
+.banda.lecho .nunca{background:var(--piedra)}
+
+/* ---------- instituciones ---------- */
+.inst h2{max-width:14em}
+.inst .intro{margin-top:22px;font-size:1.08em}
+.dar-recibir{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(28px,5vw,72px);margin-top:clamp(32px,5vw,56px)}
+@media (max-width:760px){.dar-recibir{grid-template-columns:1fr}}
+.dar-recibir h3{margin-bottom:12px}
+.dar-recibir ul{margin:0;padding:0;list-style:none;display:grid;gap:12px}
+.dar-recibir li{padding-left:20px;position:relative}
+.dar-recibir li::before{content:"";position:absolute;left:0;top:.72em;width:10px;height:1.5px;background:currentColor}
+.contacto{margin-top:clamp(32px,5vw,52px);display:flex;flex-wrap:wrap;gap:16px 28px;align-items:center}
+.btn.oscuro{background:var(--tinta);color:var(--arena)}
+.btn.oscuro:hover{background:#000}
+.limites{margin-top:30px;color:var(--tinta2);font-size:.9em;max-width:40rem}
+
+/* ---------- pie ---------- */
+.pie{padding:clamp(40px,6vw,72px) var(--gut) 56px;color:var(--tenue);font-size:.84em}
+.pie .cols{display:grid;gap:14px}
+.pie p{max-width:46rem;margin:0}
+.pie nav{display:flex;gap:22px;flex-wrap:wrap;font:500 16px/1 var(--display)}
+.pie nav a{text-decoration:none;color:var(--linea)}
+.pie nav a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<a class="skip" href="#principal">Saltar al contenido</a>
+
+<header class="cab">
+  <a class="marca" href="nazca.html" aria-label="Nazca">Nazca <span>de Plata</span></a>
+  <a class="sec" href="#bancos">¿Eres un banco?</a>
+</header>
+
+<main id="principal">
+
+<!-- ================= PORTADA ================= -->
+<section class="portada" aria-labelledby="t-portada">
+  <div class="cols">
+    <h1 id="t-portada">Nazca lee tu estado de cuenta sin sacarlo de tu dispositivo.</h1>
+    <p class="bajada">Descargas el archivo que tu banco ya te da, lo eliges en Plata y Nazca lo convierte en movimientos que puedes revisar. Sin darle tus claves a nadie.</p>
+    <div class="acciones">
+      <a class="btn" href="#como">Ver cómo funciona</a>
+      <a class="enlace" href="#bancos">Soy un banco o una institución financiera</a>
+    </div>
+    <p class="estado">Nazca está en pruebas dentro de la beta de Plata.</p>
+  </div>
+
+  <!-- La línea que se dibuja al cargar: filas rectas de un estado de cuenta que terminan en espiral. Se puede reemplazar por tu propio dibujo. -->
+  <svg class="pampa" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Una sola línea recorre filas rectas, como las de un estado de cuenta, y termina en una espiral.">
+    <g class="fondo">
+      <path d="M0 262H1200"/><path d="M0 220H1200"/><path d="M0 178H1200"/><path d="M0 136H1200"/>
+      <path d="M180 0L420 300"/><path d="M640 0L560 300"/><path d="M1010 0L1130 300"/>
+    </g>
+    <path class="traza" pathLength="1" d="M0 262H560L650 100H940A62 62 0 1 1 940 224A44 44 0 1 1 940 136A27 27 0 1 1 940 190A13 13 0 1 1 940 164"/>
+  </svg>
+</section>
+
+<!-- ================= PROPÓSITO, OBJETIVO Y META ================= -->
+<section class="banda" id="proposito" aria-labelledby="t-proposito">
+  <div class="cols">
+    <div class="dos">
+      <h2 id="t-proposito">Para qué existe Nazca</h2>
+      <div>
+        <p>Para ver tu plata ordenada hoy hay dos caminos: darle tus claves a una app que entra a tu banco, o copiar tus movimientos a mano.</p>
+        <p>Nazca abre un tercero. Tú descargas el estado de cuenta que tu banco ya te entrega, y la lectura ocurre en tu teléfono o en tu computadora.</p>
+        <ul class="principios" style="margin-top:34px">
+          <li><h3>Tus claves no entran en la historia</h3><p>Nazca nunca pide el usuario ni la contraseña de tu banca.</p></li>
+          <li><h3>El archivo se queda donde lo guardaste</h3><p>Se lee en tu dispositivo. Solo sale si tú decides mandarlo para que Nazca aprenda ese formato.</p></li>
+          <li><h3>Si algo no cuadra, te lo dice</h3><p>Cuando el estado trae totales, Nazca suma lo que leyó y lo compara con lo que imprime el banco. Si no coincide, lo avisa antes de que guardes nada.</p></li>
+        </ul>
+      </div>
+    </div>
+    <div class="objetivo">
+      <div>
+        <h3>Objetivo</h3>
+        <p>Que cualquier persona pase de un estado de cuenta a sus movimientos sin entregar acceso a su banco.</p>
+      </div>
+      <div>
+        <h3>Meta</h3>
+        <p>Leer con fidelidad los estados de los bancos que la gente realmente usa, empezando por Perú, Chile y EE. UU. Cada lector se prueba con un estado real y se comprueba contra el total del banco.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= QUÉ LEE HOY ================= -->
+<section class="banda clara" id="hoy" aria-labelledby="t-hoy">
+  <div class="cols">
+    <div class="dos">
+      <div>
+        <h2 id="t-hoy">Qué lee hoy</h2>
+        <p class="nota-clara" style="margin-top:22px">Un banco aparece aquí solo cuando su lector se probó con un estado real. Si el tuyo no está, puedes mandar un ejemplo.</p>
+      </div>
+      <div class="paises">
+        <div class="pais">
+          <h3>Perú</h3>
+          <!-- LOGOS: reemplazar cada .slot.logo por el logo del banco -->
+          <div class="fila"><div class="slot logo">logo</div><div><b>BCP</b><span class="q">Cuenta de ahorros y tarjeta de crédito</span></div></div>
+          <div class="fila"><div class="slot logo">logo</div><div><b>Interbank</b><span class="q">Cuenta de ahorros y tarjeta de crédito</span></div></div>
+          <div class="fila"><div class="slot logo">logo</div><div><b>BBVA</b><span class="q">Cuenta</span></div></div>
+          <div class="fila"><div class="slot logo">logo</div><div><b>iO</b><span class="q">Tarjeta de crédito</span></div></div>
+          <div class="fila"><div class="slot logo">logo</div><div><b>Yape</b><span class="q">Reporte de movimientos en Excel</span></div></div>
+        </div>
+        <div class="pais">
+          <h3>Chile</h3>
+          <div class="fila"><div class="slot logo">logo</div><div><b>Mercado Pago</b><span class="q">Cuenta</span></div></div>
+        </div>
+        <div class="pais">
+          <h3>Estados Unidos</h3>
+          <div class="fila"><div class="slot logo">logo</div><div><b>Capital One</b><span class="q">Tarjeta de crédito y cuenta</span></div></div>
+          <div class="fila"><div class="slot logo">logo</div><div><b>Chime</b><span class="q">Cuenta Checking</span></div></div>
+          <div class="fila"><div class="slot logo">logo</div><div><b>Seen</b><span class="q">Tarjeta</span></div></div>
+          <div class="fila"><div class="slot logo">logo</div><div><b>Bank of America</b><span class="q">Cuenta de cheques</span></div></div>
+          <div class="fila"><div class="slot logo">logo</div><div><b>Apple Card</b><span class="q">Estado en PDF o CSV</span></div></div>
+          <div class="fila"><div class="slot logo">logo</div><div><b>Community Bank</b><span class="q">Cuenta</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CÓMO FUNCIONA ================= -->
+<section class="banda" id="como" aria-labelledby="t-como">
+  <div class="cols">
+    <h2 id="t-como">Cómo funciona</h2>
+    <!-- CAPTURAS: reemplazar cada .slot.tel por una captura de la app (proporción 9:19) -->
+    <ol class="pasos">
+      <li>
+        <h3>Descarga tu estado de cuenta</h3>
+        <p>Desde la banca de tu banco, en PDF, CSV o Excel. Si el PDF tiene contraseña, la escribes solo para abrirlo: no se guarda ni se muestra.</p>
+        <div class="slot tel">captura: descargar el archivo</div>
+      </li>
+      <li>
+        <h3>Elígelo en Plata</h3>
+        <p>Nazca reconoce el banco por el contenido del archivo, no por su nombre, y usa el lector que corresponde.</p>
+        <div class="slot tel">captura: elegir el archivo</div>
+      </li>
+      <li>
+        <h3>Revisa y guarda</h3>
+        <p>Ves cada movimiento, eliges cuáles entran y confirmas si el total cuadra con el de tu banco.</p>
+        <div class="slot tel">captura: revisar movimientos</div>
+      </li>
+    </ol>
+    <div class="garantia">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 4h18a1 1 0 011 1v11a1 1 0 01-1 1h-7v2h3v2H7v-2h3v-2H3a1 1 0 01-1-1V5a1 1 0 011-1zm1 2v9h16V6H4z"/></svg>
+      <p><b>En tu dispositivo.</b> El archivo no se sube a ningún servidor para leerlo. Lo detallamos, con lo que sí sale cuando tú lo decides, en <a href="transparencia.html#nazca">Transparencia</a>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FUTURO ================= -->
+<section class="banda clara" id="futuro" aria-labelledby="t-futuro">
+  <div class="cols">
+    <div class="dos">
+      <h2 id="t-futuro">Hacia dónde va</h2>
+      <p style="font-size:1.08em">Queremos que Nazca deje de ser una parte de Plata y sea un formato que cualquiera pueda usar. Esto es lo que hay y lo que falta.</p>
+    </div>
+    <div class="horizontes">
+      <div class="hz">
+        <h3>Hoy</h3>
+        <ul>
+          <li>Un lector por banco y por producto, dentro de Plata.</li>
+          <li>Lectura en el dispositivo, sin servidor.</li>
+          <li>Comprobación de que el total cuadra.</li>
+        </ul>
+      </div>
+      <div class="hz">
+        <h3>Lo que sigue</h3>
+        <ul>
+          <li class="pronto">Aportar estados con cuidado: se enmascaran en tu dispositivo y se cifran antes de salir.</li>
+          <li class="pronto">Documentar el resultado que entrega Nazca y publicar estados de prueba.</li>
+        </ul>
+      </div>
+      <div class="hz">
+        <h3>La meta</h3>
+        <ul>
+          <li class="pronto">Un formato abierto para leer estados de cuenta, que otras apps puedan usar además de Plata.</li>
+          <li class="pronto">Perfiles aportados por las propias instituciones, para que su lectura siga sus reglas.</li>
+          <li>La licencia todavía no está definida. La anunciaremos cuando el repositorio esté listo, no antes.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ENSEÑARLE A NAZCA ================= -->
+<section class="banda lecho" id="aportar" aria-labelledby="t-aportar">
+  <div class="cols aporte">
+    <div>
+      <h2 id="t-aportar">Enséñale a Nazca tu banco</h2>
+      <p style="margin-top:24px">Cada banco cambia sus estados sin avisar, y Nazca aprende de ejemplos reales. Si el tuyo no está o dejó de leerse bien, puedes ayudar.</p>
+      <p><b>Hoy,</b> mientras Plata está en beta, puedes mandar un archivo desde la app para que Nazca aprenda ese formato. Cuando Plata salga de la beta, esta vía se traslada a un portal aparte para quien quiera contribuir, y la app de uso diario ya no la ofrecerá. Mientras tanto es voluntario, se guarda 30 días y lo revisa una persona del equipo. Si se revisa con una herramienta de IA, esa herramienta recibe el archivo. El detalle está en <a href="transparencia.html#nazca">Transparencia</a>.</p>
+      <p style="margin-top:28px"><b>Lo que preparamos</b> para que aportar sea más cuidadoso:</p>
+      <ul class="cuidado">
+        <li>Tu dispositivo oculta nombres, números de cuenta y comercios antes de que algo salga, y tú ves el resultado.</li>
+        <li>Los montos se cambian por otros, pero todo sigue cuadrando, para que el estado sirva sin mostrar tus cifras.</li>
+        <li>El envío viaja cifrado y recibes un código para borrarlo cuando quieras.</li>
+      </ul>
+      <div class="nunca"><b>Lo que nunca te pediremos</b><p>La contraseña de tu banca, tu nombre ni capturas de pantalla.</p></div>
+    </div>
+    <!-- CAPTURA: pantalla de aporte (cuando exista) -->
+    <div class="slot ancho" style="margin-top:8px">captura: aportar un estado</div>
+  </div>
+</section>
+
+<!-- ================= INSTITUCIONES ================= -->
+<section class="banda clara inst" id="bancos" aria-labelledby="t-bancos">
+  <div class="cols">
+    <h2 id="t-bancos">¿Eres un banco o una institución financiera?</h2>
+    <p class="intro">Nazca lee tus estados a partir de lo que ven tus clientes. Si nos cuentas cómo están hechos, los lee mejor y según tus reglas.</p>
+    <div class="dar-recibir">
+      <div>
+        <h3>Lo que puedes aportar</h3>
+        <ul>
+          <li>La especificación de tus estados de cuenta: columnas, signo de cargos y abonos, formato de fechas y cierre de ciclo.</li>
+          <li>Estados de ejemplo creados para pruebas, nunca con datos de clientes.</li>
+          <li>Un aviso antes de cambiar un formato.</li>
+          <li>Tus propias reglas: cómo quieres que se lea cada producto.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Lo que recibes</h3>
+        <ul>
+          <li>Un lector fiel a tu formato, con pruebas públicas.</li>
+          <li class="pronto">Una marca visible de que el formato lo aportó la institución, cuando exista.</li>
+          <li>Nada que pedirte sobre tus clientes: no necesitamos sus datos para leer tu formato.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="contacto">
+      <a class="btn oscuro" href="mailto:devs@plataapp.net?subject=Nazca%20%C2%B7%20Instituci%C3%B3n%20financiera&amp;body=Instituci%C3%B3n%3A%0APa%C3%ADs%3A%0AProducto%20o%20producto%20de%20inter%C3%A9s%3A%0APersona%20de%20contacto%3A">Escribir al equipo de Nazca</a>
+      <span class="chico suave">devs@plataapp.net · Usa un correo de la institución.</span>
+    </div>
+    <p class="limites">Hoy no tenemos convenios con ninguna institución: los lectores actuales se hicieron con estados que personas compartieron. Los perfiles que permitirían cargar tus reglas directamente todavía están en diseño.</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="pie">
+  <div class="cols">
+    <nav aria-label="Más información"><a href="./">Plata</a><a href="transparencia.html#nazca">Transparencia</a><a href="arquitectura-seguridad.html">Arquitectura y seguridad</a></nav>
+    <p>Nazca es parte de Plata. Los nombres y logos de bancos y otras instituciones pertenecen a sus dueños y se usan solo para indicar qué archivos lee Nazca. No implican afiliación ni respaldo.</p>
+  </div>
+</footer>
+
+</body>
+</html>
