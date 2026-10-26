@@ -183,3 +183,12 @@ Descarga el estado de cuenta. ¦ Download the statement. ¦ 明細書をダウ�
 Estados Unidos ¦ United States ¦ アメリカ合衆国 ¦ Stati Uniti ¦ États-Unis ¦ Sjedinjene Američke Države
 Más países, pronto. ¦ More countries, soon. ¦ 他の国も近日対応予定です。 ¦ Altri paesi, presto. ¦ D’autres pays bientôt. ¦ Uskoro i više zemalja.
 Capital One · Tarjeta de crédito ¦ Capital One · Credit card ¦ Capital One · クレジットカード ¦ Capital One · Carta di credito ¦ Capital One · Carte de crédit ¦ Capital One · Kreditna kartica
+Abre la app de Chime. ¦ Open the Chime app. ¦ Chimeアプリを開きます。 ¦ Apri l’app di Chime. ¦ Ouvrez l’app Chime. ¦ Otvorite aplikaciju Chime.
+Toca Cuenta o Settings. ¦ Tap Account or Settings. ¦ 「Account」または「Settings」をタップします。 ¦ Tocca Account o Settings. ¦ Touchez Account ou Settings. ¦ Dodirnite Account ili Settings.
+Abre Statements & documents. ¦ Open Statements & documents. ¦ 「Statements & documents」を開きます。 ¦ Apri Statements & documents. ¦ Ouvrez Statements & documents. ¦ Otvorite Statements & documents.
+Ese DNI no abre el estado de cuenta ¦ That ID number doesn’t open the statement ¦ このDNIでは明細書を開けません ¦ Questo DNI non apre l’estratto conto ¦ Ce DNI n’ouvre pas le relevé ¦ Ovaj DNI ne otvara izvod
+Revísalo e inténtalo otra vez. ¦ Check it and try again. ¦ 確認してもう一度お試しください。 ¦ Controllalo e riprova. ¦ Vérifiez-le et réessayez. ¦ Provjerite ga i pokušajte ponovno.
+Este estado de cuenta está protegido ¦ This statement is protected ¦ この明細書は保護されています ¦ Questo estratto conto è protetto ¦ Ce relevé est protégé ¦ Ovaj izvod je zaštićen
+Escribe tu DNI y súbelo otra vez. ¦ Enter your ID number and upload it again. ¦ DNIを入力してもう一度アップロードしてください。 ¦ Inserisci il tuo DNI e caricalo di nuovo. ¦ Saisissez votre DNI et importez-le à nouveau. ¦ Unesite svoj DNI i ponovno ga učitajte.
+DNI ¦ ID number ¦ DNI ¦ DNI ¦ DNI ¦ DNI
+El BCP protege el estado de cuenta con tu DNI. Plata no lo guarda ni lo revisa: solo sirve para abrirlo en este dispositivo. ¦ BCP protects the statement with your ID number. Plata doesn’t store or check it: it’s only used to open the file on this device. ¦ BCPは明細書をDNIで保護しています。Plataは保存も確認もしません。このデバイスで開くためだけに使います。 ¦ Il BCP protegge l’estratto conto con il tuo DNI. Plata non lo salva né lo controlla: serve solo ad aprirlo su questo dispositivo. ¦ Le BCP protège le relevé avec votre DNI. Plata ne le conserve ni ne le vérifie : il sert uniquement à l’ouvrir sur cet appareil. ¦ BCP štiti izvod vašim DNI-jem. Plata ga ne sprema niti provjerava: služi samo za otvaranje na ovom uređaju.

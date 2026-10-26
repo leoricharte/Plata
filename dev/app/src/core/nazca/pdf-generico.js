@@ -7,33 +7,83 @@
 const NazcaPDFGen = (() => {
   const MES = { ene: 1, jan: 1, feb: 2, mar: 3, abr: 4, apr: 4, may: 5, jun: 6, jul: 7, ago: 8, aug: 8, set: 9, sep: 9, oct: 10, nov: 11, dic: 12, dec: 12 };
   const pad = (n) => String(n).padStart(2, '0');
-  const MINUS = /[−–]/g;
+  const MINUS = /[−–—]/g;
+  const mon = (w) => MES[String(w).slice(0, 3).toLowerCase()] || 0;
+  const y4 = (y) => (y < 100 ? 2000 + y : y);
 
-  /* Fecha al inicio del texto: devuelve { v, rest, y } (v: fecha lista para Nazca; y: si trae año) o null. */
+  /* Fecha al inicio del texto. Devuelve { iso | v (para el motor de CSV), rest } o null. Entiende: 2026-03-05 · 5/3/2026 · 9/30/26 · 5-3 · 5 mar 2026 · 5-mar-26 · Mar 5, 2026 · Mar 5 · March 5th. */
   function takeDate(s) {
     let m;
-    if ((m = /^(\d{4})-(\d{2})-(\d{2})\b\s*/.exec(s))) return { v: m[0].trim(), rest: s.slice(m[0].length), y: true };
-    if ((m = /^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4}|\d{2})\b\s*/.exec(s))) return { v: m[1] + '/' + m[2] + '/' + m[3], rest: s.slice(m[0].length), y: true };
-    if ((m = /^(\d{1,2})[/.-](\d{1,2})\b(?![/.-]?\d)\s*/.exec(s))) return { v: m[1] + '/' + m[2], rest: s.slice(m[0].length), y: false, short: true };
-    if ((m = /^(\d{1,2})\s?(?:de\s)?([A-Za-zñÑ]{3,10})\.?(?:\s?(?:de\s)?(\d{4}))?\b\s*/.exec(s)) && MES[m[2].slice(0, 3).toLowerCase()])
-      return { d: +m[1], mo: MES[m[2].slice(0, 3).toLowerCase()], yr: m[3] ? +m[3] : 0, rest: s.slice(m[0].length) };
-    if ((m = /^([A-Za-zñÑ]{3,9})\.?\s(\d{1,2})(?:,?\s(\d{4}))?\b\s*/.exec(s)) && MES[m[1].slice(0, 3).toLowerCase()])
-      return { d: +m[2], mo: MES[m[1].slice(0, 3).toLowerCase()], yr: m[3] ? +m[3] : 0, rest: s.slice(m[0].length) };
+    if ((m = /^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})(?!\d)\s*/.exec(s))) return { v: m[1] + '-' + pad(+m[2]) + '-' + pad(+m[3]), rest: s.slice(m[0].length) };
+    if ((m = /^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4}|\d{2})(?!\d)\s*/.exec(s))) return { v: m[1] + '/' + m[2] + '/' + (m[3].length === 2 ? y4(+m[3]) : m[3]), rest: s.slice(m[0].length) };
+    if ((m = /^(\d{1,2})\s?(?:de\s|[-/.]\s?)?([A-Za-zñÑ]{3,10})\.?(?:[\s,/-]*(?:de\s)?(\d{4}|\d{2}))?(?![A-Za-z\d])\s*/.exec(s)) && mon(m[2]))
+      return { d: +m[1], mo: mon(m[2]), yr: m[3] ? y4(+m[3]) : 0, rest: s.slice(m[0].length) };
+    if ((m = /^([A-Za-zñÑ]{3,9})\.?\s?(\d{1,2})(?:st|nd|rd|th)?(?:,?\s(\d{4}))?(?![A-Za-z\d])\s*/.exec(s)) && mon(m[1]))
+      return { d: +m[2], mo: mon(m[1]), yr: m[3] ? +m[3] : 0, rest: s.slice(m[0].length) };
+    if ((m = /^(\d{1,2})[/.-](\d{1,2})(?![/.\d-]?\d)\s*/.exec(s)) && +m[1] <= 31 && +m[2] <= 31) return { v: m[1] + '/' + m[2], short: true, rest: s.slice(m[0].length) };
     return null;
   }
 
-  /* Monto: signo, paréntesis o "-" al final = negativo; el separador decimal es el que queda antes de los 2 últimos dígitos. */
-  const AMT_SRC = '[-+]?\\s?\\(?(?:S\\/\\.?|US\\$|USD|PEN|\\$)?\\s?[-+]?\\(?\\d[\\d.,]*[.,]\\d{2}\\)?-?(?:\\s?(?:CR|DR))?';
-  const AMT_END = new RegExp('((?:\\s+' + AMT_SRC + ')+)\\s*$');
-  const AMT_ONE = new RegExp(AMT_SRC, 'g');
+  /* Monto: un token entero ("$40.00", "-$1,175.13", "(45.00)", "45.00-", "S/ 12.50", "20,00 CR"). El separador decimal es el que queda antes de los 2 últimos dígitos. */
+  const AMT_TOK = /^\s*([-+]?\s?\(?\s?(?:S\/\.?|US\$|USD|PEN|EUR|€|\$)?\s?[-+]?\(?\s?\d[\d.,\s]*[.,]\d{2}\s?\)?\s?-?\s?(?:CR|DR|Cr|Dr)?)\s*$/;
   function parseAmt(tok) {
-    const t = tok.trim(), cur = /S\/|PEN/.test(t) ? 'PEN' : /US\$|USD|\$/.test(t) ? 'USD' : '';
-    const neg = /^[-]/.test(t.replace(/^\s*(?:S\/\.?|US\$|USD|PEN|\$)/, '')) || /^-/.test(t) || /\(/.test(t) || /-\s*$/.test(t) || /\bDR\b/.test(t);
-    const num = /(\d[\d.,]*)[.,](\d{2})(?!\d)/.exec(t);
-    if (!num) return null;
-    const v = (num[1].replace(/[.,]/g, '') + '.' + num[2]);
-    return { v: (neg ? '-' : '') + v, cur };
+    const t = String(tok).trim(); if (!AMT_TOK.test(t)) return null;
+    const cur = /S\/|PEN/.test(t) ? 'PEN' : /US\$|USD|\$/.test(t) ? 'USD' : '';
+    const num = /(\d[\d.,\s]*)[.,](\d{2})(?!\d)/.exec(t); if (!num) return null;
+    const neg = /^[-−]/.test(t.replace(/^\s*(?:S\/\.?|US\$|USD|PEN|EUR|€|\$)\s?/, '')) || /^-/.test(t) || /\(/.test(t) || /-\s*(?:CR|DR)?\s*$/.test(t) || /\bDR\b/i.test(t);
+    return { v: num[1].replace(/[.,\s]/g, '') + '.' + num[2], neg, cur };
   }
+
+  /* Encabezados de columna conocidos (español e inglés). */
+  const KINDS = [['balance', /saldo|balance/i], ['net', /\bnet\b|neto/i], ['debit', /d[eé]bito|debit|cargo|retiro|withdraw|charge|money out|paid out|gasto|salida/i], ['credit', /cr[eé]dito|credit|abono|dep[oó]sito|deposit|money in|paid in|ingreso|entrada/i],
+    ['amount', /monto|importe|amount|valor|total|cantidad|sum/i], ['desc', /descripci|description|detalle|detail|concepto|memo|payee|merchant|movimiento|referencia|narrat|transaction(?!\s*date)/i], ['date', /fecha|date|d[ií]a|\bday\b/i], ['type', /tipo|type|status|estado|m[eé]todo|category|categor/i]];
+  const kindOf = (t) => { for (const [k, re] of KINDS) if (re.test(t)) return k; return ''; };
+  const NUMK = { debit: 1, credit: 1, amount: 1, net: 1, balance: 1 };
+
+  function header(l) {
+    const cells = l.items.map((i) => ({ kind: kindOf(i.str), x: i.x, c: i.x + i.w / 2 })).filter((c) => c.kind);
+    const hasDate = cells.some((c) => c.kind === 'date'), hasNum = cells.some((c) => NUMK[c.kind]), hasDesc = cells.some((c) => c.kind === 'desc');
+    return cells.length >= 2 && l.items.length <= cells.length + 3 && (hasNum && (hasDate || hasDesc)) ? cells : null;
+  }
+
+  /* Un renglón de movimiento: empieza con una fecha (1 a 3 piezas de texto) y puede traer una segunda fecha (fecha valor / de proceso). */
+  function rowOf(items, hdr) {
+    let d1 = null, used = 0;
+    for (let k = 1; k <= Math.min(3, items.length); k++) { const d = takeDate(items.slice(0, k).map((i) => i.str).join(' ').replace(MINUS, '-')); if (d && !d.rest.trim()) { d1 = d; used = k; break; } }
+    if (!d1) return null;
+    let rest = items.slice(used);
+    for (let k = 1; k <= Math.min(3, rest.length); k++) { const d = takeDate(rest.slice(0, k).map((i) => i.str).join(' ')); if (d && !d.rest.trim()) { rest = rest.slice(k); break; } }
+    const nums = rest.map((it) => ({ it, a: parseAmt(it.str.replace(MINUS, '-')) })).filter((o) => o.a && o.it.x > items[0].x + 20);
+    if (!nums.length) return null;
+    const first = nums[0].it;
+    let mov = null, descItems;
+    const numCols = hdr ? hdr.filter((c) => NUMK[c.kind]) : [];
+    if (numCols.length) {
+      const near = (o) => numCols.slice().sort((p, q) => Math.abs(p.c - (o.it.x + o.it.w / 2)) - Math.abs(q.c - (o.it.x + o.it.w / 2)))[0];
+      const by = {}; for (const o of nums) { const c = near(o); if (Math.abs(c.c - (o.it.x + o.it.w / 2)) < 70 && !by[c.kind]) by[c.kind] = o.a; }
+      if (by.debit || by.credit) { const dv = by.debit && +by.debit.v !== 0 ? by.debit : null, cv = by.credit && +by.credit.v !== 0 ? by.credit : null; mov = dv ? { v: dv.v, neg: true, cur: dv.cur } : cv ? { v: cv.v, neg: false, cur: cv.cur } : null; }
+      else mov = by.net || by.amount || null;
+      const descCol = hdr.find((c) => c.kind === 'desc'), after = descCol ? hdr.filter((c) => c.x > descCol.x + 2).sort((p, q) => p.x - q.x)[0] : null;
+      descItems = descCol ? rest.filter((i) => i.x >= descCol.x - 4 && (!after || i.x < after.x - 2) && !parseAmt(i.str)) : null;
+    }
+    if (!mov) mov = nums[0].a;
+    if (!descItems || !descItems.length) descItems = rest.filter((i) => i.x < first.x && !(parseAmt(i.str) && i.x > items[0].x + 20));
+    const desc = descItems.map((i) => i.str).join(' ').replace(MINUS, '-').replace(/\s+/g, ' ').trim();
+    return { d: d1, desc, mov };
+  }
+
+  /* Plan B si las piezas de texto no se separan bien por columna: toda la línea como texto; se quitan las fechas del final y se toma el primer monto. */
+  const AMT_SRC = '[-+]?\\s?\\(?(?:S\\/\\.?|US\\$|USD|PEN|\\$)?\\s?[-+]?\\(?\\d[\\d.,]*[.,]\\d{2}\\)?-?(?:\\s?(?:CR|DR))?';
+  function rowFromText(s) {
+    const d1 = takeDate(s); if (!d1) return null;
+    s = d1.rest; const d2 = takeDate(s); if (d2) s = d2.rest;
+    for (let n = 0; n < 3; n++) { const m = /\s+(\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4}|\d{4}-\d{2}-\d{2})$/.exec(s); if (!m) break; s = s.slice(0, m.index); }
+    const e = new RegExp('((?:\\s+' + AMT_SRC + ')+)\\s*$').exec(s); if (!e) return null;
+    const amts = e[1].match(new RegExp(AMT_SRC, 'g')) || [], a = amts.length ? parseAmt(amts[0]) : null; if (!a) return null;
+    return { d: d1, desc: s.slice(0, e.index).replace(/\s+/g, ' ').trim(), mov: a };
+  }
+
+  const SKIP = /^(saldo|total|balance|previous|new balance|pago m[ií]nimo|minimum|beginning|ending|opening|closing|summary|resumen)/i;
 
   /* Nombre probable del banco o emisor: la primera línea de arriba de la primera página que parezca un nombre (no un título genérico, ni fechas, ni números). */
   const GENERIC = /estado|statement|extracto|cuenta|account|p[aá]gina|page|fecha|date|documento|movimientos|resumen|summary|saldo|balance|detalle|transacc|period/i;
@@ -59,20 +109,15 @@ const NazcaPDFGen = (() => {
     const all = doc.pages.flatMap((p) => p.items.map((i) => i.str)).join(' ');
     const years = (all.match(/\b20\d{2}\b/g) || []).map(Number);
     const year = years.length ? Math.max.apply(null, years) : new Date().getFullYear();
-    const out = [], curs = {};
+    const out = [], curs = {}; let hdr = null;
     for (const page of doc.pages) {
       for (const l of pdf.lines(page, 3)) {
-        let s = l.items.map((i) => i.str).join(' ').replace(MINUS, '-').replace(/\s+/g, ' ').trim();
-        const d1 = takeDate(s); if (!d1) continue;
-        s = d1.rest;
-        const d2 = takeDate(s); if (d2) s = d2.rest;                            // fecha de operación + fecha de proceso
-        const e = AMT_END.exec(s); if (!e) continue;
-        const desc = s.slice(0, e.index).replace(/\s+/g, ' ').trim();
-        const amts = e[1].match(AMT_ONE) || []; const first = amts.length ? parseAmt(amts[0]) : null;
-        if (!first || !desc || !/[A-Za-zÁÉÍÓÚáéíóúñÑ]/.test(desc)) continue;
-        if (/^(saldo|total|balance|previous|new balance|pago m[ií]nimo|minimum)/i.test(desc)) continue;
-        const date = d1.v ? (d1.short ? d1.v + '/' + year : d1.v) : d1.yr ? d1.yr + '-' + pad(d1.mo) + '-' + pad(d1.d) : year + '-' + pad(d1.mo) + '-' + pad(d1.d);
-        out.push([date, desc, first.v]); if (first.cur) curs[first.cur] = (curs[first.cur] || 0) + 1;
+        const h = header(l); if (h) { hdr = h; continue; }
+        let r = rowOf(l.items, hdr);
+        if (!r) r = rowFromText(l.items.map((i) => i.str).join(' ').replace(MINUS, '-').replace(/\s+/g, ' ').trim());
+        if (!r || !r.desc || !/[A-Za-zÁÉÍÓÚáéíóúñÑ]/.test(r.desc) || SKIP.test(r.desc) || !r.mov) continue;
+        const d = r.d, date = d.v ? (d.short ? d.v + '/' + year : d.v) : (d.yr || year) + '-' + pad(d.mo) + '-' + pad(d.d);
+        out.push([date, r.desc, (r.mov.neg ? '-' : '') + r.mov.v]); if (r.mov.cur) curs[r.mov.cur] = (curs[r.mov.cur] || 0) + 1;
       }
     }
     const cur = Object.keys(curs).sort((a, b) => curs[b] - curs[a])[0] || '';

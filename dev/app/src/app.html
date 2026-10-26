@@ -1052,7 +1052,7 @@ html.web .imlogo,html.web .imav,html.web .imbk:not(.dis) .imglyph{color:#22B573}
 .imopt .imt{font-size:17px}.imopt .sub{font-size:14px}.imacc{padding:0 0 12px 34px}.imacc select{width:100%}
 .imsteps{padding:6px 16px}.imstep{display:flex;align-items:center;gap:14px;padding:11px 0;border-top:1px solid var(--line);font-size:16px;line-height:1.3}.imstep:first-child{border-top:0}.imstep .imn{width:26px;height:26px;font-size:14px}
 .imnote{font-size:13px;line-height:1.4;color:var(--mute);text-align:center;padding:4px 14px 14px}
-.imbar{position:sticky;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:5;padding-top:12px}.imbar::before{content:'';position:absolute;left:-16px;right:-16px;top:0;bottom:-12px;background:linear-gradient(to top,var(--bg) 60%,transparent);z-index:-1;pointer-events:none}html.web .imbar::before{background:linear-gradient(to top,var(--wtile) 60%,transparent)}
+.imbar{position:sticky;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:5;padding-top:12px}.imbar::before{content:'';position:absolute;left:-16px;right:-16px;top:0;bottom:calc(-10px - env(safe-area-inset-bottom,0px));background:linear-gradient(to top,var(--bg) 70%,transparent);z-index:-1;pointer-events:none}html.web .imbar::before{background:linear-gradient(to top,var(--wtile) 70%,transparent)}
 .imeye{flex:none;width:44px;height:44px;margin:-6px -8px -6px 0;border:0;background:none;color:var(--sec);display:grid;place-items:center;cursor:pointer;border-radius:12px}.imdni{font-size:24px;font-weight:600;letter-spacing:.08em;padding-top:2px}.imdni::placeholder{color:var(--mute);opacity:.45;font-weight:500;letter-spacing:.04em}.imspin{width:36px;height:36px;border-radius:50%;border:3px solid var(--fill);border-top-color:var(--accent);animation:imspin .8s linear infinite;margin:44px auto 18px}@keyframes imspin{to{transform:rotate(360deg)}}@media (prefers-reduced-motion:reduce){.imspin{animation-duration:2.4s}}
 .imdone{display:grid;place-items:center;width:72px;height:72px;border-radius:50%;background:var(--accent);box-shadow:0 10px 28px -8px rgba(34,181,115,.6)}
 .imn{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:13px;font-weight:700;display:grid;place-items:center}
@@ -5424,6 +5424,8 @@ const IMP_SHOW = 300, IMP_WHY = { exact: 'Ya importado', near: 'Parece repetido'
  * start → how · country → banks → bank → busy → review → done. La contraseña vive solo en la variable impKey, nunca en ui, data ni el perfil. */
 var impKey = '', impPend = null;   /* contraseña del PDF y el archivo que espera su contraseña: solo en memoria */
 const impKeyOk = () => impKey.length > 0 && impKey.length <= 64;
+/* Bancos cuyo estado de cuenta siempre viene con clave: qué se le pide a la persona. Los demás no piden nada hasta que un archivo lo necesite. */
+const IMP_KEY = { bcp: { label: 'DNI', num: true, note: 'El BCP protege el estado de cuenta con tu DNI. Plata no lo guarda ni lo revisa: solo sirve para abrirlo en este dispositivo.' } };
 const IMP_PREV = { how: 'start', country: 'start', banks: 'country', bank: 'banks', key: 'start' };
 function impPick() { ui.impAt = ui.impStep || null; const i = $('#impfile'); if (i) { i.value = ''; i.click(); } }
 function impOpen() {
@@ -5485,9 +5487,9 @@ async function impPdf(f) {
 }
 function impPdfError(e, f) {
   const c = e && e.code;
-  if (c === 'need_password' && ui.impAt !== 'bank' && ui.impAt !== 'key') { impPend = f; ui.impErr = null; impShow('key', 'push'); }   /* entró por «Importar archivo»: pide la contraseña en su propia pantalla */
-  else if (c === 'need_password') { impPend = f; impFail('Este estado de cuenta tiene contraseña', 'Escribe la contraseña del estado de cuenta y súbelo otra vez.'); }
-  else if (c === 'bad_password') { impPend = f; impFail('Esa contraseña no abre el estado de cuenta', 'Revísala e inténtalo otra vez.'); }
+  if (c === 'need_password' && ui.impAt !== 'key' && !(ui.impAt === 'bank' && IMP_KEY[ui.impBank])) { impPend = f; ui.impErr = null; impShow('key', 'push'); }   /* entró por «Importar archivo»: pide la contraseña en su propia pantalla */
+  else if (c === 'need_password') { impPend = f; impFail('Este estado de cuenta está protegido', 'Escribe tu DNI y súbelo otra vez.'); }
+  else if (c === 'bad_password') { impPend = f; ui.impAt === 'bank' && IMP_KEY[ui.impBank] ? impFail('Ese DNI no abre el estado de cuenta', 'Revísalo e inténtalo otra vez.') : impFail('Esa contraseña no abre el estado de cuenta', 'Revísala e inténtalo otra vez.'); }
   else if (c === 'unavailable') impFail('Nazca no pudo cargar el lector', 'Abre Plata desde web.plataapp.net con conexión para leer tu estado de cuenta, o importa el CSV de tu banco.');
   else if (c === 'no_text') impFail('Este archivo no tiene texto', 'Parece una foto o un escaneo. Descarga el estado de cuenta desde la banca por internet de tu banco.');
   else if (c === 'not_pdf') impFail('Ese archivo no es un estado de cuenta', 'Elige el estado de cuenta que descargaste de tu banco.');
@@ -5509,6 +5511,7 @@ function impFromPdf(name, r) {
 const impBankShort = (id) => (id === 'bcp' ? 'BCP' : impBankName(id));
 const IMP_STEPS = {
   bcp: ['Ve a la Banca por Internet.', 'Elige la cuenta a consultar.', 'Selecciona la opción Más, y después Estado de Cuenta.', 'Elige el mes y año a consultar.', 'Genera el estado de cuenta y descárgalo de tu correo.'],
+  chime: ['Abre la app de Chime.', 'Toca Cuenta o Settings.', 'Abre Statements & documents.', 'Elige el mes a consultar.', 'Descarga el estado de cuenta.'],
   capitalone: ['Entra a tu cuenta en la app o en la web de Capital One.', 'Elige la tarjeta a consultar.', 'Abre Statements.', 'Elige el mes a consultar.', 'Descarga el estado de cuenta.'],
   interbank: ['Ve a la Banca por Internet.', 'Elige la cuenta a consultar.', 'Elige los ⋯ en la parte derecha.', 'Elige el mes y año a consultar.', 'Genera el estado de cuenta y guárdalo.'] };
 const impCountryOf = (id) => { const c = NazcaBancos.CATALOG.find((x) => x.banks.some((b) => b.id === id)); return c ? c.name : 'Perú'; };
@@ -5532,8 +5535,8 @@ const impChev = () => '<span style="color:var(--sec);font-size:22px;line-height:
 const impNote = (t) => '<div class="imnote">' + t + '</div>';
 function impBodyHTML(st) {
   if (st === 'review') return impReviewHTML();
-  const keyField = (id) => '<div class="scard"><label class="srow" style="padding:12px 0"><span class="grow"><span class="slabel">Contraseña</span><input class="sinput imdni" id="' + id + '" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="64" placeholder="········" value="' + esc(impKey) + '" data-notr></span><button type="button" class="imeye" data-act="imp:eye" aria-label="Mostrar u ocultar la contraseña">' + RMI('eye-line', 22, 'currentColor') + '</button></label></div>' +
-    impNote('Es la contraseña de tu estado de cuenta. Plata no la guarda ni la revisa: solo sirve para abrirlo en este dispositivo.');
+  const keyField = (id, kc) => '<div class="scard"><label class="srow" style="padding:12px 0"><span class="grow"><span class="slabel">' + (kc ? kc.label : 'Contraseña') + '</span><input class="sinput imdni" id="' + id + '" type="password"' + (kc && kc.num ? ' inputmode="numeric"' : '') + ' autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="64" placeholder="········" value="' + esc(impKey) + '" data-notr></span><button type="button" class="imeye" data-act="imp:eye" aria-label="Mostrar u ocultar">' + RMI('eye-line', 22, 'currentColor') + '</button></label></div>' +
+    impNote(kc ? kc.note : 'Es la contraseña de tu estado de cuenta. Plata no la guarda ni la revisa: solo sirve para abrirlo en este dispositivo.');
   if (st === 'key') return '<p class="imlead">Este estado de cuenta está protegido. Escribe su contraseña para abrirlo en este dispositivo.</p>' + (impPend ? '<div class="imnote" style="text-align:left;padding:8px 4px 12px" data-notr>' + esc(String(impPend.name || '').slice(0, 80)) + '</div>' : '') + keyField('impKey') +
     '<div class="imbar"><button class="primary" id="impPickBtn" data-act="imp:open"' + (impKeyOk() ? '' : ' disabled') + '>Abrir estado de cuenta</button></div>';
   if (st === 'how') {
@@ -5550,8 +5553,8 @@ function impBodyHTML(st) {
     return '<div class="scard">' + c.banks.map(row).join('') + '</div>';
   }
   if (st === 'bank') return (IMP_STEPS[ui.impBank] ? '<div class="scard imsteps">' + IMP_STEPS[ui.impBank].map((t, i) => '<div class="imstep"><span class="imn" data-notr>' + (i + 1) + '</span><span class="grow">' + t + '</span></div>').join('') + '</div>' : '<p class="imlead">Descarga tu estado de cuenta de ahorros desde Interbank APP o la banca por internet de Interbank.</p>') +
-    keyField('impKey') +
-    '<div class="imbar"><button class="primary" id="impPickBtn" data-act="imp:pdf"' + (impKeyOk() ? '' : ' disabled') + '>Subir estado de cuenta</button></div>';
+    (IMP_KEY[ui.impBank] ? keyField('impKey', IMP_KEY[ui.impBank]) : '') +
+    '<div class="imbar"><button class="primary" id="impPickBtn" data-act="imp:pdf"' + (!IMP_KEY[ui.impBank] || impKeyOk() ? '' : ' disabled') + '>Subir estado de cuenta</button></div>';
   if (st === 'busy') return '<div class="imspin" role="status" aria-label="Leyendo"></div><div class="imlead" style="text-align:center">Nazca está leyendo tu estado de cuenta en este dispositivo.</div>';
   if (st === 'done') {
     const D = ui.impDone || { n: 0, acc: '', bal: 0, cur: 'PEN' };
@@ -5587,7 +5590,7 @@ function impBuild() {
 }
 function impStmt() {
   const I = ui.imp, acc = impAcc(); if (isCredit(acc)) return I.stmtEnd && I.stmtEnd.date ? I.stmtEnd : null;
-  const rs = (I.rows || []).filter((r) => r.balance != null); if (!rs.length) return null;
+  const rs = (I.rows || []).filter((r) => r.balance != null); if (!rs.length) return I.stmtEnd && I.stmtEnd.date ? I.stmtEnd : null;
   const newestFirst = rs[0].date > rs[rs.length - 1].date, maxD = rs.reduce((m, r) => (r.date > m ? r.date : m), ''), same = rs.filter((r) => r.date === maxD);
   const r = newestFirst ? same[0] : same[same.length - 1];
   return { balance: r.balance, date: r.date };
@@ -5646,7 +5649,7 @@ function impAct(arg) {
   if (p[0] === 'country') { impShow('country', 'push'); return; }
   if (p[0] === 'banks') { if (p[1]) ui.impCountry = p[1]; impShow('banks', 'push'); return; }
   if (p[0] === 'bank') { ui.impBank = p[1]; impShow('bank', 'push'); return; }
-  if (p[0] === 'pdf') { if (impKeyOk()) impPick(); return; }
+  if (p[0] === 'pdf') { if (!IMP_KEY[ui.impBank] || impKeyOk()) impPick(); return; }
   if (p[0] === 'open') { if (impKeyOk() && impPend) { ui.impAt = 'key'; ui.impErr = null; impPdf(impPend); } return; }
   if (p[0] === 'eye') { const i = $('#impKey'), b = $('.imeye'); if (i && b) { const on = i.type === 'password'; i.type = on ? 'text' : 'password'; b.innerHTML = RMI(on ? 'eye-off-line' : 'eye-line', 22, 'currentColor'); } return; }
   if (p[0] === 'undo') { impUndo(); impExit(); return; }

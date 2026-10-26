@@ -118,5 +118,20 @@ const sum = (it) => Math.round(it.reduce((s, x) => s + x.amount, 0) * 100) / 100
   ok(G.nameFromFile('IMG_2231.csv') === '' && G.nameFromFile('1234.csv') === '' && G.nameFromFile('estado de cuenta.pdf') === '', 'nombre: sin nada con sentido → vacío');
   ok(G.guessName(await P.read(bytes('banco-equis-falso.pdf'), lib)) === 'Banco Equis (PRUEBA)' && G.guessName(await P.read(bytes('banco-zeta-falso.pdf'), lib)) === 'Banco Zeta (PRUEBA)', 'nombre: sale de la primera línea del encabezado del PDF'); }
 
+// 10) Chime (cuenta corriente) y lectura genérica con distintos diseños
+{ const d = await P.read(bytes('chime-checking.pdf'), lib), rd = B.detect(d);
+  ok(rd && rd.id === 'chime-checking' && B.detect(d, 'bcp') === null, 'chime: reconocido por el contenido');
+  const r = rd.read(d);
+  ok(r.cur === 'USD' && r.kind === 'corriente' && r.account.last4 === '2345' && r.period.from === '2026-03-01' && r.period.to === '2026-03-31', 'chime: USD, últimos 4 y periodo');
+  ok(r.items.length === 8 && r.items[0].date === '2026-03-02' && r.items[0].amount === 1200 && r.items[2].amount === -35.5 && r.items[2].desc === 'Tienda Ejemplo', 'chime: 8 movimientos, fecha m/d/aaaa, signo del monto neto y se ignora la línea de detalle');
+  ok(r.check.ok === true, 'chime: cuadra (saldo inicial + movimientos = saldo final; depósitos y comisiones iguales al resumen)');
+  const nc = B.detect(await P.read(bytes('chime-no-cuadra.pdf'), lib)).read(await P.read(bytes('chime-no-cuadra.pdf'), lib)); ok(nc.check.ok === false, 'chime: si el saldo final no coincide → no cuadra'); }
+{ const gv = async (n) => { const d = await P.read(bytes(n), lib); return { d, g: G.read(d) }; };
+  let v = await gv('banco-eta.pdf'); ok(v.g.count === 3 && /85\.40|-85\.40/.test(v.g.text) && /,-85\.40/.test(v.g.text) && /,2500\.00/.test(v.g.text) && /,-120\.00/.test(v.g.text), 'genérico: columnas Cargo / Abono (sin signo) → cargo negativo, abono positivo, sin tomar el saldo');
+  v = await gv('banco-theta.pdf'); ok(v.g.count === 3 && /2026-03-03,"COFFEE SHOP",-4\.50/.test(v.g.text) && /1200\.00/.test(v.g.text), 'genérico: "Mar 3, 2026", negativos entre paréntesis y saldo al final');
+  v = await gv('banco-iota.pdf'); ok(v.g.count === 3 && v.g.cur === 'USD' && !/Compra|Depósito/.test(v.g.text) && /-35\.00/.test(v.g.text), 'genérico: columna de tipo y fecha al final (como Chime) no estorban');
+  v = await gv('banco-kappa.pdf'); ok(v.g.count === 3 && v.g.cur === 'PEN' && /03-mar-26|2026-03-03/.test(v.g.text) && /-45\.00/.test(v.g.text) && /,300\.00/.test(v.g.text), 'genérico: sin encabezado, "03-mar-26", "S/ 45.00-" y saldo a la derecha');
+  v = await gv('banco-lambda.pdf'); ok(v.g.count === 3 && /-1234\.56/.test(v.g.text) && /,2450\.00/.test(v.g.text), 'genérico: formato europeo 1.234,56 y fecha ISO'); }
+
 console.log(f ? '\n' + f + ' FALLAS' : '\nTodo bien');
 process.exit(f ? 1 : 0);

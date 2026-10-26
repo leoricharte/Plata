@@ -174,6 +174,61 @@ CO_ABRIL = [("Apr 2", "Apr 3", "TRADER JOE'S #552", 54.80), ("Apr 6", "Apr 7", "
     ("Apr 19", "Apr 20", "STARBUCKS STORE 1234", 6.75), ("Apr 24", "Apr 25", "AMZN Mktp US*2K4", -12.99)]
 BANCO_ZETA = [("05 mar 2026", "CAFETERIA CENTRAL", "-12.90"), ("08 mar 2026", "ABONO POR TRANSFERENCIA", "400.00"), ("14 mar 2026", "PAGO TARJETA", "-150.00"), ("20 mar 2026", "GASOLINERA DEMO", "-35.60")]
 
+def tabla(path, banco, cols, filas, con_encabezado=True):
+    """Tabla con columnas (x, título, alineación 'l'|'r') para probar el lector genérico con distintos diseños. Todo inventado."""
+    c = canvas.Canvas(str(path), pagesize=A4); c.setTitle(banco + " - documento de prueba (inventado)")
+    c.setFont("Helvetica-Bold", 14); c.drawString(40, 790, banco); c.setFillColorRGB(.8, 0, 0); c.setFont("Helvetica-Bold", 9); c.drawString(40, 770, "DOCUMENTO DE PRUEBA - DATOS INVENTADOS"); c.setFillColorRGB(0, 0, 0)
+    c.setFont("Helvetica", 8); y = 720
+    if con_encabezado:
+        c.setFont("Helvetica-Bold", 8)
+        for x, t, a in cols: (c.drawRightString if a == 'r' else c.drawString)(x, y, t)
+        y -= 16; c.setFont("Helvetica", 8)
+    for f in filas:
+        for (x, _, a), v in zip(cols, f):
+            if v: (c.drawRightString if a == 'r' else c.drawString)(x, y, v)
+        y -= 13
+    c.showPage(); c.save()
+
+VARIANTES = {
+  "banco-eta.pdf": ("Banco Eta (PRUEBA)", [(40, "Fecha", 'l'), (110, "Descripción", 'l'), (380, "Cargo", 'r'), (450, "Abono", 'r'), (540, "Saldo", 'r')],
+    [("02/03/2026", "COMPRA SUPERMERCADO", "85.40", "", "914.60"), ("04/03/2026", "DEPOSITO SUELDO", "", "2,500.00", "3,414.60"), ("09/03/2026", "PAGO SERVICIOS", "120.00", "", "3,294.60")]),
+  "banco-theta.pdf": ("Banco Theta (PRUEBA)", [(40, "Date", 'l'), (130, "Details", 'l'), (420, "Amount", 'r'), (520, "Balance", 'r')],
+    [("Mar 3, 2026", "COFFEE SHOP", "(4.50)", "495.50"), ("Mar 4, 2026", "PAYROLL DEPOSIT", "1,200.00", "1,695.50"), ("Mar 11, 2026", "ELECTRIC BILL", "(96.20)", "1,599.30")]),
+  "banco-iota.pdf": ("Banco Iota (PRUEBA)", [(40, "Fecha", 'l'), (120, "Descripción", 'l'), (290, "Tipo", 'l'), (410, "Monto", 'r'), (480, "Monto neto", 'r'), (545, "Fecha valor", 'r')],
+    [("3/15/2026", "Pago de nómina", "Depósito", "$1,000.00", "$1,000.00", "3/15/2026"), ("3/16/2026", "Tienda Demo", "Compra", "-$35.00", "-$35.00", "3/17/2026"), ("3/20/2026", "Cargo mensual", "Comisión", "-$4.99", "-$4.99", "3/20/2026")]),
+  "banco-kappa.pdf": ("Banco Kappa (PRUEBA)", [(40, "", 'l'), (120, "", 'l'), (420, "", 'r'), (540, "", 'r')],
+    [("03-mar-26", "COMPRA TIENDA LIMA", "S/ 45.00-", "S/ 1,200.00"), ("05-mar-26", "ABONO TRANSFERENCIA", "S/ 300.00", "S/ 1,500.00"), ("10-mar-26", "PAGO LUZ DEL SUR", "S/ 88.30-", "S/ 1,411.70")]),
+  "banco-lambda.pdf": ("Banco Lambda (PRUEBA)", [(40, "Datum", 'l'), (120, "Verwendungszweck", 'l'), (500, "Betrag", 'r')],
+    [("2026-03-05", "Supermarkt Berlin", "-1.234,56"), ("2026-03-06", "Gehalt", "2.450,00"), ("2026-03-09", "Miete", "-800,00")]),
+}
+
+def chime(path, filas, previo=0.00, fin_extra=0.0):
+    """Estado INVENTADO de cuenta corriente Chime (mismo orden de columnas y textos que el real; ningún dato real). filas: (fecha m/d/aaaa, descripción, tipo, monto, detalle|None)."""
+    dep = round(sum(f[3] for f in filas if f[2] == "Deposit"), 2); fee = round(sum(f[3] for f in filas if f[2] == "Fee"), 2)
+    pur = round(sum(f[3] for f in filas if f[2] in ("Purchase", "Direct Debit")), 2); tra = round(sum(f[3] for f in filas if f[2] == "Transfer"), 2)
+    fin = round(previo + sum(f[3] for f in filas) + fin_extra, 2)
+    d = lambda v: ("-" if v < 0 else "") + "$" + f"{abs(v):,.2f}"
+    c = canvas.Canvas(str(path), pagesize=A4); c.setTitle("Chime - documento de prueba (inventado)")
+    c.setFont("Helvetica", 7); c.drawString(510, 775, "Member Services"); c.drawString(510, 764, "(000) 000-0000")
+    c.setFont("Helvetica", 8); c.drawString(29, 731, "Persona de Prueba"); c.drawString(29, 720, "1 Calle Ejemplo, 1"); c.drawString(29, 710, "Ciudad Ejemplo, NY 10000")
+    c.setFont("Helvetica-Bold", 11); c.drawString(29, 657, "Checking Account Statement"); c.setFont("Helvetica", 8)
+    c.drawString(29, 634, "Account number"); c.drawString(29, 623, "123456789012345"); c.drawString(29, 602, "Statement period"); c.drawString(29, 591, "March 2026"); c.drawString(92, 591, "(March 01, 2026 - March 31, 2026)")
+    c.drawString(29, 573, "Issued by The Bancorp Bank, N.A., Member FDIC"); c.setFillColorRGB(.8, 0, 0); c.drawString(29, 560, "DOCUMENTO DE PRUEBA - DATOS INVENTADOS"); c.setFillColorRGB(0, 0, 0)
+    c.setFont("Helvetica-Bold", 9); c.drawString(29, 529, "Summary"); c.setFont("Helvetica", 8); y = 512
+    for k, v in ((f"Beginning balance on March 01, 2026", d(previo)), ("Deposits", d(dep)), ("ATM Withdrawals", d(0)), ("Purchases", d(pur)), ("Adjustments", d(0)), ("Transfers", d(tra)), ("Round Up Transfers", d(0)), ("Fees", d(fee)), ("SpotMe Tips", d(0)), ("Ending balance on March 31, 2026", d(fin))):
+        c.drawString(29, y, k); c.drawString(215, y, v); y -= 15
+    c.setFont("Helvetica-Bold", 9); c.drawString(29, 322, "Transactions"); c.setFont("Helvetica-Bold", 6.5)
+    for x, t in ((32, "TRANSACTION DATE"), (122, "DESCRIPTION"), (291, "TYPE"), (386, "AMOUNT"), (434, "NET AMOUNT"), (482, "SETTLEMENT DATE")): c.drawString(x, 304, t)
+    c.setFont("Helvetica", 7); y = 287
+    for fecha, desc, tipo, monto, det in filas:
+        c.drawString(32, y, fecha); c.drawString(122, y, desc); c.drawString(291, y, tipo); c.drawString(390, y, d(monto)); c.drawString(452, y, d(monto)); c.drawString(482, y, fecha); y -= 16
+        if det: c.drawString(122, y + 6, det); y -= 8
+    c.showPage(); c.save()
+
+CHIME_FILAS = [("3/02/2026", "Empresa Demo, Payroll", "Deposit", 1200.00, "EMPRESA DEMO"), ("3/02/2026", "Moved to Secured Deposit Account", "Transfer", -1200.00, None), ("3/05/2026", "Tienda Ejemplo", "Purchase", -35.50, "TIENDA EJEMPLO CIUDAD NYUS"),
+    ("3/05/2026", "Moved from Secured Deposit Account", "Transfer", 35.50, None), ("3/12/2026", "Outbound Instant Transfer Fee", "Fee", -2.50, None), ("3/12/2026", "Moved from Secured Deposit Account", "Transfer", 2.50, None),
+    ("3/20/2026", "Direct Debit: Servicio Demo, Payment", "Direct Debit", -20.00, "SERVICIO DEMO,PAYMENT"), ("3/20/2026", "Moved from Secured Deposit Account", "Transfer", 20.00, None)]
+
 CAPITAL_ONE_OLD = [("Mar 3", "Mar 4", "AMAZON MKTPLACE PMTS", "$23.99"), ("Mar 5", "Mar 6", "UBER *TRIP HELP.UBER.COM", "$14.50"), ("Mar 9", "Mar 10", "WHOLEFDS MKT #10234", "$67.12"),
     ("Mar 12", "Mar 12", "NETFLIX.COM", "$15.49"), ("Mar 15", "Mar 16", "SHELL OIL 57444", "$41.30"), ("Mar 18", "Mar 18", "CAPITAL ONE MOBILE PYMT", "-$150.00"), ("Mar 21", "Mar 22", "SPOTIFY USA", "$11.99")]
 BANCO_EQUIS = [("02/03/2026", "SUPERMERCADO LA ESQUINA", "-85.40"), ("04/03/2026", "DEPOSITO SUELDO EMPRESA DEMO", "2,500.00"), ("07/03/2026", "TRANSFERENCIA A JUAN PEREZ", "-300.00"),
@@ -200,4 +255,9 @@ if __name__ == "__main__":
     falso(OUT / "banco-zeta-falso.pdf", "Banco Zeta (PRUEBA)", "Extracto de movimientos - Marzo 2026", BANCO_ZETA, [(40, "Fecha"), (130, "Detalle"), (430, "Importe")], "Fin del extracto")
     falso(OUT / "banco-equis-falso.pdf", "Banco Equis (PRUEBA)", "Estado de cuenta - Cuenta corriente 000-0000000 - Marzo 2026", BANCO_EQUIS,
           [(40, "Fecha"), (130, "Descripcion"), (430, "Monto")], "Saldo final 1,775.65")
+    for nombre, (banco, cols, filas) in VARIANTES.items(): tabla(OUT / nombre, banco, cols, filas, con_encabezado=not nombre.startswith("banco-kappa"))
+    chime(OUT / "chime-checking.pdf", CHIME_FILAS)
+    chime(OUT / "chime-no-cuadra.pdf", CHIME_FILAS, fin_extra=5.00)
+    c = canvas.Canvas(str(OUT / "sin-movimientos.pdf"), pagesize=A4); c.setFont("Helvetica-Bold", 12); c.drawString(40, 780, "Banco Ejemplo - Informacion general"); c.setFont("Helvetica", 8)
+    c.drawString(40, 750, "Este documento no trae movimientos, solo texto informativo sobre tu cuenta."); c.showPage(); c.save()
     print("listo")
