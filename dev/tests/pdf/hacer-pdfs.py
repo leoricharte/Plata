@@ -525,6 +525,61 @@ def interbank_tarjeta(path, cierre="09/09/2026", desde="07/08/2026", anterior=53
     c.drawString(129, 631, "TEA Sobregiro, Casino y Disposición de Efectivo:"); c.drawString(189, 622, "Soles"); c.drawString(458, 622, f"{tea:.2f}%"); c.showPage(); c.save()
     return total
 
+def bcp_tarjeta(path, movs, cuotas, prev=(500.00, 20.00), fees=(("GASTO MENSUAL POR SEGURO DE DESGRAVAMEN", 12.50),), total_impreso=None):
+    """Imita el "Estado de Cuenta Tarjeta VISA" del BCP: saldo anterior, movimientos (fecha de proceso y de consumo, tipo CONSUMO/PAGO/CARGO, columnas Soles y
+    Dólares; el pago lleva "-" al final), SUB TOTAL, comisiones, MONTO TOTAL FACTURADO y el detalle del plan de cuotas. Todo inventado.
+    movs: (proceso, consumo, descripción, tipo, monto, moneda 'S'|'D') · cuotas: (compra, descripción, nro, capital, interés, moneda)"""
+    cuo = {k: round(sum(q[3] + q[4] for q in cuotas if q[5] == k), 2) for k in 'SD'}
+    suma = lambda k, t: round(sum(m[4] for m in movs if m[5] == k and m[3] == t), 2)
+    sub = {k: round(prev[0 if k == 'S' else 1] + suma(k, 'CONSUMO') - suma(k, 'PAGO') + cuo[k], 2) for k in 'SD'}
+    fee = round(sum(f[1] for f in fees), 2); tot = {'S': round(sub['S'] + fee, 2), 'D': sub['D']}
+    usada = round(tot['S'] + 5000, 2)
+    c = canvas.Canvas(str(path), pagesize=A4); c.setTitle("Estado de cuenta de prueba (inventado)")
+    def enc(pg):
+        c.setFont("Helvetica", 7); c.drawString(500, 794, f"Pag {pg}"); c.drawString(530, 794, "de 2"); c.setFont("Helvetica-Bold", 9); c.drawString(48, 788, "Estado de Cuenta Tarjeta VISA")
+        c.setFont("Helvetica", 7); c.drawString(465, 782, "Ciclo de Facturación"); c.drawString(48, 777, "PEREZ LOPEZ MARIA E"); c.drawString(363, 777, "Número de tarjeta"); c.drawString(465, 777, "Del"); c.drawString(513, 777, "Al (día de cierre)")
+        c.drawString(48, 763, "AV. EJEMPLO 100"); c.drawString(363, 763, "4000-00XX-XXXX-1234"); c.drawString(465, 763, "27/04/26"); c.drawString(512, 763, "25/05/26"); c.drawString(465, 748, "Fecha límite de pago"); c.drawString(482, 737, "22/06/26")
+    enc(1)
+    c.drawString(45, 706, "Línea de crédito"); c.drawString(411, 706, "Cuenta de cargo")
+    c.drawString(51, 692, "Línea de crédito S/"); c.drawString(113, 692, "-"); c.drawString(119, 692, "Línea utilizada S/"); c.drawString(180, 692, "="); c.drawString(187, 692, "Crédito disponible S/"); c.drawString(411, 692, "En soles")
+    c.drawString(90, 683, "10,000"); c.drawString(152, 683, m(usada)); c.drawString(220, 683, m(10000 - usada)); c.drawString(411, 683, "En dólares")
+    c.drawString(45, 663, "Pagos"); c.drawString(45, 654, "Pago mínimo S/"); c.drawString(128, 654, "Pago total S/"); c.drawString(289, 654, "En caso pague pasada la fecha máxima de pago se le cobrará una comisión"); c.drawString(290, 645, "de penalidad por pago atrasado de 0.0% del pago minimo")
+    c.drawString(81, 642, m(round(cuo['S'] + fee + 10, 2))); c.drawString(155, 642, m(tot['S'])); c.drawString(45, 631, "Pago mínimo US$"); c.drawString(128, 631, "Pago total US$"); c.drawString(87, 619, m(cuo['D'] + 5)); c.drawString(161, 619, m(tot['D']))
+    c.drawString(48, 602, "Fecha de"); c.drawString(82, 602, "Fecha de"); c.drawString(272, 602, "Descripción"); c.drawString(410, 602, "Tipo de"); c.drawString(471, 602, "Soles"); c.drawString(524, 602, "Dólares")
+    c.drawString(48, 595, "proceso"); c.drawString(82, 595, "consumo"); c.drawString(410, 595, "Operación")
+    y = 586; c.drawString(136, y, "SALDO ANTERIOR"); c.drawRightString(515, y, m(prev[0])); c.drawRightString(575, y, m(prev[1])); y -= 17
+    c.drawString(136, y, "MARIA PEREZ"); c.drawString(256, y, "400000XXXXXX1234"); y -= 8.5
+    for pr, co, d, t, v, k in movs:
+        c.drawString(47, y, pr); c.drawString(92, y, co); c.drawString(136, y, d); c.drawString(410, y, t)
+        txt = m(v) + ("-" if t == "PAGO" else ""); c.drawRightString(515 if k == 'S' else 575, y, txt); y -= 8.5
+    if cuo['S']: c.drawString(47, y, "25May"); c.drawString(92, y, "25May"); c.drawString(136, y, "CUOTA DEL MES"); c.drawString(410, y, "CARGO"); c.drawRightString(515, y, m(cuo['S'])); y -= 8.5
+    if cuo['D']: c.drawString(47, y, "25May"); c.drawString(92, y, "25May"); c.drawString(136, y, "CUOTA DEL MES"); c.drawString(410, y, "CARGO"); c.drawRightString(575, y, m(cuo['D'])); y -= 8.5
+    c.drawString(45, 170, "¿Cómo calcular tu pago mínimo?"); c.drawString(45, 160, "Si el cliente sólo realiza el pago mínimo, efectuará un pago mayor por concepto de intereses, comisiones y gastos."); c.drawString(45, 73, "FECHA DE COBRO DE MEMBRESIA: 25/03/2027 - MONTO S/ 350.00"); c.drawString(51, 48, "Para conocer la deuda total actualizada comuníquese a Banca por Teléfono VíaBCP 3119898."); c.showPage()
+    enc(2); c.setFont("Helvetica", 7)
+    c.drawString(48, 683, "Fecha de"); c.drawString(82, 683, "Fecha de"); c.drawString(264, 683, "Descripción"); c.drawString(411, 683, "Tipo de"); c.drawString(471, 683, "Soles"); c.drawString(527, 683, "Dólares")
+    c.drawString(136, 661, "INTERESES"); c.drawString(136, 652, "COMISION POR USO DE CANALES"); c.drawString(136, 644, "SUB TOTAL"); c.drawRightString(515, 644, m(sub['S'])); c.drawRightString(575, 644, m(sub['D']))
+    y = 627
+    for d, v in fees: c.drawString(136, y, d); c.drawRightString(515, y, m(v)); y -= 17
+    c.drawString(47, 584, "_" * 100); c.drawString(136, 576, "MONTO TOTAL FACTURADO"); c.drawRightString(515, 576, m(tot['S'] if total_impreso is None else total_impreso)); c.drawRightString(575, 576, m(tot['D'])); c.drawString(47, 567, "_" * 100)
+    y = 551
+    for k, nombre in (('S', "SOLES"), ('D', "DOLARES")):
+        fila = [q for q in cuotas if q[5] == k]
+        if not fila: continue
+        c.drawString(136, y, f"DETALLE PLAN CUOTAS {nombre}"); y -= 17
+        c.drawString(246, y, "Compras"); c.drawString(286, y, "Nro.Cuota"); c.drawString(341, y, "TEA"); c.drawString(370, y, "Capital"); c.drawString(420, y, "Interés"); y -= 9
+        for comp, d, nro, cap, intr, _ in fila:
+            c.drawString(47, y, "25May"); c.drawString(92, y, comp); c.drawString(136, y, d); c.drawString(256, y, "100.00"); c.drawString(291, y, nro); c.drawString(331, y, "95.89"); c.drawString(361, y, "%")
+            c.drawString(390, y, m(cap)); c.drawString(445, y, m(intr)); c.drawRightString(515 if k == 'S' else 565, y, m(cap + intr)); y -= 9
+        c.drawString(136, y, f"TOTAL {nombre}"); c.drawRightString(515 if k == 'S' else 565, y, m(cuo[k])); y -= 20
+    c.drawString(136, 372, "¿COMO ESTA COMPUESTA SU DEUDA? (*)"); c.drawString(136, 338, "Compras"); c.drawString(251, 338, m(1000)); c.drawString(306, 338, "95.89"); c.drawString(336, 338, "%")
+    c.showPage(); c.save()
+    return sub, tot
+
+BT_MOVS = [("27Abr", "24Abr", "SUPERMERCADO UNO LIMA PE", "CONSUMO", 71.70, 'S'), ("04May", "01May", "TIENDA DOS LIMA PE", "CONSUMO", 391.48, 'S'), ("04May", "01May", "TIENDA DOS LIMA PE", "CONSUMO", 391.48, 'S'),
+    ("18May", "17May", "PAGO BANCA MOVIL", "PAGO", 500.00, 'S'), ("22May", "21May", "RESTAURANTE TRES LIMA PE", "CONSUMO", 11.06, 'S'),
+    ("27Abr", "25Abr", "SERVICIO ONLINE Estonia EE", "CONSUMO", 3.92, 'D'), ("07May", "07May", "PAGO BANCA MOVIL", "PAGO", 20.00, 'D'), ("20May", "19May", "COMPRA EXTERIOR 800-000-0000 AR", "CONSUMO", 120.00, 'D')]
+BT_CUOTAS = [("02Abr", "TIENDA CUATRO", "02/02", 23.57, 1.65, 'S'), ("01May", "TIENDA CINCO", "01/03", 60.11, 10.58, 'S'), ("19May", "PASE CUOTAS BM", "01/12", 64.31, 45.61, 'D')]
+
 if __name__ == "__main__":
     bcp(OUT / "bcp-ahorros.pdf", ("01/03/26", "31/03/26"), 120.30, MARZO)
     bcp(OUT / "bcp-ahorros-enero.pdf", ("01/01/26", "31/01/26"), 35.10, ENERO)
@@ -541,6 +596,8 @@ if __name__ == "__main__":
     interbank_tarjeta(OUT / "interbank-tarjeta.pdf")
     interbank_tarjeta(OUT / "interbank-tarjeta-consumos.pdf", anterior=300.00, pagos=(("03-Sep", "PAGO TARJ WEB APP", 100.00), ("05-Sep", "PAGO TARJ WEB APP", 50.00)), consumos=(("20-Ago", "WONG SURCO", 80.50), ("02-Sep", "TOTTUS", 45.20)))
     interbank_tarjeta(OUT / "interbank-tarjeta-no-cuadra.pdf", pago_mes_impreso=999.99)
+    bcp_tarjeta(OUT / "bcp-tarjeta.pdf", BT_MOVS, BT_CUOTAS)
+    bcp_tarjeta(OUT / "bcp-tarjeta-no-cuadra.pdf", BT_MOVS, BT_CUOTAS, total_impreso=9999.99)
     subprocess.run(["qpdf", "--encrypt", "12345678", "12345678", "256", "--", str(OUT / "bcp-ahorros.pdf"), str(OUT / "bcp-ahorros-clave.pdf")], check=True)
     # otro banco: mismo tipo de tabla pero no es el BCP
     c = canvas.Canvas(str(OUT / "otro-banco.pdf"), pagesize=A4); c.setFont("Helvetica-Bold", 9); c.drawString(40, 780, "Banco Ejemplo · Estado de cuenta")

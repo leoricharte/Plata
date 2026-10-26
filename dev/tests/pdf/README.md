@@ -7,6 +7,8 @@ Imitan el diseño del «Estado de Cuenta de Ahorros Cuenta Digital BCP» y del �
 | `bcp-ahorros.pdf` | Marzo de 2026, 2 páginas, `28FEB` antes del periodo, comisión de 0.00, pares de ida y vuelta. Cuadra. |
 | `bcp-ahorros-enero.pdf` | Enero de 2026 con `31DIC` (año anterior). Cuadra. |
 | `bcp-no-cuadra.pdf` | Igual que el primero, pero el total de cargos impreso está mal: debe avisar que no cuadra. |
+| `bcp-tarjeta.pdf` | Imita el «Estado de Cuenta Tarjeta VISA» del BCP: columnas Soles y Dólares, pago con `-` al final, «CUOTA DEL MES» y el plan de cuotas. Cuadra. |
+| `bcp-tarjeta-no-cuadra.pdf` | El monto total facturado impreso está mal: debe avisar que no cuadra. |
 | `bcp-ahorros-clave.pdf` | El primero con clave `12345678` (un DNI inventado). |
 | `bcp-malicioso.pdf` | Descripciones con `<img onerror>` y `</script><script>`: se muestran como texto. |
 | `interbank-ahorros.pdf` | Imita el «ESTADO DE CUENTA» de ahorros de Interbank: fecha completa, monto con signo, saldo por fila, `EMPEZASTE … CON` / `SALDO CONTABLE AL …` y una página-guía con movimientos de ejemplo que no se leen. Cuadra. |

@@ -257,5 +257,17 @@ const sum = (it) => Math.round(it.reduce((s, x) => s + x.amount, 0) * 100) / 100
   ok(g.card.apr === 34.9 && g.card.limit === 3000 && g.card.minPayment === 35 && g.card.dueDate === '2026-11-05', 'banco genérico: tasa, límite, pago mínimo y fecha de pago ' + JSON.stringify(g.card));
   ok(/COMPRA SUPERMERCADO CENTRAL",-86\.40/.test(g.text) && /PAGO RECIBIDO GRACIAS",250\.00/.test(g.text) && g.count === 7, 'banco genérico: compras → gasto, pago → ingreso, 7 movimientos (' + g.count + ')'); }
 
+// 22) BCP · tarjeta de crédito Visa: dos columnas (Soles y Dólares), pago con "-" al final, "CUOTA DEL MES" desglosada con el plan de cuotas
+{ const d = await P.read(bytes('bcp-tarjeta.pdf'), lib), rd = B.detect(d, 'bcp'); ok(rd && rd.id === 'bcp-tarjeta' && B.detect(d).id === 'bcp-tarjeta', 'bcp tarjeta: se reconoce (y no se confunde con la cuenta de ahorros)');
+  ok(B.detect(await P.read(bytes('bcp-ahorros.pdf'), lib), 'bcp').id === 'bcp-ahorros', 'bcp: la cuenta de ahorros sigue leyéndose con su lector');
+  const r = rd.read(d); ok(r.kind === 'tarjeta' && r.label === 'BCP · Tarjeta de crédito' && r.account.last4 === '1234' && r.period.from === '2026-04-27' && r.period.to === '2026-05-25', 'bcp tarjeta: tipo, últimos 4 y ciclo');
+  ok(r.items.length === 12 && r.items.filter((x) => x.cur === 'USD').length === 4, 'bcp tarjeta: 12 movimientos, 4 en dólares (' + r.items.length + ')');
+  ok(r.items[3].amount === 500 && r.items[0].amount === -71.7 && r.items[0].date === '2026-04-24', 'bcp tarjeta: pago ("-" al final) positivo, consumo negativo, fecha de consumo');
+  ok(r.items.some((x) => x.desc === 'TIENDA CINCO · cuota 1 de 3' && x.amount === -70.69 && x.date === '2026-05-25') && !r.items.some((x) => /CUOTA DEL MES/.test(x.desc)), 'bcp tarjeta: "CUOTA DEL MES" sale desglosada por compra, a la fecha de cierre');
+  ok(r.items.some((x) => /seguro de desgravamen/.test(x.desc) && x.amount === -12.5), 'bcp tarjeta: comisiones y gastos como gasto');
+  ok(r.card.limit === 10000 && r.card.apr === 95.89 && r.card.dueDate === '2026-06-22' && r.card.minPayment === 118.41, 'bcp tarjeta: línea, tasa, fecha de pago y pago mínimo ' + JSON.stringify(r.card));
+  ok(r.check.have && r.check.ok === true && r.check.prev === 500, 'bcp tarjeta: cuadra en soles y en dólares (sub total, monto total facturado y plan de cuotas)');
+  const d2 = await P.read(bytes('bcp-tarjeta-no-cuadra.pdf'), lib); ok(B.detect(d2, 'bcp').read(d2).check.ok === false, 'bcp tarjeta: monto total facturado mal impreso → no cuadra'); }
+
 console.log(f ? '\n' + f + ' FALLAS' : '\nTodo bien');
 process.exit(f ? 1 : 0);
