@@ -133,5 +133,15 @@ const sum = (it) => Math.round(it.reduce((s, x) => s + x.amount, 0) * 100) / 100
   v = await gv('banco-kappa.pdf'); ok(v.g.count === 3 && v.g.cur === 'PEN' && /03-mar-26|2026-03-03/.test(v.g.text) && /-45\.00/.test(v.g.text) && /,300\.00/.test(v.g.text), 'genérico: sin encabezado, "03-mar-26", "S/ 45.00-" y saldo a la derecha');
   v = await gv('banco-lambda.pdf'); ok(v.g.count === 3 && /-1234\.56/.test(v.g.text) && /,2450\.00/.test(v.g.text), 'genérico: formato europeo 1.234,56 y fecha ISO'); }
 
+// 11) Seen (tarjeta de crédito)
+{ const d = await P.read(bytes('seen-tarjeta.pdf'), lib), rd = B.detect(d);
+  ok(rd && rd.id === 'seen-tarjeta' && B.detect(d, 'chime') === null, 'seen: reconocido por el contenido');
+  const r = rd.read(d);
+  ok(r.kind === 'tarjeta' && r.account.last4 === '0000' && r.period.from === '2026-03-05' && r.period.to === '2026-04-04', 'seen: tarjeta, últimos 4 y periodo');
+  ok(r.items.length === 6 && sum(r.items) === -(56.29 + 3.10) + 40.5, 'seen: 6 movimientos (abonos +, compras e interés −)');
+  ok(r.items.find((x) => /Payment from/.test(x.desc)).amount === 40 && r.items.find((x) => /TIENDA/.test(x.desc)).amount === -21.3 && r.items.find((x) => /Interest/.test(x.desc)).date === '2026-04-04', 'seen: pago positivo, compra negativa y el interés usa la fecha de cierre');
+  ok(r.check.ok === true && r.card.apr === 29.99 && r.card.dueDate === '2026-05-03' && r.card.minPayment === 25 && r.card.limit === 500, 'seen: cuadra y trae tasa, fecha de pago, mínimo y límite ' + JSON.stringify(r.card));
+  const nc = B.detect(await P.read(bytes('seen-no-cuadra.pdf'), lib)).read(await P.read(bytes('seen-no-cuadra.pdf'), lib)); ok(nc.check.ok === false, 'seen: si el saldo nuevo no coincide → no cuadra'); }
+
 console.log(f ? '\n' + f + ' FALLAS' : '\nTodo bien');
 process.exit(f ? 1 : 0);

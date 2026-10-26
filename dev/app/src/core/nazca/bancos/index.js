@@ -4,7 +4,7 @@
  * Un banco solo pasa a "activo" cuando hay un lector probado con un estado de cuenta real de ese banco (con los datos cambiados en las pruebas).
  * Para agregar un banco: archivo nuevo en esta carpeta con detect(doc) y read(doc), lo agregas a READERS y lo marcas activo en CATALOG. */
 const NazcaBancos = (() => {
-  const READERS = [typeof NazcaBCP !== 'undefined' ? NazcaBCP : require('./bcp-ahorros.js'), typeof NazcaInterbank !== 'undefined' ? NazcaInterbank : require('./interbank-ahorros.js'), typeof NazcaCapitalOne !== 'undefined' ? NazcaCapitalOne : require('./capitalone-tarjeta.js'), typeof NazcaChime !== 'undefined' ? NazcaChime : require('./chime-checking.js')];
+  const READERS = [typeof NazcaBCP !== 'undefined' ? NazcaBCP : require('./bcp-ahorros.js'), typeof NazcaInterbank !== 'undefined' ? NazcaInterbank : require('./interbank-ahorros.js'), typeof NazcaCapitalOne !== 'undefined' ? NazcaCapitalOne : require('./capitalone-tarjeta.js'), typeof NazcaChime !== 'undefined' ? NazcaChime : require('./chime-checking.js'), typeof NazcaSeen !== 'undefined' ? NazcaSeen : require('./seen-tarjeta.js')];
   /* Lo que se ve al elegir país y banco. active: hay lector. Los demás salen como "Próximamente". */
   const CATALOG = [
     { id: 'PE', name: 'Perú', banks: [
@@ -14,7 +14,8 @@ const NazcaBancos = (() => {
       { id: 'scotiabank', name: 'Scotiabank Perú', hq: 'San Isidro, Lima', active: false } ] },
     { id: 'US', name: 'Estados Unidos', banks: [
       { id: 'capitalone', name: 'Capital One', hq: 'McLean, Virginia', active: true },
-      { id: 'chime', name: 'Chime', hq: 'San Francisco, California', active: true } ] } ];
+      { id: 'chime', name: 'Chime', hq: 'San Francisco, California', active: true },
+      { id: 'seen', name: 'Seen', hq: 'Salt Lake City, Utah', active: true } ] } ];
   /* Devuelve el lector que reconoce el documento (el resultado de NazcaPDF.read) o null. onlyBank: si la persona ya eligió un banco, solo prueba ese. */
   function detect(doc, onlyBank) {
     for (const r of READERS) if ((!onlyBank || r.bank === onlyBank) && r.detect(doc) >= 1) return r;

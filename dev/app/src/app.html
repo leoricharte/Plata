@@ -5511,6 +5511,7 @@ function impFromPdf(name, r) {
 const impBankShort = (id) => (id === 'bcp' ? 'BCP' : impBankName(id));
 const IMP_STEPS = {
   bcp: ['Ve a la Banca por Internet.', 'Elige la cuenta a consultar.', 'Selecciona la opción Más, y después Estado de Cuenta.', 'Elige el mes y año a consultar.', 'Genera el estado de cuenta y descárgalo de tu correo.'],
+  seen: ['Abre la app de Seen.', 'Elige tu tarjeta.', 'Abre Statements.', 'Elige el mes a consultar.', 'Descarga el estado de cuenta.'],
   chime: ['Abre la app de Chime.', 'Toca Cuenta o Settings.', 'Abre Statements & documents.', 'Elige el mes a consultar.', 'Descarga el estado de cuenta.'],
   capitalone: ['Entra a tu cuenta en la app o en la web de Capital One.', 'Elige la tarjeta a consultar.', 'Abre Statements.', 'Elige el mes a consultar.', 'Descarga el estado de cuenta.'],
   interbank: ['Ve a la Banca por Internet.', 'Elige la cuenta a consultar.', 'Elige los ⋯ en la parte derecha.', 'Elige el mes y año a consultar.', 'Genera el estado de cuenta y guárdalo.'] };
@@ -5526,7 +5527,7 @@ const IMP_MARKS = { bcp: { glyph: '<svg viewBox="0 23.6 171.75 207" style="--gs:
 const impMark = (id, kind) => { const m = IMP_MARKS[id]; if (m && m[kind]) return m[kind]; const v = RMX['bank-line']; return '<svg viewBox="' + v.b.join(' ') + '" style="--gs:26px" fill="currentColor" aria-hidden="true"><path d="' + v.d + '"/></svg>'; };
 const IMP_HEAD = { start: ['Importar', 'Datos de banco'], how: ['Importar archivo', 'Cómo funciona'], key: ['Estado de cuenta', 'Contraseña'], country: ['Datos de banco', 'Tu país'], banks: ['Perú', 'Tu banco'], busy: ['Datos de banco', 'Leyendo…'], done: ['Listo', 'Importado'] };
 function impPageHTML() {
-  let st = ui.impStep || 'start'; if (st === 'review' && !ui.imp) st = ui.impStep = 'start'; const I = ui.imp, bk = ui.impBank, H = st === 'bank' ? [impCountryOf(bk), IMP_MARKS[bk] && IMP_MARKS[bk].logo ? '<span class="imlogo" style="--lh:' + (IMP_MARKS[bk].h || 40) + 'px">' + impMark(bk, 'logo') + '</span>' : esc(impBankShort(bk))] : st === 'review' ? [I && I.label ? esc(I.label) : 'Archivo CSV', 'Revisar'] : IMP_HEAD[st] || IMP_HEAD.start;
+  let st = ui.impStep || 'start'; if (st === 'review' && !ui.imp) st = ui.impStep = 'start'; const I = ui.imp, bk = ui.impBank, H = st === 'bank' ? [impCountryOf(bk), IMP_MARKS[bk] && IMP_MARKS[bk].logo ? '<span class="imlogo" style="--lh:' + (IMP_MARKS[bk].h || 40) + 'px">' + impMark(bk, 'logo') + '</span>' : esc(impBankShort(bk))] : st === 'review' ? [I && I.label ? esc(I.label) : I && I.gen ? 'Archivo PDF' : 'Archivo CSV', 'Revisar'] : IMP_HEAD[st] || IMP_HEAD.start;
   return '<div class="navrow">' + (st === 'busy' || st === 'done' ? '<span style="width:44px;height:44px"></span>' : '<button class="back" data-act="itback" aria-label="Regresar">' + IC_BACK + '</button>') + '</div>' +
     '<div class="head"><div><div class="eyebrow">' + H[0] + '</div><h1>' + H[1] + '</h1></div></div><div id="impbody">' + impErrHTML() + impBodyHTML(st) + '</div>';
 }

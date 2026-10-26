@@ -5,7 +5,7 @@ Imitan el diseño del "Estado de Cuenta de Ahorros Cuenta Digital BCP": mismas p
 Uso:  python3 dev/tests/pdf/hacer-pdfs.py      (necesita reportlab y qpdf; los PDF ya generados están en esta carpeta, no hace falta correrlo)"""
 import subprocess, pathlib
 from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import A4
+from reportlab.lib.pagesizes import A4, letter
 
 OUT = pathlib.Path(__file__).parent
 ROWS_PER_PAGE = 16
@@ -229,6 +229,36 @@ CHIME_FILAS = [("3/02/2026", "Empresa Demo, Payroll", "Deposit", 1200.00, "EMPRE
     ("3/05/2026", "Moved from Secured Deposit Account", "Transfer", 35.50, None), ("3/12/2026", "Outbound Instant Transfer Fee", "Fee", -2.50, None), ("3/12/2026", "Moved from Secured Deposit Account", "Transfer", 2.50, None),
     ("3/20/2026", "Direct Debit: Servicio Demo, Payment", "Direct Debit", -20.00, "SERVICIO DEMO,PAYMENT"), ("3/20/2026", "Moved from Secured Deposit Account", "Transfer", 20.00, None)]
 
+def seen(path, creditos, compras, interes=3.10, previo=100.00, extra_impreso=0.0):
+    """Estado INVENTADO de tarjeta Seen (mismo orden de secciones y textos que el real; ningún dato real). creditos/compras: (fecha mm/dd/aaaa, descripción, monto positivo)."""
+    pagos = round(sum(c[2] for c in creditos if "Payment" in c[1]), 2); otros = round(sum(c[2] for c in creditos if "Payment" not in c[1]), 2)
+    buy = round(sum(c[2] for c in compras), 2); fin = round(previo - pagos - otros + buy + interes + extra_impreso, 2)
+    d = lambda v: f"${v:,.2f}"
+    c = canvas.Canvas(str(path), pagesize=letter); c.setTitle("Seen - documento de prueba (inventado)")
+    c.setFont("Helvetica-Bold", 10); c.drawString(513, 749, "Seen Credit Card"); c.setFont("Helvetica", 7); c.drawString(324, 736, "PERSONA DE PRUEBA"); c.drawString(506, 736, "- Account Number *0000")
+    c.setFont("Helvetica-Bold", 13); c.drawString(138, 731, "Credit Card Statement"); c.setFont("Helvetica", 7); c.drawString(434, 722, "Bill Period: 03/05/2026 - 04/04/2026")
+    c.setFillColorRGB(.8, 0, 0); c.drawString(25, 760, "DOCUMENTO DE PRUEBA - DATOS INVENTADOS"); c.setFillColorRGB(0, 0, 0)
+    c.setFont("Helvetica-Bold", 8); c.drawString(418, 694, "Account Summary"); c.setFont("Helvetica", 7)
+    for k, v, y in (("Previous Balance", d(previo), 679), ("Payments", d(pagos), 664), ("Other Credits", d(otros), 649), ("Purchases", d(buy), 634), ("Interest Charged", d(interes), 618), ("Fee Charged", d(0), 603), ("New Balance", d(fin), 583), ("Credit Limit", "$500.00", 563), ("Credit Limit Available", d(500 - fin), 548)):
+        c.drawString(418, y, k); c.drawRightString(595, y, v)
+    c.drawString(27, 489, "Minimum Payment Due"); c.drawString(27, 300, "Card Account Number"); c.drawString(163, 300, "Statement Date"); c.drawString(262, 300, "New Balance"); c.drawString(348, 300, "Minimum Amount Due"); c.drawString(485, 300, "Payment Due Date")
+    c.drawString(27, 285, "*0000"); c.drawString(163, 285, "04/05/2026"); c.drawString(262, 285, d(fin)); c.drawString(348, 285, "$25.00"); c.drawString(485, 285, "05/03/2026"); c.showPage()
+    c.setFont("Helvetica-Bold", 10); c.drawString(510, 746, "Seen Credit Card"); c.setFont("Helvetica-Bold", 12); c.drawString(89, 729, "Account Activity"); c.setFont("Helvetica", 7)
+    for x, t in ((20, "Posted Date"), (136, "Transaction Date"), (258, "Description"), (442, "Card Ending In"), (560, "Amount")): c.drawString(x, 661, t)
+    y = 643; c.setFont("Helvetica-Bold", 7); c.drawString(20, y, "Payments, Refunds, and Other Credits"); c.setFont("Helvetica", 7); y -= 17
+    for f, desc, m in creditos: c.drawString(20, y, f); c.drawString(136, y, f); c.drawString(258, y, desc); c.drawString(442, y, "*0000"); c.drawRightString(595, y, d(m)); y -= 17
+    c.drawString(311, y, "Total Payments, Refunds, And Other Credits For This Period:"); c.drawRightString(595, y, d(pagos + otros)); y -= 18
+    c.setFont("Helvetica-Bold", 7); c.drawString(20, y, "Purchases"); c.setFont("Helvetica", 7); y -= 17
+    for f, desc, m in compras: c.drawString(20, y, f); c.drawString(136, y, f); c.drawString(258, y, desc); c.drawString(442, y, "*0000"); c.drawRightString(595, y, d(m)); y -= 17
+    c.drawString(426, y, "Total Purchases For This Period:"); c.drawRightString(595, y, d(buy)); y -= 20
+    c.setFont("Helvetica-Bold", 7); c.drawString(296, y, "Fees"); c.setFont("Helvetica", 7); y -= 16; c.drawString(258, y, "None during this statement period"); y -= 18
+    c.setFont("Helvetica-Bold", 7); c.drawString(270, y, "Interest Charged"); c.setFont("Helvetica", 7); y -= 17; c.drawString(258, y, "Interest Charge on Purchases"); c.drawRightString(595, y, d(interes)); c.showPage()
+    c.setFont("Helvetica-Bold", 8); c.drawString(23, 682, "Interest Charge Calculation"); c.setFont("Helvetica", 7)
+    c.drawString(70, 588, "Purchases"); c.drawString(207, 588, "29.99% (Fixed)"); c.drawString(363, 588, "$100.00"); c.drawString(511, 588, d(interes)); c.showPage(); c.save()
+
+SEEN_CR = [("03/10/2026", "Cash Rewards Redemption", 0.50), ("03/20/2026", "Debit Card Payment from *1111", 40.00)]
+SEEN_BUY = [("03/08/2026", "TIENDA EJEMPLO NEW YORK NYUSA", 21.30), ("03/15/2026", "SERVICIO DEMO 8000000000 CAUSA", 25.00), ("03/28/2026", "CAFE DEMO LAKE CITY UTUSA", 9.99)]
+
 CAPITAL_ONE_OLD = [("Mar 3", "Mar 4", "AMAZON MKTPLACE PMTS", "$23.99"), ("Mar 5", "Mar 6", "UBER *TRIP HELP.UBER.COM", "$14.50"), ("Mar 9", "Mar 10", "WHOLEFDS MKT #10234", "$67.12"),
     ("Mar 12", "Mar 12", "NETFLIX.COM", "$15.49"), ("Mar 15", "Mar 16", "SHELL OIL 57444", "$41.30"), ("Mar 18", "Mar 18", "CAPITAL ONE MOBILE PYMT", "-$150.00"), ("Mar 21", "Mar 22", "SPOTIFY USA", "$11.99")]
 BANCO_EQUIS = [("02/03/2026", "SUPERMERCADO LA ESQUINA", "-85.40"), ("04/03/2026", "DEPOSITO SUELDO EMPRESA DEMO", "2,500.00"), ("07/03/2026", "TRANSFERENCIA A JUAN PEREZ", "-300.00"),
@@ -260,4 +290,6 @@ if __name__ == "__main__":
     chime(OUT / "chime-no-cuadra.pdf", CHIME_FILAS, fin_extra=5.00)
     c = canvas.Canvas(str(OUT / "sin-movimientos.pdf"), pagesize=A4); c.setFont("Helvetica-Bold", 12); c.drawString(40, 780, "Banco Ejemplo - Informacion general"); c.setFont("Helvetica", 8)
     c.drawString(40, 750, "Este documento no trae movimientos, solo texto informativo sobre tu cuenta."); c.showPage(); c.save()
+    seen(OUT / "seen-tarjeta.pdf", SEEN_CR, SEEN_BUY)
+    seen(OUT / "seen-no-cuadra.pdf", SEEN_CR, SEEN_BUY, extra_impreso=7.00)
     print("listo")
