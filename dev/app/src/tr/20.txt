@@ -1,0 +1,50 @@
+# Beta 4: importar movimientos desde un CSV del banco
+Importar desde tu banco (CSV) ¦ Import from your bank (CSV) ¦ 銀行から取り込む（CSV） ¦ Importa dalla tua banca (CSV) ¦ Importer depuis votre banque (CSV) ¦ Uvezi iz banke (CSV)
+Importar movimientos ¦ Import transactions ¦ 取引を取り込む ¦ Importa movimenti ¦ Importer des transactions ¦ Uvezi transakcije
+El archivo se leyó en este dispositivo y no se subió a ningún servidor. ¦ The file was read on this device and was not uploaded to any server. ¦ ファイルはこの端末で読み込まれ、どのサーバーにもアップロードされていません。 ¦ Il file è stato letto su questo dispositivo e non è stato caricato su nessun server. ¦ Le fichier a été lu sur cet appareil et n’a été envoyé à aucun serveur. ¦ Datoteka je pročitana na ovom uređaju i nije poslana ni na jedan poslužitelj.
+{0} movimiento ¦ {0} {0?transaction:transactions} ¦ {0}件の取引 ¦ {0} {0?movimento:movimenti} ¦ {0} {0?transaction:transactions} ¦ {0} transakcija
+Importar {0} movimiento ¦ Import {0} {0?transaction:transactions} ¦ {0}件の取引を取り込む ¦ Importa {0} {0?movimento:movimenti} ¦ Importer {0} {0?transaction:transactions} ¦ Uvezi {0} transakcija
+Invertir signos ¦ Flip signs ¦ 符号を反転 ¦ Inverti i segni ¦ Inverser les signes ¦ Obrni predznake
+Úsalo si los gastos aparecen como ingresos. ¦ Use it if expenses show up as income. ¦ 支出が収入として表示される場合に使います。 ¦ Usalo se le spese appaiono come entrate. ¦ Utilisez-le si les dépenses apparaissent comme des revenus. ¦ Koristi ako se troškovi prikazuju kao prihodi.
+Saldo de la cuenta ¦ Account balance ¦ 口座残高 ¦ Saldo del conto ¦ Solde du compte ¦ Stanje računa
+Deuda de la tarjeta ¦ Card debt ¦ カードの残債 ¦ Debito della carta ¦ Dette de la carte ¦ Dug kartice
+Sumar al saldo ¦ Add to the balance ¦ 残高に反映する ¦ Somma al saldo ¦ Ajouter au solde ¦ Dodaj stanju
+Sumar a la deuda ¦ Add to the debt ¦ 残債に反映する ¦ Somma al debito ¦ Ajouter à la dette ¦ Dodaj dugu
+No cambiar el saldo ¦ Don’t change the balance ¦ 残高を変えない ¦ Non cambiare il saldo ¦ Ne pas changer le solde ¦ Ne mijenjaj stanje
+No cambiar la deuda ¦ Don’t change the debt ¦ 残債を変えない ¦ Non cambiare il debito ¦ Ne pas changer la dette ¦ Ne mijenjaj dug
+Si tu saldo en Plata ya incluye estos movimientos. ¦ If your balance in Plata already includes these transactions. ¦ Plataの残高にこれらの取引がすでに含まれている場合。 ¦ Se il tuo saldo in Plata include già questi movimenti. ¦ Si votre solde dans Plata inclut déjà ces transactions. ¦ Ako tvoje stanje u Plati već uključuje ove transakcije.
+Si tu deuda en Plata ya incluye estos movimientos. ¦ If your debt in Plata already includes these transactions. ¦ Plataの残債にこれらの取引がすでに含まれている場合。 ¦ Se il tuo debito in Plata include già questi movimenti. ¦ Si votre dette dans Plata inclut déjà ces transactions. ¦ Ako tvoj dug u Plati već uključuje ove transakcije.
+Usar el saldo del archivo ¦ Use the balance from the file ¦ ファイルの残高を使う ¦ Usa il saldo del file ¦ Utiliser le solde du fichier ¦ Koristi stanje iz datoteke
+{0} al {d} ¦ {0} on {d} ¦ {d}時点で{0} ¦ {0} al {d} ¦ {0} au {d} ¦ {0} na dan {d}
+Columnas del archivo ¦ File columns ¦ ファイルの列 ¦ Colonne del file ¦ Colonnes du fichier ¦ Stupci datoteke
+Las detectamos solas. Cámbialas si algo no cuadra. ¦ We detected them automatically. Change them if something looks off. ¦ 自動で判別しました。合わない場合は変更してください。 ¦ Le abbiamo rilevate da sole. Cambiale se qualcosa non torna. ¦ Nous les avons détectées automatiquement. Changez-les si quelque chose cloche. ¦ Prepoznali smo ih automatski. Promijeni ih ako nešto ne štima.
+Descripción ¦ Description ¦ 説明 ¦ Descrizione ¦ Description ¦ Opis
+Cargo ¦ Debit ¦ 出金 ¦ Addebito ¦ Débit ¦ Isplata
+Abono ¦ Credit ¦ 入金 ¦ Accredito ¦ Crédit ¦ Uplata
+Con estas columnas no se lee ningún movimiento. ¦ No transactions can be read with these columns. ¦ この列の組み合わせでは取引を読み取れません。 ¦ Con queste colonne non si legge nessun movimento. ¦ Aucune transaction ne peut être lue avec ces colonnes. ¦ S ovim stupcima ne može se pročitati nijedna transakcija.
+Ver todos ¦ See all ¦ すべて表示 ¦ Vedi tutti ¦ Tout voir ¦ Prikaži sve
+Se muestran los primeros {0}. Se importan todos los marcados. ¦ Showing the first {0}. All checked ones will be imported. ¦ 最初の{0}件を表示しています。チェックしたものはすべて取り込まれます。 ¦ Sono mostrati i primi {0}. Vengono importati tutti quelli selezionati. ¦ Les {0} premières sont affichées. Toutes celles cochées seront importées. ¦ Prikazuje se prvih {0}. Uvoze se sve označene.
+El archivo tiene más de {0} filas: se leyeron las primeras {1}. ¦ The file has more than {0} rows: the first {1} were read. ¦ ファイルが{0}行を超えています。最初の{1}行を読み込みました。 ¦ Il file ha più di {0} righe: sono state lette le prime {1}. ¦ Le fichier compte plus de {0} lignes : les {1} premières ont été lues. ¦ Datoteka ima više od {0} redaka: pročitano je prvih {1}.
+Ya importado ¦ Already imported ¦ 取り込み済み ¦ Già importato ¦ Déjà importée ¦ Već uvezeno
+Parece repetido ¦ Looks like a duplicate ¦ 重複の可能性 ¦ Sembra un duplicato ¦ Semble être un doublon ¦ Čini se kao duplikat
+Otra moneda ¦ Other currency ¦ 別の通貨 ¦ Altra valuta ¦ Autre devise ¦ Druga valuta
+Fecha futura ¦ Future date ¦ 未来の日付 ¦ Data futura ¦ Date future ¦ Budući datum
+{0} repetido ¦ {0} duplicate ¦ 重複{0}件 ¦ {0} duplicato ¦ {0} doublon ¦ {0} duplikat
+{0} repetidos ¦ {0} duplicates ¦ 重複{0}件 ¦ {0} duplicati ¦ {0} doublons ¦ {0} duplikata
+{0} de otra moneda ¦ {0} in another currency ¦ 別の通貨が{0}件 ¦ {0} in un'altra valuta ¦ {0} dans une autre devise ¦ {0} u drugoj valuti
+{0} con fecha futura ¦ {0} with a future date ¦ 未来の日付が{0}件 ¦ {0} con data futura ¦ {0} avec une date future ¦ {0} s budućim datumom
+{0} fila no se pudo leer ¦ {0} row couldn’t be read ¦ {0}行を読み取れませんでした ¦ {0} riga non è stata letta ¦ {0} ligne n’a pas pu être lue ¦ {0} redak nije moguće pročitati
+{0} filas no se pudieron leer ¦ {0} rows couldn’t be read ¦ {0}行を読み取れませんでした ¦ {0} righe non sono state lette ¦ {0} lignes n’ont pas pu être lues ¦ {0} redaka nije moguće pročitati
+Importar este movimiento ¦ Import this transaction ¦ この取引を取り込む ¦ Importa questo movimento ¦ Importer cette transaction ¦ Uvezi ovu transakciju
+El archivo es muy grande ¦ The file is too large ¦ ファイルが大きすぎます ¦ Il file è troppo grande ¦ Le fichier est trop volumineux ¦ Datoteka je prevelika
+El máximo es {0} MB. Descarga un periodo más corto desde tu banca por internet. ¦ The maximum is {0} MB. Download a shorter period from your online banking. ¦ 上限は{0} MBです。オンラインバンキングから短い期間を取得してください。 ¦ Il massimo è {0} MB. Scarica un periodo più breve dall’home banking. ¦ Le maximum est de {0} Mo. Téléchargez une période plus courte depuis votre banque en ligne. ¦ Najviše {0} MB. Preuzmi kraće razdoblje iz internetskog bankarstva.
+No pude leer ese archivo ¦ I couldn’t read that file ¦ そのファイルを読み込めませんでした ¦ Non sono riuscito a leggere il file ¦ Je n’ai pas pu lire ce fichier ¦ Nisam mogao pročitati tu datoteku
+Revisa que sea el archivo CSV que descargaste de tu banca por internet. ¦ Check that it’s the CSV file you downloaded from your online banking. ¦ オンラインバンキングから取得したCSVファイルか確認してください。 ¦ Controlla che sia il file CSV scaricato dall’home banking. ¦ Vérifiez qu’il s’agit du fichier CSV téléchargé depuis votre banque en ligne. ¦ Provjeri je li to CSV datoteka preuzeta iz internetskog bankarstva.
+No encontramos movimientos ¦ We didn’t find any transactions ¦ 取引が見つかりませんでした ¦ Non abbiamo trovato movimenti ¦ Aucune transaction trouvée ¦ Nismo pronašli transakcije
+No hallamos filas con fecha y monto. Revisa que sea el CSV de movimientos de tu banco. ¦ We found no rows with a date and an amount. Check that it’s your bank’s transactions CSV. ¦ 日付と金額のある行が見つかりませんでした。銀行の取引CSVか確認してください。 ¦ Non abbiamo trovato righe con data e importo. Controlla che sia il CSV dei movimenti della tua banca. ¦ Aucune ligne avec une date et un montant. Vérifiez qu’il s’agit du CSV des transactions de votre banque. ¦ Nema redaka s datumom i iznosom. Provjeri je li to CSV transakcija tvoje banke.
+No se importan movimientos con fecha futura ¦ Transactions with a future date aren’t imported ¦ 未来の日付の取引は取り込みません ¦ I movimenti con data futura non vengono importati ¦ Les transactions avec une date future ne sont pas importées ¦ Transakcije s budućim datumom ne uvoze se
+Este movimiento es de otra moneda que la cuenta ¦ This transaction is in a different currency from the account ¦ この取引は口座と異なる通貨です ¦ Questo movimento è in una valuta diversa dal conto ¦ Cette transaction est dans une autre devise que le compte ¦ Ova transakcija je u drugoj valuti od računa
+Movimientos importados: {0} ¦ Transactions imported: {0} ¦ 取り込んだ取引：{0}件 ¦ Movimenti importati: {0} ¦ Transactions importées : {0} ¦ Uvezene transakcije: {0}
+Los encuentras en Movimientos. Si algo salió mal, puedes deshacer toda la importación. ¦ You’ll find them in Transactions. If something went wrong, you can undo the whole import. ¦ 「取引」で確認できます。問題があれば取り込み全体を元に戻せます。 ¦ Li trovi in Movimenti. Se qualcosa è andato storto, puoi annullare tutta l’importazione. ¦ Vous les trouverez dans Transactions. En cas de problème, vous pouvez annuler toute l’importation. ¦ Nalaze se u Transakcijama. Ako nešto nije u redu, možeš poništiti cijeli uvoz.
+Deshacer ¦ Undo ¦ 元に戻す ¦ Annulla ¦ Annuler ¦ Poništi
+Importación deshecha ¦ Import undone ¦ 取り込みを元に戻しました ¦ Importazione annullata ¦ Importation annulée ¦ Uvoz poništen

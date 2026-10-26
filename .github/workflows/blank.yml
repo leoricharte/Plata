@@ -1,39 +1,33 @@
-# This is a basic workflow to help you get started with Actions
-
+# Pruebas en cada push y PR a main: núcleo de la app (sin navegador) y que la app compile con su CSP.
 name: CI
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 permissions:
   contents: read
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      - name: Importador de CSV
+        run: node dev/tests/csv.mjs
+
+      - name: Pruebas de seguridad del servidor
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          node dev/tests/carrera.mjs
+          node dev/tests/cors.mjs
+
+      - name: La app compila (y su CSP se genera)
+        run: sh dev/web/build.sh

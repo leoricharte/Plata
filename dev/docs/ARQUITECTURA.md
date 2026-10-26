@@ -7,11 +7,12 @@ Plata es una PWA de **un solo archivo** (`app/index.html`), sin framework ni dep
 | Pieza | Dónde | Qué hace |
 |---|---|---|
 | Fuente de la app | `dev/app/src/app.html` | HTML + CSS + JS de la app (≈7.000 líneas) |
+| Núcleo sin pantalla | `dev/app/src/core/*.js` | Lógica pura que no toca el DOM ni el estado (hoy: `csv.js`, el importador de CSV). Se prueba en Node (`dev/tests`) y se podrá reusar en otras plataformas |
 | Traducciones | `dev/app/src/tr/*.txt`, `i18n*.js` | Una frase por línea: `es ¦ en ¦ ja ¦ it ¦ fr ¦ hr` |
 | Iconos | `icons_rmx.js` (Remix, Apache-2.0), `icons_sf.js` | SVG en objetos JS |
 | Perfiles de demo | `demo_profiles.js` | Alessandro, Shawn, etc., con datos ficticios |
 | Mapa | `worldmap.js` | Mapa del mundo para la pantalla de monedas |
-| Compilador | `dev/app/build.py` | Sustituye los marcadores `/*__X__*/` y `__X_B64__` por el contenido real |
+| Compilador | `dev/app/build.py` | Sustituye los marcadores `/*__X__*/` y `__X_B64__` por el contenido real (por ejemplo `/*__CSV__*/` ← `core/csv.js`) y agrega la CSP |
 | Service worker | `app/sw.js` | Caché sin conexión (`finanzas-vNNN`) |
 | Servidor | `dev/worker/worker.js` | Cloudflare Worker + KV (ver `WORKER.md`) |
 

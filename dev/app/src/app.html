@@ -1030,6 +1030,20 @@ html.web[data-theme=dark] .switch,html.web[data-theme=dark] .sw{--off:#24432F}
 .xbtn,html[data-theme=dark] .xbtn,html.web .wx,html[data-theme=dark].web .wx{background:var(--card);border:1px solid rgba(60,60,67,.14);box-shadow:0 2px 8px rgba(0,0,0,.06);-webkit-backdrop-filter:none;backdrop-filter:none;clip-path:none;-webkit-clip-path:none;color:var(--ink)}
 .xbtn svg,.wx svg{display:block}
 html.web .xbtn,html[data-theme=dark].web .xbtn{background:color-mix(in srgb,var(--ink) 9%,transparent);border-color:color-mix(in srgb,var(--ink) 13%,transparent);box-shadow:none}
+
+/* ---------- Importar CSV ---------- */
+.imhead{text-align:center;padding:0 8px 8px}.imhead .imt{font-size:17px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.imsum{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:0 0 12px}.imsum span{font-size:12.5px;font-weight:600;border-radius:999px;padding:4px 10px;background:var(--obg);color:var(--ot)}
+.imopt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:0;padding:12px 0;border-top:1px solid var(--line);color:var(--ink);font:inherit;cursor:pointer}.imopt:first-of-type{border-top:0}
+.imopt .sub{display:block;font-size:13px}.imt{display:block;font-size:16px}
+.imrad{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid var(--sec);box-sizing:border-box}.imopt.on .imrad{border:7px solid var(--accent)}
+.imcols>summary{cursor:pointer;font-size:16px;font-weight:600;padding:12px 0;list-style:none}.imcols>summary::-webkit-details-marker{display:none}.imcols>summary::after{content:'›';float:right;color:var(--sec);transition:transform .2s}.imcols[open]>summary::after{transform:rotate(90deg)}
+.imlist{padding-top:2px;padding-bottom:2px}.imrow{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}.imrow:first-child{border-top:0}.imrow.off .grow,.imrow.off .imr{opacity:.45}
+.imck{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--sec);background:transparent;padding:0;display:grid;place-items:center;cursor:pointer;box-sizing:border-box}.imck.on{background:var(--accent);border-color:var(--accent)}
+.imd{font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.imwhy{color:var(--ot);font-weight:600}
+.imr{flex:none;text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px;max-width:46%}
+.imcat{font:inherit;font-size:12.5px;border:0;border-radius:8px;background:var(--fill);color:var(--ink);padding:3px 6px;max-width:130px}
+button.primary[disabled]{opacity:.45;pointer-events:none}
 </style>
 </head>
 <body>
@@ -1075,6 +1089,7 @@ html.web .xbtn,html[data-theme=dark].web .xbtn{background:color-mix(in srgb,var(
 </div>
 <input type="file" id="file" accept=".json,application/json" hidden>
 <input type="file" id="clfile" accept=".json,application/json" hidden>
+<input type="file" id="impfile" accept=".csv,.tsv,.txt,text/csv,text/plain,text/tab-separated-values" hidden>
 
 <script>
 (function(){
@@ -3770,7 +3785,7 @@ function renderMovimientos() {
     '<button class="back" data-act="tab:resumen" aria-label="Regresar">' + IC_BACK + '</button>' +
     '<div class="head"><div><div class="eyebrow">Últimos movimientos</div><h1>Movimientos</h1></div></div>' +
     segHTML('mov', [{ k: 'all', label: 'Todos', act: 'mov:all' }, { k: 'in', label: 'Ingresos', act: 'mov:in' }, { k: 'out', label: 'Gastos', act: 'mov:out' }], ui.mov) +
-    '<div class="card" style="padding:2px 18px;margin-bottom:12px"><button class="linkrow" data-act="add">' + IC_ADD + 'Añadir movimiento</button></div>' +
+    '<div class="card" style="padding:2px 18px;margin-bottom:12px"><button class="linkrow" data-act="add">' + IC_ADD + 'Añadir movimiento</button><button class="linkrow" data-act="imp:pick" style="border-top:1px solid var(--line);width:100%">' + RMI('upload-2-line', 22, '#22B573') + 'Importar desde tu banco (CSV)</button></div>' +
     '<div class="card" style="padding-top:6px;padding-bottom:6px" id="movList">' + movRows() + '</div>';
 }
 
@@ -4396,7 +4411,7 @@ document.addEventListener('change', (e) => { const el = e.target; if (el && el.m
 })();
 const APP_VERSION = 'Beta 3';
 const WSOC = '<div class="wsoc"><span class="wver">' + APP_VERSION + '</span><a href="https://instagram.com/plataapp" target="_blank" rel="noopener" data-notr>' + RMI('instagram-line', 20, 'currentColor') + 'plataapp</a><a href="https://plataapp.net" target="_blank" rel="noopener" data-notr>' + RMI('link', 20, 'currentColor') + 'plataapp.net</a></div>';
-const APP_BUILD = 423;
+const APP_BUILD = 424;
 const ALPHA_TESTERS = ['Rodrigo Espinoza', 'Mariana Richarte', 'Jeny Surichaqui', 'Carlos Flores'];
 const BETA_TESTERS = []; // los testers de la beta se añaden aquí
 const E22_LOGO = 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 1900.3 316.3%27%3E%3Cg fill=%27%233C3C43%27 fill-opacity=%27.6%27%3E%3Cpath d=%27M0,311.8V4.1h205.9v52.2H63v74.3h132.2v51.4H63v77.4h143.3v52.2H0Z%27/%3E%3Cpath d=%27M315.1,316.3c-24.6,0-46.1-3.8-64.3-11.4-18.2-7.6-32.5-18.8-42.6-33.7-10.2-14.9-15.6-33.2-16.1-54.9h61.3c.8,10.3,3.9,19,9.3,25.9,5.4,7,12.5,12.2,21.5,15.6,8.9,3.4,19.1,5.2,30.4,5.2s21.1-1.6,29.4-4.9c8.3-3.2,14.8-7.8,19.5-13.7,4.7-5.9,7-12.8,7-20.6s-2.1-12.9-6.3-17.7c-4.2-4.7-10.2-8.8-18.1-12.3-7.8-3.4-17.4-6.5-28.7-9.1l-33.9-8.5c-26-6.3-46.4-16.3-61.1-29.8-14.7-13.6-22.1-31.5-22.1-53.8s5-34.8,15-48.7c10-13.9,23.7-24.7,41.1-32.4,17.4-7.7,37.3-11.6,59.6-11.6s42.5,3.9,59.5,11.7c16.9,7.8,30.1,18.6,39.6,32.4,9.5,13.8,14.4,29.8,14.7,47.8h-60.9c-1.1-12.4-6.4-22-15.8-28.7-9.4-6.7-22-10.1-37.7-10.1s-19.7,1.5-27.3,4.5c-7.6,3-13.3,7.2-17.2,12.6-3.9,5.4-5.9,11.5-5.9,18.4s2.3,13.9,6.8,18.9c4.5,5,10.6,9.1,18.2,12.2,7.6,3.1,15.6,5.7,24.2,7.7l27.9,6.8c12.9,2.9,25,6.8,36.1,11.8,11.2,5,20.9,11,29.3,18.3,8.4,7.2,14.9,15.8,19.5,25.7,4.6,9.9,6.9,21.3,6.9,34.3,0,18.6-4.7,34.8-14,48.6-9.4,13.8-22.9,24.5-40.7,32.1-17.8,7.6-39.1,11.4-64,11.4Z%27/%3E%3Cpath d=%27M409.2,56.4V4.1h251.3v52.2h-94v255.4h-63.2V56.4h-94.2Z%27/%3E%3Cpath d=%27M776.1,316.1c-25.3,0-47.5-4.7-66.6-14.1-19.1-9.4-33.9-22.5-44.4-39.3-10.5-16.8-15.8-36.4-15.8-58.8V4.1h63v194.5c0,12,2.6,22.6,8,31.9,5.3,9.3,12.7,16.6,22.3,21.9,9.6,5.3,20.8,7.9,33.6,7.9s24.2-2.6,33.8-7.9c9.6-5.3,17-12.6,22.3-21.9,5.3-9.3,8-19.9,8-31.9V4.1h63.2v199.7c0,22.4-5.3,42.1-15.9,58.8-10.6,16.8-25.4,29.9-44.5,39.3-19.1,9.4-41.3,14.1-66.8,14.1Z%27/%3E%3Cpath d=%27M967.2,4.1v307.7h-63V4.1h63ZM1012.4,311.8h-79.7v-54.3h76.6c19.8,0,36.4-3.5,49.9-10.5,13.4-7,23.5-17.9,30.3-32.6,6.7-14.7,10.1-33.6,10.1-56.6s-3.4-41.6-10.2-56.3c-6.8-14.7-16.9-25.5-30.1-32.5-13.3-7-29.8-10.5-49.5-10.5h-78.5V4.1h82.2c30.8,0,57.4,6.2,79.6,18.5,22.2,12.3,39.3,29.9,51.3,52.9s18,50.4,18,82.3-6,59.6-18,82.6c-12,23-29.2,40.6-51.5,53-22.4,12.3-49.2,18.5-80.4,18.5Z%27/%3E%3Cpath d=%27M1218.1,4.1v307.7h-63V4.1h63Z%27/%3E%3Cpath d=%27M1354.3,315.9c-27.1,0-51.5-6.2-73.2-18.6-21.7-12.4-38.8-30.4-51.4-53.9s-18.9-52-18.9-85.3,6.3-62,18.9-85.6c12.6-23.6,29.7-41.6,51.4-54,21.7-12.4,46.1-18.6,73.2-18.6s51.7,6.2,73.3,18.6c21.6,12.4,38.7,30.4,51.3,54,12.6,23.6,18.9,52.1,18.9,85.6s-6.3,61.7-18.9,85.3-29.7,41.5-51.3,53.9c-21.6,12.4-46,18.6-73.3,18.6ZM1354.3,260c16,0,29.9-3.9,41.8-11.7,11.9-7.8,21.2-19.3,27.8-34.5,6.6-15.2,9.9-33.8,9.9-55.6s-3.3-40.8-9.9-56.1c-6.6-15.2-15.9-26.7-27.8-34.5-11.9-7.8-25.8-11.7-41.8-11.7s-29.7,3.9-41.7,11.8c-12,7.8-21.3,19.4-27.9,34.6-6.6,15.2-9.9,33.8-9.9,55.9s3.3,40.4,9.9,55.5c6.6,15.1,15.9,26.6,27.9,34.5,12,7.8,25.9,11.8,41.7,11.8Z%27/%3E%3Cpath d=%27M1533.9,311.8v-45.4l109-102.2c9.4-9.1,17.2-17.3,23.6-24.7,6.4-7.4,11.3-14.6,14.7-21.7,3.4-7.1,5.1-14.8,5.1-23s-2.1-17.1-6.2-23.7c-4.1-6.6-9.8-11.7-16.9-15.3-7.2-3.6-15.4-5.4-24.6-5.4s-17.8,1.9-25,5.8c-7.2,3.9-12.7,9.4-16.5,16.5-3.9,7.2-5.8,15.8-5.8,25.8h-60.3c0-20,4.6-37.3,13.7-52.1,9.2-14.8,21.9-26.2,38.1-34.3,16.2-8.1,35-12.1,56.2-12.1s40.7,3.9,57,11.7c16.2,7.8,28.9,18.5,37.9,32.1,9,13.6,13.5,29.3,13.5,47.1s-2.2,22.7-6.7,33.9c-4.5,11.2-12.5,23.6-24,37.5-11.5,13.8-27.8,30.4-48.8,49.7l-46.5,45.8v2.3h130.1v51.8h-217.6Z%27/%3E%3Cpath d=%27M1755.5,207.4v-30.2l72.5-68c6.2-6,11.5-11.5,15.7-16.4,4.3-4.9,7.5-9.7,9.7-14.4,2.2-4.7,3.4-9.8,3.4-15.3s-1.4-11.4-4.1-15.8c-2.7-4.4-6.5-7.8-11.3-10.2-4.8-2.4-10.2-3.6-16.3-3.6s-11.9,1.3-16.6,3.8c-4.8,2.6-8.4,6.2-11,11-2.6,4.8-3.8,10.5-3.8,17.2h-40.1c0-13.3,3-24.8,9.1-34.7,6.1-9.8,14.5-17.4,25.3-22.8,10.8-5.4,23.3-8,37.4-8s27.1,2.6,37.9,7.8c10.8,5.2,19.2,12.3,25.2,21.4,6,9.1,9,19.5,9,31.3s-1.5,15.1-4.5,22.5c-3,7.4-8.3,15.7-15.9,24.9-7.6,9.2-18.5,20.2-32.5,33l-30.9,30.5v1.5h86.5v34.5h-144.7Z%27/%3E%3C/g%3E%3C/svg%3E';
@@ -4606,6 +4621,7 @@ function settingsHTML(noHead) {
     '<div class="scard" style="margin-top:14px">' +
     '<button class="linkrow" data-act="' + (clBeta() && clOn() ? 'cl:load' : 'load') + '">' + blue(ICON.folder) + 'Cargar archivo de perfil</button>' +
     '<button class="linkrow" data-act="save" style="border-top:1px solid var(--line);width:100%">' + blue(ICON.save) + (clBeta() && clOn() ? 'Guardar copia de archivo local' : 'Guardar archivo de perfil') + '</button>' +
+    (data.demo ? '' : '<button class="linkrow" data-act="imp:pick" style="border-top:1px solid var(--line);width:100%">' + blue(RMI('upload-2-line', 22, '#1C1C1E')) + 'Importar desde tu banco (CSV)</button>') +
     (data.demo ? '' : '<button class="linkrow" data-act="exportrev" style="border-top:1px solid var(--line);width:100%">' + blue(RMI('file-search-line', 22, '#1C1C1E')) + 'Enviar para análisis de uso a Plata</button>') + '</div>' + (data.demo ? '' : rvNoteHTML()) +
     (clBeta() ? '' : cloudCardHTML()) +
     '<div class="scard"><div class="row"><span class="grow" style="font-size:17px">Insights y half‑time</span>' + swHTML(insOn(), 'setopt:insights') + '</div>' +
@@ -5380,6 +5396,125 @@ async function saveFile() {
 }
 function markSaved() { clGoneClear(); stampSaved(); ui.dirty = 0; persist(); renderAll(); toast('Archivo de perfil guardado'); }
 
+/* ---------- Importar movimientos desde un CSV del banco (Beta 4) ----------
+ * El archivo se lee y se interpreta aquí mismo (el núcleo está en core/csv.js): no se sube a ningún servidor. */
+/*__CSV__*/
+const IMP_SHOW = 300, IMP_WHY = { exact: 'Ya importado', near: 'Parece repetido', cur: 'Otra moneda', future: 'Fecha futura' };
+function impPick() { const i = $('#impfile'); if (i) { i.value = ''; i.click(); } }
+async function impFile(f) {
+  if (!f) return;
+  if (f.size > PlataCSV.MAX_BYTES) { askConfirm('El archivo es muy grande', 'El máximo es 5 MB. Descarga un periodo más corto desde tu banca por internet.', [], '', 'Entendido'); return; }
+  let a, x;
+  try { a = PlataCSV.analyze(PlataCSV.decode(await f.arrayBuffer())); x = PlataCSV.extract(a); }
+  catch (e) { askConfirm('No pude leer ese archivo', 'Revisa que sea el archivo CSV que descargaste de tu banca por internet.', [], '', 'Entendido'); return; }
+  if (!x.items.length) { askConfirm('No encontramos movimientos', 'No hallamos filas con fecha y monto. Revisa que sea el CSV de movimientos de tu banco.', [], '', 'Entendido'); return; }
+  const curs = {}; x.items.forEach((it) => { if (it.cur) curs[it.cur] = (curs[it.cur] || 0) + 1; });
+  const fileCur = Object.keys(curs).sort((p, q) => curs[q] - curs[p])[0] || '', all = data.accounts.concat(data.cards);
+  const acc = all.find((o) => o.id === ui.acctId) || (fileCur && data.accounts.find((o) => o.cur === fileCur)) || data.accounts[0];
+  ui.imp = { name: String(f.name || '').slice(0, 80), a: a, x: x, cols: null, acc: acc.id, flip: null, bal: null, sel: {}, cat: {}, all: false };
+  impBuild(); showSheet(impHTML());
+}
+function impBuild() {
+  const I = ui.imp, acc = accOf(I.acc), credit = isCredit(acc), today = iso(getToday());
+  if (I.flip === null) I.flip = credit && I.x.items.filter((it) => it.amount > 0).length > I.x.items.length / 2; // estado de tarjeta: los consumos vienen en positivo
+  const items = I.x.items.map((it) => Object.assign({}, it, { amount: I.flip ? -it.amount : it.amount }));
+  const dups = PlataCSV.markDuplicates(items, data.transactions, acc.id), guess = PlataCSV.categorizer(data.cats, data.transactions);
+  I.rows = items.map((it, i) => {
+    const why = it.date > today ? 'future' : (it.cur && it.cur !== acc.cur) ? 'cur' : dups[i].dup;
+    const cat = it.amount > 0 ? (credit ? PAY : 'Ingreso') : (I.cat[i] && CAT_ORDER.indexOf(I.cat[i]) >= 0 ? I.cat[i] : guess(it.desc, it.amount));
+    const hard = why === 'future' || why === 'cur';
+    return Object.assign(it, { i: i, fp: dups[i].fp, why: why, cat: cat, on: hard ? false : I.sel[i] != null ? I.sel[i] : !why });
+  });
+  if (I.bal === null || (I.bal === 'stmt' && !impStmt())) { // si el archivo trae el saldo y es más reciente que lo que ya hay en la cuenta, ese es el saldo correcto
+    const st = impStmt(), last = data.transactions.filter((t) => t.acc === acc.id).reduce((m, t) => (t.date > m ? t.date : m), '');
+    I.bal = st && st.date >= last ? 'stmt' : 'adjust';
+  }
+}
+function impStmt() {
+  const I = ui.imp, acc = accOf(I.acc); if (isCredit(acc)) return null;
+  const rs = (I.rows || []).filter((r) => r.balance != null); if (!rs.length) return null;
+  const newestFirst = rs[0].date > rs[rs.length - 1].date, maxD = rs.reduce((m, r) => (r.date > m ? r.date : m), ''), same = rs.filter((r) => r.date === maxD);
+  const r = newestFirst ? same[0] : same[same.length - 1];
+  return { balance: r.balance, date: r.date };
+}
+function impHTML() {
+  const I = ui.imp, acc = accOf(I.acc), credit = isCredit(acc), rows = I.rows, on = rows.filter((r) => r.on), cnt = (w) => rows.filter((r) => r.why === w).length;
+  const net = round2(on.reduce((s, r) => s + r.amount, 0)), after = credit ? round2(acc.balance - net) : round2(acc.balance + net), st = impStmt();
+  const dates = rows.map((r) => r.date).sort(), span = dates.length ? 'Del ' + dshort(pd(dates[0])) + ' al ' + dshort(pd(dates[dates.length - 1])) : '';
+  const chip = (n, one, many) => (n ? '<span>' + plural(n, one, many) + '</span>' : '');
+  const sum = chip(cnt('exact') + cnt('near'), 'repetido', 'repetidos') + chip(cnt('cur'), 'de otra moneda', 'de otra moneda') + chip(cnt('future'), 'con fecha futura', 'con fecha futura') + chip(I.x.skipped.unreadable, 'fila no se pudo leer', 'filas no se pudieron leer');
+  const opt = (k, t, sub) => '<button class="imopt' + (I.bal === k ? ' on' : '') + '" data-act="imp:bal:' + k + '"><span class="imrad"></span><span class="grow"><span class="imt">' + t + '</span><span class="sub">' + sub + '</span></span></button>';
+  const hs = I.a.headers, ncol = Math.max(I.a.width, hs.length), cols = Object.assign({}, I.a.cols, I.cols || {});
+  const colSel = (role, label) => '<label class="srow"><span class="grow"><span class="slabel">' + label + '</span><select class="sinput" data-imp-col="' + role + '"><option value="-1">—</option>' +
+    Array.from({ length: ncol }, (_, j) => '<option value="' + j + '"' + (cols[role] === j ? ' selected' : '') + ' data-notr>' + esc(hs[j] || ('#' + (j + 1))) + '</option>').join('') + '</select></span></label>';
+  const catSel = (r) => (r.amount > 0 ? '<span class="sub">' + esc(r.cat) + '</span>' : '<select class="imcat" data-imp-cat="' + r.i + '" aria-label="Categoría">' + CAT_ORDER.map((c) => '<option value="' + esc(c) + '"' + (c === r.cat ? ' selected' : '') + '>' + esc(c) + '</option>').join('') + '</select>');
+  const shown = I.all ? rows.slice(0, 2000) : rows.slice(0, IMP_SHOW);
+  const list = shown.map((r) => '<div class="imrow' + (r.on ? '' : ' off') + '"><button class="imck' + (r.on ? ' on' : '') + '" data-act="imp:t:' + r.i + '" role="checkbox" aria-checked="' + r.on + '" aria-label="Importar este movimiento">' + (r.on ? RMI('check-line', 16, '#fff') : '') + '</button>' +
+    '<div class="grow" style="min-width:0"><div class="imd" data-notr>' + esc(r.desc || '—') + '</div><div class="sub" style="font-size:12.5px">' + dshort(pd(r.date)) + (r.why ? ' · <span class="imwhy">' + IMP_WHY[r.why] + '</span>' : '') + '</div></div>' +
+    '<div class="imr"><div class="amt" style="font-size:15px;font-weight:600;color:' + (r.amount > 0 ? 'var(--gt)' : 'var(--ink)') + '">' + fmtSC2(r.amount, acc.cur) + '</div>' + catSel(r) + '</div></div>').join('');
+  return sheetHead('Importar movimientos') +
+    '<div class="sub" style="font-size:13.5px;text-align:center;padding:0 10px 10px"><span style="display:inline-block;vertical-align:-2px;margin-right:4px">' + RMI('shield-check-line', 14, 'currentColor') + '</span><span>El archivo se leyó en este dispositivo y no se subió a ningún servidor.</span></div>' +
+    '<div class="imhead"><div class="imt" data-notr>' + esc(I.name) + '</div><div class="sub">' + plural(rows.length, 'movimiento', 'movimientos') + (span ? ' · ' + span : '') + '</div></div>' +
+    (sum ? '<div class="imsum">' + sum + '</div>' : '') +
+    '<div class="scard"><label class="srow">' + fico(['#22B573', 'card']) + '<span class="grow"><span class="slabel">Cuenta</span><select class="sinput" id="impAcc">' + acctOpts(acc.id, true) + '</select></span></label>' +
+    '<div class="row"><span class="grow"><span style="font-size:17px">Invertir signos</span><span class="sub" style="display:block;font-size:13px">Úsalo si los gastos aparecen como ingresos.</span></span>' + swHTML(I.flip, 'imp:flip') + '</div></div>' +
+    '<div class="scard"><div class="slabel" style="padding:10px 0 0">' + (credit ? 'Deuda de la tarjeta' : 'Saldo de la cuenta') + '</div>' +
+    opt('adjust', credit ? 'Sumar a la deuda' : 'Sumar al saldo', fmtC2(acc.balance, acc.cur) + ' → ' + fmtC2(after, acc.cur)) +
+    opt('keep', credit ? 'No cambiar la deuda' : 'No cambiar el saldo', credit ? 'Si tu deuda en Plata ya incluye estos movimientos.' : 'Si tu saldo en Plata ya incluye estos movimientos.') +
+    (st ? opt('stmt', 'Usar el saldo del archivo', fmtC2(st.balance, acc.cur) + ' al ' + dshort(pd(st.date))) : '') + '</div>' +
+    '<details class="scard imcols"' + (I.colsOpen ? ' open' : '') + '><summary>Columnas del archivo</summary><div class="sub" style="font-size:13px;padding-bottom:6px">Las detectamos solas. Cámbialas si algo no cuadra.</div>' +
+    colSel('date', 'Fecha') + colSel('desc', 'Descripción') + colSel('amount', 'Monto') + colSel('debit', 'Cargo') + colSel('credit', 'Abono') + '</details>' +
+    (rows.length ? '<div class="scard imlist">' + list + '</div>' : '<div class="sub" style="text-align:center;padding:16px">Con estas columnas no se lee ningún movimiento.</div>') +
+    (rows.length > shown.length ? (I.all ? '<div class="sub" style="text-align:center;font-size:13px;padding:0 10px 10px">Se muestran los primeros 2000. Se importan todos los marcados.</div>' : '<button class="linkrow" data-act="imp:all" style="justify-content:center">Ver todos</button>') : '') +
+    (I.a.truncated ? '<div class="sub" style="text-align:center;font-size:13px;padding:0 10px 10px">El archivo tiene más de 5000 filas: se leyeron las primeras 5000.</div>' : '') +
+    '<button class="primary" data-act="imp:go"' + (on.length ? '' : ' disabled') + '>Importar ' + plural(on.length, 'movimiento', 'movimientos') + '</button>';
+}
+function impRender() { const s = $('#sheet'); if (!s || !ui.imp) return; const y = s.scrollTop, d = s.querySelector('details.imcols'); if (d) ui.imp.colsOpen = d.open; s.innerHTML = impHTML(); s.scrollTop = y; }
+function impAct(arg) {
+  const I = ui.imp, p = String(arg).split(':');
+  if (p[0] === 'pick') { impPick(); return; }
+  if (!I) return;
+  if (p[0] === 't') {
+    const r = I.rows[+p[1]]; if (!r) return;
+    if (r.why === 'future' || r.why === 'cur') { toast(r.why === 'future' ? 'No se importan movimientos con fecha futura' : 'Este movimiento es de otra moneda que la cuenta'); return; }
+    r.on = !r.on; I.sel[r.i] = r.on; impRender();
+  } else if (p[0] === 'flip') { I.flip = !I.flip; I.sel = {}; I.cat = {}; impBuild(); impRender(); }
+  else if (p[0] === 'bal') { I.bal = p[1]; impRender(); }
+  else if (p[0] === 'all') { I.all = true; impRender(); }
+  else if (p[0] === 'go') impGo();
+}
+function impGo() {
+  const I = ui.imp; if (!I) return;
+  const acc = accOf(I.acc), on = I.rows.filter((r) => r.on); if (!on.length) return;
+  const before = acc.balance, ids = [], st = impStmt();
+  on.slice().sort((p, q) => (p.date < q.date ? -1 : p.date > q.date ? 1 : p.i - q.i)).forEach((r) => {
+    const amt = round2(clampAmt(r.amount)), t = { id: nextTxId(), date: r.date, amount: amt, category: r.cat, note: r.desc || r.cat, acc: acc.id, imp: r.fp };
+    data.transactions.push(t); ids.push(t.id);
+    if (I.bal === 'adjust') applyTo(acc, amt);
+  });
+  if (I.bal === 'stmt' && st) acc.balance = round2(st.balance);
+  ui.impLast = { ids: ids, acc: acc.id, before: before };
+  ui.imp = null; ui.dirty++; persist(); closeSheet(); leaveSettings(); renderAll(); setTab('movimientos');
+  askConfirm('Movimientos importados: ' + ids.length, 'Los encuentras en Movimientos. Si algo salió mal, puedes deshacer toda la importación.', [{ label: 'Deshacer', dest: true, fn: impUndo }], '', 'Listo');
+}
+function impUndo() {
+  const L = ui.impLast; if (!L) return;
+  const set = new Set(L.ids), acc = data.accounts.concat(data.cards).find((o) => o.id === L.acc);
+  data.transactions = data.transactions.filter((t) => !set.has(t.id));
+  if (acc) acc.balance = L.before;
+  ui.impLast = null; ui.dirty++; persist(); renderAll(); toast('Importación deshecha');
+}
+$('#impfile').addEventListener('change', (e) => { const f = e.target.files && e.target.files[0]; e.target.value = ''; impFile(f); });
+document.addEventListener('change', (e) => {
+  const el = e.target, I = ui.imp; if (!I || !el || !el.matches) return;
+  if (el.matches('select[data-imp-cat]')) { const i = +el.getAttribute('data-imp-cat'), r = I.rows[i]; I.cat[i] = el.value; if (r) r.cat = el.value; }
+  else if (el.id === 'impAcc') { I.acc = el.value; I.flip = null; I.bal = null; I.sel = {}; impBuild(); impRender(); }
+  else if (el.matches('select[data-imp-col]')) {
+    I.cols = Object.assign({}, I.a.cols, I.cols || {}); I.cols[el.getAttribute('data-imp-col')] = +el.value;
+    I.x = PlataCSV.extract(I.a, { cols: I.cols }); I.sel = {}; I.cat = {}; I.flip = null; I.bal = null; impBuild(); impRender();
+  }
+});
+
 /* ---------- Eventos ---------- */
 let swSwallow = false, swDrag = null;
 function setVariable(on, el) {
@@ -5419,6 +5554,7 @@ document.addEventListener('click', (e) => {
   const act = el.getAttribute('data-act'), parts = act.split(':'), a = parts[0], arg = parts.slice(1).join(':');
   if (a === 'tab') setTab(arg);
   else if (a === 'add') openSheet();
+  else if (a === 'imp') impAct(arg);
   else if (a === 'theme') { setSeg(el); window.__applyTheme(arg); try { if (data && data.settings) { data.settings.theme = arg; persist(); } } catch (e) { /* sin perfil */ } if ((document.documentElement.dataset.theme === 'dark') !== !!window.__launchDark && !isWebView()) toast('Abre la app nuevamente para cambiar el color de la barra de arriba', true); }
   else if (a === 'settings') openSettings();
   else if (a === 'xfer') openXfer();

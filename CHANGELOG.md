@@ -1,5 +1,9 @@
 # Registro de cambios
 
+## Beta 4 (en desarrollo)
+
+- **Importar desde tu banco (CSV):** en Movimientos o en Ajustes, eliges el archivo CSV que descargaste de tu banca por internet y Plata lo lee en tu dispositivo, sin subirlo a ningún servidor. Detecta solas las columnas, el formato de fechas y números, cargos y abonos, y la moneda. Antes de importar ves cada movimiento con su categoría sugerida (aprende de lo que ya registraste), quitas los que no quieras, y Plata marca los que parecen repetidos o ya importados. Eliges si sumar al saldo, no tocarlo o usar el saldo que trae el archivo. Se puede deshacer.
+
 ## Beta 3
 
 - **Seguridad (compilación 421):** revisión completa. La app limpia y escapa todo lo que llega de un archivo de perfil o de la nube, y solo ejecuta su propio código. Aprobar un dispositivo nuevo ahora muestra un código de 6 dígitos en las dos pantallas, que nadie en medio puede imitar. Pisar o borrar tu copia en la nube exige tu frase, no solo tu correo. La nube rechaza copias viejas que intenten pasar por nuevas. Nuevo: "Cerrar sesión en otros dispositivos".

@@ -26,6 +26,7 @@ Notas:
 - Las fechas son `YYYY-MM-DD` en hora local; los meses `YYYY-MM`.
 - `acc` apunta al `id` de una cuenta o tarjeta.
 - Las transferencias entre cuentas no cuentan como gasto ni ingreso.
+- `imp` (opcional, desde la compilación 424) es la huella de un movimiento importado desde un CSV del banco: un hash corto de fecha, monto, descripción y orden en el archivo. Sirve para reconocer un archivo que ya se importó; no contiene nada del archivo.
 - Para la lista exacta de campos, la referencia es `makeSample()` y `migrate()` en `dev/app/src/app.html`.
 
 ## Cifrado para Plata Cloud
