@@ -20,3 +20,4 @@ Sí, es mía ¦ Yes, it's mine ¦ はい、私のです ¦ Sì, è mio ¦ Oui, c
 No es mía ¦ It's not mine ¦ 私のではありません ¦ Non è mio ¦ Ce n'est pas le mien ¦ Nije moj
 Decidir después ¦ Decide later ¦ あとで決める ¦ Decidi dopo ¦ Décider plus tard ¦ Odluči kasnije
 Sesión cerrada ¦ Signed out ¦ サインアウトしました ¦ Disconnesso ¦ Déconnecté ¦ Odjavljen
+El envío de copias para análisis está desactivado. ¦ Sending copies for analysis is turned off. ¦ 分析用コピーの送信は無効になっています。 ¦ L'invio di copie per l'analisi è disattivato. ¦ L'envoi de copies pour analyse est désactivé. ¦ Slanje kopija za analizu je isključeno.
