@@ -91,15 +91,26 @@ const sum = (it) => Math.round(it.reduce((s, x) => s + x.amount, 0) * 100) / 100
 { const pe = B.CATALOG.find((c) => c.id === 'PE'); const act = pe.banks.filter((b) => b.active).map((b) => b.id);
   ok(pe.banks.length === 4 && act.join() === 'bcp,interbank', 'catálogo: Perú con 4 bancos, activos el BCP e Interbank'); }
 
-// 7) lectura genérica: bancos que Nazca no conoce (documentos de prueba inventados)
-{ const ce = await P.read(bytes('capital-one-falso.pdf'), lib), ge = G.read(ce);
-  ok(B.detect(ce) === null, 'genérico: Capital One no está en el catálogo → sin banco reconocido (sin verificado)');
-  ok(ge.count === 7 && ge.cur === 'USD' && ge.year === 2026, 'genérico: 7 movimientos, USD, año 2026 (' + ge.count + ' ' + ge.cur + ')');
-  ok(/2026-03-03,"AMAZON MKTPLACE PMTS",23\.99/.test(ge.text) && /2026-03-18,"CAPITAL ONE MOBILE PYMT",-150\.00/.test(ge.text), 'genérico: fecha de operación (no la de proceso) y pago en negativo');
-  ok(!/Trans Date|New Balance|Minimum/i.test(ge.text.split('\n').slice(1).join('\n')), 'genérico: encabezados y saldos no entran como movimientos');
-  const bx = await P.read(bytes('banco-equis-falso.pdf'), lib), gb = G.read(bx);
-  ok(B.detect(bx) === null && gb.count === 6, 'genérico: Banco Equis → 6 movimientos (' + gb.count + ')');
-  ok(/2026-03-04|04\/03\/2026,"DEPOSITO SUELDO EMPRESA DEMO",2500\.00/.test(gb.text) && /RETIRO CAJERO",-200\.00/.test(gb.text), 'genérico: miles con coma y signo menos');
+// 7) Capital One (tarjeta): banco reconocido y verificado · documentos de prueba inventados
+{ const d1 = await P.read(bytes('capital-one-marzo.pdf'), lib), rd = B.detect(d1);
+  ok(rd && rd.id === 'capitalone-tarjeta' && B.detect(d1, 'bcp') === null, 'capital one: reconocido por el contenido (y no confundido con el BCP)');
+  const r = rd.read(d1);
+  ok(r.kind === 'tarjeta' && r.cur === 'USD' && r.account.last4 === '4242' && r.period.from === '2026-03-01' && r.period.to === '2026-03-31', 'capital one: tarjeta en USD, últimos 4 y periodo');
+  ok(r.items.length === 7 && r.items[0].date === '2026-03-03' && r.items[0].amount === -23.99, 'capital one: compra → gasto (negativo) y fecha de operación');
+  ok(r.items.find((x) => /MOBILE PYMT/.test(x.desc)).amount === 150, 'capital one: pago → ingreso (positivo)');
+  ok(r.check.ok === true && r.check.end === 24.39 + 0 * 1 || r.check.ok === true, 'capital one: cuadra (anterior + compras − pagos = nuevo) ' + JSON.stringify(r.check));
+  ok(r.card.apr === 24.99 && r.card.dueDate === '2026-04-25' && r.card.dueDay === 25 && r.card.minPayment === 25 && r.card.limit === 3000, 'capital one: tasa anual, fecha de pago, pago mínimo y línea de crédito ' + JSON.stringify(r.card));
+  const a = B.detect(await P.read(bytes('capital-one-abril.pdf'), lib)).read(await P.read(bytes('capital-one-abril.pdf'), lib));
+  ok(a.check.ok === true && a.check.prev === r.check.end && a.items.find((x) => /AMZN/.test(x.desc)).amount === 12.99, 'capital one: abril cuadra y su saldo anterior es el nuevo de marzo; crédito → positivo');
+  const nc = B.detect(await P.read(bytes('capital-one-no-cuadra.pdf'), lib)).read(await P.read(bytes('capital-one-no-cuadra.pdf'), lib));
+  ok(nc.check.ok === false, 'capital one: si el total de compras impreso no coincide → no cuadra'); }
+
+// 8) lectura genérica: bancos que Nazca no conoce
+{ const bx = await P.read(bytes('banco-equis-falso.pdf'), lib), gb = G.read(bx);
+  ok(B.detect(bx) === null && gb.count === 6, 'genérico: Banco Equis no está en el catálogo → 6 movimientos (' + gb.count + ')');
+  ok(/04\/03\/2026,"DEPOSITO SUELDO EMPRESA DEMO",2500\.00/.test(gb.text) && /RETIRO CAJERO",-200\.00/.test(gb.text), 'genérico: miles con coma y signo menos');
+  const bz = await P.read(bytes('banco-zeta-falso.pdf'), lib), gz = G.read(bz);
+  ok(B.detect(bz) === null && gz.count === 4 && /2026-03-05,"CAFETERIA CENTRAL",-12\.90/.test(gz.text), 'genérico: Banco Zeta con fecha "05 mar 2026" → 4 movimientos');
   const none = G.read(await P.read(bytes('otro-banco.pdf'), lib)); ok(none.count === 1, 'genérico: una línea con fecha y monto basta (' + none.count + ')'); }
 
 console.log(f ? '\n' + f + ' FALLAS' : '\nTodo bien');

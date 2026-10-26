@@ -147,7 +147,34 @@ def falso(path, banco, titulo, filas, cols, pie):
         c.drawRightString(cols[-1][0] + 60, y, f[-1]); y -= 13
     c.drawString(40, y - 20, pie); c.showPage(); c.save()
 
-CAPITAL_ONE = [("Mar 3", "Mar 4", "AMAZON MKTPLACE PMTS", "$23.99"), ("Mar 5", "Mar 6", "UBER *TRIP HELP.UBER.COM", "$14.50"), ("Mar 9", "Mar 10", "WHOLEFDS MKT #10234", "$67.12"),
+def capital_one(path, desde, hasta, filas, previo, ultimos="4242", total_compras_impreso=None, vence="Apr 25, 2026"):
+    """Estado INVENTADO de tarjeta Capital One (no copia el diseño real). filas: (fecha op, fecha post, descripción, monto) con compras (+) y pagos (-)."""
+    compras = round(sum(f[3] for f in filas if f[3] > 0), 2); pagos = round(-sum(f[3] for f in filas if f[3] < 0), 2)
+    nuevo = round(previo + compras - pagos, 2)
+    d = lambda v: ("-" if v < 0 else "") + "$" + f"{abs(v):,.2f}"
+    c = canvas.Canvas(str(path), pagesize=A4); c.setTitle("Capital One - documento de prueba (inventado)")
+    c.setFont("Helvetica-Bold", 16); c.drawString(40, 790, "Capital One"); c.setFont("Helvetica", 9); c.drawString(40, 774, "Platinum Mastercard (PRUEBA)")
+    c.setFillColorRGB(.8, 0, 0); c.setFont("Helvetica-Bold", 8.5); c.drawString(40, 760, "DOCUMENTO DE PRUEBA - DATOS INVENTADOS - NO ES UN ESTADO DE CUENTA REAL"); c.setFillColorRGB(0, 0, 0)
+    c.setFont("Helvetica", 9); c.drawString(40, 740, f"Statement period: {desde} - {hasta}"); c.drawString(40, 727, f"Account ending in {ultimos}")
+    y = 700; c.setFont("Helvetica-Bold", 9); c.drawString(40, y, "Account Summary"); c.setFont("Helvetica", 9); y -= 15
+    for k, v in (("Previous Balance", d(previo)), ("Payments", d(-pagos)), ("Purchases", d(total_compras_impreso if total_compras_impreso is not None else compras)), ("Fees Charged", d(0)), ("New Balance", d(nuevo))):
+        c.drawString(40, y, k); c.drawRightString(260, y, v); y -= 13
+    c.setFont("Helvetica", 9); c.drawString(300, 700 - 15, f"Credit Limit $3,000.00"); c.drawString(300, 700 - 28, "Purchase APR 24.99%"); c.drawString(300, 700 - 41, f"Minimum Payment Due {d(max(25.0, round(nuevo * .03, 2)))}"); c.drawString(300, 700 - 54, f"Payment Due Date {vence}")
+    y -= 14; c.setFont("Helvetica-Bold", 8)
+    for x, t in ((40, "Trans Date"), (110, "Post Date"), (180, "Description"), (480, "Amount")): c.drawString(x, y, t)
+    y -= 15; c.setFont("Helvetica", 8)
+    for f1, f2, desc, monto in filas:
+        c.drawString(40, y, f1); c.drawString(110, y, f2); c.drawString(180, y, desc); c.drawRightString(540, y, d(monto)); y -= 13
+    c.showPage(); c.save()
+    return nuevo
+
+CO_MARZO = [("Mar 3", "Mar 4", "AMAZON MKTPLACE PMTS", 23.99), ("Mar 5", "Mar 6", "UBER *TRIP HELP.UBER.COM", 14.50), ("Mar 9", "Mar 10", "WHOLEFDS MKT #10234", 67.12),
+    ("Mar 12", "Mar 12", "NETFLIX.COM", 15.49), ("Mar 15", "Mar 16", "SHELL OIL 57444", 41.30), ("Mar 18", "Mar 18", "CAPITAL ONE MOBILE PYMT", -150.00), ("Mar 21", "Mar 22", "SPOTIFY USA", 11.99)]
+CO_ABRIL = [("Apr 2", "Apr 3", "TRADER JOE'S #552", 54.80), ("Apr 6", "Apr 7", "LYFT *RIDE", 18.25), ("Apr 10", "Apr 11", "TARGET 00012345", 82.40), ("Apr 14", "Apr 14", "CAPITAL ONE MOBILE PYMT", -100.00),
+    ("Apr 19", "Apr 20", "STARBUCKS STORE 1234", 6.75), ("Apr 24", "Apr 25", "AMZN Mktp US*2K4", -12.99)]
+BANCO_ZETA = [("05 mar 2026", "CAFETERIA CENTRAL", "-12.90"), ("08 mar 2026", "ABONO POR TRANSFERENCIA", "400.00"), ("14 mar 2026", "PAGO TARJETA", "-150.00"), ("20 mar 2026", "GASOLINERA DEMO", "-35.60")]
+
+CAPITAL_ONE_OLD = [("Mar 3", "Mar 4", "AMAZON MKTPLACE PMTS", "$23.99"), ("Mar 5", "Mar 6", "UBER *TRIP HELP.UBER.COM", "$14.50"), ("Mar 9", "Mar 10", "WHOLEFDS MKT #10234", "$67.12"),
     ("Mar 12", "Mar 12", "NETFLIX.COM", "$15.49"), ("Mar 15", "Mar 16", "SHELL OIL 57444", "$41.30"), ("Mar 18", "Mar 18", "CAPITAL ONE MOBILE PYMT", "-$150.00"), ("Mar 21", "Mar 22", "SPOTIFY USA", "$11.99")]
 BANCO_EQUIS = [("02/03/2026", "SUPERMERCADO LA ESQUINA", "-85.40"), ("04/03/2026", "DEPOSITO SUELDO EMPRESA DEMO", "2,500.00"), ("07/03/2026", "TRANSFERENCIA A JUAN PEREZ", "-300.00"),
     ("11/03/2026", "FARMACIA CENTRAL", "-42.75"), ("16/03/2026", "PAGO LUZ ELECTRICA", "-96.20"), ("23/03/2026", "RETIRO CAJERO", "-200.00")]
@@ -167,8 +194,10 @@ if __name__ == "__main__":
     c.setFont("Helvetica", 7); c.drawString(40, 700, "01/03/2026  COMPRA EJEMPLO  -12.50"); c.showPage(); c.save()
     # PDF sin texto (como una foto escaneada): solo un dibujo
     c = canvas.Canvas(str(OUT / "sin-texto.pdf"), pagesize=A4); c.rect(50, 50, 200, 100); c.showPage(); c.save()
-    falso(OUT / "capital-one-falso.pdf", "Capital One (PRUEBA)", "Statement period Mar 1 - Mar 31, 2026 - Credit card ending 0000", CAPITAL_ONE,
-          [(40, "Trans Date"), (110, "Post Date"), (180, "Description"), (440, "Amount")], "New Balance $0.00 - Minimum Payment Due $0.00 - Payment Due Date Apr 25, 2026")
+    n = capital_one(OUT / "capital-one-marzo.pdf", "Mar 1, 2026", "Mar 31, 2026", CO_MARZO, 0.00)
+    capital_one(OUT / "capital-one-abril.pdf", "Apr 1, 2026", "Apr 30, 2026", CO_ABRIL, n, vence="May 25, 2026")
+    capital_one(OUT / "capital-one-no-cuadra.pdf", "Mar 1, 2026", "Mar 31, 2026", CO_MARZO, 0.00, total_compras_impreso=999.99)
+    falso(OUT / "banco-zeta-falso.pdf", "Banco Zeta (PRUEBA)", "Extracto de movimientos - Marzo 2026", BANCO_ZETA, [(40, "Fecha"), (130, "Detalle"), (430, "Importe")], "Fin del extracto")
     falso(OUT / "banco-equis-falso.pdf", "Banco Equis (PRUEBA)", "Estado de cuenta - Cuenta corriente 000-0000000 - Marzo 2026", BANCO_EQUIS,
           [(40, "Fecha"), (130, "Descripcion"), (430, "Monto")], "Saldo final 1,775.65")
     print("listo")

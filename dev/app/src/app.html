@@ -1474,7 +1474,7 @@ const fmtC = (n, cur) => (n < 0 ? '−' : '') + symOf(cur) + Math.abs(Math.round
 const fmtC2 = (n, cur) => symOf(cur) + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: decOf(cur), maximumFractionDigits: decOf(cur) });
 const fmtSC2 = (n, cur) => (n < 0 ? '−' : '+') + fmtC2(n, cur);
 const accOf = (id) => data.accounts.find((a) => a.id === id) || data.cards.find((c) => c.id === id) || data.accounts[0];
-const isCredit = (a) => data.cards.indexOf(a) >= 0;
+const isCredit = (a) => data.cards.indexOf(a) >= 0 || (!!a && a.id === '__new' && a.kind === 'card');
 /* Un movimiento en débito suma o resta al saldo; en crédito, un gasto sube la deuda y un pago la baja */
 const applyTo = (a, signed) => { a.balance = round2(isCredit(a) ? a.balance - signed : a.balance + signed); };
 const l4 = (o) => (o && o.last4 ? ' · ● ' + o.last4 : '');
@@ -5495,21 +5495,26 @@ function impPdfError(e, f) {
   else impFail('Nazca no pudo leer ese archivo', 'Revisa que sea el estado de cuenta que descargaste de tu banco.' + ' (' + (e && (e.detail || ((e.name || 'Error') + ': ' + String(e.message || '').slice(0, 90))) || 'sin detalle') + ' · build ' + APP_BUILD + ')');
 }
 function impFromPdf(name, r) {
-  const bankIs = (o) => { const b = bankOf(o); return !!(b && b.keys.indexOf(r.bank) >= 0); }, last4 = (r.account && r.account.last4) || '';
+  const bankIs = (o) => { const b = bankOf(o); return !!(b && b.keys.indexOf(r.bank) >= 0) || bankNorm(o && o.name).indexOf(bankNorm(impBankShort(r.bank))) >= 0; }, last4 = (r.account && r.account.last4) || '';
   /* Sugerencia, nunca obligación: la cuenta de ese banco con los mismos últimos 4, o una de ese banco en la misma moneda que no tenga otros últimos 4. Si no hay, se crea una nueva. */
-  const hit = data.accounts.find((o) => bankIs(o) && last4 && o.last4 === last4) || data.accounts.find((o) => bankIs(o) && o.cur === r.cur && !o.last4);
-  const nueva = { id: '__new', name: impBankShort(r.bank) + (r.cur === 'USD' ? ' Dólares' : ' Soles'), type: 'checking', cur: r.cur, apy: 0, balance: 0, color: '', icon: '', last4: last4 };
+  const card = r.kind === 'tarjeta', pool = card ? data.cards.filter((o) => o.kind === 'card') : data.accounts;
+  const hit = pool.find((o) => bankIs(o) && last4 && o.last4 === last4) || pool.find((o) => bankIs(o) && o.cur === r.cur && !o.last4);
+  const cd = (card && r.card) || {};
+  const nueva = card ? { id: '__new', kind: 'card', name: impBankShort(r.bank), cur: r.cur, limit: cd.limit || 0, balance: 0, apr: cd.apr != null ? cd.apr : 20, payment: cd.minPayment || 0, due_day: cd.dueDay ? Math.max(1, Math.min(31, cd.dueDay)) : 1, color: '', icon: '', last4: last4 }
+    : { id: '__new', name: impBankShort(r.bank) + (r.cur === 'USD' ? ' Dólares' : ' Soles'), type: 'checking', cur: r.cur, apy: 0, balance: 0, color: '', icon: '', last4: last4 };
   ui.imp = { src: 'pdf', label: r.label, check: r.check, name: name, a: { headers: [], width: 0, cols: {}, truncated: false }, x: { items: r.items, skipped: { unreadable: r.skipped.unreadable, blank: 0, total: 0 } },
-    cols: null, bank: r.bank, mergeId: hit ? hit.id : null, acc: hit ? hit.id : '__new', newAcc: nueva, flip: null, bal: null, sel: {}, cat: {}, all: false };
+    cardInfo: cd, card: card, stmtEnd: r.check && r.check.end != null ? { balance: r.check.end, date: r.period ? r.period.to : '' } : null, cols: null, bank: r.bank, mergeId: hit ? hit.id : null, acc: hit ? hit.id : '__new', newAcc: nueva, flip: null, bal: null, sel: {}, cat: {}, all: false };
   impBuild(); impShow('review', 'push');
 }
 const impBankShort = (id) => (id === 'bcp' ? 'BCP' : impBankName(id));
 const IMP_STEPS = {
   bcp: ['Ve a la Banca por Internet.', 'Elige la cuenta a consultar.', 'Selecciona la opción Más, y después Estado de Cuenta.', 'Elige el mes y año a consultar.', 'Genera el estado de cuenta y descárgalo de tu correo.'],
+  capitalone: ['Entra a tu cuenta en la app o en la web de Capital One.', 'Elige la tarjeta a consultar.', 'Abre Statements.', 'Elige el mes a consultar.', 'Descarga el estado de cuenta.'],
   interbank: ['Ve a la Banca por Internet.', 'Elige la cuenta a consultar.', 'Elige los ⋯ en la parte derecha.', 'Elige el mes y año a consultar.', 'Genera el estado de cuenta y guárdalo.'] };
+const impCountryOf = (id) => { const c = NazcaBancos.CATALOG.find((x) => x.banks.some((b) => b.id === id)); return c ? c.name : 'Perú'; };
 const impBankName = (id) => { const b = NazcaBancos.CATALOG.flatMap((c) => c.banks).find((x) => x.id === id); return b ? b.name : ''; };
 /* La cuenta a la que se fusiona al elegir «Fusionar»: la sugerida, la que ya eligió o la primera de la misma moneda. null si no tiene cuentas. */
-const mergeId = () => { const I = ui.imp; if (!data.accounts.length) return null; return (I.mergeId && accOf(I.mergeId)) ? I.mergeId : ((data.accounts.find((o) => o.cur === I.newAcc.cur) || data.accounts[0]).id); };
+const mergeId = () => { const I = ui.imp, pool = I.card ? data.cards.filter((o) => o.kind === 'card') : data.accounts; if (!pool.length) return null; return (I.mergeId && accOf(I.mergeId)) ? I.mergeId : ((pool.find((o) => o.cur === I.newAcc.cur) || pool[0]).id); };
 const impAcc = () => { const I = ui.imp; return I.acc === '__new' ? I.newAcc : accOf(I.acc); };
 
 /* ---- Pantallas ---- */
@@ -5518,7 +5523,7 @@ const IMP_MARKS = { bcp: { glyph: '<svg viewBox="0 23.6 171.75 207" style="--gs:
 const impMark = (id, kind) => { const m = IMP_MARKS[id]; if (m && m[kind]) return m[kind]; const v = RMX['bank-line']; return '<svg viewBox="' + v.b.join(' ') + '" style="--gs:26px" fill="currentColor" aria-hidden="true"><path d="' + v.d + '"/></svg>'; };
 const IMP_HEAD = { start: ['Importar', 'Datos de banco'], how: ['Importar archivo', 'Cómo funciona'], key: ['Estado de cuenta', 'Contraseña'], country: ['Datos de banco', 'Tu país'], banks: ['Perú', 'Tu banco'], busy: ['Datos de banco', 'Leyendo…'], done: ['Listo', 'Importado'] };
 function impPageHTML() {
-  let st = ui.impStep || 'start'; if (st === 'review' && !ui.imp) st = ui.impStep = 'start'; const I = ui.imp, bk = ui.impBank, H = st === 'bank' ? ['Perú', IMP_MARKS[bk] && IMP_MARKS[bk].logo ? '<span class="imlogo" style="--lh:' + (IMP_MARKS[bk].h || 40) + 'px">' + impMark(bk, 'logo') + '</span>' : esc(impBankShort(bk))] : st === 'review' ? [I && I.label ? esc(I.label) : 'Archivo CSV', 'Revisar'] : IMP_HEAD[st] || IMP_HEAD.start;
+  let st = ui.impStep || 'start'; if (st === 'review' && !ui.imp) st = ui.impStep = 'start'; const I = ui.imp, bk = ui.impBank, H = st === 'bank' ? [impCountryOf(bk), IMP_MARKS[bk] && IMP_MARKS[bk].logo ? '<span class="imlogo" style="--lh:' + (IMP_MARKS[bk].h || 40) + 'px">' + impMark(bk, 'logo') + '</span>' : esc(impBankShort(bk))] : st === 'review' ? [I && I.label ? esc(I.label) : 'Archivo CSV', 'Revisar'] : IMP_HEAD[st] || IMP_HEAD.start;
   return '<div class="navrow">' + (st === 'busy' || st === 'done' ? '<span style="width:44px;height:44px"></span>' : '<button class="back" data-act="itback" aria-label="Regresar">' + IC_BACK + '</button>') + '</div>' +
     '<div class="head"><div><div class="eyebrow">' + H[0] + '</div><h1>' + H[1] + '</h1></div></div><div id="impbody">' + impErrHTML() + impBodyHTML(st) + '</div>';
 }
@@ -5537,9 +5542,9 @@ function impBodyHTML(st) {
       stp(3, 'Revisa la lista', 'Nazca reconoce el banco y detecta solo las fechas, los montos y la moneda, y marca los movimientos repetidos.') + stp(4, 'Importa', 'Eliges qué hacer con el saldo y, si algo sale mal, puedes deshacerlo.') + '</div>' +
       '<div class="imbar"><button class="primary" data-act="imp:csv">Elegir archivo</button></div>';
   }
-  if (st === 'country') return '<div class="scard">' + NazcaBancos.CATALOG.map((c) => '<button class="imgo" data-act="imp:banks:' + c.id + '">' + RMI('global-line', 24, '#22B573') + '<span class="grow"><span class="imt">' + esc(c.name) + '</span></span>' + impChev() + '</button>').join('') + '</div>' + impNote('Por ahora, el único país disponible.');
+  if (st === 'country') return '<div class="scard">' + NazcaBancos.CATALOG.map((c) => '<button class="imgo" data-act="imp:banks:' + c.id + '">' + RMI('global-line', 24, '#22B573') + '<span class="grow"><span class="imt">' + esc(c.name) + '</span></span>' + impChev() + '</button>').join('') + '</div>' + impNote('Más países, pronto.');
   if (st === 'banks') {
-    const c = NazcaBancos.CATALOG[0];
+    const c = NazcaBancos.CATALOG.find((x) => x.id === ui.impCountry) || NazcaBancos.CATALOG[0];
     const row = (b) => { const on = b.active, tag = on ? 'button' : 'div';
       return '<' + tag + ' class="imgo imbk' + (on ? '' : ' dis') + '"' + (on ? ' data-act="imp:bank:' + b.id + '"' : '') + '><span class="imglyph">' + impMark(b.id, 'glyph') + '</span><span class="grow"><span class="imt" data-notr>' + esc(b.name) + '</span><span class="sub">' + esc(b.hq) + '</span></span>' + (on ? impChev() : '<span class="sub" style="display:inline;font-size:14px">No disponible</span>') + '</' + tag + '>'; };
     return '<div class="scard">' + c.banks.map(row).join('') + '</div>';
@@ -5581,7 +5586,7 @@ function impBuild() {
   }
 }
 function impStmt() {
-  const I = ui.imp, acc = impAcc(); if (isCredit(acc)) return null;
+  const I = ui.imp, acc = impAcc(); if (isCredit(acc)) return I.stmtEnd && I.stmtEnd.date ? I.stmtEnd : null;
   const rs = (I.rows || []).filter((r) => r.balance != null); if (!rs.length) return null;
   const newestFirst = rs[0].date > rs[rs.length - 1].date, maxD = rs.reduce((m, r) => (r.date > m ? r.date : m), ''), same = rs.filter((r) => r.date === maxD);
   const r = newestFirst ? same[0] : same[same.length - 1];
@@ -5603,7 +5608,8 @@ function impReviewHTML() {
     '<div class="grow" style="min-width:0"><div class="imd" data-notr>' + esc(r.desc || '—') + '</div><div class="sub" style="font-size:12.5px">' + dshort(pd(r.date)) + (r.why ? ' · <span class="imwhy">' + IMP_WHY[r.why] + '</span>' : '') + '</div></div>' +
     '<div class="imr"><div class="amt" style="font-size:15px;font-weight:600;color:' + (r.amount > 0 ? 'var(--gt)' : 'var(--ink)') + '">' + fmtSC2(r.amount, acc.cur) + '</div>' + catSel(r) + '</div></div>').join('');
   const pdf = I.src === 'pdf', bk = pdf && I.bank ? impBankName(I.bank) : '', title = bk ? impBankShort(I.bank) : (I.label && pdf ? I.label : I.gen ? 'Archivo PDF' : 'Archivo CSV');
-  const meta = '<div class="immeta"><span>' + RMI('arrow-left-right-line', 16, 'currentColor') + plural(rows.length, 'movimiento', 'movimientos') + '</span>' + (span ? '<span>' + RMI('calendar-line', 16, 'currentColor') + span + '</span>' : '') + '</div>';
+  const ci = I.cardInfo || {}, cmeta = (ci.dueDate ? '<span>' + RMI('calendar-line', 16, 'currentColor') + 'Pagar antes del ' + dshort(pd(ci.dueDate)) + '</span>' : '') + (ci.apr != null ? '<span>' + RMI('percent-line', 16, 'currentColor') + '<span data-notr>' + ci.apr + ' %</span> de tasa anual</span>' : '');
+  const meta = '<div class="immeta"><span>' + RMI('arrow-left-right-line', 16, 'currentColor') + plural(rows.length, 'movimiento', 'movimientos') + '</span>' + (span ? '<span>' + RMI('calendar-line', 16, 'currentColor') + span + '</span>' : '') + cmeta + '</div>';
   const profile = '<div class="scard improf"><div class="imtop"><span class="imav">' + (pdf && I.bank ? impMark(I.bank, 'glyph') : RMI('file-chart-line', 30, 'currentColor')) + '</span><div style="min-width:0;flex:1"><div class="imname"><span data-notr>' + esc(title) + '</span>' +
     (bk ? '<span aria-label="Banco verificado" title="Nazca reconoció el banco en el archivo">' + RMI('verified-badge-fill', 20, 'var(--accent)') + '</span>' : '') + '</div>' + meta + '<div class="imfile" data-notr>' + esc(I.name) + '</div></div></div>' + impCheckHTML(I.check) + '</div>';
   const foot = '<div class="imfoot">' + RMI('file-chart-line', 16, 'currentColor') + '<span>Nazca leyó el archivo en este dispositivo. No se subió a ningún servidor.</span></div>';
@@ -5611,7 +5617,7 @@ function impReviewHTML() {
   const merge = pdf ? mergeId() : null;
   const accCard = pdf
     ? '<div class="scard"><div class="slabel" style="padding:10px 0 0">Cuenta</div>' + radio('new', 'Crear cuenta nueva', '<span data-notr>' + esc(I.newAcc.name + l4(I.newAcc)) + '</span>', I.acc === '__new') +
-      (merge ? radio('merge', 'Fusionar con otra cuenta', 'Suma estos movimientos a una que ya tienes.', I.acc !== '__new', I.acc !== '__new' ? '<div class="imacc"><select class="sinput" id="impAcc" aria-label="Cuenta">' + acctOpts(I.acc, false) + '</select></div>' : '') : '') + '</div>'
+      (merge ? radio('merge', 'Fusionar con otra cuenta', 'Suma estos movimientos a una que ya tienes.', I.acc !== '__new', I.acc !== '__new' ? '<div class="imacc"><select class="sinput" id="impAcc" aria-label="Cuenta">' + acctOpts(I.acc, !!I.card) + '</select></div>' : '') : '') + '</div>'
     : '<div class="scard"><label class="srow">' + fico(['#22B573', 'card']) + '<span class="grow"><span class="slabel">Cuenta</span><select class="sinput" id="impAcc">' + acctOpts(acc.id, true) + '</select></span></label>' +
       '<div class="row"><span class="grow"><span style="font-size:17px">Invertir ingresos y gastos</span><span class="sub" style="display:block;font-size:14px">Actívalo si en tu archivo los gastos aparecen como ingresos, y al revés.</span></span>' + swHTML(I.flip, 'imp:flip') + '</div></div>';
   return profile + foot + (sum ? '<div class="imsum">' + sum + '</div>' : '') + accCard +
@@ -5638,7 +5644,7 @@ function impAct(arg) {
   if (p[0] === 'how') { impShow('how', 'push'); return; }
   if (p[0] === 'csv') { ui.impBank = null; ui.impAt = ui.impStep || null; impPick(); return; }
   if (p[0] === 'country') { impShow('country', 'push'); return; }
-  if (p[0] === 'banks') { impShow('banks', 'push'); return; }
+  if (p[0] === 'banks') { if (p[1]) ui.impCountry = p[1]; impShow('banks', 'push'); return; }
   if (p[0] === 'bank') { ui.impBank = p[1]; impShow('bank', 'push'); return; }
   if (p[0] === 'pdf') { if (impKeyOk()) impPick(); return; }
   if (p[0] === 'open') { if (impKeyOk() && impPend) { ui.impAt = 'key'; ui.impErr = null; impPdf(impPend); } return; }
@@ -5659,7 +5665,7 @@ function impAct(arg) {
 function impGo() {
   const I = ui.imp; if (!I) return;
   const acc = impAcc(), on = I.rows.filter((r) => r.on); if (!on.length) return;
-  let created = null; if (I.acc === '__new') { acc.id = uid(); data.accounts.push(acc); created = acc.id; } /* cuenta nueva: se crea al importar, no antes */
+  let created = null; if (I.acc === '__new') { acc.id = uid(); (acc.kind === 'card' ? data.cards : data.accounts).push(acc); created = acc.id; } /* cuenta nueva: se crea al importar, no antes */
   const before = acc.balance, ids = [], st = impStmt();
   on.slice().sort((p, q) => (p.date < q.date ? -1 : p.date > q.date ? 1 : p.i - q.i)).forEach((r) => {
     const amt = round2(clampAmt(r.amount)), t = { id: nextTxId(), date: r.date, amount: amt, category: r.cat, note: r.desc || r.cat, acc: acc.id, imp: r.fp };
@@ -5676,7 +5682,7 @@ function impUndo() {
   const set = new Set(L.ids), acc = data.accounts.concat(data.cards).find((o) => o.id === L.acc);
   data.transactions = data.transactions.filter((t) => !set.has(t.id));
   if (acc) acc.balance = L.before;
-  if (L.created && !data.transactions.some((t) => t.acc === L.created)) { data.accounts = data.accounts.filter((o) => o.id !== L.created); if (ui.acctId === L.created) ui.acctId = data.accounts[0].id; } /* la cuenta que creó la importación */
+  if (L.created && !data.transactions.some((t) => t.acc === L.created)) { data.accounts = data.accounts.filter((o) => o.id !== L.created); data.cards = data.cards.filter((o) => o.id !== L.created); if (ui.acctId === L.created) ui.acctId = data.accounts[0].id; } /* la cuenta que creó la importación */
   ui.impLast = null; ui.dirty++; persist(); renderAll(); toast('Importación deshecha');
 }
 document.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target && e.target.id === 'impKey') { e.preventDefault(); if (!impKeyOk()) return; if (ui.impStep === 'key') { if (impPend) { ui.impAt = 'key'; ui.impErr = null; impPdf(impPend); } } else impPick(); } });

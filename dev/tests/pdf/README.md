@@ -20,3 +20,5 @@ Se regeneran con `python3 dev/tests/pdf/hacer-pdfs.py` (necesita `reportlab` y `
 
 ## Documentos de prueba de bancos que Nazca no conoce
 `capital-one-falso.pdf` (tarjeta de crédito, estilo estadounidense, USD) y `banco-equis-falso.pdf` (cuenta corriente). Son INVENTADOS, dicen "DOCUMENTO DE PRUEBA" y no copian ningún diseño real. Sirven para probar la lectura genérica (`pdf-generico.js`): se importan como "Archivo PDF", sin sello de verificado y sin la comprobación "Cuadra".
+
+`capital-one-marzo.pdf`, `capital-one-abril.pdf`, `capital-one-no-cuadra.pdf`: tarjeta Capital One INVENTADA (lector `capitalone-tarjeta.js`, verificado). `banco-equis-falso.pdf` y `banco-zeta-falso.pdf`: bancos que Nazca no conoce (lectura genérica, sin verificado). `dev/tests/csv/prueba-*.csv`: 3 CSV de prueba.
