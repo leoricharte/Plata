@@ -273,6 +273,85 @@ def tarjeta(path, banco, cues, cols, filas):
         y -= 13
     c.showPage(); c.save()
 
+def bofa(path, depositos, atm, otras, previo=100.00, extra_impreso=0.0):
+    """Estado INVENTADO de cuenta de cheques Bank of America en español (mismos textos y columnas que el real; ningún dato real). Filas: (mm/dd/aa, descripción, monto)."""
+    dep = round(sum(f[2] for f in depositos), 2); a = round(sum(f[2] for f in atm), 2); o = round(sum(f[2] for f in otras), 2); fin = round(previo + dep + a + o + extra_impreso, 2)
+    d = lambda v: ("-" if v < 0 else "") + f"{abs(v):,.2f}"
+    c = canvas.Canvas(str(path), pagesize=letter); c.setTitle("Bank of America - documento de prueba (inventado)")
+    c.setFont("Helvetica", 7); c.drawString(400, 694, "Informacion de atencion al cliente"); c.drawString(400, 627, "bankofamerica.com"); c.drawString(400, 607, "Bank of America, N.A.")
+    c.drawString(45, 627, "PERSONA DE PRUEBA"); c.setFillColorRGB(.8, 0, 0); c.drawString(45, 650, "DOCUMENTO DE PRUEBA - DATOS INVENTADOS"); c.setFillColorRGB(0, 0, 0)
+    c.setFont("Helvetica-Bold", 10); c.drawString(36, 472, "Su Adv SafeBalance Banking"); c.setFont("Helvetica", 8); c.drawString(36, 454, "para el 23 de marzo del 2026 al 20 de abril del 2026"); c.drawString(378, 454, "Número de cuenta: 1234 5678 9012")
+    c.setFont("Helvetica-Bold", 9); c.drawString(36, 410, "Resumen de la cuenta"); c.setFont("Helvetica", 8)
+    for k, v, y in (("Saldo inicial al 23 de marzo del 2026", "$" + d(previo), 393), ("Depósitos y otros agregados", d(dep), 375), ("Sustracciones de tarjeta de cajero automático", d(a), 356), ("Otras sustracciones", d(o), 329), ("Cargos por servicio", "-0.00", 311), ("Saldo final al 20 de abril del 2026", "$" + d(fin if extra_impreso == 0 else fin), 291)):
+        c.drawString(36, y, k); c.drawString(310, y, v)
+    c.showPage(); c.showPage()
+    c.setFont("Helvetica-Bold", 9); y = 660; c.drawString(36, y, "Depósitos y otros agregados"); c.setFont("Helvetica", 7); y -= 12
+    for x, t in ((36, "Fecha"), (91, "Descripción"), (546, "Cantidad")): c.drawString(x, y, t)
+    y -= 12
+    for f, desc, m in depositos: c.drawString(36, y, f); c.drawString(91, y, desc); c.drawRightString(570, y, d(m)); y -= 12; c.drawString(91, y, "ID:0000000000 PPD"); y -= 12
+    c.drawString(36, y, "Total de depósitos y otros agregados"); c.drawString(530, y, "$" + d(dep)); y -= 30
+    c.setFont("Helvetica-Bold", 9); c.drawString(36, y, "Retiros y otras sustracciones"); y -= 14; c.setFont("Helvetica", 7); c.drawString(36, y, "Sustracciones de tarjeta de cajero automático (ATM) y de débito"); y -= 12
+    for x, t in ((36, "Fecha"), (91, "Descripción"), (546, "Cantidad")): c.drawString(x, y, t)
+    y -= 12
+    for f, desc, m in atm: c.drawString(36, y, f); c.drawString(91, y, "PURCHASE"); c.drawString(141, y, desc); c.drawRightString(570, y, d(m)); y -= 12
+    c.drawString(36, y, "Total de sustracciones de tarjeta de cajero automático (ATM) y de débito"); c.drawString(526, y, "-$" + d(abs(a))); y -= 30
+    c.setFont("Helvetica-Bold", 9); c.drawString(36, y, "Otras sustracciones"); y -= 14; c.setFont("Helvetica", 7)
+    for x, t in ((36, "Fecha"), (91, "Descripción"), (546, "Cantidad")): c.drawString(x, y, t)
+    y -= 12
+    for f, desc, m in otras: c.drawString(36, y, f); c.drawString(91, y, desc); c.drawRightString(570, y, d(m)); y -= 12
+    c.drawString(36, y, "Total de otras sustracciones"); c.drawString(526, y, "-$" + d(abs(o))); c.showPage(); c.save()
+
+BOFA_DEP = [("03/25/26", "EMPRESA DEMO DES:PAYROLL ID:000 INDN:PERSONA DE PRUEBA CO", 1000.00), ("03/30/26", "Zelle payment from Persona de Prueba Conf# AAAA", 150.50)]
+BOFA_ATM = [("03/26/26", "0325 TIENDA EJEMPLO SAN FRANCISCOCA", -42.10), ("03/27/26", "0326 CAFE DEMO LAKE PLACID NY", -6.50), ("04/02/26", "0401 APPLE.COM/BILL 866-712-7753 CA", -9.99)]
+BOFA_OTH = [("04/05/26", "Online Banking transfer to SAV 0000 Confirmation# 1", -200.00)]
+
+def apple_card(path, pagos, compras, interes=12.00, previo=500.00, extra_impreso=0.0):
+    """Estado INVENTADO de Apple Card (mismas secciones y textos que el real; ningún dato real). pagos: (mm/dd/aaaa, desc, monto negativo); compras: (mm/dd/aaaa, desc, %, monto)."""
+    tp = round(sum(p[2] for p in pagos), 2); tc = round(sum(c[3] for c in compras), 2); fin = round(previo + tp + tc + interes + extra_impreso, 2)
+    d = lambda v: ("-" if v < 0 else "") + "$" + f"{abs(v):,.2f}"
+    c = canvas.Canvas(str(path), pagesize=letter); c.setTitle("Apple Card - documento de prueba (inventado)")
+    c.setFont("Helvetica", 9); c.drawString(481, 706, "Statement"); c.drawString(36, 696, "Apple Card Customer"); c.drawString(36, 686, "Persona de Prueba"); c.drawString(502, 686, "Mar 1 — Mar 31, 2026")
+    c.setFillColorRGB(.8, 0, 0); c.drawString(36, 720, "DOCUMENTO DE PRUEBA - DATOS INVENTADOS"); c.setFillColorRGB(0, 0, 0)
+    c.drawString(36, 507, "Your March Balance"); c.drawString(220, 507, "Minimum"); c.drawString(402, 507, "Payment"); c.drawString(220, 496, "Payment Due"); c.drawString(402, 496, "Due By")
+    c.drawString(36, 469, d(fin)); c.drawString(220, 469, "$25.00"); c.drawString(402, 469, "Apr 30, 2026")
+    c.drawString(402, 386, "Previous Monthly Balance"); c.drawRightString(570, 386, d(previo)); c.drawString(402, 363, "Previous Total Balance"); c.drawRightString(570, 363, d(previo)); c.drawString(402, 341, "Total Balance"); c.drawRightString(570, 341, d(fin)); c.showPage()
+    c.setFont("Helvetica-Bold", 9); c.drawString(36, 635, "Payments"); c.setFont("Helvetica", 7)
+    for x, t in ((37, "Date"), (106, "Description"), (551, "Amount")): c.drawString(x, 616, t)
+    y = 599
+    for f, desc, m in pagos: c.drawString(36, y, f); c.drawString(105, y, desc); c.drawRightString(570, y, d(m)); y -= 20
+    c.drawString(36, y, "Total payments for this period"); c.drawRightString(570, y, d(tp)); y -= 40
+    c.setFont("Helvetica-Bold", 9); c.drawString(36, y, "Transactions"); c.setFont("Helvetica", 7); y -= 16
+    for x, t in ((37, "Date"), (106, "Description"), (416, "Daily Cash"), (551, "Amount")): c.drawString(x, y, t)
+    y -= 18
+    for f, desc, pc, m in compras: c.drawString(36, y, f); c.drawString(105, y, desc); c.drawString(415, y, pc); c.drawString(446, y, "$0.10"); c.drawRightString(570, y, d(m)); y -= 20
+    c.drawString(36, y, "Total Daily Cash this month"); c.drawString(446, y, "$0.40"); y -= 18; c.drawString(36, y, "Total charges, credits and returns"); c.drawRightString(570, y, d(tc)); c.showPage()
+    c.setFont("Helvetica-Bold", 9); c.drawString(36, 634, "Daily Cash"); c.drawString(36, 529, "Interest Charged"); c.setFont("Helvetica", 7); c.drawString(36, 502, "Interest charge"); c.drawRightString(570, 502, d(interes)); c.drawString(36, 485, "Total interest for this month"); c.drawRightString(570, 485, d(interes))
+    c.drawString(36, 453, "Interest Charges"); c.drawString(305, 453, "Interest Charge Calculation"); c.drawString(305, 443, "Annual Percentage Rate (APR)"); c.drawString(412, 443, "24.74 %"); c.drawString(441, 443, "(variable)")
+    c.drawString(36, 36, "Apple Card is issued by Goldman Sachs Bank USA, Salt Lake City Branch."); c.showPage(); c.save()
+
+AC_PAGOS = [("03/10/2026", "Apple Cash payment", -5.00), ("03/20/2026", "ACH Deposit Internet transfer from account ending in 0000", -100.00)]
+AC_COMPRAS = [("03/02/2026", "TIENDA EJEMPLO 1 CALLE DEMO CIUDAD NY USA", "2%", 15.29), ("03/05/2026", "CAFE DEMO 2 CALLE DEMO CIUDAD NY USA", "2%", 7.54), ("03/12/2026", "APPLE.COM/BILL ONE APPLE PARK WAY CUPERTINO CA USA", "3%", 6.99), ("03/18/2026", "DEVOLUCION TIENDA EJEMPLO", "2%", -4.00)]
+
+def community_bank(path, filas, previo=100.00, extra_impreso=0.0):
+    """Estado INVENTADO de cuenta corriente Community Bank (mismas columnas y textos que el real; ningún dato real). filas: (mm/dd, descripción, monto con signo)."""
+    cr = round(sum(m for _, _, m in filas if m > 0), 2); de = round(-sum(m for _, _, m in filas if m < 0), 2); fin = round(previo + cr - de + extra_impreso, 2)
+    c = canvas.Canvas(str(path), pagesize=letter); c.setTitle("Community Bank - documento de prueba (inventado)")
+    c.setFont("Helvetica", 8); c.drawString(407, 759, "Page:"); c.drawString(488, 759, "1 of 1"); c.drawString(407, 746, "Statement Date:"); c.drawString(488, 746, "04/18/2026"); c.drawString(407, 733, "Primary Account:"); c.drawString(488, 733, "XXXXXX1234")
+    c.setFillColorRGB(.8, 0, 0); c.drawString(72, 719, "DOCUMENTO DE PRUEBA - DATOS INVENTADOS"); c.setFillColorRGB(0, 0, 0)
+    c.drawString(198, 597, "PERSONA DE PRUEBA"); c.drawString(198, 587, "1 CALLE DEMO"); c.drawString(198, 577, "CIUDAD NY 10001")
+    c.setFont("Helvetica-Bold", 8); c.drawString(43, 361, "CBNA SIMPLY CHECKING"); c.drawString(510, 361, "XXXXXX1234"); c.setFont("Helvetica", 8)
+    d = lambda v: f"{v:.2f}"
+    for y, lab, v in ((345, "Previous Balance", previo), (322, "Checks/Debits", de), (311, "Service Charge", 0), (299, "Interest Paid", 0), (288, "Ending Balance", fin)): c.drawString(43 if lab != "Checks/Debits" else 86, y, lab); c.drawRightString(290, y, d(v))
+    c.drawString(67, 334, str(sum(1 for f in filas if f[2] > 0))); c.drawString(86, 334, "Deposits/Credits"); c.drawRightString(290, 334, d(cr))
+    c.drawString(313, 345, "Statement Dates"); c.drawString(476, 345, "3/19/26 thru 4/18/26"); c.drawString(313, 334, "Days in the Statement Period"); c.drawString(559, 334, "31")
+    c.setFont("Helvetica-Bold", 8); c.drawString(43, 264, "TRANSACTIONS"); c.setFont("Helvetica", 8)
+    for x, t in ((43, "Date"), (90, "Description"), (420, "Credits/Debits"), (537, "Balance")): c.drawString(x, 248, t)
+    y = 234; run = previo
+    for f, desc, m in filas: run = round(run + m, 2); c.drawString(43, y, f); c.drawString(90, y, desc); c.drawRightString(490, y, d(abs(m))); c.drawRightString(575, y, d(run)); y -= 14
+    c.drawString(245, 32, "Branch Phone Number: (000)000-0000"); c.showPage(); c.showPage(); c.save()
+
+CB_FILAS = [("03/20", "Payroll Empresa Demo", 800.00), ("03/25", "Debit Card Purchase Tienda Ejemplo", -45.30), ("04/02", "ATM Withdrawal Calle Demo", -60.00), ("04/10", "Service Charge Fee Refund", 1.50)]
+
 CAPITAL_ONE_OLD = [("Mar 3", "Mar 4", "AMAZON MKTPLACE PMTS", "$23.99"), ("Mar 5", "Mar 6", "UBER *TRIP HELP.UBER.COM", "$14.50"), ("Mar 9", "Mar 10", "WHOLEFDS MKT #10234", "$67.12"),
     ("Mar 12", "Mar 12", "NETFLIX.COM", "$15.49"), ("Mar 15", "Mar 16", "SHELL OIL 57444", "$41.30"), ("Mar 18", "Mar 18", "CAPITAL ONE MOBILE PYMT", "-$150.00"), ("Mar 21", "Mar 22", "SPOTIFY USA", "$11.99")]
 BANCO_EQUIS = [("02/03/2026", "SUPERMERCADO LA ESQUINA", "-85.40"), ("04/03/2026", "DEPOSITO SUELDO EMPRESA DEMO", "2,500.00"), ("07/03/2026", "TRANSFERENCIA A JUAN PEREZ", "-300.00"),
@@ -312,4 +391,10 @@ if __name__ == "__main__":
     tarjeta(OUT / "tarjeta-sigma.pdf", "Banco Sigma - Tarjeta de crédito Visa (PRUEBA)", ["Estado de cuenta de tarjeta de crédito - terminada en 5566", "Fecha de corte: 05/04/2026", "Saldo anterior S/ 300.00   Nuevo saldo S/ 365.00", "Línea de crédito S/ 5,000.00", "Pago mínimo S/ 60.00", "Fecha límite de pago: 25/04/2026", "TEA 49.90%"],
         [(40, "Fecha", 'l'), (120, "Descripción", 'l'), (540, "Importe", 'r')],
         [("08/03/2026", "COMPRA SUPERMERCADO", "-S/ 120.00"), ("15/03/2026", "PAGO RECIBIDO GRACIAS", "S/ 300.00"), ("22/03/2026", "COMPRA FARMACIA", "-S/ 45.00"), ("30/03/2026", "COMPRA RESTAURANTE", "-S/ 80.00")])
+    bofa(OUT / "bofa-cheques.pdf", BOFA_DEP, BOFA_ATM, BOFA_OTH)
+    bofa(OUT / "bofa-no-cuadra.pdf", BOFA_DEP, BOFA_ATM, BOFA_OTH, extra_impreso=3.00)
+    apple_card(OUT / "apple-card.pdf", AC_PAGOS, AC_COMPRAS)
+    apple_card(OUT / "apple-card-no-cuadra.pdf", AC_PAGOS, AC_COMPRAS, extra_impreso=3.00)
+    community_bank(OUT / "community-bank.pdf", CB_FILAS)
+    community_bank(OUT / "community-bank-no-cuadra.pdf", CB_FILAS, extra_impreso=2.00)
     print("listo")

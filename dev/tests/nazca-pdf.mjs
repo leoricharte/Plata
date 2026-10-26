@@ -155,5 +155,32 @@ const sum = (it) => Math.round(it.reduce((s, x) => s + x.amount, 0) * 100) / 100
 
 { ok(G.guessName(await P.read(bytes('tarjeta-sigma.pdf'), lib)) === 'Banco Sigma' && G.guessName(await P.read(bytes('tarjeta-omega.pdf'), lib)) === 'Omega Bank Visa Card (PRUEBA)', 'nombre: un título largo se corta en el guion y las líneas con importes no cuentan'); }
 
+// 13) Bank of America (cuenta de cheques, español) y Apple Card (PDF y CSV)
+{ const d = await P.read(bytes('bofa-cheques.pdf'), lib), rd = B.detect(d);
+  ok(rd && rd.id === 'bofa-cheques' && B.detect(d, 'chime') === null, 'bofa: reconocido por el contenido');
+  const r = rd.read(d);
+  ok(r.kind === 'corriente' && r.account.last4 === '9012' && r.period.from === '2026-03-23' && r.period.to === '2026-04-20', 'bofa: cuenta, últimos 4 y periodo');
+  ok(r.items.length === 6 && Math.abs(sum(r.items) - 891.91) < 0.005 && r.items.find((x) => /PAYROLL/.test(x.desc)).amount === 1000 && r.items.find((x) => /CAFE DEMO/.test(x.desc)).amount === -6.5, 'bofa: 6 movimientos, depósitos + y retiros −');
+  ok(!/PURCHASE/.test(r.items.find((x) => /CAFE DEMO/.test(x.desc)).desc) && r.check.ok === true, 'bofa: la descripción queda limpia y el estado cuadra');
+  const dn = await P.read(bytes('bofa-no-cuadra.pdf'), lib); ok(B.detect(dn).read(dn).check.ok === false, 'bofa: si el saldo final no coincide → no cuadra'); }
+{ const d = await P.read(bytes('apple-card.pdf'), lib), rd = B.detect(d);
+  ok(rd && rd.id === 'applecard-tarjeta' && B.detect(d, 'seen') === null, 'apple card: reconocida por el contenido');
+  const r = rd.read(d);
+  ok(r.kind === 'tarjeta' && r.period.from === '2026-03-01' && r.period.to === '2026-03-31' && r.items.length === 7, 'apple card: tarjeta, periodo y 7 movimientos (incluye interés)');
+  ok(r.items.find((x) => /Apple Cash payment/.test(x.desc)).amount === 5 && r.items.find((x) => /TIENDA EJEMPLO 1/.test(x.desc)).amount === -15.29 && r.items.find((x) => /DEVOLUCION/.test(x.desc)).amount === 4 && r.items.find((x) => /Interest/i.test(x.desc)).amount === -12 && r.items.find((x) => /Interest/i.test(x.desc)).date === '2026-03-31', 'apple card: pagos y devoluciones +, compras e interés −');
+  ok(r.check.ok === true && r.card.apr === 24.74 && r.card.minPayment === 25 && r.card.dueDate === '2026-04-30', 'apple card: cuadra y trae tasa, mínimo y fecha de pago ' + JSON.stringify(r.card));
+  const dn = await P.read(bytes('apple-card-no-cuadra.pdf'), lib); ok(B.detect(dn).read(dn).check.ok === false, 'apple card: si el saldo no coincide → no cuadra');
+  const sg = B.detectCsv('Transaction Date,Clearing Date,Description,Merchant,Category,Type,Amount (USD),Purchased By'.split(','));
+  ok(sg && sg.bank === 'applecard' && sg.flip === true && B.detectCsv(['Date', 'Description', 'Amount']) === null, 'apple card CSV: se reconoce por sus columnas y un CSV común no'); }
+
+// 14) Community Bank (cuenta corriente; el monto viene sin signo y el signo sale del saldo)
+{ const d = await P.read(bytes('community-bank.pdf'), lib), rd = B.detect(d);
+  ok(rd && rd.id === 'communitybank-cuenta' && B.detect(d, 'chime') === null, 'community bank: reconocido por el contenido');
+  const r = rd.read(d);
+  ok(r.kind === 'corriente' && r.account.last4 === '1234' && r.period.from === '2026-03-19' && r.period.to === '2026-04-18' && r.items.length === 4, 'community bank: cuenta, últimos 4, periodo y 4 movimientos');
+  ok(r.items[0].amount === 800 && r.items[1].amount === -45.3 && r.items[2].amount === -60 && r.items[3].amount === 1.5 && r.items[3].date === '2026-04-10', 'community bank: el signo sale de la columna Balance (abono +, cargo −) y el año del periodo');
+  ok(r.check.ok === true, 'community bank: cuadra');
+  const dn = await P.read(bytes('community-bank-no-cuadra.pdf'), lib); ok(B.detect(dn).read(dn).check.ok === false, 'community bank: si el saldo final no coincide → no cuadra'); }
+
 console.log(f ? '\n' + f + ' FALLAS' : '\nTodo bien');
 process.exit(f ? 1 : 0);
