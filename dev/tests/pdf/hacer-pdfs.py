@@ -200,6 +200,25 @@ def capital_one_nuevo(path, filas, previo=172.30, interes=6.91, ultimos="4242", 
 CO_NUEVO = [("Jun 16", "Jun 16", "CREDIT-CASH BACK REWARD", -0.28), ("Jun 17", "Jun 17", "CAPITAL ONE MOBILE PYMT", -195.81), ("Jun 19", "Jun 19", "CAPITAL ONE MOBILE PYMT", -55.00),
     ("Jun 15", "Jun 16", "TIENDA EJEMPLO ONLINE NY", 5.99), ("Jun 16", "Jun 17", "SUPER DEMO 227 NY", 12.20), ("Jun 25", "Jun 26", "TRANSPORTE DEMO WHITE PLAINS NY", 98.59), ("Jul 11", "Jul 11", "MARKET PRUEBA SEATTLE WA", 21.55)]
 
+CO_CUENTA = [("Aug 6", "Deposit from EMPRESA EJEMPLO PAYROLL", 1018.47), ("Aug 6", "Withdrawal from CAPITAL ONE MOBILE PMT", -169.64), ("Aug 7", "Debit Card Purchase - TIENDA DEMO SEATTLE WA", -393.84),
+    ("Aug 16", "ATM Withdrawal - CAJERO PRUEBA 316 SAN|FRANCISCO, CA", -300.00), ("Aug 20", "Zelle money sent to PERSONA EJEMPLO", -23.05), ("Aug 31", "Monthly Interest Paid", 0.01)]
+def capital_one_cuenta(path, filas, previo=5.00, cierre_impreso=None):
+    """Estado INVENTADO de la cuenta Capital One 360 Checking (diseño actual): monto con signo, saldo corrido y descripciones de dos líneas (la primera ARRIBA de la fila con fecha)."""
+    c = canvas.Canvas(str(path), pagesize=(612, 792)); c.setTitle("Capital One 360 - documento de prueba (inventado)")
+    c.setFont("Helvetica-Bold", 9); c.drawString(58, 700, "Capital One 360 Checking"); c.setFillColorRGB(.8, 0, 0); c.drawString(250, 700, "DOCUMENTO DE PRUEBA - DATOS INVENTADOS"); c.setFillColorRGB(0, 0, 0)
+    c.setFont("Helvetica", 9); c.drawString(58, 680, "360 Checking...4242"); c.drawString(385, 486, "STATEMENT PERIOD"); c.drawString(385, 474, "Aug 1 - Aug 31, 2025"); c.showPage()
+    d = lambda v: ("- " if v < 0 else "+ ") + "$" + f"{abs(v):,.2f}"
+    c.setFont("Helvetica", 9); c.drawString(469, 739, "STATEMENT PERIOD"); c.drawString(469, 730, "Aug 1 - Aug 31, 2025")
+    y = 673; c.setFont("Helvetica-Bold", 8)
+    for x, t in ((59, "DATE"), (102, "DESCRIPTION"), (342, "CATEGORY"), (422, "AMOUNT"), (524, "BALANCE")): c.drawString(x, y, t)
+    c.setFont("Helvetica", 8); y -= 20; c.drawString(59, y, "Aug 1"); c.drawString(102, y, "Opening Balance"); c.drawRightString(560, y, f"${previo:,.2f}"); y -= 20; run = previo
+    for f, desc, m in filas:
+        run = round(run + m, 2); partes = desc.split("|")
+        if len(partes) == 2: c.drawString(102, y, partes[0]); y -= 4; c.drawString(59, y, f); c.drawString(357, y, "Debit" if m < 0 else "Credit"); c.drawRightString(445, y, d(m)); c.drawRightString(560, y, f"${run:,.2f}"); y -= 4; c.drawString(102, y, partes[1]); y -= 16
+        else: c.drawString(59, y, f); c.drawString(102, y, desc); c.drawString(357, y, "Debit" if m < 0 else "Credit"); c.drawRightString(445, y, d(m)); c.drawRightString(560, y, f"${run:,.2f}"); y -= 20
+    c.drawString(59, y, "Aug 31"); c.drawString(102, y, "Closing Balance"); c.drawRightString(560, y, f"${(cierre_impreso if cierre_impreso is not None else run):,.2f}")
+    c.showPage(); c.save()
+
 CO_MARZO = [("Mar 3", "Mar 4", "AMAZON MKTPLACE PMTS", 23.99), ("Mar 5", "Mar 6", "UBER *TRIP HELP.UBER.COM", 14.50), ("Mar 9", "Mar 10", "WHOLEFDS MKT #10234", 67.12),
     ("Mar 12", "Mar 12", "NETFLIX.COM", 15.49), ("Mar 15", "Mar 16", "SHELL OIL 57444", 41.30), ("Mar 18", "Mar 18", "CAPITAL ONE MOBILE PYMT", -150.00), ("Mar 21", "Mar 22", "SPOTIFY USA", 11.99)]
 CO_ABRIL = [("Apr 2", "Apr 3", "TRADER JOE'S #552", 54.80), ("Apr 6", "Apr 7", "LYFT *RIDE", 18.25), ("Apr 10", "Apr 11", "TARGET 00012345", 82.40), ("Apr 14", "Apr 14", "CAPITAL ONE MOBILE PYMT", -100.00),
@@ -444,6 +463,8 @@ if __name__ == "__main__":
     capital_one(OUT / "capital-one-no-cuadra.pdf", "Mar 1, 2026", "Mar 31, 2026", CO_MARZO, 0.00, total_compras_impreso=999.99)
     capital_one_nuevo(OUT / "capital-one-nuevo.pdf", CO_NUEVO)
     capital_one_nuevo(OUT / "capital-one-nuevo-no-cuadra.pdf", CO_NUEVO, impreso_nuevo=999.99)
+    capital_one_cuenta(OUT / "capital-one-cuenta.pdf", CO_CUENTA)
+    capital_one_cuenta(OUT / "capital-one-cuenta-no-cuadra.pdf", CO_CUENTA, cierre_impreso=999.99)
     falso(OUT / "banco-zeta-falso.pdf", "Banco Zeta (PRUEBA)", "Extracto de movimientos - Marzo 2026", BANCO_ZETA, [(40, "Fecha"), (130, "Detalle"), (430, "Importe")], "Fin del extracto")
     falso(OUT / "banco-equis-falso.pdf", "Banco Equis (PRUEBA)", "Estado de cuenta - Cuenta corriente 000-0000000 - Marzo 2026", BANCO_EQUIS,
           [(40, "Fecha"), (130, "Descripcion"), (430, "Monto")], "Saldo final 1,775.65")

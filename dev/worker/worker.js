@@ -9,7 +9,7 @@
 // web.plataapp.net: la app. plataapp.net: el sitio (y la app vieja mientras dura la migración). Las tres últimas: la app de escritorio (Tauri).
 const ORIGINS = ['https://web.plataapp.net', 'https://plataapp.net', 'https://www.plataapp.net', 'http://tauri.localhost', 'https://tauri.localhost', 'tauri://localhost'];
 // Rutas de administración: solo desde el panel privado (variable ADMIN_ORIGINS, separada por comas) o desde localhost. El token sigue siendo obligatorio.
-const ADMIN_PATHS = /^\/(waitlist\/export|content\/ping|review\/(list|get|mark|delete)|admin\/)/;
+const ADMIN_PATHS = /^\/(waitlist\/export|content\/ping|review\/(list|get|mark|delete)|nazca\/(list|get|delete)|admin\/)/;
 const isAdminReq = (req, url) => {
   const m = req.method === 'OPTIONS' ? (req.headers.get('Access-Control-Request-Method') || 'GET') : req.method; // en la verificación previa del navegador cuenta el método que se va a usar
   return ADMIN_PATHS.test(url.pathname) || ((url.pathname === '/content' || url.pathname === '/posts') && m !== 'GET');
@@ -239,6 +239,42 @@ async function reviewPut(req, env, h) {
   await env.WAITLIST.put('rv:' + id, JSON.stringify({ t: Date.now(), build: Number(b.build) || 0, plat: String(b.plat || '').slice(0, 40), data: b.data }), { expirationTtl: REVIEW_TTL }); // texto plano: no se guarda más de 30 días
   await kvPut(env, ipk, { n: lim.n + 1, t: now }, 8 * 86400);
   return json({ ok: true, id: id, until: now + REVIEW_WAIT[Math.min(lim.n + 1, REVIEW_WAIT.length) - 1] }, 200, h);
+}
+/* ---------- Archivos que Nazca no reconoció (la persona los manda a propósito, con permiso expreso, solo para entrenar a Nazca) ---------- */
+const MAX_NAZCA = 4200000, NAZCA_TTL = 30 * 86400, NAZCA_DAY = 5;   // 4.2 MB en base64 ≈ 3 MB de archivo · 30 días · 5 envíos por conexión al día
+async function nazcaPut(req, env, h) {
+  if (env.REVIEW_OFF === '1') return json({ ok: false, error: 'off' }, 403, h);
+  const origin = req.headers.get('Origin') || '';
+  if (!h['Access-Control-Allow-Origin'] && origin) return json({ ok: false, error: 'origin' }, 403, h);
+  const raw = await req.text();
+  if (raw.length > MAX_NAZCA + 2000) return json({ ok: false, error: 'size' }, 413, h);
+  let b; try { b = JSON.parse(raw); } catch (e) { return json({ ok: false, error: 'json' }, 400, h); }
+  if (!b || typeof b !== 'object' || typeof b.b64 !== 'string' || !b.b64 || b.b64.length > MAX_NAZCA || !/^[A-Za-z0-9+/=]+$/.test(b.b64)) return json({ ok: false, error: 'json' }, 400, h);
+  const kind = ['pdf', 'xlsx', 'csv'].includes(b.kind) ? b.kind : 'otro';
+  if (await rateLimited(req, env)) return json({ ok: false, error: 'rate' }, 429, h);
+  const ipk = 'nzl:' + (await sha((env.RL_SALT || 'plata') + (req.headers.get('CF-Connecting-IP') || 'x'))), now = Date.now();
+  let lim = await kvGet(env, ipk); if (!lim || now - lim.t > 86400000) lim = { n: 0, t: now };
+  if (lim.n >= NAZCA_DAY) return json({ ok: false, error: 'wait' }, 429, h);
+  const id = Date.now().toString(36) + '-' + rndB64(6);
+  await env.WAITLIST.put('nz:' + id, JSON.stringify({ t: now, build: Number(b.build) || 0, plat: String(b.plat || '').slice(0, 40), kind: kind, bank: String(b.bank || '').slice(0, 30), why: String(b.why || '').slice(0, 60), b64: b.b64 }), { expirationTtl: NAZCA_TTL });
+  await kvPut(env, ipk, { n: lim.n + 1, t: lim.t }, 86400);
+  return json({ ok: true, id: id }, 200, h);
+}
+async function nazcaList(req, env, h) {
+  { const g = await adminGate(req, env, h); if (g) return g; }
+  const out = []; let cursor;
+  do { const r = await env.WAITLIST.list({ prefix: 'nz:', cursor }); r.keys.forEach((k) => out.push(k.name.slice(3))); cursor = r.list_complete ? undefined : r.cursor; } while (cursor);
+  return json({ ok: true, count: out.length, ids: out }, 200, h);
+}
+async function nazcaGet(req, env, h, url) {
+  { const g = await adminGate(req, env, h); if (g) return g; }
+  const v = await env.WAITLIST.get('nz:' + (url.searchParams.get('id') || ''));
+  return v ? new Response(v, { status: 200, headers: Object.assign({ 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }, h) }) : json({ ok: false, error: 'none' }, 404, h);
+}
+async function nazcaDelete(req, env, h, url) {
+  { const g = await adminGate(req, env, h); if (g) return g; }
+  await env.WAITLIST.delete('nz:' + (url.searchParams.get('id') || ''));
+  return json({ ok: true }, 200, h);
 }
 /* Acceso de administrador: comparación en tiempo constante (se comparan hashes) y bloqueo por IP tras 5 fallos en 15 minutos (429), con contador atómico. */
 const AUTH_MAX = 5, AUTH_WIN = 900;
@@ -745,6 +781,10 @@ export default {
       if (p === '/posts/img' && m === 'GET') return await postImg(env, url);
       if (p === '/posts' && m === 'POST') return await postSave(req, env, h);
       if (p === '/posts' && m === 'DELETE') return await postDel(req, env, h, url);
+      if (p === '/nazca' && m === 'POST') return await nazcaPut(req, env, h);
+      if (p === '/nazca/list' && m === 'GET') return await nazcaList(req, env, h);
+      if (p === '/nazca/get' && m === 'GET') return await nazcaGet(req, env, h, url);
+      if (p === '/nazca/delete' && m === 'POST') return await nazcaDelete(req, env, h, url);
       if (p === '/review' && m === 'POST') return await reviewPut(req, env, h);
       if (p === '/review/status' && m === 'GET') return await reviewStatus(env, h, url);
       if (p === '/review/delete' && m === 'POST') return await reviewDelete(req, env, h, url);

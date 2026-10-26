@@ -1058,6 +1058,7 @@ html.web .imlogo,html.web .imav,html.web .imbk:not(.dis) .imglyph{color:#22B573}
 .imdone{display:grid;place-items:center;width:72px;height:72px;border-radius:50%;background:var(--accent);box-shadow:0 10px 28px -8px rgba(34,181,115,.6)}
 .imn{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:13px;font-weight:700;display:grid;place-items:center}
 .imok{display:flex;gap:10px;align-items:flex-start;border-radius:14px;padding:10px 12px;margin:0 0 12px;font-size:14.5px;background:rgba(34,181,115,.14);color:var(--gt)}.imok .sub{color:inherit;opacity:.85;font-size:13px}.imok svg{flex:none;margin-top:1px}.imok.warn{background:var(--obg);color:var(--ot)}
+.imerr{display:flex;align-items:flex-start;gap:12px;background:var(--card);border-radius:18px;padding:14px 16px;margin:0 0 14px}.imerr .imq{flex:none;line-height:0;color:#8E8E93;margin-top:1px}.imerr .imt{display:block;font-size:17px;font-weight:600}.imerr .sub{display:block;font-size:14px;margin-top:2px}.imsend{display:flex;align-items:center;gap:8px;margin-top:12px;border:0;border-radius:999px;background:var(--bg2,rgba(120,120,128,.14));color:var(--ink);font:inherit;font-size:15px;font-weight:600;padding:9px 14px;cursor:pointer;text-align:left}.imsend svg{flex:none}
 .imstrip{display:flex;align-items:center;justify-content:center;gap:9px;margin:0 0 12px}.imstrip span{font-size:13px;color:var(--mute);font-variant-numeric:tabular-nums;margin-left:4px}.imdot{width:9px;height:9px;padding:0;border:0;border-radius:50%;background:var(--fill);transition:transform .2s,background .2s;cursor:pointer}.imdot.ok{background:var(--accent)}.imdot.bad{background:#FF9500}.imdot.on{transform:scale(1.45);box-shadow:0 0 0 3px rgba(128,128,128,.25)}
 #impslide{touch-action:pan-y}.imsl-l{animation:imsll .28s cubic-bezier(.2,.8,.2,1)}.imsl-r{animation:imslr .28s cubic-bezier(.2,.8,.2,1)}@keyframes imsll{from{transform:translateX(56px);opacity:.2}to{transform:none;opacity:1}}@keyframes imslr{from{transform:translateX(-56px);opacity:.2}to{transform:none;opacity:1}}
 .imbar2{display:flex;gap:10px;margin-top:10px}.imbar2 button{flex:1;height:48px;border-radius:24px;border:1px solid var(--line2);background:var(--card);color:var(--ink);font:inherit;font-size:16px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:6px;cursor:pointer}.imbar2 button.off{opacity:.45}.imextra{margin:2px 0 10px}.imextra .linkrow{width:100%}
@@ -1276,7 +1277,7 @@ function SFI(n, px, col) {
 }
 const ICON = {
   folder: RMI('folder-line', 22, '#1C1C1E'),
-  save: RMI('upload-2-line', 22, '#1C1C1E'),
+  save: RMI('download-2-line', 22, '#1C1C1E'),
   chev: RMC('arrow-right-s-line', 12, 18, 1.02, '#C7C7CC', 'chev'),
   card: RMI('bank-card-line', 24, '#fff'),
   info: RMI('information-line', 22, '#1A9D63'),
@@ -3096,7 +3097,7 @@ function renderResumen() {
     '<div class="brandrow"><div class="plogo rlogo" role="img" aria-label="Plata"></div><button class="betapill" data-act="betainfo">B E T A</button></div><div class="head"><div><div class="eyebrow">' + dateLong(c.today) + '</div><h1>' + esc(greetLine()) + '</h1></div></div>' +
     '<div class="filestat">' + status + '</div>' + idleBanner(c.today) + cloudStripHTML() +
     (hasData() ? '' : '<div class="card"><div class="name" style="font-size:20px">Empieza aquí</div><div class="sub" style="padding:4px 0 6px">Tu app... no tiene (casi) nada. Pero no te me abrumes, empieza en la pestaña Cuentas: ajusta tu saldo y añade tus tarjetas, añade movimientos o carga tu archivo de perfil.</div>' +
-      '<button class="linkrow" data-act="add">' + IC_ADD + 'Añadir un movimiento</button><button class="linkrow" data-act="imp:start">' + RMI('upload-2-line', 22, '#1A9D63') + 'Importar datos de banco</button><button class="linkrow" data-act="load">' + ICON.folder.replace(/#1C1C1E/g, '#1A9D63') + 'Cargar mi archivo de perfil</button><button class="linkrow" data-act="demo">' + ICON.info + 'Ver con datos de ejemplo</button></div>') +
+      '<button class="linkrow" data-act="add">' + IC_ADD + 'Añadir un movimiento</button><button class="linkrow" data-act="imp:start">' + RMI('download-2-line', 22, '#1A9D63') + 'Importar datos de banco</button><button class="linkrow" data-act="load">' + ICON.folder.replace(/#1C1C1E/g, '#1A9D63') + 'Cargar mi archivo de perfil</button><button class="linkrow" data-act="demo">' + ICON.info + 'Ver con datos de ejemplo</button></div>') +
     '<div class="grid2">' +
       '<div class="kpi tap" data-act="tab:deuda"><span class="lbl">Balance actual</span><span class="big">' + fmt(sum(visAcc, (a) => usd(a.balance, a.cur))) + '</span><span class="sub">' + plural(visAcc.length, 'cuenta', 'cuentas') + '</span>' + inclNote(visAcc, (a) => a.balance) + '</div>' +
       '<div class="kpi tap" data-act="mmin"><span class="lbl">Ingresos del mes</span><span class="big">' + fmt(c.income) + '</span><span class="sub">' + plural(c.incomeCount, 'ingreso', 'ingresos') + '</span></div>' +
@@ -3822,7 +3823,7 @@ function renderMovimientos() {
     '<button class="back" data-act="tab:resumen" aria-label="Regresar">' + IC_BACK + '</button>' +
     '<div class="head"><div><div class="eyebrow">Últimos movimientos</div><h1>Movimientos</h1></div></div>' +
     segHTML('mov', [{ k: 'all', label: 'Todos', act: 'mov:all' }, { k: 'in', label: 'Ingresos', act: 'mov:in' }, { k: 'out', label: 'Gastos', act: 'mov:out' }], ui.mov) +
-    '<div class="card" style="padding:2px 18px;margin-bottom:12px"><button class="linkrow" data-act="add">' + IC_ADD + 'Añadir movimiento</button><button class="linkrow" data-act="imp:start" style="border-top:1px solid var(--line);width:100%">' + RMI('upload-2-line', 22, '#22B573') + 'Importar datos de banco</button></div>' +
+    '<div class="card" style="padding:2px 18px;margin-bottom:12px"><button class="linkrow" data-act="add">' + IC_ADD + 'Añadir movimiento</button><button class="linkrow" data-act="imp:start" style="border-top:1px solid var(--line);width:100%">' + RMI('download-2-line', 22, '#22B573') + 'Importar datos de banco</button></div>' +
     '<div class="card" style="padding-top:6px;padding-bottom:6px" id="movList">' + movRows() + '</div>';
 }
 
@@ -4660,7 +4661,7 @@ function settingsHTML(noHead) {
     '<div class="scard" style="margin-top:14px">' +
     '<button class="linkrow" data-act="' + (clBeta() && clOn() ? 'cl:load' : 'load') + '">' + blue(ICON.folder) + 'Cargar archivo de perfil</button>' +
     '<button class="linkrow" data-act="save" style="border-top:1px solid var(--line);width:100%">' + blue(ICON.save) + (clBeta() && clOn() ? 'Guardar copia de archivo local' : 'Guardar archivo de perfil') + '</button>' +
-    (data.demo ? '' : '<button class="linkrow" data-act="imp:start" style="border-top:1px solid var(--line);width:100%">' + blue(RMI('upload-2-line', 22, '#1C1C1E')) + 'Importar datos de banco</button>') +
+    (data.demo ? '' : '<button class="linkrow" data-act="imp:start" style="border-top:1px solid var(--line);width:100%">' + blue(RMI('download-2-line', 22, '#1C1C1E')) + 'Importar datos de banco</button>') +
     '</div>' +
     (clBeta() ? '' : cloudCardHTML()) +
     '<div class="scard"><div class="row"><span class="grow" style="font-size:17px">Insights y half‑time</span>' + swHTML(insOn(), 'setopt:insights') + '</div>' +
@@ -5466,10 +5467,11 @@ function impBack() {
   if (st === 'key') { impKey = ''; impPend = null; }
   ui.impErr = null; impShow(to, 'pop');
 }
-function impFail(t, m) { if (impBatch) { impBatch.fails.push({ t: t, m: m, name: impBatch.cur || '' }); return; } ui.impErr = { t: t, m: m }; ui.imp = null; impShow(ui.impAt || 'start', 'tab'); }
+let impSendF = null;   /* el archivo que Nazca no reconoció: solo en memoria, para ofrecer mandarlo a entrenar a Nazca */
+function impFail(t, m, f) { if (impBatch) { impBatch.fails.push({ t: t, m: m, name: impBatch.cur || '' }); return; } impSendF = f || null; ui.impErr = { t: t, m: m, send: !!f }; ui.imp = null; impShow(ui.impAt || 'start', 'tab'); }
 async function impFile(f) {
   if (!f) return;
-  ui.impErr = null; if (ui.impStep === 'start' || ui.impStep === 'how' || ui.impStep === 'bank' || ui.impStep === 'key') ui.impAt = ui.impStep; /* si falla, vuelve a la pantalla donde elegiste el archivo */
+  ui.impErr = null; impSendF = null; if (ui.impStep === 'start' || ui.impStep === 'how' || ui.impStep === 'bank' || ui.impStep === 'key') ui.impAt = ui.impStep; /* si falla, vuelve a la pantalla donde elegiste el archivo */
   const head = String.fromCharCode.apply(null, new Uint8Array(await f.slice(0, 5).arrayBuffer()));
   if (head === '%PDF-' || /\.pdf$/i.test(f.name || '') || f.type === 'application/pdf') { await impPdf(f); return; }
   if (head.slice(0, 2) === 'PK' || /\.xlsx$/i.test(f.name || '')) { await impXlsx(f); return; }
@@ -5491,9 +5493,9 @@ async function impXlsx(f) {
   if (!impBatch) impShow('busy');
   try { rows = await NazcaXLSX.read(new Uint8Array(await f.arrayBuffer())); }
   catch (e) { impFail('Nazca no pudo leer ese archivo', 'Revisa que sea el reporte de movimientos en Excel que descargaste.'); return; }
-  if (!NazcaYape.detect(rows)) { impFail(ui.impBank === 'yape' ? 'Este archivo no parece de Yape' : 'Nazca todavía no reconoce este archivo', 'Por ahora Nazca lee el reporte de movimientos en Excel que descargas desde Yape. Revisa que sea ese archivo.'); return; }
+  if (!NazcaYape.detect(rows)) { impFail(ui.impBank === 'yape' ? 'Este archivo no parece de Yape' : 'Nazca todavía no reconoce este archivo', 'Por ahora Nazca lee el reporte de movimientos en Excel que descargas desde Yape. Revisa que sea ese archivo.', f); return; }
   const r = NazcaYape.read(rows);
-  if (!r || r.error) { impFail('Nazca no pudo leer el reporte', 'No encontramos las columnas del reporte de movimientos de Yape.'); return; }
+  if (!r || r.error) { impFail('Nazca no pudo leer el reporte', 'No encontramos las columnas del reporte de movimientos de Yape.', f); return; }
   if (!r.items.length) { impFail('Nazca no encontró movimientos', 'No hallamos movimientos en el archivo. Revisa que sea el reporte de movimientos de Yape.'); return; }
   impFromPdf(name, r);
 }
@@ -5525,11 +5527,11 @@ async function impPdf(f) {
           items: x.items.map((it, i) => ({ line: i + 1, date: it.date, desc: it.desc, amount: it.amount, cur: it.cur || '' })), skipped: { unreadable: x.skipped.unreadable || 0, zero: 0 } }); return; }
       if (x.items.length) { impCsvReview(name, a, x, true, g.name || NazcaPDFGen.nameFromFile(name)); return; } }
   }
-  if (!rd && ui.impBank === 'yape') { impFail('Este archivo no parece de Yape', 'Yape no da estado de cuenta en PDF: descarga el reporte de movimientos en Excel y súbelo.'); return; }
+  if (!rd && ui.impBank === 'yape') { impFail('Este archivo no parece de Yape', 'Yape no da estado de cuenta en PDF: descarga el reporte de movimientos en Excel y súbelo.', key ? null : f); return; }
   if (!rd) { const ob = ui.impBank && IMP_ONLY[ui.impBank];   /* con un banco elegido, el aviso nombra a ese banco y dice qué archivo lee Nazca de él */
-    impFail(ob ? 'Este archivo no parece ' + ob[0] : 'Nazca todavía no reconoce este archivo', ob ? 'Por ahora Nazca lee ' + ob[1] + '. Revisa que sea ese archivo.' : 'No encontramos movimientos con fecha y monto. Si tu banco ofrece un archivo CSV, importa ese.'); return; }
+    impFail(ob ? 'Este archivo no parece ' + ob[0] : 'Nazca todavía no reconoce este archivo', ob ? 'Por ahora Nazca lee ' + ob[1] + '. Revisa que sea ese archivo.' : 'No encontramos movimientos con fecha y monto. Si tu banco ofrece un archivo CSV, importa ese.', key ? null : f); return; }
   const r = rd.read(doc);
-  if (!r || r.error) { impFail('Nazca no pudo leer el estado de cuenta', 'No encontramos el periodo del estado de cuenta en el archivo.'); return; }
+  if (!r || r.error) { impFail('Nazca no pudo leer el estado de cuenta', 'No encontramos el periodo del estado de cuenta en el archivo.', key ? null : f); return; }
   if (!r.items.length) { impFail('Nazca no encontró movimientos', 'No hallamos movimientos en el archivo. Revisa que sea el estado de cuenta de tu banco.'); return; }
   impFromPdf(name, r);
 }
@@ -5682,7 +5684,50 @@ function impPageHTML() {
   return '<div class="navrow">' + (st === 'busy' || st === 'done' ? '<span style="width:44px;height:44px"></span>' : '<button class="back" data-act="itback" aria-label="Regresar">' + IC_BACK + '</button>') + '</div>' +
     '<div class="head"><div><div class="eyebrow">' + H[0] + '</div><h1>' + H[1] + '</h1></div></div><div id="impbody">' + impErrHTML() + impBodyHTML(st) + '</div>';
 }
-function impErrHTML() { const E = ui.impErr; return E ? '<div class="imok warn" role="alert"><b style="font-size:18px;line-height:1">!</b><span><b>' + esc(E.t) + '</b><span class="sub" style="display:block">' + esc(E.m) + '</span></span></div>' : ''; }
+function impErrHTML() {
+  const E = ui.impErr; if (!E) return '';
+  return '<div class="imerr" role="alert"><span class="imq">' + RMI('question-fill', 26, 'currentColor') + '</span><span class="grow"><span class="imt">' + esc(E.t) + '</span><span class="sub">' + esc(E.m) + '</span>' +
+    (E.send && impSendF ? '<button class="imsend" data-act="imp:send">' + RMI('send-plane-2-line', 18, 'currentColor') + '<span>Mandar este archivo para que Nazca aprenda</span></button>' : '') + '</span></div>';
+}
+/* Mandar un archivo que Nazca no reconoció: la persona lo decide, ve qué pasa con él y recién entonces se envía (para entrenar a Nazca, nada más). */
+function impSendDlg() {
+  if (!impSendF) return;
+  const row = (ic, t, no) => '<div class="row rvr"><span class="rvi' + (no ? ' no' : '') + '">' + RMI(ic, 18, 'currentColor') + '</span><span class="grow">' + t + '</span></div>';
+  showSheet(sheetHead('Enseñarle a Nazca') +
+    '<div class="rvint"><div class="rvbig">' + RMI('send-plane-2-line', 26, '#1A9D63') + '</div>' +
+    '<div class="sub">Si mandas este archivo, el equipo de Plata lo revisa para enseñarle a Nazca a leer ese tipo de documento.</div></div>' +
+    '<div class="slabel rvl">Qué se hará</div><div class="scard">' +
+    row('file-line', 'Se envía una copia del archivo tal cual: incluye lo que diga, como tus movimientos y tu nombre.') +
+    row('eye-line', 'El equipo de Plata lo lee, con ayuda de herramientas de inteligencia artificial, para añadir ese banco o formato a Nazca.') +
+    row('lock-unlock-line', 'La copia no va cifrada de extremo a extremo: el equipo puede leerla.') +
+    row('delete-bin-line', 'Se borra de los servidores como máximo a los 30 días.') + '</div>' +
+    '<div class="slabel rvl">Qué no se hará</div><div class="scard">' +
+    row('graduation-cap-line', 'Solo se usa para entrenar a Nazca, nada más.', 1) +
+    row('eye-off-line', 'No se publica, no se comparte con terceros y no se vende.', 1) +
+    row('checkbox-circle-fill', 'No se guarda en tu perfil: tus datos siguen igual en tu dispositivo.', 1) + '</div>' +
+    '<button class="primary rvgo" data-act="imp:sendgo" disabled style="margin-top:4px;opacity:.5">Mandar archivo (5)</button>');
+  let n = 5; const tm = setInterval(() => {
+    const b = document.querySelector('#sheet .rvgo'); if (!b) { clearInterval(tm); return; }
+    n--; if (n > 0) { b.textContent = 'Mandar archivo (' + n + ')'; return; }
+    clearInterval(tm); b.textContent = 'Mandar archivo'; b.disabled = false; b.style.opacity = '';
+  }, 1000);
+}
+async function impSendGo() {
+  const f = impSendF; closeSheet(); if (!f) return;
+  if (f.size > 3 * 1024 * 1024) { toast('El archivo es muy grande para mandarlo (máximo 3 MB).'); return; }
+  toast('Enviando…');
+  try {
+    const u8 = new Uint8Array(await f.arrayBuffer()); let bin = ''; for (let i = 0; i < u8.length; i += 0x8000) bin += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000));
+    const kind = /\.xlsx$/i.test(f.name || '') ? 'xlsx' : /\.pdf$/i.test(f.name || '') || (u8[0] === 0x25 && u8[1] === 0x50) ? 'pdf' : /\.(csv|tsv|txt)$/i.test(f.name || '') ? 'csv' : 'otro';
+    const r = await fetch(PLATA_CLOUD_API + '/nazca', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ v: 1, build: APP_BUILD, plat: syncDevice().plat, kind: kind, bank: ui.impBank || '', why: ui.impErr ? String(ui.impErr.t).slice(0, 60) : '', b64: btoa(bin) }) });
+    const j = await r.json().catch(() => ({}));
+    if (r.ok && j.ok) { impSendF = null; if (ui.impErr) ui.impErr.send = false; if ($('#impbody')) { /* sigue en la pantalla de aviso */ } renderAll(); toast('Listo. Gracias: Nazca aprenderá de este archivo.'); return; }
+    if (r.status === 403 && j.error === 'off') { toast('El envío de archivos está desactivado por ahora.'); return; }
+    if (r.status === 429) { toast('Ya enviaste varios archivos hoy. Inténtalo mañana.'); return; }
+    if (r.status === 413) { toast('El archivo es muy grande para mandarlo (máximo 3 MB).'); return; }
+  } catch (e) { /* sin conexión */ }
+  toast('No se pudo enviar. Revisa tu conexión e inténtalo de nuevo.');
+}
 const impChev = () => '<span style="color:var(--sec);font-size:22px;line-height:1">›</span>';
 const impNote = (t) => '<div class="imnote">' + t + '</div>';
 function impBodyHTML(st) {
@@ -5719,7 +5764,7 @@ function impBodyHTML(st) {
   }
   /* start */
   return '<p class="imlead">Trae tus movimientos desde tu banco, sin conectar tus cuentas.</p>' +
-    '<div class="scard"><button class="imgo" data-act="imp:csv">' + RMI('upload-2-line', 24, '#22B573') + '<span class="grow"><span class="imt">Importar archivo</span><span class="sub">Importa un archivo CSV o un estado de cuenta de tu banco. Plata usará Nazca para interpretarlo.</span></span>' + impChev() + '</button>' +
+    '<div class="scard"><button class="imgo" data-act="imp:csv">' + RMI('download-2-line', 24, '#22B573') + '<span class="grow"><span class="imt">Importar archivo</span><span class="sub">Importa un archivo CSV o un estado de cuenta de tu banco. Plata usará Nazca para interpretarlo.</span></span>' + impChev() + '</button>' +
     '<button class="linkrow" data-act="imp:how" style="padding:0 0 12px 38px;min-height:0">Ver cómo funciona…</button>' +
     '<button class="imgo" data-act="imp:country">' + RMI('bank-line', 24, '#22B573') + '<span class="grow"><span class="imt">Elegir banco</span><span class="sub">Revisa una lista de bancos donde Nazca tiene funciones de interpretación avanzada.</span></span>' + impChev() + '</button></div>' +
     impNote('<span style="display:inline-block;vertical-align:-2px;margin-right:4px">' + RMI('shield-check-line', 14, 'currentColor') + '</span><span>Todo se lee en este dispositivo. Plata no se conecta a tu banco ni te pide las claves de tu banca por internet.</span>');
@@ -5809,6 +5854,8 @@ function impCheckHTML(ck) {
 function impRender() { const b = $('#impbody'); if (!b || !ui.imp) return; const d = b.querySelector('details.imcols'); if (d) ui.imp.colsOpen = d.open; b.innerHTML = impErrHTML() + impCarouselHTML(); }
 function impAct(arg) {
   const I = ui.imp, p = String(arg).split(':');
+  if (p[0] === 'send') { impSendDlg(); return; }
+  if (p[0] === 'sendgo') { impSendGo(); return; }
   if (p[0] === 'start') { impOpen(); return; }
   if (p[0] === 'how') { impShow('how', 'push'); return; }
   if (p[0] === 'csv') { ui.impBank = null; ui.impAt = ui.impStep || null; impPick(); return; }
