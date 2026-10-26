@@ -1039,7 +1039,7 @@ html.web .xbtn,html[data-theme=dark].web .xbtn{background:color-mix(in srgb,var(
 .imrad{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid var(--sec);box-sizing:border-box}.imopt.on .imrad{border:7px solid var(--accent)}
 .imcols>summary{cursor:pointer;font-size:16px;font-weight:600;padding:12px 0;list-style:none}.imcols>summary::-webkit-details-marker{display:none}.imcols>summary::after{content:'›';float:right;color:var(--sec);transition:transform .2s}.imcols[open]>summary::after{transform:rotate(90deg)}
 .imgo{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:0;padding:14px 0;border-top:1px solid var(--line);color:var(--ink);font:inherit;cursor:pointer}.imgo:first-child{border-top:0}.imgo .sub{display:block;font-size:13.5px}.imgo.dis{opacity:.55;cursor:default}.imbk{padding:14px 0;gap:16px}.imbk .imt{font-size:17px;font-weight:600;line-height:1.2}.imbk .sub{font-size:14px;margin-top:1px}
-html.web .imlogo,html.web .imav,html.web .imbk:not(.dis) .imglyph{color:color-mix(in srgb,var(--accent) 62%,transparent)}
+html.web .imlogo,html.web .imav,html.web .imbk:not(.dis) .imglyph{color:#22B573}
 .imlogo{display:block;color:var(--mute);color:color-mix(in srgb,var(--ink) 46%,transparent);padding:8px 0 14px}.imlogo svg{display:block;height:40px;width:auto}
 .imglyph{flex:none;width:40px;height:40px;color:var(--mute);color:color-mix(in srgb,var(--ink) 46%,transparent);display:grid;place-items:center}.imglyph svg{width:34px;height:34px}.imgo svg{flex:none}
 .imlead{font-size:16px;line-height:1.4;color:var(--mute);margin:0;padding:0 4px 14px}.improf{padding:16px}.improf .imtop{display:flex;align-items:center;gap:14px}
@@ -1050,6 +1050,7 @@ html.web .imlogo,html.web .imav,html.web .imbk:not(.dis) .imglyph{color:color-mi
 .imchk{display:flex;align-items:flex-start;gap:12px;margin:14px -16px -16px;padding:14px 16px 16px;border-top:1px solid var(--line)}.imchk .imt{font-size:17px}.imchk .sub{display:block;font-size:14px;margin-top:1px}.imchk svg{flex:none;margin-top:1px}.imchk.warn{color:var(--ot)}
 .imfoot{display:flex;align-items:flex-start;justify-content:flex-start;gap:8px;font-size:13px;line-height:1.4;color:var(--mute);text-align:left;padding:2px 16px 16px}.imfoot svg{flex:none;margin-top:1px}
 .imopt .imt{font-size:17px}.imopt .sub{font-size:14px}.imacc{padding:0 0 12px 34px}.imacc select{width:100%}
+.imsteps{padding:6px 16px}.imstep{display:flex;align-items:center;gap:14px;padding:11px 0;border-top:1px solid var(--line);font-size:16px;line-height:1.3}.imstep:first-child{border-top:0}.imstep .imn{width:26px;height:26px;font-size:14px}
 .imnote{font-size:13px;line-height:1.4;color:var(--mute);text-align:center;padding:4px 14px 14px}
 .imbar{position:sticky;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:5;padding-top:12px}.imbar::before{content:'';position:absolute;left:-16px;right:-16px;top:0;bottom:-12px;background:linear-gradient(to top,var(--bg) 60%,transparent);z-index:-1;pointer-events:none}html.web .imbar::before{background:linear-gradient(to top,var(--wtile) 60%,transparent)}
 .imdni{font-size:24px;font-weight:600;letter-spacing:.08em;padding-top:2px}.imdni::placeholder{color:var(--mute);opacity:.45;font-weight:500;letter-spacing:.04em}.imspin{width:36px;height:36px;border-radius:50%;border:3px solid var(--fill);border-top-color:var(--accent);animation:imspin .8s linear infinite;margin:44px auto 18px}@keyframes imspin{to{transform:rotate(360deg)}}@media (prefers-reduced-motion:reduce){.imspin{animation-duration:2.4s}}
@@ -5460,7 +5461,7 @@ async function impFile(f) {
 }
 /* PDF: la librería (pdf.js) se descarga solo ahora y corre en este dispositivo. Nazca reconoce el banco por el contenido y usa su lector. */
 async function impPdf(f) {
-  if (f.size > NazcaPDF.MAX_BYTES) { impFail('El PDF es muy grande', 'El máximo es 15 MB.'); return; }
+  if (f.size > NazcaPDF.MAX_BYTES) { impFail('El archivo es muy grande', 'El máximo es 15 MB.'); return; }
   const dni = impDni.trim(), name = String(f.name || '').slice(0, 80);
   impShow('busy');
   let doc;
@@ -5468,21 +5469,21 @@ async function impPdf(f) {
   catch (e) { impPdfError(e); return; }
   impDni = '';
   const rd = NazcaBancos.detect(doc, ui.impBank || null);
-  if (!rd) { impFail(ui.impBank ? 'Este PDF no parece del BCP' : 'Nazca todavía no reconoce este PDF', ui.impBank ? 'Por ahora Nazca lee el estado de cuenta de ahorros del BCP. Revisa que sea ese PDF.' : 'Por ahora Nazca lee el estado de cuenta de ahorros del BCP. Si tu banco ofrece un archivo CSV, importa ese.'); return; }
+  if (!rd) { impFail(ui.impBank ? 'Este archivo no parece del BCP' : 'Nazca todavía no reconoce este archivo', ui.impBank ? 'Por ahora Nazca lee el estado de cuenta de ahorros del BCP. Revisa que sea ese archivo.' : 'Por ahora Nazca lee el estado de cuenta de ahorros del BCP. Si tu banco ofrece un archivo CSV, importa ese.'); return; }
   const r = rd.read(doc);
-  if (!r || r.error) { impFail('Nazca no pudo leer el estado de cuenta', 'No encontramos el periodo del estado de cuenta en el PDF.'); return; }
-  if (!r.items.length) { impFail('Nazca no encontró movimientos', 'No hallamos movimientos en el PDF. Revisa que sea el estado de cuenta de tu banco.'); return; }
+  if (!r || r.error) { impFail('Nazca no pudo leer el estado de cuenta', 'No encontramos el periodo del estado de cuenta en el archivo.'); return; }
+  if (!r.items.length) { impFail('Nazca no encontró movimientos', 'No hallamos movimientos en el archivo. Revisa que sea el estado de cuenta de tu banco.'); return; }
   impFromPdf(name, r);
 }
 function impPdfError(e) {
   const c = e && e.code;
-  if (c === 'need_password') impFail('Este PDF tiene clave', 'Para abrirlo, elige tu banco en «Elegir banco» e ingresa tu DNI.');
-  else if (c === 'bad_password') impFail('Ese DNI no abre el PDF', 'Revisa el número e inténtalo otra vez.');
-  else if (c === 'unavailable') impFail('Nazca no pudo cargar el lector de PDF', 'Abre Plata desde web.plataapp.net con conexión para leer PDF, o importa el CSV de tu banco.');
-  else if (c === 'no_text') impFail('Este PDF no tiene texto', 'Parece una foto o un escaneo. Descarga el estado de cuenta en PDF desde la banca por internet de tu banco.');
-  else if (c === 'not_pdf') impFail('Ese archivo no es un PDF', 'Elige el estado de cuenta en PDF que descargaste de tu banco.');
-  else if (c === 'too_big') impFail('El PDF es muy grande', 'El máximo es 15 MB.');
-  else impFail('Nazca no pudo leer ese PDF', 'Revisa que sea el estado de cuenta en PDF que descargaste de tu banco.' + ' (' + (e && (e.detail || ((e.name || 'Error') + ': ' + String(e.message || '').slice(0, 90))) || 'sin detalle') + ' · build ' + APP_BUILD + ')');
+  if (c === 'need_password') impFail('Este estado de cuenta tiene clave', 'Para abrirlo, elige tu banco en «Elegir banco» e ingresa tu DNI.');
+  else if (c === 'bad_password') impFail('Ese DNI no abre el estado de cuenta', 'Revisa el número e inténtalo otra vez.');
+  else if (c === 'unavailable') impFail('Nazca no pudo cargar el lector', 'Abre Plata desde web.plataapp.net con conexión para leer tu estado de cuenta, o importa el CSV de tu banco.');
+  else if (c === 'no_text') impFail('Este archivo no tiene texto', 'Parece una foto o un escaneo. Descarga el estado de cuenta desde la banca por internet de tu banco.');
+  else if (c === 'not_pdf') impFail('Ese archivo no es un estado de cuenta', 'Elige el estado de cuenta que descargaste de tu banco.');
+  else if (c === 'too_big') impFail('El archivo es muy grande', 'El máximo es 15 MB.');
+  else impFail('Nazca no pudo leer ese archivo', 'Revisa que sea el estado de cuenta que descargaste de tu banco.' + ' (' + (e && (e.detail || ((e.name || 'Error') + ': ' + String(e.message || '').slice(0, 90))) || 'sin detalle') + ' · build ' + APP_BUILD + ')');
 }
 function impFromPdf(name, r) {
   const bankIs = (o) => { const b = bankOf(o); return !!(b && b.keys.indexOf(r.bank) >= 0); }, last4 = (r.account && r.account.last4) || '';
@@ -5527,10 +5528,10 @@ function impBodyHTML(st) {
       return '<' + tag + ' class="imgo imbk' + (on ? '' : ' dis') + '"' + (on ? ' data-act="imp:bank:' + b.id + '"' : '') + '><span class="imglyph">' + impMark(b.id, 'glyph') + '</span><span class="grow"><span class="imt" data-notr>' + esc(b.name) + '</span><span class="sub">' + esc(b.hq) + '</span></span>' + (on ? impChev() : '<span class="sub" style="display:inline;font-size:14px">No disponible</span>') + '</' + tag + '>'; };
     return '<div class="scard">' + c.banks.map(row).join('') + '</div>';
   }
-  if (st === 'bank') return '<p class="imlead">Sube el PDF de tu estado de cuenta de ahorros. Lo descargas de la banca por internet del BCP o te llega por correo.</p>' +
+  if (st === 'bank') return '<div class="scard imsteps">' + ['Ve a la Banca por Internet', 'Elige la cuenta a consultar', 'Selecciona la opción Más, y después Estado de Cuenta.', 'Elige el mes y año a consultar.', 'Genera el estado de cuenta y descárgalo de tu correo.'].map((t, i) => '<div class="imstep"><span class="imn" data-notr>' + (i + 1) + '</span><span class="grow">' + t + '</span></div>').join('') + '</div>' +
     '<div class="scard"><label class="srow" style="padding:12px 0"><span class="grow"><span class="slabel">DNI</span><input class="sinput imdni" id="impDni" type="text" inputmode="numeric" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="12" placeholder="········" value="' + esc(impDni) + '" data-notr></span></label></div>' +
-    impNote('Es la clave de tu PDF. Plata no guarda ni revisa este número: solo sirve para abrirlo en este dispositivo.') +
-    '<div class="imbar"><button class="primary" id="impPickBtn" data-act="imp:pdf"' + (impDniOk() ? '' : ' disabled') + '>Elegir PDF</button></div>';
+    impNote('Es la clave de tu estado de cuenta. Plata no guarda ni revisa este número: solo sirve para abrirlo en este dispositivo.') +
+    '<div class="imbar"><button class="primary" id="impPickBtn" data-act="imp:pdf"' + (impDniOk() ? '' : ' disabled') + '>Subir estado de cuenta</button></div>';
   if (st === 'busy') return '<div class="imspin" role="status" aria-label="Leyendo"></div><div class="imlead" style="text-align:center">Nazca está leyendo tu estado de cuenta en este dispositivo.</div>';
   if (st === 'done') {
     const D = ui.impDone || { n: 0, acc: '', bal: 0, cur: 'PEN' };
