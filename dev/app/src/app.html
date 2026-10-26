@@ -1058,7 +1058,11 @@ html.web .imlogo,html.web .imav,html.web .imbk:not(.dis) .imglyph{color:#22B573}
 .imdone{display:grid;place-items:center;width:72px;height:72px;border-radius:50%;background:var(--accent);box-shadow:0 10px 28px -8px rgba(34,181,115,.6)}
 .imn{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:13px;font-weight:700;display:grid;place-items:center}
 .imok{display:flex;gap:10px;align-items:flex-start;border-radius:14px;padding:10px 12px;margin:0 0 12px;font-size:14.5px;background:rgba(34,181,115,.14);color:var(--gt)}.imok .sub{color:inherit;opacity:.85;font-size:13px}.imok svg{flex:none;margin-top:1px}.imok.warn{background:var(--obg);color:var(--ot)}
-.imlist{padding-top:2px;padding-bottom:2px}.imfilt{margin:2px 0 10px}.imfbtn{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 14px;border-radius:19px;border:0;background:var(--card);color:var(--ink);font:inherit;font-size:15px;font-weight:500;cursor:pointer}.imfbtn.on{background:var(--ink);color:var(--card)}.imfcur{opacity:.7;font-weight:400}.imchips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.imchip{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:17px;border:1px solid var(--line2);background:transparent;color:var(--ink);font:inherit;font-size:14px;cursor:pointer}.imchip.on{background:var(--accent);border-color:var(--accent);color:#fff}.imn{opacity:.6;font-size:12.5px;font-variant-numeric:tabular-nums}.imfall{justify-content:flex-start;margin-top:6px;font-size:15px}.impager{display:flex;align-items:center;justify-content:center;gap:18px;padding:2px 0 14px;color:var(--mute);font-size:15px;font-variant-numeric:tabular-nums}.impager button{width:44px;height:44px;border-radius:50%;border:0;background:var(--card);color:var(--ink);display:grid;place-items:center;cursor:pointer}.impager button:disabled{opacity:.35;cursor:default}.imrow{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}.imrow:first-child{border-top:0}.imrow.off .grow,.imrow.off .imr{opacity:.45}
+.imstrip{display:flex;align-items:center;justify-content:center;gap:9px;margin:0 0 12px}.imstrip span{font-size:13px;color:var(--mute);font-variant-numeric:tabular-nums;margin-left:4px}.imdot{width:9px;height:9px;padding:0;border:0;border-radius:50%;background:var(--fill);transition:transform .2s,background .2s;cursor:pointer}.imdot.ok{background:var(--accent)}.imdot.bad{background:#FF9500}.imdot.on{transform:scale(1.45);box-shadow:0 0 0 3px rgba(128,128,128,.25)}
+#impslide{touch-action:pan-y}.imsl-l{animation:imsll .28s cubic-bezier(.2,.8,.2,1)}.imsl-r{animation:imslr .28s cubic-bezier(.2,.8,.2,1)}@keyframes imsll{from{transform:translateX(56px);opacity:.2}to{transform:none;opacity:1}}@keyframes imslr{from{transform:translateX(-56px);opacity:.2}to{transform:none;opacity:1}}
+.imextra{margin:2px 0 10px}.imextra .linkrow{width:100%}
+#impnav{display:none}html.web #impnav.on{display:block}#impnav button{position:fixed;top:50%;z-index:81;width:52px;height:52px;margin-top:-26px;border-radius:50%;border:1px solid var(--wline,rgba(60,60,67,.14));background:var(--wtile,var(--card));color:var(--ink);display:grid;place-items:center;cursor:pointer;box-shadow:0 10px 28px rgba(8,30,20,.25);transition:transform .15s,opacity .2s}#impnav button:hover:not(:disabled){transform:scale(1.07)}#impnav button:disabled{opacity:.3;cursor:default}#impnav .l{right:calc(50% + min(460px,100vw - 32px) / 2 + 18px)}#impnav .r{left:calc(50% + min(460px,100vw - 32px) / 2 + 18px)}
+.imlist{padding-top:2px;padding-bottom:2px}.imfilt{margin:2px 0 10px}.imfrow{display:flex;align-items:center;gap:10px}.imfbtn{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;border:1px solid rgba(60,60,67,.14);background:var(--card);color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.06);cursor:pointer;padding:0}.imfbtn.on{background:var(--accent);border-color:var(--accent);color:#fff}html[data-theme=dark] .imfbtn:not(.on){background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.16);box-shadow:none;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}.imfcur{font-size:15px;font-weight:600;color:var(--ink)}.imchips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.imchip{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:17px;border:1px solid var(--line2);background:transparent;color:var(--ink);font:inherit;font-size:14px;cursor:pointer}.imchip.on{background:var(--accent);border-color:var(--accent);color:#fff}.imcn{opacity:.6;font-size:12.5px;font-variant-numeric:tabular-nums}.imfall{justify-content:flex-start;margin-top:6px;font-size:15px}.impager{display:flex;align-items:center;justify-content:center;gap:18px;padding:2px 0 14px;color:var(--mute);font-size:15px;font-variant-numeric:tabular-nums}.impager button{width:44px;height:44px;border-radius:50%;border:0;background:var(--card);color:var(--ink);display:grid;place-items:center;cursor:pointer}.impager button:disabled{opacity:.35;cursor:default}.imrow{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}.imrow:first-child{border-top:0}.imrow.off .grow,.imrow.off .imr{opacity:.45}
 .imck{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--sec);background:transparent;padding:0;display:grid;place-items:center;cursor:pointer;box-sizing:border-box}.imck.on{background:var(--accent);border-color:var(--accent)}
 .imd{font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.imwhy{color:var(--ot);font-weight:600}
 .imr{flex:none;text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px;max-width:46%}
@@ -1109,7 +1113,7 @@ button.primary[disabled]{opacity:.45;pointer-events:none}
 </div>
 <input type="file" id="file" accept=".json,application/json" hidden>
 <input type="file" id="clfile" accept=".json,application/json" hidden>
-<input type="file" id="impfile" accept=".csv,.tsv,.txt,.pdf,text/csv,text/plain,text/tab-separated-values,application/pdf" hidden>
+<input type="file" id="impfile" multiple accept=".csv,.tsv,.txt,.pdf,text/csv,text/plain,text/tab-separated-values,application/pdf" hidden>
 
 <script>
 (function(){
@@ -2758,6 +2762,13 @@ const BANKS = [
     ['M288.44,165.08h-58.44c-15.93,0-31.3,5.89-43.17,16.53-11.87,10.64-19.42,25.3-21.19,41.17-5.43-9.88-8.2-21.01-8.03-32.3.17-11.28,3.27-22.33,8.99-32.04,5.72-9.72,13.87-17.77,23.65-23.37,9.77-5.6,20.83-8.55,32.09-8.55h100.85l-34.74,38.57Z', '#fff', '#fff', 1],
     ['M171.56,294.9h58.44c15.93,0,31.3-5.88,43.17-16.53s19.42-25.3,21.19-41.17c5.44,9.88,8.21,21.02,8.04,32.3-.17,11.28-3.26,22.33-8.99,32.05-5.72,9.72-13.87,17.78-23.65,23.37-9.78,5.6-20.84,8.55-32.1,8.55h-100.85l34.74-38.59Z', '#fff', '#fff', 1],
     ['M230,282.13c28.73,0,52.01-23.34,52.01-52.14s-23.29-52.14-52.01-52.14-52.01,23.34-52.01,52.14,23.29,52.14,52.01,52.14Z', '#fff', '#fff', 1]] },
+  /* Bancos que Nazca verifica: el glifo sale de IMP_MARKS (misma marca que en el importador). sz = tamaño del glifo en el lienzo de 460. */
+  { keys: ['capital one', 'capitalone', 'cap one'], bg: '#004977', mark: 'capitalone', sz: 250 },
+  { keys: ['chime'], bg: '#1EC677', mark: 'chime', sz: 230 },
+  { keys: ['seen'], bg: '#1B1B1F', mark: 'seen', sz: 230 },
+  { keys: ['bank of america', 'bankofamerica', 'bofa'], bg: '#012169', mark: 'bofa', sz: 250 },
+  { keys: ['apple card', 'applecard'], bg: '#1C1C1E', mark: 'applecard', sz: 220 },
+  { keys: ['community bank', 'communitybank', 'cbna'], bg: '#00539B', mark: 'communitybank', sz: 260 },
 ];
 const bankNorm = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 const bankPick = (o) => (o && o.icon && o.iconUser ? null : bankOf(o)); /* el logo gana, salvo que la persona haya elegido un icono a mano */
@@ -2766,7 +2777,12 @@ const bankOf = (o) => {
   return BANKS.find((b) => b.keys.some((k) => new RegExp('(^|[^a-z0-9])' + k + '([^a-z0-9]|$)').test(n))) || null;
 };
 /* cuenta: logo tal cual (con fondo de marca) · tarjeta: solo el glifo, en blanco, sobre el color elegido */
-const bankSVG = (b, card) => '<svg viewBox="0 0 460 460" style="width:100%;height:100%;display:block" aria-hidden="true">' + (card ? '' : '<rect width="460" height="460" fill="' + b.bg + '"/>') +
+function bankMarkSVG(b, card) {   /* glifo de IMP_MARKS centrado en el lienzo de 460 (cuenta: sobre el color del banco · tarjeta: solo el glifo, en blanco) */
+  const m = IMP_MARKS[b.mark]; if (!m || !m.glyph) return '';
+  const vb = (/viewBox="([^"]+)"/.exec(m.glyph) || [, '0 0 24 24'])[1].trim().split(/\s+/).map(Number), k = (b.sz || 240) / Math.max(vb[2], vb[3]), w = vb[2] * k, h = vb[3] * k, inner = m.glyph.replace(/^<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
+  return '<svg viewBox="0 0 460 460" style="width:100%;height:100%;display:block" aria-hidden="true">' + (card ? '' : '<rect width="460" height="460" fill="' + b.bg + '"/>') + '<svg x="' + ((460 - w) / 2).toFixed(1) + '" y="' + ((460 - h) / 2).toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + h.toFixed(1) + '" viewBox="' + vb.join(' ') + '" style="color:#fff;overflow:hidden">' + inner + '</svg></svg>';
+}
+const bankSVG = (b, card) => b.mark ? bankMarkSVG(b, card) : '<svg viewBox="0 0 460 460" style="width:100%;height:100%;display:block" aria-hidden="true">' + (card ? '' : '<rect width="460" height="460" fill="' + b.bg + '"/>') +
   b.p.map((x) => '<path d="' + x[0] + '" fill="' + (card ? x[2] : x[1]) + '"' + (card && x[3] < 1 ? ' fill-opacity="' + x[3] + '"' : '') + '/>').join('') + '</svg>';
 const tile = (color, ch) => '<span class="tile" style="background:' + color + '" aria-hidden="true">' + ch + '</span>';
 /* ---------- Marcas de suscripciones y servicios (logo + color propio; solo aplica a suscripciones) ---------- */
@@ -4205,6 +4221,7 @@ function webFocus(t) {
   clearTimeout(e._wf); e._wf = setTimeout(() => e.classList.remove('wflash'), 1500);
 }
 function setTab(t) {
+  if (document.getElementById('impnav')) { const n = document.getElementById('impnav'); n.remove(); }
   if (document.documentElement.classList.contains('web') && t !== 'cuenta' && ui.tab !== 'cuenta' && TAB_ORDER.indexOf(t) >= 0) { ui.tab = t; document.documentElement.setAttribute('data-tab', t); webFocus(t); return; }
   const prevT = ui.tab, mode = t === prevT ? 'tab' : t === 'cuenta' ? 'push' : prevT === 'cuenta' ? 'pop' : 'tab';
   ui.tab = t;
@@ -5425,19 +5442,20 @@ const IMP_PER = 20, IMP_WHY = { exact: 'Ya importado', near: 'Parece repetido', 
 /* Pasarela de importación: PANTALLA COMPLETA (como Ajustes), no ventana emergente. Pasos en ui.impStep:
  * start → how · country → banks → bank → busy → review → done. La contraseña vive solo en la variable impKey, nunca en ui, data ni el perfil. */
 var impKey = '', impPend = null;   /* contraseña del PDF y el archivo que espera su contraseña: solo en memoria */
+let impBatch = null;   /* mientras se leen varios archivos a la vez: junta los resultados y los errores en vez de cambiar de pantalla */
 const impKeyOk = () => impKey.length > 0 && impKey.length <= 64;
 /* Bancos cuyo estado de cuenta siempre viene con clave: qué se le pide a la persona. Los demás no piden nada hasta que un archivo lo necesite. */
 const IMP_KEY = { bcp: { label: 'DNI', num: true, note: 'El BCP protege el estado de cuenta con tu DNI. Plata no lo guarda ni lo revisa: solo sirve para abrirlo en este dispositivo.' } };
 const IMP_PREV = { how: 'start', country: 'start', banks: 'country', bank: 'banks', key: 'start' };
 function impPick() { ui.impAt = ui.impStep || null; const i = $('#impfile'); if (i) { i.value = ''; i.click(); } }
 function impOpen() {
-  ui.imp = null; ui.impErr = null; ui.impBank = null; ui.impAt = null; ui.impDone = null; impKey = ''; impPend = null;
+  ui.imp = null; ui.impSet = null; impBatch = null; ui.impErr = null; ui.impBank = null; ui.impAt = null; ui.impDone = null; impKey = ''; impPend = null;
   ui.impFrom = ui.tab === 'cuenta' && ui.itemKind === 'settings' && ui.itemId != null ? 'settings' : 'tab';
   ui.impStep = 'start'; openItem('imp', 'x'); navSlide('push');
 }
-function impShow(step, dir) { if (step === 'start' || step === 'how' || step === 'country' || step === 'banks') { impKey = ''; impPend = null; } ui.impStep = step; renderCuenta(); navSlide(dir || 'tab'); }
+function impShow(step, dir) { if (step === 'start' || step === 'how' || step === 'country' || step === 'banks') { impKey = ''; impPend = null; } ui.impStep = step; renderCuenta(); navSlide(dir || 'tab'); impNavSync(); }
 function impExit() {
-  const from = ui.impFrom; ui.imp = null; ui.impErr = null; ui.impStep = null; ui.impBank = null; ui.impDone = null; impKey = ''; impPend = null;
+  const from = ui.impFrom; { const nv = document.getElementById('impnav'); if (nv) nv.remove(); } ui.imp = null; ui.impSet = null; ui.impErr = null; ui.impStep = null; ui.impBank = null; ui.impDone = null; impKey = ''; impPend = null;
   if (from === 'settings') { ui.itemKind = 'settings'; ui.itemId = 's'; renderCuenta(); navSlide('pop'); } else itemBackNav();
 }
 function impBack() {
@@ -5447,12 +5465,12 @@ function impBack() {
   if (st === 'key') { impKey = ''; impPend = null; }
   ui.impErr = null; impShow(to, 'pop');
 }
-function impFail(t, m) { ui.impErr = { t: t, m: m }; ui.imp = null; impShow(ui.impAt || 'start', 'tab'); }
+function impFail(t, m) { if (impBatch) { impBatch.fails.push({ t: t, m: m, name: impBatch.cur || '' }); return; } ui.impErr = { t: t, m: m }; ui.imp = null; impShow(ui.impAt || 'start', 'tab'); }
 async function impFile(f) {
   if (!f) return;
   ui.impErr = null; if (ui.impStep === 'start' || ui.impStep === 'how' || ui.impStep === 'bank' || ui.impStep === 'key') ui.impAt = ui.impStep; /* si falla, vuelve a la pantalla donde elegiste el archivo */
   const head = String.fromCharCode.apply(null, new Uint8Array(await f.slice(0, 5).arrayBuffer()));
-  if (head === '%PDF-' || /\.pdf$/i.test(f.name || '') || f.type === 'application/pdf') { impPdf(f); return; }
+  if (head === '%PDF-' || /\.pdf$/i.test(f.name || '') || f.type === 'application/pdf') { await impPdf(f); return; }
   if (f.size > Nazca.MAX_BYTES) { impFail('El archivo es muy grande', 'El máximo es 5 MB. Descarga un periodo más corto desde tu banca por internet.'); return; }
   let a, x;
   try { a = Nazca.analyze(Nazca.decode(await f.arrayBuffer())); x = Nazca.extract(a); }
@@ -5468,14 +5486,14 @@ function impCsvReview(fname, a, x, fromPdf, guess) {
   const curs = {}; x.items.forEach((it) => { if (it.cur) curs[it.cur] = (curs[it.cur] || 0) + 1; });
   const fileCur = Object.keys(curs).sort((p, q) => curs[q] - curs[p])[0] || '', all = data.accounts.concat(data.cards);
   const acc = all.find((o) => o.id === ui.acctId) || (fileCur && data.accounts.find((o) => o.cur === fileCur)) || data.accounts[0];
-  ui.imp = { name: String(fname || '').slice(0, 80), a: a, x: x, cols: null, acc: acc.id, flip: null, bal: null, sel: {}, cat: {}, all: false, gen: !!fromPdf, guess: String(guess || '').slice(0, 40) };
-  impBuild(); impShow('review', 'push');
+  ui.imp = { name: String(fname || '').slice(0, 80), a: a, x: x, cols: null, acc: acc.id, flip: null, bal: null, sel: {}, cat: {}, all: false, gen: !!fromPdf, guess: String(guess || '').slice(0, 40), names: [String(fname || '').slice(0, 80)], mdup: 0 };
+  impBuild(); impReady();
 }
 /* PDF: la librería (pdf.js) se descarga solo ahora y corre en este dispositivo. Nazca reconoce el banco por el contenido y usa su lector. */
 async function impPdf(f) {
   if (f.size > NazcaPDF.MAX_BYTES) { impFail('El archivo es muy grande', 'El máximo es 15 MB.'); return; }
   const key = impKey, name = String(f.name || '').slice(0, 80);
-  impShow('busy');
+  if (!impBatch) impShow('busy');
   let doc;
   try { const lib = await NazcaPDF.load(new URL('nazca/', location.href).href); doc = await NazcaPDF.read(new Uint8Array(await f.arrayBuffer()), lib, key || undefined); }
   catch (e) { impPdfError(e, f); return; }
@@ -5496,8 +5514,105 @@ async function impPdf(f) {
   if (!r.items.length) { impFail('Nazca no encontró movimientos', 'No hallamos movimientos en el archivo. Revisa que sea el estado de cuenta de tu banco.'); return; }
   impFromPdf(name, r);
 }
+
+/* ---- Varios archivos a la vez: un carrusel de revisiones. Dos estados del mismo banco y la misma cuenta se unen en una sola revisión. ---- */
+function impReady() {   /* una revisión recién armada (ui.imp): se suma al carrusel o, si es la única, se muestra */
+  if (impBatch) { impCollect(); return; }
+  ui.impSet = { list: [ui.imp], idx: 0 }; impShow('review', 'push');
+}
+const impNorm = (t) => String(t || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+function impSame(a, b) {
+  if (!a || !b || (a.src === 'pdf') !== (b.src === 'pdf') || !!a.card !== !!b.card || a.newAcc.cur !== b.newAcc.cur) return false;
+  const x = a.newAcc.last4 || '', y = b.newAcc.last4 || ''; if (x && y && x !== y) return false;
+  if (a.bank || b.bank) return a.bank === b.bank;
+  return !!(a.src === 'pdf' ? impNorm(a.label) && impNorm(a.label) === impNorm(b.label) : impNorm(a.guess) && impNorm(a.guess) === impNorm(b.guess));
+}
+function impAggCheck(list) {
+  const cs = list.filter((c) => c && c.ok !== null && c.ok !== undefined); if (!cs.length) return null;
+  const ok = cs.length < list.length ? null : cs.every((c) => c.ok === true) ? true : cs.some((c) => c.ok === false) ? false : null;
+  return { ok: ok, n: cs.length, have: true };
+}
+function impMerge(b, a) {   /* a se une a b: suma los movimientos (sin los que ya traía b), el periodo, el saldo más reciente y los datos de la tarjeta */
+  const key = (it) => it.date + '|' + String(it.desc).toLowerCase().replace(/\s+/g, ' ').trim() + '|' + it.amount, have = {};
+  b.x.items.forEach((it) => { const k = key(it); have[k] = (have[k] || 0) + 1; });
+  const add = []; a.x.items.forEach((it) => { const k = key(it); if (have[k] > 0) { have[k]--; b.mdup++; } else add.push(it); });
+  b.x = { items: b.x.items.concat(add), skipped: { unreadable: b.x.skipped.unreadable + a.x.skipped.unreadable, blank: 0, total: 0 } };
+  if (a.period) b.period = b.period ? { from: a.period.from < b.period.from ? a.period.from : b.period.from, to: a.period.to > b.period.to ? a.period.to : b.period.to } : a.period;
+  const aLater = a.stmtEnd && (!b.stmtEnd || a.stmtEnd.date >= b.stmtEnd.date);
+  if (aLater) { b.stmtEnd = a.stmtEnd; if (a.card && a.cardInfo) b.cardInfo = Object.assign({}, b.cardInfo || {}, a.cardInfo); }
+  b.checks = (b.checks || [b.check]).concat([a.check]); b.check = impAggCheck(b.checks);
+  b.names = b.names.concat(a.names); b.mdup += a.mdup || 0; b.sel = {}; b.cat = {}; b.flip = null; b.bal = null; b.page = 0;
+  const keep = ui.imp; ui.imp = b; try { impBuild(); } finally { ui.imp = keep; }
+}
+function impCollect() {
+  const I = ui.imp, S = ui.impSet; let j = S.list.findIndex((x) => impSame(x, I));
+  if (j >= 0) impMerge(S.list[j], I); else { S.list.push(I); j = S.list.length - 1; }
+  impBatch.last = j;
+}
+async function impFiles(files) {
+  if (!files || !files.length) return;
+  const adding = ui.impStep === 'review' && ui.impSet && ui.impSet.list.length > 0;
+  if (files.length === 1 && !adding) { await impFile(files[0]); return; }   /* un solo archivo: el camino de siempre (incluye pedir la contraseña) */
+  if (!ui.impSet) ui.impSet = { list: [], idx: 0 };
+  impBatch = { fails: [], last: -1, cur: '' };
+  if (adding) toast('Leyendo…'); else impShow('busy');
+  const S = ui.impSet; let B;
+  try { for (const f of files) { impBatch.cur = String((f && f.name) || '').slice(0, 60); await impFile(f); } }
+  finally { B = impBatch; impBatch = null; }
+  if (!S.list.length) { ui.impSet = null; const F = B.fails[0] || { t: 'Nazca no pudo leer esos archivos', m: 'Revisa que sean los archivos que descargaste de tu banco.' }; impFail(F.t, F.m); return; }
+  ui.impErr = B.fails.length ? { t: B.fails.length === 1 ? 'Un archivo no se pudo leer' : B.fails.length + ' archivos no se pudieron leer', m: B.fails.map((x) => (x.name ? x.name + ': ' : '') + x.t).join(' · ').slice(0, 220) } : null;
+  S.idx = adding && B.last >= 0 ? B.last : 0; ui.imp = S.list[S.idx];
+  impShow('review', adding ? 'tab' : 'push');
+}
+/* Cambiar de revisión del carrusel (con swipe, con puntos, con chevrons o con las flechas del teclado) */
+function impGoto(k, dir) {
+  const S = ui.impSet; if (!S || k < 0 || k >= S.list.length || k === S.idx) return;
+  const d = dir || (k > S.idx ? 'l' : 'r'); S.idx = k; ui.imp = S.list[k];
+  impRefresh(d);
+}
+function impRefresh(d) {
+  const b = $('#impbody'); if (!b || !ui.imp) return;
+  const dt = $('#s-cuenta .head .eyebrow'); if (dt) dt.textContent = ui.imp.label ? ui.imp.label : ui.imp.gen ? 'Archivo PDF' : 'Archivo CSV';
+  b.innerHTML = impErrHTML() + impCarouselHTML();
+  const sl = $('#impslide'); if (sl && d) { sl.classList.remove('imsl-l', 'imsl-r'); void sl.offsetWidth; sl.classList.add(d === 'l' ? 'imsl-l' : 'imsl-r'); }
+  const sc = $('#s-cuenta'); if (sc) sc.scrollTop = 0;
+  impNavSync();
+}
+function impCarouselHTML() {
+  const S = ui.impSet, n = S ? S.list.length : 1;
+  const strip = n > 1 ? '<div class="imstrip">' + S.list.map((x, k) => '<button class="imdot' + (k === S.idx ? ' on' : '') + (x.check && x.check.ok === true ? ' ok' : x.check && x.check.ok === false ? ' bad' : '') + '" data-act="imp:sl:' + k + '" aria-label="' + (k + 1) + '"></button>').join('') + '<span data-notr>' + (S.idx + 1) + ' / ' + n + '</span></div>' : '';
+  return strip + '<div id="impslide">' + impReviewHTML() + '</div>';
+}
+/* Chevrons fuera de la ventana (solo escritorio): se crean cuando hay más de una revisión y se quitan al salir */
+function impNavSync() {
+  let nav = document.getElementById('impnav'); const S = ui.impSet, on = !!(S && S.list.length > 1 && ui.impStep === 'review' && ui.itemKind === 'imp');
+  if (!on) { if (nav) nav.remove(); return; }
+  if (!nav) { nav = document.createElement('div'); nav.id = 'impnav'; nav.className = 'on'; document.body.appendChild(nav); }
+  nav.innerHTML = '<button class="l" data-act="imp:prev" aria-label="Anterior"' + (S.idx === 0 ? ' disabled' : '') + '>' + RMI('arrow-left-s-line', 30, 'currentColor') + '</button><button class="r" data-act="imp:next" aria-label="Siguiente"' + (S.idx === S.list.length - 1 ? ' disabled' : '') + '>' + RMI('arrow-right-s-line', 30, 'currentColor') + '</button>';
+}
+(function () {   /* swipe de dedo sobre la revisión: la tarjeta sigue al dedo y, si pasa de cierto punto, cambia a la siguiente */
+  let g = null;
+  const ok = (t) => ui.impSet && ui.impSet.list.length > 1 && ui.impStep === 'review' && t.closest && t.closest('#impslide') && !t.closest('select,input,textarea,details');
+  document.addEventListener('touchstart', (e) => { if (e.touches.length !== 1 || !ok(e.target)) { g = null; return; } const t = e.touches[0]; g = { x: t.clientX, y: t.clientY, lock: '', dx: 0, el: $('#impslide') }; }, { passive: true });
+  document.addEventListener('touchmove', (e) => {
+    if (!g || !g.el) return; const t = e.touches[0], dx = t.clientX - g.x, dy = t.clientY - g.y;
+    if (!g.lock) { if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return; g.lock = Math.abs(dx) > Math.abs(dy) * 1.2 ? 'h' : 'v'; }
+    if (g.lock !== 'h') return; if (e.cancelable) e.preventDefault();
+    const S = ui.impSet, edge = (dx > 0 && S.idx === 0) || (dx < 0 && S.idx === S.list.length - 1); g.dx = edge ? dx / 4 : dx;
+    g.el.style.transition = 'none'; g.el.style.transform = 'translateX(' + g.dx + 'px)'; g.el.style.opacity = String(Math.max(0.35, 1 - Math.abs(g.dx) / 520));
+  }, { passive: false });
+  const end = () => {
+    if (!g) return; const d = g.dx, el = g.el; g = null; if (!el) return;
+    const S = ui.impSet, next = d < -70 ? S.idx + 1 : d > 70 ? S.idx - 1 : -1;
+    if (next >= 0 && next < S.list.length) { el.style.transition = 'transform .16s ease-in,opacity .16s'; el.style.transform = 'translateX(' + (d < 0 ? -110 : 110) + '%)'; el.style.opacity = '0'; setTimeout(() => impGoto(next, d < 0 ? 'l' : 'r'), 150); }
+    else { el.style.transition = 'transform .2s ease-out,opacity .2s'; el.style.transform = ''; el.style.opacity = ''; }
+  };
+  document.addEventListener('touchend', end); document.addEventListener('touchcancel', end);
+  document.addEventListener('keydown', (e) => { const S = ui.impSet; if (!S || S.list.length < 2 || ui.impStep !== 'review' || (e.target.matches && e.target.matches('input,select,textarea'))) return; if (e.key === 'ArrowRight') { impGoto(S.idx + 1, 'l'); e.preventDefault(); } else if (e.key === 'ArrowLeft') { impGoto(S.idx - 1, 'r'); e.preventDefault(); } });
+})();
 function impPdfError(e, f) {
   const c = e && e.code;
+  if (impBatch && (c === 'need_password' || c === 'bad_password')) { impFail('Este estado de cuenta está protegido', 'Súbelo por separado para escribir su contraseña.'); return; }
   if (c === 'need_password' && ui.impAt !== 'key' && !(ui.impAt === 'bank' && IMP_KEY[ui.impBank])) { impPend = f; ui.impErr = null; impShow('key', 'push'); }   /* entró por «Importar archivo»: pide la contraseña en su propia pantalla */
   else if (c === 'need_password') { impPend = f; impFail('Este estado de cuenta está protegido', 'Escribe tu DNI y súbelo otra vez.'); }
   else if (c === 'bad_password') { impPend = f; ui.impAt === 'bank' && IMP_KEY[ui.impBank] ? impFail('Ese DNI no abre el estado de cuenta', 'Revísalo e inténtalo otra vez.') : impFail('Esa contraseña no abre el estado de cuenta', 'Revísala e inténtalo otra vez.'); }
@@ -5515,9 +5630,9 @@ function impFromPdf(name, r) {
   const cd = (card && r.card) || {};
   const nueva = card ? { id: '__new', kind: 'card', name: own || 'Tarjeta', cur: r.cur, limit: cd.limit || 0, balance: 0, apr: cd.apr != null ? cd.apr : 20, payment: cd.minPayment || 0, due_day: cd.dueDay ? Math.max(1, Math.min(31, cd.dueDay)) : 1, color: '', icon: '', last4: last4 }
     : { id: '__new', name: impBankShort(r.bank) + (r.cur === 'USD' ? ' Dólares' : ' Soles'), type: 'checking', cur: r.cur, apy: 0, balance: 0, color: '', icon: '', last4: last4 };
-  ui.imp = { src: 'pdf', label: r.label, check: r.check, name: name, a: { headers: [], width: 0, cols: {}, truncated: false }, x: { items: r.items, skipped: { unreadable: r.skipped.unreadable, blank: 0, total: 0 } },
+  ui.imp = { src: 'pdf', label: r.label, check: r.check, period: r.period || null, names: [name], mdup: 0, name: name, a: { headers: [], width: 0, cols: {}, truncated: false }, x: { items: r.items, skipped: { unreadable: r.skipped.unreadable, blank: 0, total: 0 } },
     cardInfo: cd, card: card, stmtEnd: r.check && r.check.end != null ? { balance: r.check.end, date: r.period ? r.period.to : '' } : null, cols: null, bank: r.bank, mergeId: hit ? hit.id : null, acc: hit ? hit.id : '__new', newAcc: nueva, flip: null, bal: null, sel: {}, cat: {}, all: false };
-  impBuild(); impShow('review', 'push');
+  impBuild(); impReady();
 }
 const impBankShort = (id) => (id === 'bcp' ? 'BCP' : impBankName(id));
 const IMP_STEPS = {
@@ -5549,7 +5664,7 @@ function impErrHTML() { const E = ui.impErr; return E ? '<div class="imok warn" 
 const impChev = () => '<span style="color:var(--sec);font-size:22px;line-height:1">›</span>';
 const impNote = (t) => '<div class="imnote">' + t + '</div>';
 function impBodyHTML(st) {
-  if (st === 'review') return impReviewHTML();
+  if (st === 'review') return impCarouselHTML();
   const keyField = (id, kc) => '<div class="scard"><label class="srow" style="padding:12px 0"><span class="grow"><span class="slabel">' + (kc ? kc.label : 'Contraseña') + '</span><input class="sinput imdni" id="' + id + '" type="password"' + (kc && kc.num ? ' inputmode="numeric"' : '') + ' autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="64" placeholder="········" value="' + esc(impKey) + '" data-notr></span><button type="button" class="imeye" data-act="imp:eye" aria-label="Mostrar u ocultar">' + RMI('eye-line', 22, 'currentColor') + '</button></label></div>' +
     impNote(kc ? kc.note : 'Es la contraseña de tu estado de cuenta. Plata no la guarda ni la revisa: solo sirve para abrirlo en este dispositivo.');
   if (st === 'key') return '<p class="imlead">Este estado de cuenta está protegido. Escribe su contraseña para abrirlo en este dispositivo.</p>' + (impPend ? '<div class="imnote" style="text-align:left;padding:8px 4px 12px" data-notr>' + esc(String(impPend.name || '').slice(0, 80)) + '</div>' : '') + keyField('impKey') +
@@ -5572,11 +5687,11 @@ function impBodyHTML(st) {
     '<div class="imbar"><button class="primary" id="impPickBtn" data-act="imp:pdf"' + (!IMP_KEY[ui.impBank] || impKeyOk() ? '' : ' disabled') + '>Subir estado de cuenta</button></div>';
   if (st === 'busy') return '<div class="imspin" role="status" aria-label="Leyendo"></div><div class="imlead" style="text-align:center">Nazca está leyendo tu estado de cuenta en este dispositivo.</div>';
   if (st === 'done') {
-    const D = ui.impDone || { n: 0, acc: '', bal: 0, cur: 'PEN' };
+    const D = ui.impDone || { n: 0, parts: [] }, parts = D.parts && D.parts.length ? D.parts : [{ n: D.n, acc: D.acc, bal: D.bal, cur: D.cur || 'PEN', credit: D.credit }];
     return '<div style="display:flex;justify-content:center;padding:4px 0 16px"><span class="imdone">' + RMI('check-line', 40, '#fff') + '</span></div>' +
-      '<div class="scard"><div class="row"><span class="grow" style="font-size:17px">Movimientos</span><b style="font-size:17px" data-notr>' + D.n + '</b></div>' +
-      '<div class="row"><span class="grow" style="font-size:17px">Cuenta</span><span style="font-size:17px;text-align:right" data-notr>' + esc(D.acc) + '</span></div>' +
-      '<div class="row"><span class="grow" style="font-size:17px">' + (D.credit ? 'Deuda' : 'Saldo') + '</span><b style="font-size:17px">' + fmtC2(D.bal, D.cur) + '</b></div></div>' +
+      parts.map((P) => '<div class="scard"><div class="row"><span class="grow" style="font-size:17px">Movimientos</span><b style="font-size:17px" data-notr>' + P.n + '</b></div>' +
+      '<div class="row"><span class="grow" style="font-size:17px">Cuenta</span><span style="font-size:17px;text-align:right" data-notr>' + esc(P.acc) + '</span></div>' +
+      '<div class="row"><span class="grow" style="font-size:17px">' + (P.credit ? 'Deuda' : 'Saldo') + '</span><b style="font-size:17px">' + fmtC2(P.bal, P.cur) + '</b></div></div>').join('') +
       (D.created ? impNote('Creamos la cuenta nueva con el saldo de tu estado de cuenta.') : '') +
       '<div class="imbar"><button class="primary" data-act="imp:fin">Ver movimientos</button><button class="linkrow" data-act="imp:undo" style="justify-content:center;width:100%;color:var(--mute);margin-top:4px">Deshacer importación</button></div>';
   }
@@ -5611,11 +5726,11 @@ function impStmt() {
   return { balance: r.balance, date: r.date };
 }
 function impReviewHTML() {
-  const I = ui.imp, acc = impAcc(), credit = isCredit(acc), rows = I.rows, on = rows.filter((r) => r.on), cnt = (w) => rows.filter((r) => r.why === w).length;
+  const I = ui.imp, acc = impAcc(), credit = isCredit(acc), rows = I.rows, on = rows.filter((r) => r.on), cnt = (w) => rows.filter((r) => r.why === w).length, S = ui.impSet, multi = !!(S && S.list.length > 1), tot = multi ? S.list.reduce((n, x) => n + (x.rows || []).filter((r) => r.on).length, 0) : on.length;
   const net = round2(on.reduce((s, r) => s + r.amount, 0)), after = credit ? round2(acc.balance - net) : round2(acc.balance + net), st = impStmt();
   const dates = rows.map((r) => r.date).sort(), span = dates.length ? 'Del ' + dshort(pd(dates[0])) + ' al ' + dshort(pd(dates[dates.length - 1])) : '';
   const chip = (n, one, many) => (n ? '<span>' + plural(n, one, many) + '</span>' : '');
-  const sum = chip(cnt('exact') + cnt('near'), 'repetido', 'repetidos') + chip(cnt('cur'), 'de otra moneda', 'de otra moneda') + chip(cnt('future'), 'con fecha futura', 'con fecha futura') + chip(I.x.skipped.unreadable, 'fila no se pudo leer', 'filas no se pudieron leer');
+  const sum = chip(cnt('exact') + cnt('near'), 'repetido', 'repetidos') + chip(cnt('cur'), 'de otra moneda', 'de otra moneda') + chip(cnt('future'), 'con fecha futura', 'con fecha futura') + chip(I.x.skipped.unreadable, 'fila no se pudo leer', 'filas no se pudieron leer') + chip(I.names && I.names.length > 1 ? I.names.length : 0, 'archivo unido', 'archivos unidos') + chip(I.mdup, 'fila repetida entre archivos omitida', 'filas repetidas entre archivos omitidas');
   const opt = (k, t, sub) => '<button class="imopt' + (I.bal === k ? ' on' : '') + '" data-act="imp:bal:' + k + '"><span class="imrad"></span><span class="grow"><span class="imt">' + t + '</span><span class="sub">' + sub + '</span></span></button>';
   const hs = I.a.headers, ncol = Math.max(I.a.width, hs.length), cols = Object.assign({}, I.a.cols, I.cols || {});
   const colSel = (role, label) => '<label class="srow"><span class="grow"><span class="slabel">' + label + '</span><select class="sinput" data-imp-col="' + role + '"><option value="-1">—</option>' +
@@ -5628,8 +5743,8 @@ function impReviewHTML() {
   if (rows.some((r) => r.why === 'exact' || r.why === 'near')) fdefs.push(['dup', 'Repetidos', (r) => r.why === 'exact' || r.why === 'near']);
   CAT_ORDER.filter((c) => rows.some((r) => r.amount < 0 && r.cat === c)).forEach((c) => fdefs.push(['c:' + c, c, (r) => r.amount < 0 && r.cat === c]));
   const fcur = fdefs.find((d) => d[0] === I.flt) || fdefs[0], frows = rows.filter(fcur[2]).sort((x, y) => (x.date < y.date ? -1 : x.date > y.date ? 1 : x.i - y.i)), fon = frows.filter((r) => r.on).length, fsel = frows.filter((r) => r.why !== 'future' && r.why !== 'cur');
-  const filt = fdefs.length > 2 ? '<div class="imfilt"><button class="imfbtn' + (fcur[0] !== 'all' ? ' on' : '') + '" data-act="imp:fo" aria-expanded="' + !!I.fopen + '">' + RMI('filter-3-line', 18, 'currentColor') + '<span>Filtrar</span>' + (fcur[0] !== 'all' ? '<span class="imfcur" data-notr>' + esc(fcur[1]) + '</span>' : '') + '</button>' +
-    (I.fopen ? '<div class="imchips">' + fdefs.map((d) => '<button class="imchip' + (d[0] === fcur[0] ? ' on' : '') + '" data-act="imp:f:' + encodeURIComponent(d[0]) + '"><span' + (d[0].indexOf('c:') === 0 ? ' data-notr' : '') + '>' + esc(d[1]) + '</span><span class="imn" data-notr>' + rows.filter(d[2]).length + '</span></button>').join('') + '</div>' : '') +
+  const filt = fdefs.length > 2 ? '<div class="imfilt"><div class="imfrow"><span class="imfcur" data-notr>' + (fcur[0] !== 'all' ? esc(fcur[1]) + ' · ' + frows.length : '') + '</span><button class="imfbtn' + (fcur[0] !== 'all' ? ' on' : '') + '" data-act="imp:fo" aria-expanded="' + !!I.fopen + '" aria-label="Filtrar">' + RMI('filter-3-line', 22, 'currentColor') + '</button></div>' + (fcur[0] !== 'all' ? '<span class="imfcur" data-notr>' + esc(fcur[1]) + '</span>' : '') + '</div>' +
+    (I.fopen ? '<div class="imchips">' + fdefs.map((d) => '<button class="imchip' + (d[0] === fcur[0] ? ' on' : '') + '" data-act="imp:f:' + encodeURIComponent(d[0]) + '"><span' + (d[0].indexOf('c:') === 0 ? ' data-notr' : '') + '>' + esc(d[1]) + '</span><span class="imcn" data-notr>' + rows.filter(d[2]).length + '</span></button>').join('') + '</div>' : '') +
     (fcur[0] !== 'all' && fsel.length ? '<button class="linkrow imfall" data-act="imp:fm:' + (fon === fsel.length ? 0 : 1) + '">' + (fon === fsel.length ? 'Desmarcar estos' : 'Marcar estos') + ' <span data-notr>(' + fsel.length + ')</span></button>' : '') + '</div>' : '';
   const pages = Math.max(1, Math.ceil(frows.length / IMP_PER)); I.page = Math.min(Math.max(I.page || 0, 0), pages - 1);
   const shown = frows.slice(I.page * IMP_PER, (I.page + 1) * IMP_PER);   /* de 20 en 20: con 100 o más movimientos la pantalla se hace eterna */
@@ -5640,7 +5755,7 @@ function impReviewHTML() {
   const ci = I.cardInfo || {}, cmeta = (ci.dueDate ? '<span>' + RMI('calendar-line', 16, 'currentColor') + 'Pagar antes del ' + dshort(pd(ci.dueDate)) + '</span>' : '') + (ci.apr != null ? '<span>' + RMI('percent-line', 16, 'currentColor') + '<span data-notr>' + ci.apr + ' %</span> de tasa anual</span>' : '');
   const meta = '<div class="immeta"><span>' + RMI('arrow-left-right-line', 16, 'currentColor') + plural(rows.length, 'movimiento', 'movimientos') + '</span>' + (span ? '<span>' + RMI('calendar-line', 16, 'currentColor') + span + '</span>' : '') + cmeta + '</div>';
   const profile = '<div class="scard improf"><div class="imtop"><span class="imav">' + (pdf && I.bank ? impMark(I.bank, 'glyph') : RMI('file-chart-line', 30, 'currentColor')) + '</span><div style="min-width:0;flex:1"><div class="imname"><span data-notr>' + esc(title) + '</span>' +
-    (bk ? '<span aria-label="Banco verificado" title="Nazca reconoció el banco en el archivo">' + RMI('verified-badge-fill', 20, 'var(--accent)') + '</span>' : '') + '</div>' + meta + '<div class="imfile" data-notr>' + esc(I.name) + '</div></div></div>' + impCheckHTML(I.check) + '</div>';
+    (bk ? '<span aria-label="Banco verificado" title="Nazca reconoció el banco en el archivo">' + RMI('verified-badge-fill', 20, 'var(--accent)') + '</span>' : '') + '</div>' + meta + '<div class="imfile" data-notr>' + esc(I.names && I.names.length > 1 ? I.names.join(' · ') : I.name) + '</div></div></div>' + impCheckHTML(I.check) + '</div>';
   const foot = '<div class="imfoot">' + RMI('file-chart-line', 16, 'currentColor') + '<span>Se leyó el archivo de forma local.</span></div>';
   const radio = (k, t, sub, on, extra) => '<button class="imopt' + (on ? ' on' : '') + '" data-act="imp:acc:' + k + '"><span class="imrad"></span><span class="grow"><span class="imt">' + t + '</span><span class="sub">' + sub + '</span></span></button>' + (extra || '');
   const merge = pdf ? mergeId() : null;
@@ -5659,14 +5774,16 @@ function impReviewHTML() {
     filt + (frows.length ? '<div class="scard imlist">' + list + '</div>' : '<div class="sub" style="text-align:center;padding:16px">Con estas columnas no se lee ningún movimiento.</div>') +
     (pages > 1 ? '<div class="impager"><button data-act="imp:pg:' + (I.page - 1) + '"' + (I.page ? '' : ' disabled') + ' aria-label="Anterior">' + RMI('arrow-left-s-line', 22, 'currentColor') + '</button><span data-notr>' + (I.page * IMP_PER + 1) + '–' + Math.min(frows.length, (I.page + 1) * IMP_PER) + ' / ' + frows.length + '</span><button data-act="imp:pg:' + (I.page + 1) + '"' + (I.page < pages - 1 ? '' : ' disabled') + ' aria-label="Siguiente">' + RMI('arrow-right-s-line', 22, 'currentColor') + '</button></div>' : '') +
     (I.a.truncated ? '<div class="sub" style="text-align:center;font-size:13px;padding:0 10px 10px">El archivo tiene más de 5000 filas: se leyeron las primeras 5000.</div>' : '') +
-    '<div class="imbar"><button class="primary" data-act="imp:go"' + (on.length ? '' : ' disabled') + '>Importar ' + plural(on.length, 'movimiento', 'movimientos') + '</button></div>';
+    '<div class="imextra"><button class="linkrow" data-act="imp:more">' + RMI('add-circle-line', 22, '#22B573') + 'Añadir otro archivo</button>' + (multi ? '<button class="linkrow" data-act="imp:rm" style="color:var(--mute)">' + RMI('delete-bin-line', 22, 'currentColor') + 'Quitar este archivo</button>' : '') + '</div>' +
+    '<div class="imbar"><button class="primary" data-act="imp:go"' + (tot ? '' : ' disabled') + '>Importar ' + plural(tot, 'movimiento', 'movimientos') + (multi ? ' <span data-notr>(' + S.list.length + ')</span>' : '') + '</button></div>';
 }
 function impCheckHTML(ck) {
   if (!ck || ck.ok === null || ck.ok === undefined) return '';
-  return ck.ok ? '<div class="imchk"><span style="color:var(--gt)">' + RMI('shield-check-line', 24, 'currentColor') + '</span><span class="grow"><span class="imt">Cuadra con tu estado de cuenta</span><span class="sub">Nazca comprobó que los movimientos suman los totales y el saldo final de tu banco.</span></span></div>'
-    : '<div class="imchk warn">' + RMI('error-warning-line', 24, 'currentColor') + '<span class="grow"><span class="imt">No cuadra con tu estado de cuenta</span><span class="sub">Nazca leyó los movimientos, pero no suman los totales de tu banco. Revisa la lista antes de importar.</span></span></div>';
+  const many = ck.n > 1;
+  return ck.ok ? '<div class="imchk"><span style="color:var(--gt)">' + RMI('shield-check-line', 24, 'currentColor') + '</span><span class="grow"><span class="imt">' + (many ? 'Cuadran los estados de cuenta' : 'Cuadra con tu estado de cuenta') + '</span><span class="sub">' + (many ? 'Nazca comprobó que los movimientos de cada estado suman sus totales y su saldo final.' : 'Nazca comprobó que los movimientos suman los totales y el saldo final de tu banco.') + '</span></span></div>'
+    : '<div class="imchk warn">' + RMI('error-warning-line', 24, 'currentColor') + '<span class="grow"><span class="imt">' + (many ? 'No cuadra alguno de los estados de cuenta' : 'No cuadra con tu estado de cuenta') + '</span><span class="sub">' + (many ? 'Nazca leyó los movimientos, pero en algún estado no suman los totales de tu banco. Revisa cada uno antes de importar.' : 'Nazca leyó los movimientos, pero no suman los totales de tu banco. Revisa la lista antes de importar.') + '</span></span></div>';
 }
-function impRender() { const b = $('#impbody'); if (!b || !ui.imp) return; const d = b.querySelector('details.imcols'); if (d) ui.imp.colsOpen = d.open; b.innerHTML = impErrHTML() + impReviewHTML(); }
+function impRender() { const b = $('#impbody'); if (!b || !ui.imp) return; const d = b.querySelector('details.imcols'); if (d) ui.imp.colsOpen = d.open; b.innerHTML = impErrHTML() + impCarouselHTML(); }
 function impAct(arg) {
   const I = ui.imp, p = String(arg).split(':');
   if (p[0] === 'start') { impOpen(); return; }
@@ -5679,6 +5796,11 @@ function impAct(arg) {
   if (p[0] === 'open') { if (impKeyOk() && impPend) { ui.impAt = 'key'; ui.impErr = null; impPdf(impPend); } return; }
   if (p[0] === 'eye') { const i = $('#impKey'), b = $('.imeye'); if (i && b) { const on = i.type === 'password'; i.type = on ? 'text' : 'password'; b.innerHTML = RMI(on ? 'eye-off-line' : 'eye-line', 22, 'currentColor'); } return; }
   if (p[0] === 'undo') { impUndo(); impExit(); return; }
+  if (p[0] === 'more') { ui.impAt = 'review'; impPick(); return; }
+  if (p[0] === 'sl') { impGoto(+p[1] || 0); return; }
+  if (p[0] === 'prev') { if (ui.impSet) impGoto(ui.impSet.idx - 1, 'r'); return; }
+  if (p[0] === 'next') { if (ui.impSet) impGoto(ui.impSet.idx + 1, 'l'); return; }
+  if (p[0] === 'rm') { const S = ui.impSet; if (S && S.list.length > 1) { S.list.splice(S.idx, 1); S.idx = Math.min(S.idx, S.list.length - 1); ui.imp = S.list[S.idx]; impRefresh('r'); } return; }
   if (p[0] === 'fin') { ui.imp = null; ui.impStep = null; ui.impDone = null; ui.itemId = null; setTab('movimientos'); return; }
   if (!I) return;
   if (p[0] === 't') {
@@ -5698,32 +5820,43 @@ function impFiltered() {   /* los movimientos que muestra el filtro activo */
   const I = ui.imp, k = I.flt || 'all';
   return I.rows.filter((r) => k === 'all' || (k === 'out' && r.amount < 0) || (k === 'in' && r.amount > 0) || (k === 'dup' && (r.why === 'exact' || r.why === 'near')) || (k.indexOf('c:') === 0 && r.amount < 0 && r.cat === k.slice(2)));
 }
+function impGoOne(I) {   /* importa una revisión del carrusel; devuelve lo necesario para deshacerla y para el resumen */
+  const keep = ui.imp; ui.imp = I;
+  try {
+    const acc = impAcc(), on = I.rows.filter((r) => r.on); if (!on.length) return null;
+    let created = null; if (I.acc === '__new') { acc.id = uid(); (acc.kind === 'card' ? data.cards : data.accounts).push(acc); created = acc.id; } /* cuenta nueva: se crea al importar, no antes */
+    const before = acc.balance, ids = [], st = impStmt();
+    on.slice().sort((p, q) => (p.date < q.date ? -1 : p.date > q.date ? 1 : p.i - q.i)).forEach((r) => {
+      const amt = round2(clampAmt(r.amount)), t = { id: nextTxId(), date: r.date, amount: amt, category: r.cat, note: r.desc || r.cat, acc: acc.id, imp: r.fp };
+      data.transactions.push(t); ids.push(t.id);
+      if (I.bal === 'adjust') applyTo(acc, amt);
+    });
+    if (I.bal === 'stmt' && st) acc.balance = round2(st.balance);
+    return { part: { ids: ids, acc: acc.id, before: before, created: created }, done: { n: ids.length, acc: acc.name + l4(acc), bal: acc.balance, cur: acc.cur, credit: isCredit(acc), created: !!created } };
+  } finally { ui.imp = keep; }
+}
 function impGo() {
-  const I = ui.imp; if (!I) return;
-  const acc = impAcc(), on = I.rows.filter((r) => r.on); if (!on.length) return;
-  let created = null; if (I.acc === '__new') { acc.id = uid(); (acc.kind === 'card' ? data.cards : data.accounts).push(acc); created = acc.id; } /* cuenta nueva: se crea al importar, no antes */
-  const before = acc.balance, ids = [], st = impStmt();
-  on.slice().sort((p, q) => (p.date < q.date ? -1 : p.date > q.date ? 1 : p.i - q.i)).forEach((r) => {
-    const amt = round2(clampAmt(r.amount)), t = { id: nextTxId(), date: r.date, amount: amt, category: r.cat, note: r.desc || r.cat, acc: acc.id, imp: r.fp };
-    data.transactions.push(t); ids.push(t.id);
-    if (I.bal === 'adjust') applyTo(acc, amt);
-  });
-  if (I.bal === 'stmt' && st) acc.balance = round2(st.balance);
-  ui.impLast = { ids: ids, acc: acc.id, before: before, created: created };
-  ui.impDone = { n: ids.length, acc: acc.name + l4(acc), bal: acc.balance, cur: acc.cur, credit: isCredit(acc), created: !!created };
-  ui.imp = null; ui.impStep = 'done'; ui.dirty++; persist(); renderAll(); impShow('done', 'push');
+  const S = ui.impSet || (ui.imp ? { list: [ui.imp] } : null); if (!S) return;
+  const parts = [], dones = [];
+  S.list.forEach((I) => { const r = impGoOne(I); if (r) { parts.push(r.part); dones.push(r.done); } });
+  if (!parts.length) return;
+  ui.impLast = { parts: parts };
+  ui.impDone = { n: dones.reduce((n, d) => n + d.n, 0), parts: dones, created: dones.some((d) => d.created) };
+  ui.imp = null; ui.impSet = null; ui.impStep = 'done'; ui.dirty++; persist(); renderAll(); impShow('done', 'push');
 }
 function impUndo() {
   const L = ui.impLast; if (!L) return;
-  const set = new Set(L.ids), acc = data.accounts.concat(data.cards).find((o) => o.id === L.acc);
-  data.transactions = data.transactions.filter((t) => !set.has(t.id));
-  if (acc) acc.balance = L.before;
-  if (L.created && !data.transactions.some((t) => t.acc === L.created)) { data.accounts = data.accounts.filter((o) => o.id !== L.created); data.cards = data.cards.filter((o) => o.id !== L.created); if (ui.acctId === L.created) ui.acctId = data.accounts[0].id; } /* la cuenta que creó la importación */
+  (L.parts || []).slice().reverse().forEach((P) => {
+    const set = new Set(P.ids), acc = data.accounts.concat(data.cards).find((o) => o.id === P.acc);
+    data.transactions = data.transactions.filter((t) => !set.has(t.id));
+    if (acc) acc.balance = P.before;
+    if (P.created && !data.transactions.some((t) => t.acc === P.created)) { data.accounts = data.accounts.filter((o) => o.id !== P.created); data.cards = data.cards.filter((o) => o.id !== P.created); if (ui.acctId === P.created) ui.acctId = data.accounts[0].id; } /* la cuenta que creó la importación */
+  });
   ui.impLast = null; ui.dirty++; persist(); renderAll(); toast('Importación deshecha');
 }
 document.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target && e.target.id === 'impKey') { e.preventDefault(); if (!impKeyOk()) return; if (ui.impStep === 'key') { if (impPend) { ui.impAt = 'key'; ui.impErr = null; impPdf(impPend); } } else impPick(); } });
 document.addEventListener('input', (e) => { const el = e.target; if (el && el.id === 'impKey') { impKey = el.value; const b = $('#impPickBtn'); if (b) b.disabled = !impKeyOk(); } });
-$('#impfile').addEventListener('change', (e) => { const f = e.target.files && e.target.files[0]; e.target.value = ''; impFile(f); });
+$('#impfile').addEventListener('change', (e) => { const fs = Array.prototype.slice.call(e.target.files || []); e.target.value = ''; impFiles(fs); });
 document.addEventListener('change', (e) => {
   const el = e.target, I = ui.imp; if (!I || !el || !el.matches) return;
   if (el.matches('select[data-imp-cat]')) { const i = +el.getAttribute('data-imp-cat'), r = I.rows[i]; I.cat[i] = el.value; if (r) r.cat = el.value; }
