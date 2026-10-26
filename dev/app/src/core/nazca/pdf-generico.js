@@ -86,13 +86,14 @@ const NazcaPDFGen = (() => {
   const SKIP = /^(saldo|total|balance|previous|new balance|pago m[ií]nimo|minimum|beginning|ending|opening|closing|summary|resumen)/i;
 
   /* Nombre probable del banco o emisor: la primera línea de arriba de la primera página que parezca un nombre (no un título genérico, ni fechas, ni números). */
-  const GENERIC = /estado|statement|extracto|cuenta|account|p[aá]gina|page|fecha|date|documento|movimientos|resumen|summary|saldo|balance|detalle|transacc|period/i;
+  const GENERIC = /pago|payment|m[ií]nimo|minimum|l[ií]mite|limit|vence|due|estado|statement|extracto|cuenta|account|p[aá]gina|page|fecha|date|documento|movimientos|resumen|summary|saldo|balance|detalle|transacc|period/i;
   function guessName(doc) {
     const pdf = typeof NazcaPDF !== 'undefined' ? NazcaPDF : require('./pdf.js');
     const page = doc.pages[0]; if (!page) return '';
     for (const l of pdf.lines(page, 3).slice(0, 8)) {
-      const t = l.items.map((i) => i.str).join(' ').replace(/\s+/g, ' ').trim();
-      if (t.length < 3 || t.length > 32 || (t.match(/[A-Za-zÁÉÍÓÚáéíóúñÑ]/g) || []).length < 3 || /\d{3,}/.test(t) || GENERIC.test(t) || /[$%@]/.test(t)) continue;
+      let t = l.items.map((i) => i.str).join(' ').replace(/\s+/g, ' ').trim();
+      if (t.length > 32) t = t.split(/\s[-–|·]\s/)[0].trim();          // "Banco Sigma - Tarjeta de crédito Visa" → "Banco Sigma"
+      if (t.length < 3 || t.length > 32 || /\d{2,}/.test(t) || (t.match(/[A-Za-zÁÉÍÓÚáéíóúñÑ]/g) || []).length < 3 || /\d{3,}/.test(t) || GENERIC.test(t) || /[$%@]/.test(t)) continue;
       return t;
     }
     return '';

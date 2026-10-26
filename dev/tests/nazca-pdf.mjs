@@ -153,5 +153,7 @@ const sum = (it) => Math.round(it.reduce((s, x) => s + x.amount, 0) * 100) / 100
   ok(!G.read(await P.read(bytes('banco-equis-falso.pdf'), lib)).isCard && !G.read(await P.read(bytes('chime-checking.pdf'), lib)).isCard, 'tarjeta genérica: una cuenta corriente no se confunde con una tarjeta');
   const sn = G.read(await P.read(bytes('seen-tarjeta.pdf'), lib)); ok(sn.isCard && /TIENDA EJEMPLO NEW YORK NYUSA",-21\.30/.test(sn.text) && /Payment from \*1111",40\.00/.test(sn.text), 'tarjeta genérica: todo impreso en positivo (como Seen) → la descripción distingue pagos de compras'); }
 
+{ ok(G.guessName(await P.read(bytes('tarjeta-sigma.pdf'), lib)) === 'Banco Sigma' && G.guessName(await P.read(bytes('tarjeta-omega.pdf'), lib)) === 'Omega Bank Visa Card (PRUEBA)', 'nombre: un título largo se corta en el guion y las líneas con importes no cuentan'); }
+
 console.log(f ? '\n' + f + ' FALLAS' : '\nTodo bien');
 process.exit(f ? 1 : 0);
