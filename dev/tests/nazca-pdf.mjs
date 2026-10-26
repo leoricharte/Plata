@@ -237,5 +237,19 @@ const sum = (it) => Math.round(it.reduce((s, x) => s + x.amount, 0) * 100) / 100
   ok(r3.items.length === 4 && r3.items[3].desc === 'ITF' && r3.items[3].amount === -0.02 && r3.check.ok === true, 'bbva: el ITF sale como gasto aparte y el saldo igual cuadra');
   const d4 = await P.read(bytes('bbva-dolares.pdf'), lib); ok(B.detect(d4, 'bbva').read(d4).cur === 'USD', 'bbva: MONEDA: DOLARES → USD'); }
 
+// 20) Interbank · tarjeta de crédito: "Detalle de pago del mes" con columnas S/ y US$ y subtotales por sección
+{ const d = await P.read(bytes('interbank-tarjeta.pdf'), lib), rd = B.detect(d, 'interbank'); ok(rd && rd.id === 'interbank-tarjeta' && B.detect(d).id === 'interbank-tarjeta', 'interbank tarjeta: se reconoce (y no se confunde con la cuenta de ahorros)');
+  const da = await P.read(bytes('interbank-ahorros.pdf'), lib); ok(B.detect(da, 'interbank').id === 'interbank-ahorros', 'interbank: la cuenta de ahorros sigue leyéndose con su lector');
+  const r = rd.read(d); ok(r.kind === 'tarjeta' && r.label === 'Interbank · Tarjeta de crédito' && r.cur === 'PEN' && r.account.last4 === '1234', 'interbank tarjeta: tipo, moneda y últimos 4');
+  ok(r.period.from === '2026-08-07' && r.period.to === '2026-09-09', 'interbank tarjeta: periodo "del … al cierre de …"');
+  ok(r.items.length === 4 && r.items[0].amount === 532.11 && r.items[0].date === '2026-09-03', 'interbank tarjeta: el pago ("-" en el PDF) entra positivo (' + r.items.length + ')');
+  ok(r.items[1].amount === -104.32 && r.items[1].desc === 'Tienda Uno · cuota 7 de 12' && r.items[1].date === '2026-09-09', 'interbank tarjeta: cuota = capital + interés, negativa, a la fecha de cierre, con número de cuota');
+  ok(r.items[3].desc === 'SEGURO DESGRAVAMEN' && r.items[3].amount === -6.34, 'interbank tarjeta: otros cobros (seguro) como gasto');
+  ok(r.card.limit === 9000 && r.card.apr === 87.76 && r.card.dueDate === '2026-10-05' && r.card.minPayment === 394.33, 'interbank tarjeta: línea, tasa, fecha de pago y pago mínimo');
+  ok(r.check.have && r.check.ok === true && r.check.prev === 532.11 && r.check.end === 1194.33, 'interbank tarjeta: cuadra (subtotales = filas; subtotales = pago del mes); saldo = deuda total');
+  const d2 = await P.read(bytes('interbank-tarjeta-no-cuadra.pdf'), lib); ok(B.detect(d2, 'interbank').read(d2).check.ok === false, 'interbank tarjeta: pago del mes mal impreso → no cuadra');
+  const d3 = await P.read(bytes('interbank-tarjeta-consumos.pdf'), lib), r3 = B.detect(d3, 'interbank').read(d3);
+  ok(r3.items.length === 7 && r3.items.filter((x) => x.amount < 0 && /WONG|TOTTUS/.test(x.desc)).length === 2 && r3.items.filter((x) => x.amount > 0).length === 2 && r3.check.ok === true, 'interbank tarjeta: consumos del mes → negativos, varios pagos → positivos, y cuadra'); }
+
 console.log(f ? '\n' + f + ' FALLAS' : '\nTodo bien');
 process.exit(f ? 1 : 0);
