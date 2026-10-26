@@ -1039,6 +1039,10 @@ html.web .xbtn,html[data-theme=dark].web .xbtn{background:color-mix(in srgb,var(
 .imrad{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid var(--sec);box-sizing:border-box}.imopt.on .imrad{border:7px solid var(--accent)}
 .imcols>summary{cursor:pointer;font-size:16px;font-weight:600;padding:12px 0;list-style:none}.imcols>summary::-webkit-details-marker{display:none}.imcols>summary::after{content:'›';float:right;color:var(--sec);transition:transform .2s}.imcols[open]>summary::after{transform:rotate(90deg)}
 .imgo{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:0;padding:14px 0;border-top:1px solid var(--line);color:var(--ink);font:inherit;cursor:pointer}.imgo:first-child{border-top:0}.imgo .sub{display:block;font-size:13.5px}.imgo.dis{opacity:.55;cursor:default}.imgo svg{flex:none}
+.imlead{font-size:16px;line-height:1.4;color:var(--mute);margin:0;padding:0 4px 14px}.imnote{font-size:13px;line-height:1.4;color:var(--mute);text-align:center;padding:4px 14px 14px}
+.imbar{position:sticky;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:5;padding-top:12px}.imbar::before{content:'';position:absolute;left:-16px;right:-16px;top:0;bottom:-12px;background:linear-gradient(to top,var(--bg) 60%,transparent);z-index:-1;pointer-events:none}
+.imdni{font-size:24px;font-weight:600;letter-spacing:.08em;padding-top:2px}.imdni::placeholder{color:var(--mute);opacity:.45;font-weight:500;letter-spacing:.04em}.imspin{width:36px;height:36px;border-radius:50%;border:3px solid var(--fill);border-top-color:var(--accent);animation:imspin .8s linear infinite;margin:44px auto 18px}@keyframes imspin{to{transform:rotate(360deg)}}@media (prefers-reduced-motion:reduce){.imspin{animation-duration:2.4s}}
+.imdone{display:grid;place-items:center;width:72px;height:72px;border-radius:50%;background:var(--accent);box-shadow:0 10px 28px -8px rgba(34,181,115,.6)}
 .imn{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:13px;font-weight:700;display:grid;place-items:center}
 .imok{display:flex;gap:10px;align-items:flex-start;border-radius:14px;padding:10px 12px;margin:0 0 12px;font-size:14.5px;background:rgba(34,181,115,.14);color:var(--gt)}.imok .sub{color:inherit;opacity:.85;font-size:13px}.imok svg{flex:none;margin-top:1px}.imok.warn{background:var(--obg);color:var(--ot)}
 .imlist{padding-top:2px;padding-bottom:2px}.imrow{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}.imrow:first-child{border-top:0}.imrow.off .grow,.imrow.off .imr{opacity:.45}
@@ -3888,6 +3892,7 @@ function renderItem(el) {
       '<div class="head"><div><div class="eyebrow">Plata</div><h1>Créditos</h1></div></div>' + creditsHTML();
     return true;
   }
+  if (ui.itemKind === 'imp') { el.innerHTML = impPageHTML(); return true; }
   if (ui.itemKind === 'profile') {
     el.innerHTML = '<div class="navrow"><button class="back" data-act="itback" aria-label="Regresar">' + IC_BACK + '</button></div>' +
       '<div class="head"><div><div class="eyebrow">Ajustes</div><h1>Perfil</h1></div></div>' + profileHTML();
@@ -4364,7 +4369,7 @@ document.addEventListener('change', (e) => { const el = e.target; if (el && el.m
   }
   function nest() {
     const d = dw(); if (!d) return;
-    const n = (ui.txId != null && ui.txBack && ui.txBack.month) || (ui.itemId != null && (ui.itemKind === 'credits' || ui.itemKind === 'transp' || ui.itemKind === 'profile'));
+    const n = (ui.txId != null && ui.txBack && ui.txBack.month) || (ui.itemId != null && (ui.itemKind === 'credits' || ui.itemKind === 'transp' || ui.itemKind === 'profile' || ui.itemKind === 'imp'));
     d.setAttribute('data-nest', n ? '1' : '0');
   }
   function bar() {
@@ -4715,8 +4720,8 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeQMenu
 function openSettings() { if (ui.tab === 'cuenta' && ui.itemKind === 'settings' && ui.itemId != null) return; ui.confirmId = null; ui.form = null; openItem('settings', 's'); }
 function navSlide(mode) { const e = $('#s-cuenta'); if (!e) return; e.classList.remove('nav-tab', 'nav-push', 'nav-pop'); void e.offsetWidth; e.classList.add('nav-' + mode); e.scrollTop = 0; }
 function openTransp() { window.open('https://plataapp.net/transparencia.html#analisis', '_blank', 'noopener'); }
-function leaveSettings() { if (ui.itemKind === 'settings' || ui.itemKind === 'credits' || ui.itemKind === 'transp' || ui.itemKind === 'profile') ui.itemId = null; }
-function closeSheet() { impPdfTmp = null; ui.impBank = null; ui.xf = null; ui.profSheet = false; ui.profEdit = false; $('#sheet').classList.remove('show'); $('#backdrop').classList.remove('show'); ui.confirmId = null; }
+function leaveSettings() { if (ui.itemKind === 'settings' || ui.itemKind === 'credits' || ui.itemKind === 'transp' || ui.itemKind === 'profile' || ui.itemKind === 'imp') ui.itemId = null; }
+function closeSheet() { ui.xf = null; ui.profSheet = false; ui.profEdit = false; $('#sheet').classList.remove('show'); $('#backdrop').classList.remove('show'); ui.confirmId = null; }
 /* Arrastrar hacia abajo la parte superior de la hoja (rayita y título) para cerrarla */
 (function () {
   const sh = $('#sheet'); if (!sh) return; let st = null;
@@ -5403,108 +5408,126 @@ function markSaved() { clGoneClear(); stampSaved(); ui.dirty = 0; persist(); ren
  * El archivo se lee y se interpreta aquí mismo (el núcleo es Nazca, en core/nazca/): no se sube a ningún servidor. */
 /*__NAZCA__*/
 const IMP_SHOW = 300, IMP_WHY = { exact: 'Ya importado', near: 'Parece repetido', cur: 'Otra moneda', future: 'Fecha futura' };
-function impPick() { const i = $('#impfile'); if (i) { i.value = ''; i.click(); } }
-const impMsg = (t, m) => { closeSheet(); askConfirm(t, m, [], '', 'Entendido'); };
-var impPdfTmp = null; /* el PDF y su lector mientras se pide la clave. Nunca va a ui, a data ni al perfil; closeSheet() lo suelta. */
+/* Pasarela de importación: PANTALLA COMPLETA (como Ajustes), no ventana emergente. Pasos en ui.impStep:
+ * start → how · country → banks → bank → busy → review → done. El DNI vive solo en la variable impDni, nunca en ui, data ni el perfil. */
+var impDni = '';
+const impDniOk = () => /^[A-Za-z0-9]{6,12}$/.test(impDni.trim());
+const IMP_PREV = { how: 'start', country: 'start', banks: 'country', bank: 'banks' };
+function impPick() { ui.impAt = ui.impStep || null; const i = $('#impfile'); if (i) { i.value = ''; i.click(); } }
+function impOpen() {
+  ui.imp = null; ui.impErr = null; ui.impBank = null; ui.impAt = null; ui.impDone = null; impDni = '';
+  ui.impFrom = ui.tab === 'cuenta' && ui.itemKind === 'settings' && ui.itemId != null ? 'settings' : 'tab';
+  ui.impStep = 'start'; openItem('imp', 'x'); navSlide('push');
+}
+function impShow(step, dir) { if (step === 'start' || step === 'how' || step === 'country' || step === 'banks') impDni = ''; ui.impStep = step; renderCuenta(); navSlide(dir || 'tab'); }
+function impExit() {
+  const from = ui.impFrom; ui.imp = null; ui.impErr = null; ui.impStep = null; ui.impBank = null; ui.impDone = null; impDni = '';
+  if (from === 'settings') { ui.itemKind = 'settings'; ui.itemId = 's'; renderCuenta(); navSlide('pop'); } else itemBackNav();
+}
+function impBack() {
+  const st = ui.impStep, to = st === 'review' ? (ui.impAt || 'start') : IMP_PREV[st];
+  if (!to) { impExit(); return; }
+  if (st === 'review') ui.imp = null;
+  ui.impErr = null; impShow(to, 'pop');
+}
+function impFail(t, m) { ui.impErr = { t: t, m: m }; ui.imp = null; impShow(ui.impAt || 'start', 'tab'); }
 async function impFile(f) {
   if (!f) return;
+  ui.impErr = null; if (ui.impStep === 'start' || ui.impStep === 'how' || ui.impStep === 'bank') ui.impAt = ui.impStep; /* si falla, vuelve a la pantalla donde elegiste el archivo */
   const head = String.fromCharCode.apply(null, new Uint8Array(await f.slice(0, 5).arrayBuffer()));
   if (head === '%PDF-' || /\.pdf$/i.test(f.name || '') || f.type === 'application/pdf') { impPdf(f); return; }
-  ui.impBank = null;
-  if (f.size > Nazca.MAX_BYTES) { askConfirm('El archivo es muy grande', 'El máximo es 5 MB. Descarga un periodo más corto desde tu banca por internet.', [], '', 'Entendido'); return; }
+  if (f.size > Nazca.MAX_BYTES) { impFail('El archivo es muy grande', 'El máximo es 5 MB. Descarga un periodo más corto desde tu banca por internet.'); return; }
   let a, x;
   try { a = Nazca.analyze(Nazca.decode(await f.arrayBuffer())); x = Nazca.extract(a); }
-  catch (e) { askConfirm('No pude leer ese archivo', 'Revisa que sea el archivo CSV que descargaste de tu banca por internet.', [], '', 'Entendido'); return; }
-  if (!x.items.length) { askConfirm('No encontramos movimientos', 'No hallamos filas con fecha y monto. Revisa que sea el CSV de movimientos de tu banco.', [], '', 'Entendido'); return; }
+  catch (e) { impFail('No pude leer ese archivo', 'Revisa que sea el archivo CSV que descargaste de tu banca por internet.'); return; }
+  if (!x.items.length) { impFail('No encontramos movimientos', 'No hallamos filas con fecha y monto. Revisa que sea el CSV de movimientos de tu banco.'); return; }
   const curs = {}; x.items.forEach((it) => { if (it.cur) curs[it.cur] = (curs[it.cur] || 0) + 1; });
   const fileCur = Object.keys(curs).sort((p, q) => curs[q] - curs[p])[0] || '', all = data.accounts.concat(data.cards);
   const acc = all.find((o) => o.id === ui.acctId) || (fileCur && data.accounts.find((o) => o.cur === fileCur)) || data.accounts[0];
   ui.imp = { name: String(f.name || '').slice(0, 80), a: a, x: x, cols: null, acc: acc.id, flip: null, bal: null, sel: {}, cat: {}, all: false };
-  impBuild(); showSheet(impHTML());
+  impBuild(); impShow('review', 'push');
 }
 /* PDF: la librería (pdf.js) se descarga solo ahora y corre en este dispositivo. Nazca reconoce el banco por el contenido y usa su lector. */
 async function impPdf(f) {
-  if (f.size > NazcaPDF.MAX_BYTES) { impMsg('El PDF es muy grande', 'El máximo es 15 MB.'); return; }
-  toast('Leyendo el PDF…');
-  let bytes, lib;
-  try { bytes = new Uint8Array(await f.arrayBuffer()); lib = await NazcaPDF.load(new URL('nazca/', location.href).href); }
+  if (f.size > NazcaPDF.MAX_BYTES) { impFail('El PDF es muy grande', 'El máximo es 15 MB.'); return; }
+  const dni = impDni.trim(), name = String(f.name || '').slice(0, 80);
+  impShow('busy');
+  let doc;
+  try { const lib = await NazcaPDF.load(new URL('nazca/', location.href).href); doc = await NazcaPDF.read(new Uint8Array(await f.arrayBuffer()), lib, dni || undefined); }
   catch (e) { impPdfError(e); return; }
-  impPdfTmp = { bytes: bytes, lib: lib, name: String(f.name || '').slice(0, 80) };
-  impPdfOpen('');
+  impDni = '';
+  const rd = NazcaBancos.detect(doc, ui.impBank || null);
+  if (!rd) { impFail(ui.impBank ? 'Este PDF no parece del BCP' : 'Todavía no reconocemos este PDF', ui.impBank ? 'Por ahora Nazca lee el estado de cuenta de ahorros del BCP. Revisa que sea ese PDF.' : 'Por ahora Nazca lee el estado de cuenta de ahorros del BCP. Si tu banco ofrece un archivo CSV, importa ese.'); return; }
+  const r = rd.read(doc);
+  if (!r || r.error) { impFail('No pude leer el estado de cuenta', 'No encontramos el periodo del estado de cuenta en el PDF.'); return; }
+  if (!r.items.length) { impFail('No encontramos movimientos', 'No hallamos movimientos en el PDF. Revisa que sea el estado de cuenta de tu banco.'); return; }
+  impFromPdf(name, r);
 }
 function impPdfError(e) {
   const c = e && e.code;
-  if (c === 'unavailable') impMsg('No pude cargar el lector de PDF', 'Abre Plata desde web.plataapp.net con conexión para leer PDF, o importa el CSV de tu banco.');
-  else if (c === 'no_text') impMsg('Este PDF no tiene texto', 'Parece una foto o un escaneo. Descarga el estado de cuenta en PDF desde la banca por internet de tu banco.');
-  else if (c === 'too_big') impMsg('El PDF es muy grande', 'El máximo es 15 MB.');
-  else impMsg('No pude leer ese PDF', 'Revisa que sea el estado de cuenta en PDF que descargaste de tu banco.');
-}
-async function impPdfOpen(pw) {
-  const T = impPdfTmp; if (!T) return;
-  let doc;
-  try { doc = await NazcaPDF.read(T.bytes, T.lib, pw || undefined); }
-  catch (e) {
-    if (e.code === 'need_password' || e.code === 'bad_password') { showSheet(impPwHTML(e.code === 'bad_password')); setTimeout(() => { const i = $('#impPw'); if (i) i.focus(); }, 80); return; }
-    impPdfTmp = null; impPdfError(e); return;
-  }
-  const name = T.name; impPdfTmp = null;
-  const rd = NazcaBancos.detect(doc, ui.impBank || null);
-  if (!rd) { impMsg(ui.impBank ? 'Este PDF no parece del BCP' : 'Todavía no reconocemos este PDF', ui.impBank ? 'Por ahora Nazca lee el estado de cuenta de ahorros del BCP. Revisa que sea ese PDF.' : 'Por ahora Nazca lee el estado de cuenta de ahorros del BCP. Si tu banco ofrece un archivo CSV, importa ese.'); return; }
-  const r = rd.read(doc);
-  if (!r || r.error) { impMsg('No pude leer el estado de cuenta', 'No encontramos el periodo del estado de cuenta en el PDF.'); return; }
-  if (!r.items.length) { impMsg('No encontramos movimientos', 'No hallamos movimientos en el PDF. Revisa que sea el estado de cuenta de tu banco.'); return; }
-  impFromPdf(name, r);
+  if (c === 'need_password') impFail('Este PDF tiene clave', 'Para abrirlo, elige tu banco en «Elegir banco» e ingresa tu DNI.');
+  else if (c === 'bad_password') impFail('Ese DNI no abre el PDF', 'Revisa el número e inténtalo otra vez.');
+  else if (c === 'unavailable') impFail('No pude cargar el lector de PDF', 'Abre Plata desde web.plataapp.net con conexión para leer PDF, o importa el CSV de tu banco.');
+  else if (c === 'no_text') impFail('Este PDF no tiene texto', 'Parece una foto o un escaneo. Descarga el estado de cuenta en PDF desde la banca por internet de tu banco.');
+  else if (c === 'too_big') impFail('El PDF es muy grande', 'El máximo es 15 MB.');
+  else impFail('No pude leer ese PDF', 'Revisa que sea el estado de cuenta en PDF que descargaste de tu banco.');
 }
 function impFromPdf(name, r) {
   const bankIs = (o) => { const b = bankOf(o); return !!(b && b.keys.indexOf(r.bank) >= 0); }, last4 = (r.account && r.account.last4) || '';
   /* Sugerencia, nunca obligación: la cuenta de ese banco con los mismos últimos 4, o una de ese banco en la misma moneda que no tenga otros últimos 4. Si no hay, se crea una nueva. */
-  const hit = data.accounts.find((o) => bankIs(o) && last4 && o.last4 === last4) || data.accounts.find((o) => bankIs(o) && o.cur === r.cur && !o.last4); /* una cuenta del banco con OTROS últimos 4 no es esta */
+  const hit = data.accounts.find((o) => bankIs(o) && last4 && o.last4 === last4) || data.accounts.find((o) => bankIs(o) && o.cur === r.cur && !o.last4);
   const nueva = { id: '__new', name: r.bank === 'bcp' ? (r.cur === 'USD' ? 'BCP Dólares' : 'BCP Soles') : r.label, type: 'checking', cur: r.cur, apy: 0, balance: 0, color: '', icon: '', last4: last4 };
   ui.imp = { src: 'pdf', label: r.label, check: r.check, name: name, a: { headers: [], width: 0, cols: {}, truncated: false }, x: { items: r.items, skipped: { unreadable: r.skipped.unreadable, blank: 0, total: 0 } },
     cols: null, acc: hit ? hit.id : '__new', newAcc: nueva, flip: null, bal: null, sel: {}, cat: {}, all: false };
-  impBuild(); showSheet(impHTML());
+  impBuild(); impShow('review', 'push');
 }
 const impAcc = () => { const I = ui.imp; return I.acc === '__new' ? I.newAcc : accOf(I.acc); };
+
+/* ---- Pantallas ---- */
+const IMP_HEAD = { start: ['Importar', 'Datos de banco'], how: ['Importar CSV', 'Cómo funciona'], country: ['Datos de banco', 'Tu país'], banks: ['Perú', 'Tu banco'], bank: ['Perú', '<span data-notr>BCP</span>'], busy: ['Datos de banco', 'Leyendo…'], done: ['Listo', 'Importado'] };
+function impPageHTML() {
+  let st = ui.impStep || 'start'; if (st === 'review' && !ui.imp) st = ui.impStep = 'start'; const I = ui.imp, H = st === 'review' ? [I && I.label ? esc(I.label) : 'Archivo CSV', 'Revisar'] : IMP_HEAD[st] || IMP_HEAD.start;
+  return '<div class="navrow">' + (st === 'busy' || st === 'done' ? '<span style="width:44px;height:44px"></span>' : '<button class="back" data-act="itback" aria-label="Regresar">' + IC_BACK + '</button>') + '</div>' +
+    '<div class="head"><div><div class="eyebrow">' + H[0] + '</div><h1>' + H[1] + '</h1></div></div><div id="impbody">' + impErrHTML() + impBodyHTML(st) + '</div>';
+}
+function impErrHTML() { const E = ui.impErr; return E ? '<div class="imok warn" role="alert"><b style="font-size:18px;line-height:1">!</b><span><b>' + esc(E.t) + '</b><span class="sub" style="display:block">' + esc(E.m) + '</span></span></div>' : ''; }
 const impChev = () => '<span style="color:var(--sec);font-size:22px;line-height:1">›</span>';
-const impBack = (act) => '<button class="linkrow" data-act="' + act + '" style="justify-content:center;width:100%">Atrás</button>';
-function impStartHTML() {
-  return sheetHead('Importar datos de banco') +
-    '<div class="sub" style="font-size:13.5px;text-align:center;padding:0 10px 12px"><span style="display:inline-block;vertical-align:-2px;margin-right:4px">' + RMI('shield-check-line', 14, 'currentColor') + '</span><span>Todo se lee en este dispositivo. Plata no se conecta a tu banco ni te pide las claves de tu banca por internet.</span></div>' +
+const impNote = (t) => '<div class="imnote">' + t + '</div>';
+function impBodyHTML(st) {
+  if (st === 'review') return impReviewHTML();
+  if (st === 'how') {
+    const stp = (n, t, d) => '<div class="row" style="align-items:flex-start;gap:14px"><span class="imn" data-notr>' + n + '</span><span class="grow"><span class="imt" style="font-size:17px">' + t + '</span><span class="sub" style="display:block;font-size:14px">' + d + '</span></span></div>';
+    return '<div class="scard">' + stp(1, 'Descarga el archivo', 'En la banca por internet de tu banco busca Descargar o Exportar movimientos y elige el formato CSV.') + stp(2, 'Elígelo aquí', 'Plata lo lee en tu dispositivo con Nazca. No se sube a ningún servidor.') +
+      stp(3, 'Revisa la lista', 'Nazca detecta solo las columnas, las fechas, los montos y la moneda, y marca los movimientos repetidos.') + stp(4, 'Importa', 'Eliges qué hacer con el saldo y, si algo sale mal, puedes deshacerlo.') + '</div>' +
+      '<div class="imbar"><button class="primary" data-act="imp:csv">Elegir archivo CSV</button></div>';
+  }
+  if (st === 'country') return '<div class="scard">' + NazcaBancos.CATALOG.map((c) => '<button class="imgo" data-act="imp:banks:' + c.id + '">' + RMI('global-line', 24, '#22B573') + '<span class="grow"><span class="imt">' + esc(c.name) + '</span></span>' + impChev() + '</button>').join('') + '</div>' + impNote('Por ahora, el único país disponible.');
+  if (st === 'banks') {
+    const c = NazcaBancos.CATALOG[0];
+    return '<div class="scard">' + c.banks.map((b) => b.active
+      ? '<button class="imgo" data-act="imp:bank:' + b.id + '">' + RMI('bank-line', 24, '#22B573') + '<span class="grow"><span class="imt" data-notr>' + esc(b.name) + '</span></span>' + impChev() + '</button>'
+      : '<div class="imgo dis">' + RMI('bank-line', 24, '#8E8E93') + '<span class="grow"><span class="imt" data-notr>' + esc(b.name) + '</span></span><span class="sub" style="display:inline">Próximamente</span></div>').join('') + '</div>';
+  }
+  if (st === 'bank') return '<p class="imlead">Sube el PDF de tu estado de cuenta de ahorros. Lo descargas de la banca por internet del BCP o te llega por correo.</p>' +
+    '<div class="scard"><label class="srow" style="padding:12px 0"><span class="grow"><span class="slabel">DNI</span><input class="sinput imdni" id="impDni" type="text" inputmode="numeric" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="12" placeholder="········" value="' + esc(impDni) + '" data-notr></span></label></div>' +
+    impNote('Es la clave de tu PDF. Plata no guarda ni revisa este número: solo sirve para abrirlo en este dispositivo.') +
+    '<div class="imbar"><button class="primary" id="impPickBtn" data-act="imp:pdf"' + (impDniOk() ? '' : ' disabled') + '>Elegir PDF</button></div>';
+  if (st === 'busy') return '<div class="imspin" role="status" aria-label="Leyendo"></div><div class="imlead" style="text-align:center">Leyendo tu estado de cuenta en este dispositivo.</div>';
+  if (st === 'done') {
+    const D = ui.impDone || { n: 0, acc: '', bal: 0, cur: 'PEN' };
+    return '<div style="display:flex;justify-content:center;padding:4px 0 16px"><span class="imdone">' + RMI('check-line', 40, '#fff') + '</span></div>' +
+      '<div class="scard"><div class="row"><span class="grow" style="font-size:17px">Movimientos</span><b style="font-size:17px" data-notr>' + D.n + '</b></div>' +
+      '<div class="row"><span class="grow" style="font-size:17px">Cuenta</span><span style="font-size:17px;text-align:right" data-notr>' + esc(D.acc) + '</span></div>' +
+      '<div class="row"><span class="grow" style="font-size:17px">' + (D.credit ? 'Deuda' : 'Saldo') + '</span><b style="font-size:17px">' + fmtC2(D.bal, D.cur) + '</b></div></div>' +
+      (D.created ? impNote('Creamos la cuenta nueva con el saldo de tu estado de cuenta.') : '') +
+      '<div class="imbar"><button class="primary" data-act="imp:fin">Ver movimientos</button><button class="linkrow" data-act="imp:undo" style="justify-content:center;width:100%;color:var(--mute);margin-top:4px">Deshacer importación</button></div>';
+  }
+  /* start */
+  return '<p class="imlead">Trae tus movimientos desde tu banco, sin conectar tus cuentas.</p>' +
     '<div class="scard"><button class="imgo" data-act="imp:csv">' + RMI('upload-2-line', 24, '#22B573') + '<span class="grow"><span class="imt">Importar CSV</span><span class="sub">Importa un archivo CSV de tu banco. Plata usará Nazca para interpretarlo.</span></span>' + impChev() + '</button>' +
-    '<button class="linkrow" data-act="imp:how" style="padding:0 0 12px 36px">Ver cómo funciona…</button>' +
-    '<button class="imgo" data-act="imp:country">' + RMI('bank-line', 24, '#22B573') + '<span class="grow"><span class="imt">Elegir banco</span><span class="sub">Revisa una lista de bancos donde Nazca tiene funciones de interpretación avanzada.</span></span>' + impChev() + '</button></div>';
-}
-function impHowHTML() {
-  const st = (n, t, d) => '<div class="row" style="align-items:flex-start;gap:12px"><span class="imn" data-notr>' + n + '</span><span class="grow"><span class="imt">' + t + '</span><span class="sub" style="display:block">' + d + '</span></span></div>';
-  return sheetHead('Cómo funciona') + '<div class="scard">' +
-    st(1, 'Descarga el archivo', 'En la banca por internet de tu banco busca Descargar o Exportar movimientos y elige el formato CSV.') +
-    st(2, 'Elígelo aquí', 'Plata lo lee en tu dispositivo con Nazca. No se sube a ningún servidor.') +
-    st(3, 'Revisa la lista', 'Nazca detecta solo las columnas, las fechas, los montos y la moneda, y marca los movimientos repetidos.') +
-    st(4, 'Importa', 'Eliges qué hacer con el saldo y, si algo sale mal, puedes deshacerlo.') + '</div>' +
-    '<button class="primary" data-act="imp:csv">Elegir archivo CSV</button>' + impBack('imp:start');
-}
-function impCountryHTML() {
-  return sheetHead('Elige tu país') + '<div class="scard">' + NazcaBancos.CATALOG.map((c) => '<button class="imgo" data-act="imp:banks:' + c.id + '">' + RMI('global-line', 24, '#22B573') + '<span class="grow"><span class="imt">' + esc(c.name) + '</span></span>' + impChev() + '</button>').join('') + '</div>' +
-    '<div class="sub" style="text-align:center;font-size:13px;padding:0 10px 10px">Por ahora, el único país disponible.</div>' + impBack('imp:start');
-}
-function impBanksHTML(cid) {
-  const c = NazcaBancos.CATALOG.find((x) => x.id === cid) || NazcaBancos.CATALOG[0];
-  return sheetHead('Elige tu banco') + '<div class="scard">' + c.banks.map((b) => b.active
-    ? '<button class="imgo" data-act="imp:bank:' + b.id + '">' + RMI('bank-line', 24, '#22B573') + '<span class="grow"><span class="imt" data-notr>' + esc(b.name) + '</span></span>' + impChev() + '</button>'
-    : '<div class="imgo dis">' + RMI('bank-line', 24, '#8E8E93') + '<span class="grow"><span class="imt" data-notr>' + esc(b.name) + '</span></span><span class="sub" style="display:inline">Próximamente</span></div>').join('') + '</div>' + impBack('imp:country');
-}
-function impBankHTML(bid) {
-  const b = NazcaBancos.CATALOG[0].banks.find((x) => x.id === bid) || NazcaBancos.CATALOG[0].banks[0];
-  return sheetHead('<span data-notr>' + esc(b.name) + '</span>') + '<div class="sub" style="text-align:center;font-size:15px;padding:0 10px 12px">Sube tu estado de cuenta</div>' +
-    '<div class="scard"><div class="row" style="align-items:flex-start;gap:10px"><span class="grow sub" style="font-size:14px">Sube el PDF del estado de cuenta de ahorros del BCP: el que descargas de la banca por internet o el que te llega por correo.</span></div>' +
-    '<div class="row" style="align-items:flex-start;gap:10px"><span class="grow sub" style="font-size:14px">El PDF del BCP suele tener clave: tu DNI. Plata la pedirá solo si hace falta. No guarda ni revisa ese número: solo sirve para abrir el archivo en este dispositivo.</span></div></div>' +
-    '<button class="primary" data-act="imp:pdf">Elegir PDF</button>' + impBack('imp:banks:PE');
-}
-function impPwHTML(bad) {
-  return sheetHead('Este PDF tiene clave') + '<div class="sub" style="font-size:14px;text-align:center;padding:0 10px 12px">En el BCP suele ser tu DNI. Plata no guarda ni revisa este número: solo sirve para abrir el archivo en este dispositivo.</div>' +
-    '<div class="scard"><label class="srow"><span class="grow"><span class="slabel">Clave del PDF (tu DNI)</span><input class="sinput" id="impPw" type="password" inputmode="numeric" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="40" data-notr></span></label>' +
-    (bad ? '<div class="sub" style="color:var(--rt);font-size:13.5px;padding:0 0 10px">Esa clave no abre el archivo. Revisa el número e inténtalo otra vez.</div>' : '') + '</div>' +
-    '<button class="primary" data-act="imp:pw">Abrir PDF</button>';
+    '<button class="linkrow" data-act="imp:how" style="padding:0 0 12px 38px;min-height:0">Ver cómo funciona…</button>' +
+    '<button class="imgo" data-act="imp:country">' + RMI('bank-line', 24, '#22B573') + '<span class="grow"><span class="imt">Elegir banco</span><span class="sub">Revisa una lista de bancos donde Nazca tiene funciones de interpretación avanzada.</span></span>' + impChev() + '</button></div>' +
+    impNote('<span style="display:inline-block;vertical-align:-2px;margin-right:4px">' + RMI('shield-check-line', 14, 'currentColor') + '</span><span>Todo se lee en este dispositivo. Plata no se conecta a tu banco ni te pide las claves de tu banca por internet.</span>');
 }
 function impBuild() {
   const I = ui.imp, acc = impAcc(), credit = isCredit(acc), today = iso(getToday());
@@ -5529,7 +5552,7 @@ function impStmt() {
   const r = newestFirst ? same[0] : same[same.length - 1];
   return { balance: r.balance, date: r.date };
 }
-function impHTML() {
+function impReviewHTML() {
   const I = ui.imp, acc = impAcc(), credit = isCredit(acc), rows = I.rows, on = rows.filter((r) => r.on), cnt = (w) => rows.filter((r) => r.why === w).length;
   const net = round2(on.reduce((s, r) => s + r.amount, 0)), after = credit ? round2(acc.balance - net) : round2(acc.balance + net), st = impStmt();
   const dates = rows.map((r) => r.date).sort(), span = dates.length ? 'Del ' + dshort(pd(dates[0])) + ' al ' + dshort(pd(dates[dates.length - 1])) : '';
@@ -5544,8 +5567,7 @@ function impHTML() {
   const list = shown.map((r) => '<div class="imrow' + (r.on ? '' : ' off') + '"><button class="imck' + (r.on ? ' on' : '') + '" data-act="imp:t:' + r.i + '" role="checkbox" aria-checked="' + r.on + '" aria-label="Importar este movimiento">' + (r.on ? RMI('check-line', 16, '#fff') : '') + '</button>' +
     '<div class="grow" style="min-width:0"><div class="imd" data-notr>' + esc(r.desc || '—') + '</div><div class="sub" style="font-size:12.5px">' + dshort(pd(r.date)) + (r.why ? ' · <span class="imwhy">' + IMP_WHY[r.why] + '</span>' : '') + '</div></div>' +
     '<div class="imr"><div class="amt" style="font-size:15px;font-weight:600;color:' + (r.amount > 0 ? 'var(--gt)' : 'var(--ink)') + '">' + fmtSC2(r.amount, acc.cur) + '</div>' + catSel(r) + '</div></div>').join('');
-  return sheetHead('Importar movimientos') +
-    '<div class="sub" style="font-size:13.5px;text-align:center;padding:0 10px 10px"><span style="display:inline-block;vertical-align:-2px;margin-right:4px">' + RMI('shield-check-line', 14, 'currentColor') + '</span><span>El archivo se leyó en este dispositivo y no se subió a ningún servidor.</span></div>' +
+  return impNote('<span style="display:inline-block;vertical-align:-2px;margin-right:4px">' + RMI('shield-check-line', 14, 'currentColor') + '</span><span>El archivo se leyó en este dispositivo y no se subió a ningún servidor.</span>') +
     '<div class="imhead"><div class="imt" data-notr>' + esc(I.name) + '</div>' + (I.label ? '<div class="sub">' + esc(I.label) + '</div>' : '') + '<div class="sub">' + plural(rows.length, 'movimiento', 'movimientos') + (span ? ' · ' + span : '') + '</div></div>' +
     (sum ? '<div class="imsum">' + sum + '</div>' : '') + impCheckHTML(I.check) +
     '<div class="scard"><label class="srow">' + fico(['#22B573', 'card']) + '<span class="grow"><span class="slabel">Cuenta</span><select class="sinput" id="impAcc">' + (I.src === 'pdf' ? '<option value="__new"' + (I.acc === '__new' ? ' selected' : '') + '>Cuenta nueva</option>' : '') + acctOpts(I.acc === '__new' ? '' : acc.id, true) + '</select></span></label>' +
@@ -5560,25 +5582,25 @@ function impHTML() {
     (rows.length ? '<div class="scard imlist">' + list + '</div>' : '<div class="sub" style="text-align:center;padding:16px">Con estas columnas no se lee ningún movimiento.</div>') +
     (rows.length > shown.length ? (I.all ? '<div class="sub" style="text-align:center;font-size:13px;padding:0 10px 10px">Se muestran los primeros 2000. Se importan todos los marcados.</div>' : '<button class="linkrow" data-act="imp:all" style="justify-content:center">Ver todos</button>') : '') +
     (I.a.truncated ? '<div class="sub" style="text-align:center;font-size:13px;padding:0 10px 10px">El archivo tiene más de 5000 filas: se leyeron las primeras 5000.</div>' : '') +
-    '<button class="primary" data-act="imp:go"' + (on.length ? '' : ' disabled') + '>Importar ' + plural(on.length, 'movimiento', 'movimientos') + '</button>';
+    '<div class="imbar"><button class="primary" data-act="imp:go"' + (on.length ? '' : ' disabled') + '>Importar ' + plural(on.length, 'movimiento', 'movimientos') + '</button></div>';
 }
 function impCheckHTML(ck) {
   if (!ck || ck.ok === null || ck.ok === undefined) return '';
   return ck.ok ? '<div class="imok">' + RMI('shield-check-line', 20, 'currentColor') + '<span><b>Cuadra con tu estado de cuenta</b><span class="sub" style="display:block">Lo que leímos coincide con los totales y el saldo final del banco.</span></span></div>'
     : '<div class="imok warn"><b style="font-size:18px;line-height:1">!</b><span><b>No cuadra con tu estado de cuenta</b><span class="sub" style="display:block">Lo que leímos no coincide con los totales del banco. Revisa la lista antes de importar.</span></span></div>';
 }
-function impRender() { const s = $('#sheet'); if (!s || !ui.imp) return; const y = s.scrollTop, d = s.querySelector('details.imcols'); if (d) ui.imp.colsOpen = d.open; s.innerHTML = impHTML(); s.scrollTop = y; }
+function impRender() { const b = $('#impbody'); if (!b || !ui.imp) return; const d = b.querySelector('details.imcols'); if (d) ui.imp.colsOpen = d.open; b.innerHTML = impErrHTML() + impReviewHTML(); }
 function impAct(arg) {
   const I = ui.imp, p = String(arg).split(':');
-  if (p[0] === 'pick') { impPick(); return; }
-  if (p[0] === 'start') { ui.impBank = null; showSheet(impStartHTML()); return; }
-  if (p[0] === 'how') { showSheet(impHowHTML()); return; }
+  if (p[0] === 'start') { impOpen(); return; }
+  if (p[0] === 'how') { impShow('how', 'push'); return; }
   if (p[0] === 'csv') { ui.impBank = null; impPick(); return; }
-  if (p[0] === 'country') { showSheet(impCountryHTML()); return; }
-  if (p[0] === 'banks') { showSheet(impBanksHTML(p[1])); return; }
-  if (p[0] === 'bank') { ui.impBank = p[1]; showSheet(impBankHTML(p[1])); return; }
-  if (p[0] === 'pdf') { impPick(); return; }
-  if (p[0] === 'pw') { const el = $('#impPw'), pw = el ? el.value.trim() : ''; if (el) el.value = ''; if (pw) impPdfOpen(pw); return; }
+  if (p[0] === 'country') { impShow('country', 'push'); return; }
+  if (p[0] === 'banks') { impShow('banks', 'push'); return; }
+  if (p[0] === 'bank') { ui.impBank = p[1]; impShow('bank', 'push'); return; }
+  if (p[0] === 'pdf') { if (impDniOk()) impPick(); return; }
+  if (p[0] === 'undo') { impUndo(); impExit(); return; }
+  if (p[0] === 'fin') { ui.imp = null; ui.impStep = null; ui.impDone = null; ui.itemId = null; setTab('movimientos'); return; }
   if (!I) return;
   if (p[0] === 't') {
     const r = I.rows[+p[1]]; if (!r) return;
@@ -5601,8 +5623,8 @@ function impGo() {
   });
   if (I.bal === 'stmt' && st) acc.balance = round2(st.balance);
   ui.impLast = { ids: ids, acc: acc.id, before: before, created: created };
-  ui.imp = null; ui.dirty++; persist(); closeSheet(); leaveSettings(); renderAll(); setTab('movimientos');
-  askConfirm('Movimientos importados: ' + ids.length, 'Los encuentras en Movimientos. Si algo salió mal, puedes deshacer toda la importación.', [{ label: 'Deshacer', dest: true, fn: impUndo }], '', 'Listo');
+  ui.impDone = { n: ids.length, acc: acc.name + l4(acc), bal: acc.balance, cur: acc.cur, credit: isCredit(acc), created: !!created };
+  ui.imp = null; ui.impStep = 'done'; ui.dirty++; persist(); renderAll(); impShow('done', 'push');
 }
 function impUndo() {
   const L = ui.impLast; if (!L) return;
@@ -5612,7 +5634,8 @@ function impUndo() {
   if (L.created && !data.transactions.some((t) => t.acc === L.created)) { data.accounts = data.accounts.filter((o) => o.id !== L.created); if (ui.acctId === L.created) ui.acctId = data.accounts[0].id; } /* la cuenta que creó la importación */
   ui.impLast = null; ui.dirty++; persist(); renderAll(); toast('Importación deshecha');
 }
-document.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target && e.target.id === 'impPw') { e.preventDefault(); impAct('pw'); } });
+document.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target && e.target.id === 'impDni') { e.preventDefault(); if (impDniOk()) impPick(); } });
+document.addEventListener('input', (e) => { const el = e.target; if (el && el.id === 'impDni') { impDni = el.value; const b = $('#impPickBtn'); if (b) b.disabled = !impDniOk(); } });
 $('#impfile').addEventListener('change', (e) => { const f = e.target.files && e.target.files[0]; e.target.value = ''; impFile(f); });
 document.addEventListener('change', (e) => {
   const el = e.target, I = ui.imp; if (!I || !el || !el.matches) return;
@@ -5810,7 +5833,7 @@ document.addEventListener('click', (e) => {
   else if (a === 'profview') { ui.profEdit = false; ui.profSkip = 0; refreshProf(); }
   else if (a === 'proftog') { data.settings.showGrades = !gradesShown(); ui.dirty++; persist(); renderAll(); }
   else if (a === 'wclose') window.winClose();
-  else if (a === 'itback') { if (ui.itemKind === 'credits' || ui.itemKind === 'transp' || ui.itemKind === 'profile') { ui.itemKind = 'settings'; renderCuenta(); navSlide('pop'); } else itemBackNav(); }
+  else if (a === 'itback') { if (ui.itemKind === 'imp') impBack(); else if (ui.itemKind === 'credits' || ui.itemKind === 'transp' || ui.itemKind === 'profile') { ui.itemKind = 'settings'; renderCuenta(); navSlide('pop'); } else itemBackNav(); }
   else if (a === 'itedit') openForm(ui.itemKind, ui.itemId);
   else if (a === 'itdel') itemDelete();
   else if (a === 'itconf') { ui.confirmPick = { k: ui.itemKind === 'expense' ? 'out' : 'in', id: ui.itemId }; ui.skipPending = false; const h = confirmHTML(); if (h) showSheet(h); }
