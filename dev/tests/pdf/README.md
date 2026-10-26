@@ -1,6 +1,6 @@
 # PDF de prueba (inventados)
 
-Imitan el diseño del «Estado de Cuenta de Ahorros Cuenta Digital BCP»: mismas columnas, fechas sin año (`30SET`), montos sin signo (cargo o abono según la columna), marcas `*` y `1`, `TOTAL MOVIMIENTO` y `SALDO` al final. **Nombres, cuentas y montos son falsos.** Nunca se agregan aquí estados de cuenta reales.
+Imitan el diseño del «Estado de Cuenta de Ahorros Cuenta Digital BCP» y del «ESTADO DE CUENTA» de ahorros de Interbank: mismas columnas, fechas sin año (`30SET`), montos sin signo (cargo o abono según la columna), marcas `*` y `1`, `TOTAL MOVIMIENTO` y `SALDO` al final. **Nombres, cuentas y montos son falsos.** Nunca se agregan aquí estados de cuenta reales.
 
 | Archivo | Para qué |
 |---|---|
@@ -9,6 +9,10 @@ Imitan el diseño del «Estado de Cuenta de Ahorros Cuenta Digital BCP»: mismas
 | `bcp-no-cuadra.pdf` | Igual que el primero, pero el total de cargos impreso está mal: debe avisar que no cuadra. |
 | `bcp-ahorros-clave.pdf` | El primero con clave `12345678` (un DNI inventado). |
 | `bcp-malicioso.pdf` | Descripciones con `<img onerror>` y `</script><script>`: se muestran como texto. |
+| `interbank-ahorros.pdf` | Imita el «ESTADO DE CUENTA» de ahorros de Interbank: fecha completa, monto con signo, saldo por fila, `EMPEZASTE … CON` / `SALDO CONTABLE AL …` y una página-guía con movimientos de ejemplo que no se leen. Cuadra. |
+| `interbank-enero.pdf` | Periodo de diciembre a enero (el año cambia). Cuadra. |
+| `interbank-no-cuadra.pdf` | El total de gastos impreso está mal: debe avisar que no cuadra. |
+| `interbank-dolares.pdf` | Cuenta en dólares y periodo «DEL 1 AL 30 DE NOVIEMBRE». |
 | `otro-banco.pdf` | No es del BCP: no se reconoce. |
 | `sin-texto.pdf` | Sin texto (como una foto escaneada). |
 

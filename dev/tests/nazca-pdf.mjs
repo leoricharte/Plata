@@ -68,9 +68,27 @@ const sum = (it) => Math.round(it.reduce((s, x) => s + x.amount, 0) * 100) / 100
 { const doc = await P.read(bytes('bcp-malicioso.pdf'), lib); const r = B.detect(doc).read(doc);
   ok(r.items.length === 3 && r.items[0].desc === '<img src=x onerror=alert(1)>' && r.items[1].desc === '</script><script>alert(2)</script>' && r.check.ok === true, 'malicioso: HTML dentro de la descripción queda como texto y el estado igual cuadra'); }
 
-// 6) catálogo: solo el BCP está activo
+// 5c) Interbank · ahorros: fechas completas, montos con signo, saldo por fila, y una página-guía con ejemplos que se ignora
+{ const doc = await P.read(bytes('interbank-ahorros.pdf'), lib); const rd = B.detect(doc);
+  ok(rd && rd.id === 'interbank-ahorros' && doc.pages.length === 2, 'interbank: reconoce el estado por el contenido (2 páginas: datos + guía)');
+  ok(B.detect(doc, 'bcp') === null && B.detect(await P.read(bytes('bcp-ahorros.pdf'), lib), 'interbank') === null, 'interbank: el BCP y Interbank no se confunden');
+  const r = rd.read(doc);
+  ok(r.items.length === 9 && r.cur === 'PEN' && r.account.last4 === '0123' && r.label === 'Interbank · Cuenta Simple', 'interbank: 9 movimientos, soles, últimos 4 y producto (' + r.items.length + ')');
+  ok(r.period.from === '2026-02-28' && r.period.to === '2026-03-27', 'interbank: el periodo toma el año de las fechas (' + r.period.from + ' → ' + r.period.to + ')');
+  ok(r.items[0].date === '2026-03-02' && r.items[0].amount === 150 && r.items[2].amount === -44.9 && r.items[2].desc === 'Netflix', 'interbank: + es ingreso y − es gasto, con fecha completa');
+  ok(r.items.every((i) => i.balance !== null) && r.items[0].balance === 370.4 && r.items[8].balance === 1768.56, 'interbank: cada fila trae su saldo (primera 370.40, última 1,768.56)');
+  ok(r.check.ok === true && r.check.running === true && r.check.sumCredits === r.check.totalCredits, 'interbank: cuadra con los totales y el saldo corre fila por fila');
+  ok(!r.items.some((i) => i.date.startsWith('2021')) && !r.items.some((i) => i.desc === 'Pago mi TC'), 'interbank: ignora los movimientos de EJEMPLO de la página-guía'); }
+{ const doc = await P.read(bytes('interbank-enero.pdf'), lib); const r = B.detect(doc).read(doc);
+  ok(r.items[0].date === '2025-12-30' && r.period.from === '2025-12-29' && r.period.to === '2026-01-27' && r.check.ok === true, 'interbank: periodo de diciembre a enero (' + r.period.from + ' → ' + r.period.to + ')'); }
+{ const doc = await P.read(bytes('interbank-no-cuadra.pdf'), lib); const r = B.detect(doc).read(doc);
+  ok(r.check.ok === false && r.items.length === 9, 'interbank: un total mal impreso → no cuadra'); }
+{ const doc = await P.read(bytes('interbank-dolares.pdf'), lib); const r = B.detect(doc).read(doc);
+  ok(r.cur === 'USD' && r.items.every((i) => i.cur === 'USD') && r.period.from === '2026-11-01' && r.check.ok === true, 'interbank: cuenta en dólares y periodo "DEL 1 AL 30 DE NOVIEMBRE"'); }
+
+// 6) catálogo: el BCP y Interbank están activos
 { const pe = B.CATALOG.find((c) => c.id === 'PE'); const act = pe.banks.filter((b) => b.active).map((b) => b.id);
-  ok(pe.banks.length === 4 && act.join() === 'bcp', 'catálogo: Perú con 4 bancos, solo el BCP activo'); }
+  ok(pe.banks.length === 4 && act.join() === 'bcp,interbank', 'catálogo: Perú con 4 bancos, activos el BCP e Interbank'); }
 
 console.log(f ? '\n' + f + ' FALLAS' : '\nTodo bien');
 process.exit(f ? 1 : 0);

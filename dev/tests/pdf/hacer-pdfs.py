@@ -51,6 +51,50 @@ def bcp(path, periodo, saldo_ant, filas, moneda="SOLES", nombre="PEREZ LOPEZ MAR
     c.save()
     return cargos, abonos, final
 
+def interbank(path, periodo, mes_inicio, saldo_ant, filas, producto="CUENTA SIMPLE SOLES", cuenta="123-4567890123", total_gastos_impreso=None, fin="27/03"):
+    """Imita el "ESTADO DE CUENTA" de ahorros de Interbank: fecha completa, monto con signo (+ ingreso, - gasto), saldo contable por fila,
+    EMPEZASTE ... CON / SALDO CONTABLE AL ... y una última página-guía con movimientos de EJEMPLO que no se deben leer.
+    filas: (dd/mm/aaaa, concepto, monto con signo)"""
+    ing = round(sum(f[2] for f in filas if f[2] > 0), 2); gas = round(-sum(f[2] for f in filas if f[2] < 0), 2)
+    final = round(saldo_ant + ing - gas, 2)
+    def sg(v): return ("+" if v > 0 else "-") + m(abs(v))
+    c = canvas.Canvas(str(path), pagesize=A4); c.setTitle("Estado de cuenta de prueba (inventado)")
+    c.setFont("Helvetica-Bold", 9); c.drawRightString(536, 774, "ESTADO DE CUENTA"); c.drawRightString(536, 760, producto)
+    c.setFont("Helvetica", 8); c.drawRightString(536, 746, cuenta); c.drawRightString(536, 732, periodo)
+    c.drawString(60, 698, "Perez Lopez Maria Elena"); c.drawString(60, 683, "DNI 10000000"); c.drawString(60, 672, "Tu cuenta fue aperturada el 01/01/2020")
+    c.setFont("Helvetica-Bold", 9); c.drawString(60, 638, "DETALLE DE MOVIMIENTOS")
+    c.setFont("Helvetica-Bold", 7.5); c.drawString(60, 611, "Fecha"); c.drawString(179, 611, "Concepto"); c.drawRightString(347, 611, "Ingresos"); c.drawRightString(428, 611, "Gastos"); c.drawRightString(534, 611, "Saldo Contable")
+    c.setFont("Helvetica", 8)
+    y = 582; c.drawString(60, y, f"EMPEZASTE {mes_inicio} CON"); c.drawRightString(508, y, m(saldo_ant)); y -= 28.3
+    saldo = saldo_ant
+    for fecha, concepto, monto in filas:
+        saldo = round(saldo + monto, 2)
+        c.drawString(60, y, fecha); c.drawString(125, y, concepto)
+        c.drawRightString(341 if monto > 0 else 425, y, sg(monto)); c.drawRightString(508, y, m(saldo)); y -= 28.3
+    c.setFont("Helvetica-Bold", 8); c.drawString(60, y, f"SALDO CONTABLE AL {fin}")
+    c.drawRightString(345, y, sg(ing)); c.drawRightString(427, y, "-" + m(gas if total_gastos_impreso is None else total_gastos_impreso)); c.drawRightString(510, y, m(final))
+    c.setFont("Helvetica", 8); c.drawString(37, 252, "Realiza GRATIS tus consultas, pagos y transferencias bancarias/interbancarias las 24 horas del día,")
+    c.drawString(113, 105, "En Interbank nos preocupamos por tu seguridad."); c.drawString(37, 227, "Ahorra con tu Alcancía Virtual, es fácil, inmediato y seguro desde tu Interbank APP.")
+    c.showPage()
+    # página-guía: explica el estado de cuenta con un EJEMPLO (otra persona, otra fecha, saldos que no cuadran): no se debe leer
+    c.setFont("Helvetica-Bold", 16); c.drawString(43, 535, "Te ayudamos a conocer"); c.drawString(43, 505, "tu Estado de Cuenta:")
+    c.setFont("Helvetica-Bold", 8); c.drawRightString(530, 407, "ESTADO DE CUENTA"); c.drawRightString(530, 400, "CUENTA SIMPLE SOLES"); c.drawRightString(530, 393, "100-7000590278"); c.drawRightString(530, 386, "DEL 1 AL 30 DE NOVIEMBRE")
+    c.setFont("Helvetica", 7); c.drawString(336, 375, "Maria Vara de Gamarra"); c.drawString(339, 352, "DETALLE DE MOVIMIENTOS")
+    c.drawString(341, 341, "Fecha"); c.drawString(395, 341, "Concepto"); c.drawRightString(470, 341, "Ingresos"); c.drawRightString(494, 341, "Gastos"); c.drawRightString(522, 341, "Saldo")
+    c.drawString(339, 326, "EMPEZASTE OCTUBRE CON"); c.drawRightString(526, 326, "4,560.41")
+    for i, (cc, mo, sd) in enumerate((("Transf PLIN", "+27.20", "4,545.40"), ("Planilla", "+2,650.20", "6,890.79"), ("Pago mi TC", "-47.20", "6,890.79"))):
+        yy = 315 - 10 * i; c.drawString(339, yy, "03/10/2021"); c.drawString(376, yy, cc); c.drawRightString(492, yy, mo); c.drawRightString(525, yy, sd)
+    c.drawString(339, 194, "SALDO CONTABLE AL 29/10"); c.drawRightString(468, 194, "+2,670.20"); c.drawRightString(494, 194, "-472.70"); c.drawRightString(525, 194, "6,890.79")
+    c.drawString(65, 390, "Este es el CICLO DE CONSUMO. Te mostramos los movimientos realizados entre estas fechas."); c.drawString(360, 84, "En Interbank nos preocupamos por tu seguridad.")
+    c.showPage(); c.save()
+    return ing, gas, final
+
+IB_MARZO = [
+    ("02/03/2026", "TRANSF WEB/APP", +150.00), ("03/03/2026", "PLIN RECIBIDO", +40.00), ("05/03/2026", "Netflix", -44.90), ("09/03/2026", "Planilla", +1850.50),
+    ("10/03/2026", "WONG SURCO", -214.90), ("12/03/2026", "TELLO 2 CDL", -6.60), ("15/03/2026", "TRANSF WEB/APP", -300.00), ("20/03/2026", "Spotify", -21.90), ("24/03/2026", "PPA PAGOS", +95.96),
+]
+IB_ENERO = [("30/12/2025", "TRANSF WEB/APP", -20.00), ("02/01/2026", "PLIN RECIBIDO", +35.00), ("15/01/2026", "Planilla", +1850.50), ("20/01/2026", "Apple", -35.38)]
+
 MARZO = [
     ("28FEB", "28FEB", "ABON PLIN-Ana Gomez", 'a', 70.00, "*"),
     ("28FEB", "28FEB", "TRAN.CTAS.PROP.BM", 'a', 500.00, "*"),
@@ -95,6 +139,10 @@ if __name__ == "__main__":
     bcp(OUT / "bcp-ahorros-enero.pdf", ("01/01/26", "31/01/26"), 35.10, ENERO)
     bcp(OUT / "bcp-no-cuadra.pdf", ("01/03/26", "31/03/26"), 120.30, MARZO, total_cargos_impreso=1234.56)
     bcp(OUT / "bcp-malicioso.pdf", ("01/03/26", "31/03/26"), 10.00, MALICIOSO)
+    interbank(OUT / "interbank-ahorros.pdf", "DEL 28 DE FEBRERO AL 27 DE MARZO", "MARZO", 220.40, IB_MARZO)
+    interbank(OUT / "interbank-enero.pdf", "DEL 29 DE DICIEMBRE AL 27 DE ENERO", "ENERO", 80.00, IB_ENERO, fin="27/01")
+    interbank(OUT / "interbank-no-cuadra.pdf", "DEL 28 DE FEBRERO AL 27 DE MARZO", "MARZO", 220.40, IB_MARZO, total_gastos_impreso=999.99)
+    interbank(OUT / "interbank-dolares.pdf", "DEL 1 AL 30 DE NOVIEMBRE", "NOVIEMBRE", 100.00, [("04/11/2026", "TRANSF WEB/APP", +50.00), ("09/11/2026", "Amazon", -19.99)], producto="CUENTA SIMPLE DÓLARES", fin="30/11")
     subprocess.run(["qpdf", "--encrypt", "12345678", "12345678", "256", "--", str(OUT / "bcp-ahorros.pdf"), str(OUT / "bcp-ahorros-clave.pdf")], check=True)
     # otro banco: mismo tipo de tabla pero no es el BCP
     c = canvas.Canvas(str(OUT / "otro-banco.pdf"), pagesize=A4); c.setFont("Helvetica-Bold", 9); c.drawString(40, 780, "Banco Ejemplo · Estado de cuenta")
