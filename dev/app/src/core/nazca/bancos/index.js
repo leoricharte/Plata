@@ -11,7 +11,7 @@ const NazcaBancos = (() => {
       { id: 'bcp', name: 'Banco de Crédito del Perú', hq: 'La Molina, Lima', active: true },
       { id: 'interbank', name: 'Interbank', hq: 'La Victoria, Lima', active: true },
       { id: 'io', name: 'iO', hq: 'La Molina, Lima', active: true },
-    { id: 'yape', name: 'Yape', hq: 'Lima', active: false },
+    { id: 'yape', name: 'Yape', hq: 'La Molina, Lima', active: false },
       { id: 'bbva', name: 'BBVA Perú', hq: 'San Isidro, Lima', active: false },
       { id: 'scotiabank', name: 'Scotiabank Perú', hq: 'San Isidro, Lima', active: false } ] },
     { id: 'US', name: 'Estados Unidos', banks: [
