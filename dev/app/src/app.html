@@ -1058,7 +1058,7 @@ html.web .imlogo,html.web .imav,html.web .imbk:not(.dis) .imglyph{color:#22B573}
 .imdone{display:grid;place-items:center;width:72px;height:72px;border-radius:50%;background:var(--accent);box-shadow:0 10px 28px -8px rgba(34,181,115,.6)}
 .imn{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:13px;font-weight:700;display:grid;place-items:center}
 .imok{display:flex;gap:10px;align-items:flex-start;border-radius:14px;padding:10px 12px;margin:0 0 12px;font-size:14.5px;background:rgba(34,181,115,.14);color:var(--gt)}.imok .sub{color:inherit;opacity:.85;font-size:13px}.imok svg{flex:none;margin-top:1px}.imok.warn{background:var(--obg);color:var(--ot)}
-.imlist{padding-top:2px;padding-bottom:2px}.imrow{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}.imrow:first-child{border-top:0}.imrow.off .grow,.imrow.off .imr{opacity:.45}
+.imlist{padding-top:2px;padding-bottom:2px}.imfilt{margin:2px 0 10px}.imfbtn{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 14px;border-radius:19px;border:0;background:var(--card);color:var(--ink);font:inherit;font-size:15px;font-weight:500;cursor:pointer}.imfbtn.on{background:var(--ink);color:var(--card)}.imfcur{opacity:.7;font-weight:400}.imchips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.imchip{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:17px;border:1px solid var(--line2);background:transparent;color:var(--ink);font:inherit;font-size:14px;cursor:pointer}.imchip.on{background:var(--accent);border-color:var(--accent);color:#fff}.imn{opacity:.6;font-size:12.5px;font-variant-numeric:tabular-nums}.imfall{justify-content:flex-start;margin-top:6px;font-size:15px}.impager{display:flex;align-items:center;justify-content:center;gap:18px;padding:2px 0 14px;color:var(--mute);font-size:15px;font-variant-numeric:tabular-nums}.impager button{width:44px;height:44px;border-radius:50%;border:0;background:var(--card);color:var(--ink);display:grid;place-items:center;cursor:pointer}.impager button:disabled{opacity:.35;cursor:default}.imrow{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}.imrow:first-child{border-top:0}.imrow.off .grow,.imrow.off .imr{opacity:.45}
 .imck{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--sec);background:transparent;padding:0;display:grid;place-items:center;cursor:pointer;box-sizing:border-box}.imck.on{background:var(--accent);border-color:var(--accent)}
 .imd{font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.imwhy{color:var(--ot);font-weight:600}
 .imr{flex:none;text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px;max-width:46%}
@@ -5420,7 +5420,7 @@ function markSaved() { clGoneClear(); stampSaved(); ui.dirty = 0; persist(); ren
 /* ---------- Importar movimientos desde un CSV del banco (Beta 4) ----------
  * El archivo se lee y se interpreta aquí mismo (el núcleo es Nazca, en core/nazca/): no se sube a ningún servidor. */
 /*__NAZCA__*/
-const IMP_SHOW = 300, IMP_WHY = { exact: 'Ya importado', near: 'Parece repetido', cur: 'Otra moneda', future: 'Fecha futura' };
+const IMP_PER = 20, IMP_WHY = { exact: 'Ya importado', near: 'Parece repetido', cur: 'Otra moneda', future: 'Fecha futura' };
 /* Pasarela de importación: PANTALLA COMPLETA (como Ajustes), no ventana emergente. Pasos en ui.impStep:
  * start → how · country → banks → bank → busy → review → done. La contraseña vive solo en la variable impKey, nunca en ui, data ni el perfil. */
 var impKey = '', impPend = null;   /* contraseña del PDF y el archivo que espera su contraseña: solo en memoria */
@@ -5620,7 +5620,18 @@ function impReviewHTML() {
   const colSel = (role, label) => '<label class="srow"><span class="grow"><span class="slabel">' + label + '</span><select class="sinput" data-imp-col="' + role + '"><option value="-1">—</option>' +
     Array.from({ length: ncol }, (_, j) => '<option value="' + j + '"' + (cols[role] === j ? ' selected' : '') + ' data-notr>' + esc(hs[j] || ('#' + (j + 1))) + '</option>').join('') + '</select></span></label>';
   const catSel = (r) => (r.amount > 0 ? '<span class="sub">' + esc(r.cat) + '</span>' : '<select class="imcat" data-imp-cat="' + r.i + '" aria-label="Categoría">' + CAT_ORDER.map((c) => '<option value="' + esc(c) + '"' + (c === r.cat ? ' selected' : '') + '>' + esc(c) + '</option>').join('') + '</select>');
-  const shown = I.all ? rows.slice(0, 2000) : rows.slice(0, IMP_SHOW);
+  /* Filtro rápido por tipo: lo que hay en el archivo (gastos, ingresos, repetidos y las categorías de los gastos). */
+  const fdefs = [['all', 'Todos', () => true]];
+  if (rows.some((r) => r.amount < 0)) fdefs.push(['out', 'Gastos', (r) => r.amount < 0]);
+  if (rows.some((r) => r.amount > 0)) fdefs.push(['in', 'Ingresos', (r) => r.amount > 0]);
+  if (rows.some((r) => r.why === 'exact' || r.why === 'near')) fdefs.push(['dup', 'Repetidos', (r) => r.why === 'exact' || r.why === 'near']);
+  CAT_ORDER.filter((c) => rows.some((r) => r.amount < 0 && r.cat === c)).forEach((c) => fdefs.push(['c:' + c, c, (r) => r.amount < 0 && r.cat === c]));
+  const fcur = fdefs.find((d) => d[0] === I.flt) || fdefs[0], frows = rows.filter(fcur[2]).sort((x, y) => (x.date < y.date ? -1 : x.date > y.date ? 1 : x.i - y.i)), fon = frows.filter((r) => r.on).length, fsel = frows.filter((r) => r.why !== 'future' && r.why !== 'cur');
+  const filt = fdefs.length > 2 ? '<div class="imfilt"><button class="imfbtn' + (fcur[0] !== 'all' ? ' on' : '') + '" data-act="imp:fo" aria-expanded="' + !!I.fopen + '">' + RMI('filter-3-line', 18, 'currentColor') + '<span>Filtrar</span>' + (fcur[0] !== 'all' ? '<span class="imfcur" data-notr>' + esc(fcur[1]) + '</span>' : '') + '</button>' +
+    (I.fopen ? '<div class="imchips">' + fdefs.map((d) => '<button class="imchip' + (d[0] === fcur[0] ? ' on' : '') + '" data-act="imp:f:' + encodeURIComponent(d[0]) + '"><span' + (d[0].indexOf('c:') === 0 ? ' data-notr' : '') + '>' + esc(d[1]) + '</span><span class="imn" data-notr>' + rows.filter(d[2]).length + '</span></button>').join('') + '</div>' : '') +
+    (fcur[0] !== 'all' && fsel.length ? '<button class="linkrow imfall" data-act="imp:fm:' + (fon === fsel.length ? 0 : 1) + '">' + (fon === fsel.length ? 'Desmarcar estos' : 'Marcar estos') + ' <span data-notr>(' + fsel.length + ')</span></button>' : '') + '</div>' : '';
+  const pages = Math.max(1, Math.ceil(frows.length / IMP_PER)); I.page = Math.min(Math.max(I.page || 0, 0), pages - 1);
+  const shown = frows.slice(I.page * IMP_PER, (I.page + 1) * IMP_PER);   /* de 20 en 20: con 100 o más movimientos la pantalla se hace eterna */
   const list = shown.map((r) => '<div class="imrow' + (r.on ? '' : ' off') + '"><button class="imck' + (r.on ? ' on' : '') + '" data-act="imp:t:' + r.i + '" role="checkbox" aria-checked="' + r.on + '" aria-label="Importar este movimiento">' + (r.on ? RMI('check-line', 16, '#fff') : '') + '</button>' +
     '<div class="grow" style="min-width:0"><div class="imd" data-notr>' + esc(r.desc || '—') + '</div><div class="sub" style="font-size:12.5px">' + dshort(pd(r.date)) + (r.why ? ' · <span class="imwhy">' + IMP_WHY[r.why] + '</span>' : '') + '</div></div>' +
     '<div class="imr"><div class="amt" style="font-size:15px;font-weight:600;color:' + (r.amount > 0 ? 'var(--gt)' : 'var(--ink)') + '">' + fmtSC2(r.amount, acc.cur) + '</div>' + catSel(r) + '</div></div>').join('');
@@ -5629,7 +5640,7 @@ function impReviewHTML() {
   const meta = '<div class="immeta"><span>' + RMI('arrow-left-right-line', 16, 'currentColor') + plural(rows.length, 'movimiento', 'movimientos') + '</span>' + (span ? '<span>' + RMI('calendar-line', 16, 'currentColor') + span + '</span>' : '') + cmeta + '</div>';
   const profile = '<div class="scard improf"><div class="imtop"><span class="imav">' + (pdf && I.bank ? impMark(I.bank, 'glyph') : RMI('file-chart-line', 30, 'currentColor')) + '</span><div style="min-width:0;flex:1"><div class="imname"><span data-notr>' + esc(title) + '</span>' +
     (bk ? '<span aria-label="Banco verificado" title="Nazca reconoció el banco en el archivo">' + RMI('verified-badge-fill', 20, 'var(--accent)') + '</span>' : '') + '</div>' + meta + '<div class="imfile" data-notr>' + esc(I.name) + '</div></div></div>' + impCheckHTML(I.check) + '</div>';
-  const foot = '<div class="imfoot">' + RMI('file-chart-line', 16, 'currentColor') + '<span>Nazca leyó el archivo en este dispositivo. No se subió a ningún servidor.</span></div>';
+  const foot = '<div class="imfoot">' + RMI('file-chart-line', 16, 'currentColor') + '<span>Se leyó el archivo de forma local.</span></div>';
   const radio = (k, t, sub, on, extra) => '<button class="imopt' + (on ? ' on' : '') + '" data-act="imp:acc:' + k + '"><span class="imrad"></span><span class="grow"><span class="imt">' + t + '</span><span class="sub">' + sub + '</span></span></button>' + (extra || '');
   const merge = pdf ? mergeId() : null;
   const accCard = pdf
@@ -5644,8 +5655,8 @@ function impReviewHTML() {
     (st ? opt('stmt', 'Usar el saldo del archivo', fmtC2(st.balance, acc.cur) + ' al ' + dshort(pd(st.date))) : '') + '</div>' +
     (I.src === 'pdf' || I.gen ? '' : '<details class="scard imcols"' + (I.colsOpen ? ' open' : '') + '><summary>Columnas del archivo</summary><div class="sub" style="font-size:13px;padding-bottom:6px">Las detectamos solas. Cámbialas si algo no cuadra.</div>' +
     colSel('date', 'Fecha') + colSel('desc', 'Descripción') + colSel('amount', 'Monto') + colSel('debit', 'Cargo') + colSel('credit', 'Abono') + '</details>') +
-    (rows.length ? '<div class="scard imlist">' + list + '</div>' : '<div class="sub" style="text-align:center;padding:16px">Con estas columnas no se lee ningún movimiento.</div>') +
-    (rows.length > shown.length ? (I.all ? '<div class="sub" style="text-align:center;font-size:13px;padding:0 10px 10px">Se muestran los primeros 2000. Se importan todos los marcados.</div>' : '<button class="linkrow" data-act="imp:all" style="justify-content:center">Ver todos</button>') : '') +
+    filt + (frows.length ? '<div class="scard imlist">' + list + '</div>' : '<div class="sub" style="text-align:center;padding:16px">Con estas columnas no se lee ningún movimiento.</div>') +
+    (pages > 1 ? '<div class="impager"><button data-act="imp:pg:' + (I.page - 1) + '"' + (I.page ? '' : ' disabled') + ' aria-label="Anterior">' + RMI('arrow-left-s-line', 22, 'currentColor') + '</button><span data-notr>' + (I.page * IMP_PER + 1) + '–' + Math.min(frows.length, (I.page + 1) * IMP_PER) + ' / ' + frows.length + '</span><button data-act="imp:pg:' + (I.page + 1) + '"' + (I.page < pages - 1 ? '' : ' disabled') + ' aria-label="Siguiente">' + RMI('arrow-right-s-line', 22, 'currentColor') + '</button></div>' : '') +
     (I.a.truncated ? '<div class="sub" style="text-align:center;font-size:13px;padding:0 10px 10px">El archivo tiene más de 5000 filas: se leyeron las primeras 5000.</div>' : '') +
     '<div class="imbar"><button class="primary" data-act="imp:go"' + (on.length ? '' : ' disabled') + '>Importar ' + plural(on.length, 'movimiento', 'movimientos') + '</button></div>';
 }
@@ -5676,8 +5687,15 @@ function impAct(arg) {
   } else if (p[0] === 'acc') { I.acc = p[1] === 'new' ? '__new' : mergeId(); I.flip = null; I.bal = null; I.sel = {}; impBuild(); impRender(); }
   else if (p[0] === 'flip') { I.flip = !I.flip; I.sel = {}; I.cat = {}; impBuild(); impRender(); }
   else if (p[0] === 'bal') { I.bal = p[1]; impRender(); }
-  else if (p[0] === 'all') { I.all = true; impRender(); }
+  else if (p[0] === 'fo') { I.fopen = !I.fopen; impRender(); }
+  else if (p[0] === 'f') { I.flt = decodeURIComponent(p.slice(1).join(':')); I.page = 0; impRender(); }
+  else if (p[0] === 'fm') { const want = p[1] === '1'; impFiltered().forEach((r) => { if (r.why !== 'future' && r.why !== 'cur') { r.on = want; I.sel[r.i] = want; } }); impRender(); }
+  else if (p[0] === 'pg') { I.page = Math.max(0, +p[1] || 0); impRender(); const sc = document.querySelector('#s-cuenta'), l = sc && sc.querySelector('.imlist'); if (sc && l) sc.scrollTop = Math.max(0, l.offsetTop - 70); }
   else if (p[0] === 'go') impGo();
+}
+function impFiltered() {   /* los movimientos que muestra el filtro activo */
+  const I = ui.imp, k = I.flt || 'all';
+  return I.rows.filter((r) => k === 'all' || (k === 'out' && r.amount < 0) || (k === 'in' && r.amount > 0) || (k === 'dup' && (r.why === 'exact' || r.why === 'near')) || (k.indexOf('c:') === 0 && r.amount < 0 && r.cat === k.slice(2)));
 }
 function impGo() {
   const I = ui.imp; if (!I) return;

@@ -119,7 +119,7 @@ Nazca no pudo leer el estado de cuenta ¦ Nazca couldn’t read the account stat
 Nazca no encontró movimientos ¦ Nazca found no transactions ¦ Nazcaは取引を見つけられませんでした ¦ Nazca non ha trovato movimenti ¦ Nazca n’a trouvé aucun mouvement ¦ Nazca nije pronašla transakcije
 Nazca todavía no reconoce este PDF ¦ Nazca doesn’t recognize this PDF yet ¦ このPDFはまだNazcaで認識できません ¦ Nazca non riconosce ancora questo PDF ¦ Nazca ne reconnaît pas encore ce PDF ¦ Nazca još ne prepoznaje ovaj PDF
 Nazca está leyendo tu estado de cuenta en este dispositivo. ¦ Nazca is reading your account statement on this device. ¦ Nazcaがこのデバイス上で取引明細を読み取っています。 ¦ Nazca sta leggendo il tuo estratto conto su questo dispositivo. ¦ Nazca lit ton relevé de compte sur cet appareil. ¦ Nazca čita tvoj izvod računa na ovom uređaju.
-Nazca leyó el archivo en este dispositivo. No se subió a ningún servidor. ¦ Nazca read the file on this device. Nothing was uploaded to any server. ¦ Nazcaはこのデバイス上でファイルを読み取りました。サーバーにはアップロードされていません。 ¦ Nazca ha letto il file su questo dispositivo. Non è stato caricato su nessun server. ¦ Nazca a lu le fichier sur cet appareil. Rien n’a été envoyé à un serveur. ¦ Nazca je pročitala datoteku na ovom uređaju. Ništa nije poslano na poslužitelj.
+Se leyó el archivo de forma local. ¦ The file was read locally. ¦ ファイルはこの端末内で読み込まれました。 ¦ Il file è stato letto in locale. ¦ Le fichier a été lu en local. ¦ Datoteka je pročitana lokalno.
 Crear cuenta nueva ¦ Create new account ¦ 新しい口座を作成 ¦ Crea un nuovo conto ¦ Créer un nouveau compte ¦ Stvori novi račun
 Fusionar con otra cuenta ¦ Merge into another account ¦ 別の口座に統合 ¦ Unisci a un altro conto ¦ Fusionner avec un autre compte ¦ Spoji s drugim računom
 Suma estos movimientos a una que ya tienes. ¦ Add these transactions to one you already have. ¦ これらの取引を既存の口座に追加します。 ¦ Aggiungi questi movimenti a un conto che hai già. ¦ Ajoute ces mouvements à un compte que tu as déjà. ¦ Dodaj ove transakcije na račun koji već imaš.
@@ -205,3 +205,7 @@ Toca Share o Descargar para guardar el PDF. ¦ Tap Share or Download to save the
 Entra a la banca en línea o a la app de Community Bank. ¦ Sign in to online banking or the Community Bank app. ¦ オンラインバンキングまたはCommunity Bankのアプリにログインします。 ¦ Accedi all'online banking o all'app di Community Bank. ¦ Connectez-vous à la banque en ligne ou à l'appli Community Bank. ¦ Prijavite se u internetsko bankarstvo ili aplikaciju Community Banka.
 Abre tu cuenta y luego eStatements. ¦ Open your account, then eStatements. ¦ 口座を開き、eStatementsを開きます。 ¦ Apri il tuo conto e poi eStatements. ¦ Ouvrez votre compte, puis eStatements. ¦ Otvorite svoj račun, a zatim eStatements.
 Descarga el estado de cuenta en PDF. ¦ Download the statement as a PDF. ¦ 明細をPDFでダウンロードします。 ¦ Scarica l'estratto conto in PDF. ¦ Téléchargez le relevé en PDF. ¦ Preuzmite izvod u PDF-u.
+Filtrar ¦ Filter ¦ 絞り込み ¦ Filtra ¦ Filtrer ¦ Filtriraj
+Marcar estos ¦ Select these ¦ これらを選択 ¦ Seleziona questi ¦ Cocher ceux-ci ¦ Označi ove
+Desmarcar estos ¦ Deselect these ¦ これらの選択を外す ¦ Deseleziona questi ¦ Décocher ceux-ci ¦ Poništi ove
+Repetidos ¦ Duplicates ¦ 重複 ¦ Duplicati ¦ Doublons ¦ Duplikati
