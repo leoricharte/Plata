@@ -1277,7 +1277,7 @@ function SFI(n, px, col) {
 }
 const ICON = {
   folder: RMI('folder-line', 22, '#1C1C1E'),
-  save: RMI('download-2-line', 22, '#1C1C1E'),
+  save: RMI('folder-chart-line', 22, '#1C1C1E'),
   chev: RMC('arrow-right-s-line', 12, 18, 1.02, '#C7C7CC', 'chev'),
   card: RMI('bank-card-line', 24, '#fff'),
   info: RMI('information-line', 22, '#1A9D63'),
@@ -3097,7 +3097,7 @@ function renderResumen() {
     '<div class="brandrow"><div class="plogo rlogo" role="img" aria-label="Plata"></div><button class="betapill" data-act="betainfo">B E T A</button></div><div class="head"><div><div class="eyebrow">' + dateLong(c.today) + '</div><h1>' + esc(greetLine()) + '</h1></div></div>' +
     '<div class="filestat">' + status + '</div>' + idleBanner(c.today) + cloudStripHTML() +
     (hasData() ? '' : '<div class="card"><div class="name" style="font-size:20px">Empieza aquí</div><div class="sub" style="padding:4px 0 6px">Tu app... no tiene (casi) nada. Pero no te me abrumes, empieza en la pestaña Cuentas: ajusta tu saldo y añade tus tarjetas, añade movimientos o carga tu archivo de perfil.</div>' +
-      '<button class="linkrow" data-act="add">' + IC_ADD + 'Añadir un movimiento</button><button class="linkrow" data-act="imp:start">' + RMI('download-2-line', 22, '#1A9D63') + 'Importar datos de banco</button><button class="linkrow" data-act="load">' + ICON.folder.replace(/#1C1C1E/g, '#1A9D63') + 'Cargar mi archivo de perfil</button><button class="linkrow" data-act="demo">' + ICON.info + 'Ver con datos de ejemplo</button></div>') +
+      '<button class="linkrow" data-act="add">' + IC_ADD + 'Añadir un movimiento</button><button class="linkrow" data-act="imp:start">' + RMI('folder-chart-line', 22, '#1A9D63') + 'Importar datos de banco</button><button class="linkrow" data-act="load">' + ICON.folder.replace(/#1C1C1E/g, '#1A9D63') + 'Cargar mi archivo de perfil</button><button class="linkrow" data-act="demo">' + ICON.info + 'Ver con datos de ejemplo</button></div>') +
     '<div class="grid2">' +
       '<div class="kpi tap" data-act="tab:deuda"><span class="lbl">Balance actual</span><span class="big">' + fmt(sum(visAcc, (a) => usd(a.balance, a.cur))) + '</span><span class="sub">' + plural(visAcc.length, 'cuenta', 'cuentas') + '</span>' + inclNote(visAcc, (a) => a.balance) + '</div>' +
       '<div class="kpi tap" data-act="mmin"><span class="lbl">Ingresos del mes</span><span class="big">' + fmt(c.income) + '</span><span class="sub">' + plural(c.incomeCount, 'ingreso', 'ingresos') + '</span></div>' +
@@ -3823,7 +3823,7 @@ function renderMovimientos() {
     '<button class="back" data-act="tab:resumen" aria-label="Regresar">' + IC_BACK + '</button>' +
     '<div class="head"><div><div class="eyebrow">Últimos movimientos</div><h1>Movimientos</h1></div></div>' +
     segHTML('mov', [{ k: 'all', label: 'Todos', act: 'mov:all' }, { k: 'in', label: 'Ingresos', act: 'mov:in' }, { k: 'out', label: 'Gastos', act: 'mov:out' }], ui.mov) +
-    '<div class="card" style="padding:2px 18px;margin-bottom:12px"><button class="linkrow" data-act="add">' + IC_ADD + 'Añadir movimiento</button><button class="linkrow" data-act="imp:start" style="border-top:1px solid var(--line);width:100%">' + RMI('download-2-line', 22, '#22B573') + 'Importar datos de banco</button></div>' +
+    '<div class="card" style="padding:2px 18px;margin-bottom:12px"><button class="linkrow" data-act="add">' + IC_ADD + 'Añadir movimiento</button><button class="linkrow" data-act="imp:start" style="border-top:1px solid var(--line);width:100%">' + RMI('folder-chart-line', 22, '#22B573') + 'Importar datos de banco</button></div>' +
     '<div class="card" style="padding-top:6px;padding-bottom:6px" id="movList">' + movRows() + '</div>';
 }
 
@@ -4661,7 +4661,7 @@ function settingsHTML(noHead) {
     '<div class="scard" style="margin-top:14px">' +
     '<button class="linkrow" data-act="' + (clBeta() && clOn() ? 'cl:load' : 'load') + '">' + blue(ICON.folder) + 'Cargar archivo de perfil</button>' +
     '<button class="linkrow" data-act="save" style="border-top:1px solid var(--line);width:100%">' + blue(ICON.save) + (clBeta() && clOn() ? 'Guardar copia de archivo local' : 'Guardar archivo de perfil') + '</button>' +
-    (data.demo ? '' : '<button class="linkrow" data-act="imp:start" style="border-top:1px solid var(--line);width:100%">' + blue(RMI('download-2-line', 22, '#1C1C1E')) + 'Importar datos de banco</button>') +
+    (data.demo ? '' : '<button class="linkrow" data-act="imp:start" style="border-top:1px solid var(--line);width:100%">' + blue(RMI('folder-chart-line', 22, '#1C1C1E')) + 'Importar datos de banco</button>') +
     '</div>' +
     (clBeta() ? '' : cloudCardHTML()) +
     '<div class="scard"><div class="row"><span class="grow" style="font-size:17px">Insights y half‑time</span>' + swHTML(insOn(), 'setopt:insights') + '</div>' +
@@ -5765,7 +5765,7 @@ function impBodyHTML(st) {
   }
   /* start */
   return '<p class="imlead">Trae tus movimientos desde tu banco, sin conectar tus cuentas.</p>' +
-    '<div class="scard"><button class="imgo" data-act="imp:csv">' + RMI('download-2-line', 24, '#22B573') + '<span class="grow"><span class="imt">Importar archivo</span><span class="sub">Importa un archivo CSV o un estado de cuenta de tu banco. Plata usará Nazca para interpretarlo.</span></span>' + impChev() + '</button>' +
+    '<div class="scard"><button class="imgo" data-act="imp:csv">' + RMI('folder-chart-line', 24, '#22B573') + '<span class="grow"><span class="imt">Importar archivo</span><span class="sub">Importa un archivo CSV o un estado de cuenta de tu banco. Plata usará Nazca para interpretarlo.</span></span>' + impChev() + '</button>' +
     '<button class="linkrow" data-act="imp:how" style="padding:0 0 12px 38px;min-height:0">Ver cómo funciona…</button>' +
     '<button class="imgo" data-act="imp:country">' + RMI('bank-line', 24, '#22B573') + '<span class="grow"><span class="imt">Elegir banco</span><span class="sub">Revisa una lista de bancos donde Nazca tiene funciones de interpretación avanzada.</span></span>' + impChev() + '</button></div>' +
     impNote('<span style="display:inline-block;vertical-align:-2px;margin-right:4px">' + RMI('shield-check-line', 14, 'currentColor') + '</span><span>Todo se lee en este dispositivo. Plata no se conecta a tu banco ni te pide las claves de tu banca por internet.</span>');
