@@ -1038,7 +1038,7 @@ html.web .xbtn,html[data-theme=dark].web .xbtn{background:color-mix(in srgb,var(
 .imopt .sub{display:block;font-size:13px}.imt{display:block;font-size:16px}
 .imrad{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid var(--sec);box-sizing:border-box}.imopt.on .imrad{border:7px solid var(--accent)}
 .imcols>summary{cursor:pointer;font-size:16px;font-weight:600;padding:12px 0;list-style:none}.imcols>summary::-webkit-details-marker{display:none}.imcols>summary::after{content:'›';float:right;color:var(--sec);transition:transform .2s}.imcols[open]>summary::after{transform:rotate(90deg)}
-.imgo{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:0;padding:14px 0;border-top:1px solid var(--line);color:var(--ink);font:inherit;cursor:pointer}.imgo:first-child{border-top:0}.imgo .sub{display:block;font-size:13.5px}.imgo.dis{opacity:.55;cursor:default}.imgo svg{flex:none}
+.imgo{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:0;padding:14px 0;border-top:1px solid var(--line);color:var(--ink);font:inherit;cursor:pointer}.imgo:first-child{border-top:0}.imgo .sub{display:block;font-size:13.5px}.imgo.dis{opacity:.55;cursor:default}.imbk{padding:14px 0;gap:16px}.imbk .imt{font-size:20px;font-weight:600;line-height:1.2}.imbk .sub{font-size:15px;margin-top:1px}.imglyph{flex:none;width:44px;height:44px;border-radius:10px;background:var(--fill);color:var(--sec);display:grid;place-items:center}.imglyph svg{width:26px;height:26px;fill:currentColor}.imgo svg{flex:none}
 .imlead{font-size:16px;line-height:1.4;color:var(--mute);margin:0;padding:0 4px 14px}.imnote{font-size:13px;line-height:1.4;color:var(--mute);text-align:center;padding:4px 14px 14px}
 .imbar{position:sticky;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:5;padding-top:12px}.imbar::before{content:'';position:absolute;left:-16px;right:-16px;top:0;bottom:-12px;background:linear-gradient(to top,var(--bg) 60%,transparent);z-index:-1;pointer-events:none}
 .imdni{font-size:24px;font-weight:600;letter-spacing:.08em;padding-top:2px}.imdni::placeholder{color:var(--mute);opacity:.45;font-weight:500;letter-spacing:.04em}.imspin{width:36px;height:36px;border-radius:50%;border:3px solid var(--fill);border-top-color:var(--accent);animation:imspin .8s linear infinite;margin:44px auto 18px}@keyframes imspin{to{transform:rotate(360deg)}}@media (prefers-reduced-motion:reduce){.imspin{animation-duration:2.4s}}
@@ -5491,6 +5491,9 @@ function impPageHTML() {
     '<div class="head"><div><div class="eyebrow">' + H[0] + '</div><h1>' + H[1] + '</h1></div></div><div id="impbody">' + impErrHTML() + impBodyHTML(st) + '</div>';
 }
 function impErrHTML() { const E = ui.impErr; return E ? '<div class="imok warn" role="alert"><b style="font-size:18px;line-height:1">!</b><span><b>' + esc(E.t) + '</b><span class="sub" style="display:block">' + esc(E.m) + '</span></span></div>' : ''; }
+/* Marcas de cada banco: glyph (cuadrado, para listas) y logo (completo, para la pantalla del banco). Se llenan con el SVG de cada banco. */
+const IMP_MARKS = {};
+const impMark = (id, kind) => { const m = IMP_MARKS[id]; return m && m[kind] ? m[kind] : RMI('bank-line', 26, 'currentColor'); };
 const impChev = () => '<span style="color:var(--sec);font-size:22px;line-height:1">›</span>';
 const impNote = (t) => '<div class="imnote">' + t + '</div>';
 function impBodyHTML(st) {
@@ -5504,9 +5507,9 @@ function impBodyHTML(st) {
   if (st === 'country') return '<div class="scard">' + NazcaBancos.CATALOG.map((c) => '<button class="imgo" data-act="imp:banks:' + c.id + '">' + RMI('global-line', 24, '#22B573') + '<span class="grow"><span class="imt">' + esc(c.name) + '</span></span>' + impChev() + '</button>').join('') + '</div>' + impNote('Por ahora, el único país disponible.');
   if (st === 'banks') {
     const c = NazcaBancos.CATALOG[0];
-    return '<div class="scard">' + c.banks.map((b) => b.active
-      ? '<button class="imgo" data-act="imp:bank:' + b.id + '">' + RMI('bank-line', 24, '#22B573') + '<span class="grow"><span class="imt" data-notr>' + esc(b.name) + '</span></span>' + impChev() + '</button>'
-      : '<div class="imgo dis">' + RMI('bank-line', 24, '#8E8E93') + '<span class="grow"><span class="imt" data-notr>' + esc(b.name) + '</span></span><span class="sub" style="display:inline">Próximamente</span></div>').join('') + '</div>';
+    const row = (b) => { const on = b.active, tag = on ? 'button' : 'div';
+      return '<' + tag + ' class="imgo imbk' + (on ? '' : ' dis') + '"' + (on ? ' data-act="imp:bank:' + b.id + '"' : '') + '><span class="imglyph">' + impMark(b.id, 'glyph') + '</span><span class="grow"><span class="imt" data-notr>' + esc(b.name) + '</span><span class="sub">' + (on ? 'Cuenta de ahorros' : 'Próximamente') + '</span></span>' + (on ? impChev() : '') + '</' + tag + '>'; };
+    return '<div class="scard">' + c.banks.map(row).join('') + '</div>';
   }
   if (st === 'bank') return '<p class="imlead">Sube el PDF de tu estado de cuenta de ahorros. Lo descargas de la banca por internet del BCP o te llega por correo.</p>' +
     '<div class="scard"><label class="srow" style="padding:12px 0"><span class="grow"><span class="slabel">DNI</span><input class="sinput imdni" id="impDni" type="text" inputmode="numeric" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="12" placeholder="········" value="' + esc(impDni) + '" data-notr></span></label></div>' +
