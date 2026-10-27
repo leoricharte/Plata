@@ -227,3 +227,8 @@ Tienes {0} sugerencia por revisar ¦ You have {0} {0?suggestion:suggestions} to 
 Ajustar recorte ¦ Adjust crop ¦ トリミングを調整 ¦ Regola il ritaglio ¦ Ajuster le recadrage ¦ Podesi izrez
 Arrastra para mover y usa el control para acercar. ¦ Drag to move and use the slider to zoom in. ¦ ドラッグで動かし、スライダーで拡大します。 ¦ Trascina per spostare e usa il cursore per ingrandire. ¦ Fais glisser pour déplacer et utilise le curseur pour zoomer. ¦ Povuci za pomicanje i koristi klizač za povećanje.
 Acercar ¦ Zoom in ¦ 拡大 ¦ Ingrandisci ¦ Zoomer ¦ Povećaj
+Estado de cuenta sin movimientos ¦ Statement with no transactions ¦ 取引のない明細 ¦ Estratto conto senza movimenti ¦ Relevé sans mouvements ¦ Izvod bez prometa
+Este estado de cuenta no trae movimientos: no hay nada que importar. ¦ This statement has no transactions: there is nothing to import. ¦ この明細には取引がありません。取り込むものはありません。 ¦ Questo estratto conto non ha movimenti: non c’è nulla da importare. ¦ Ce relevé ne contient aucun mouvement : il n’y a rien à importer. ¦ Ovaj izvod nema prometa: nema što uvesti.
+Un archivo sin movimientos ¦ One file with no transactions ¦ 取引のないファイル1件 ¦ Un file senza movimenti ¦ Un fichier sans mouvements ¦ Jedna datoteka bez prometa
+{0} archivos sin movimientos ¦ {0} files with no transactions ¦ 取引のないファイル{0}件 ¦ {0} file senza movimenti ¦ {0} fichiers sans mouvements ¦ {0} datoteka bez prometa
+{0} estados de cuenta sin movimientos ¦ {0} statements with no transactions ¦ 取引のない明細{0}件 ¦ {0} estratti conto senza movimenti ¦ {0} relevés sans mouvements ¦ {0} izvoda bez prometa
