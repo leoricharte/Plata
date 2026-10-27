@@ -43,7 +43,11 @@ const NazcaSeen = (() => {
       if (ds.length >= 2) { const m = D.exec(ds[ds.length - 1]); out.card.dueDate = iso(m); out.card.dueDay = +m[2]; } if (ms.length >= 2) out.card.minPayment = ms[1]; }
 
     let sec = '', line = 0; const sums = { cr: 0, buy: 0, fee: 0, int: 0 };
-    for (const ls of L.slice(1)) for (const l of ls) {
+    /* Una descripción larga se parte en tres líneas: la primera mitad ENCIMA de la fila (que queda sin descripción) y el resto DEBAJO. Se unen. */
+    const descOnly = (l) => !!l && l.items.length > 0 && l.items.every((i) => i.x > 200 && !D.test(i.str) && money(i.str) === null && !/^\*\d{4}$/.test(i.str)) && !/^(Payments, Refunds|Purchases$|Fees$|Interest Charged$|Total |TOTAL )/i.test(lineText(l));
+    for (const ls of L.slice(1)) for (let li = 0; li < ls.length; li++) {
+      const l = ls[li], used = ls.used || (ls.used = {});
+      if (used[li]) continue;
       const t = lineText(l);
       if (/^Payments, Refunds, and Other Credits$/i.test(t)) { sec = 'cr'; continue; }
       if (/^Purchases$/i.test(t)) { sec = 'buy'; continue; }
@@ -57,6 +61,8 @@ const NazcaSeen = (() => {
       if (d1) { date = iso(d2 || d1); desc = l.items.filter((i, k) => k > (d2 ? 1 : 0) && i !== amt && !/^\*\d{4}$/.test(i.str)).map((i) => i.str).join(' ').replace(/\s+/g, ' ').trim(); }
       else if (sec === 'int' && /^Interest Charge/i.test(l.items[0].str)) { date = out.period.to; desc = l.items[0].str; }
       else continue;
+      if (d1 && !desc) { const up = li > 0 && !used[li - 1] && descOnly(ls[li - 1]) ? ls[li - 1] : null, dn = descOnly(ls[li + 1]) ? ls[li + 1] : null;
+        if (up || dn) { desc = [up, dn].filter(Boolean).map(lineText).join(' ').replace(/\s+/g, ' ').trim(); if (dn) used[li + 1] = 1; if (up) used[li - 1] = 1; } }
       if (!desc) { out.skipped.unreadable++; continue; }
       if (!v) { out.skipped.zero++; continue; }
       sums[sec] = r2(sums[sec] + Math.abs(v));

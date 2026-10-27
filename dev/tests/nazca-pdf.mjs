@@ -142,7 +142,9 @@ const sum = (it) => Math.round(it.reduce((s, x) => s + x.amount, 0) * 100) / 100
   ok(r.items.length === 6 && sum(r.items) === -(56.29 + 3.10) + 40.5, 'seen: 6 movimientos (abonos +, compras e interés −)');
   ok(r.items.find((x) => /Payment from/.test(x.desc)).amount === 40 && r.items.find((x) => /TIENDA/.test(x.desc)).amount === -21.3 && r.items.find((x) => /Interest/.test(x.desc)).date === '2026-04-04', 'seen: pago positivo, compra negativa y el interés usa la fecha de cierre');
   ok(r.check.ok === true && r.card.apr === 29.99 && r.card.dueDate === '2026-05-03' && r.card.minPayment === 25 && r.card.limit === 500, 'seen: cuadra y trae tasa, fecha de pago, mínimo y límite ' + JSON.stringify(r.card));
-  const nc = B.detect(await P.read(bytes('seen-no-cuadra.pdf'), lib)).read(await P.read(bytes('seen-no-cuadra.pdf'), lib)); ok(nc.check.ok === false, 'seen: si el saldo nuevo no coincide → no cuadra'); }
+  const nc = B.detect(await P.read(bytes('seen-no-cuadra.pdf'), lib)).read(await P.read(bytes('seen-no-cuadra.pdf'), lib)); ok(nc.check.ok === false, 'seen: si el saldo nuevo no coincide → no cuadra');
+  const dp = await P.read(bytes('seen-partida.pdf'), lib), rp = B.detect(dp).read(dp), sh = rp.items.find((x) => /SHAKE SHACK/.test(x.desc));
+  ok(rp.items.length === 7 && rp.skipped.unreadable === 0 && sh && sh.desc === 'SHAKE SHACK DEMO CONCOU CITY GAUSA' && sh.amount === -13.59 && rp.check.ok === true, 'seen: descripción partida en 3 líneas (mitad arriba y resto abajo) se une y el estado cuadra (' + rp.items.length + ')'); }
 
 // 12) tarjetas de crédito de bancos que Nazca no conoce: se reconocen por sus pistas y se acomodan los signos
 { const go = await P.read(bytes('tarjeta-omega.pdf'), lib), gs = await P.read(bytes('tarjeta-sigma.pdf'), lib), a = G.read(go), b = G.read(gs);
