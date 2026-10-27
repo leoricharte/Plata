@@ -1,6 +1,6 @@
 /* ---------- Nazca · Capital One · Estado de cuenta de tarjeta de crédito (PDF) ----------
- * Lee el "Statement" de una tarjeta de crédito Capital One. OJO: este lector está armado sobre un documento de PRUEBA inventado (dev/tests/pdf/capital-one-*.pdf),
- * no sobre un estado real; con uno real habrá que revisar las posiciones y los textos antes de darlo por probado.
+ * Lee el "Statement" de una tarjeta de crédito Capital One. Probado con 9 estados reales (abr–dic 2025, en español con copia en inglés) y con documentos inventados (dev/tests/pdf/capital-one-*.pdf);
+ * con diseños distintos habrá que revisar las posiciones y los textos.
  * Diseño que espera: marca "Capital One"; "Statement period: Mar 1, 2026 - Mar 31, 2026"; "Account ending in 4242";
  * resumen (Previous Balance, Payments, Purchases, Fees & Interest, New Balance) y una tabla "Trans Date · Post Date · Description · Amount"
  * donde las compras son positivas y los pagos/créditos negativos.
@@ -16,6 +16,18 @@ const NazcaCapitalOne = (() => {
   const AMT = '(-?\\s?\\$\\s?[\\d,]+\\.\\d{2}|\\(\\$[\\d,]+\\.\\d{2}\\))';
   const ROW = new RegExp('^([A-Za-z]{3}) (\\d{1,2}) (?:([A-Za-z]{3}) (\\d{1,2}) )?(.+?) ' + AMT + '$');
 
+  /* Los estados en español traen la misma información dos veces: primero la copia en español («Página 1 de 6») y después la copia en inglés («Page 4 of 6»). Se lee solo la copia en inglés, si no, todo saldría duplicado.
+   * Las páginas sin número (texto legal) pertenecen a la copia de la página numerada anterior. Un estado sin copia en español queda igual. */
+  function soloIngles(pages) {
+    const lang = []; let cur = null;
+    for (const p of pages) {
+      const t = p.items.map((i) => i.str).join(' ');
+      if (/\bPage \d+ of \d+/i.test(t)) cur = 'en'; else if (/\bPágina \d+ de \d+/i.test(t)) cur = 'es';
+      lang.push(cur);
+    }
+    return lang.includes('en') && lang.includes('es') ? pages.filter((p, i) => lang[i] !== 'es') : pages;
+  }
+
   function detect(doc) {
     if (!doc || !doc.pages || !doc.pages.length) return 0;
     const t = doc.pages.map((p) => p.items.map((i) => i.str).join(' ')).join(' ');
@@ -25,6 +37,7 @@ const NazcaCapitalOne = (() => {
   function read(doc) {
     if (!detect(doc)) return null;
     const pdf = typeof NazcaPDF !== 'undefined' ? NazcaPDF : require('../pdf.js');
+    doc = { pages: soloIngles(doc.pages) };
     const all = doc.pages.map((p) => p.items.map((i) => i.str).join(' ')).join(' ').replace(/[−–]/g, '-').replace(/\s+/g, ' ');
     const out = { bank: 'capitalone', kind: 'tarjeta', label: 'Capital One · Tarjeta de crédito', cur: 'USD', account: { last4: '' }, period: null, items: [], skipped: { unreadable: 0, zero: 0 }, check: null };
     const l4 = /ending in (\d{4})/i.exec(all); if (l4) out.account.last4 = l4[1];
@@ -52,7 +65,7 @@ const NazcaCapitalOne = (() => {
     for (const page of doc.pages) for (const l of pdf.lines(page, 3)) {
       const s = lineText(l), m = ROW.exec(s); if (!m) continue;
       const mo = MES[m[1].toLowerCase()]; if (!mo) continue;
-      const desc = m[5].replace(/\s+/g, ' ').trim(); if (!desc || !/[A-Za-z]/.test(desc) || /^(previous|new|total|minimum|payments|purchases|fees)/i.test(desc)) continue;
+      const desc = m[5].replace(/\s*AuthDate \d{1,2}-[A-Za-z]{3}$/i, '').replace(/\s+/g, ' ').trim(); if (!desc || !/[A-Za-z]/.test(desc) || /^(previous|new|total|minimum|payments|purchases|fees)/i.test(desc)) continue;
       const v = money(m[6]); if (!v) { out.skipped.zero++; continue; }
       const y = f.y === t.y ? f.y : (mo >= f.m ? f.y : t.y);                              // diciembre → enero: los meses del inicio son del año anterior
       const date = y + '-' + pad(mo) + '-' + pad(+m[2]);

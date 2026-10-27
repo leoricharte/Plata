@@ -208,6 +208,12 @@ const sum = (it) => Math.round(it.reduce((s, x) => s + x.amount, 0) * 100) / 100
   ok(!Y.detect([['a', 'b'], ['1', '2']]) && !Y.detect(await X.read(xb('yape-reporte.xlsx')).then((r) => r.map((x) => x.slice(0, 2)))), 'yape: otro Excel no se confunde');
   ok((await fail(X.read(bytes('bcp-ahorros.pdf')))) === 'not_xlsx', 'xlsx: un PDF no se abre como Excel'); }
 
+// 17b) Capital One en español: el PDF trae la copia en español y después la copia en inglés; solo se lee una (si no, todo sale doble)
+{ const d = await P.read(bytes('capital-one-nuevo.pdf'), lib), pie = (s) => ({ str: s, x: 546, y: 766, w: 40, h: 8 });
+  const es = d.pages.map((p, i) => Object.assign({}, p, { items: p.items.concat([pie('Página ' + (i + 1) + ' de 2')]) })), en = d.pages.map((p, i) => Object.assign({}, p, { items: p.items.concat([pie('Page ' + (i + 2) + ' of 2')]) }));
+  const r = B.detect({ pages: es.concat(en) }, 'capitalone').read({ pages: es.concat(en) });
+  ok(r.items.length === 8 && r.check.ok === true, 'capital one (es+en): lee solo la copia en inglés, 8 movimientos y cuadra (' + r.items.length + ')');
+  ok(B.detect({ pages: es.concat(en) }, 'capitalone').read({ pages: en.concat(es) }).items.length === 8, 'capital one (en+es): también funciona al revés'); }
 // 17) Capital One con el diseño real de hoy (Quicksilver / Savor): periodo sin título, "Transactions +", "Other Credits", intereses del resumen
 { const d = await P.read(bytes('capital-one-nuevo.pdf'), lib), rd = B.detect(d, 'capitalone'); ok(rd && rd.id === 'capitalone-tarjeta', 'capital one (nuevo): se reconoce');
   const r = rd.read(d); ok(r.period && r.period.from === '2026-06-16' && r.period.to === '2026-07-16' && r.account.last4 === '4242', 'capital one (nuevo): periodo "Jun 16, 2026 - Jul 16, 2026" y últimos 4');
