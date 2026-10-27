@@ -1,6 +1,6 @@
 [package]
 name = "plata-desktop"
-version = "3.0.420"
+version = "3.0.452"
 description = "Plata para escritorio"
 edition = "2021"
 
