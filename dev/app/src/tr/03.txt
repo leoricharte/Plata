@@ -203,3 +203,5 @@ Anotado a mano ¦ Entered by hand ¦ 手入力 ¦ Inserito a mano ¦ Saisi à la
 Del banco ¦ From the bank ¦ 銀行から ¦ Dalla banca ¦ De la banque ¦ Iz banke
  · casi seguro ¦ · almost certain ¦ · ほぼ確実 ¦ · quasi certo ¦ · presque sûr ¦ · gotovo sigurno
 Lo normal: ¦ Usual: ¦ 通常: ¦ Di solito: ¦ Habituel : ¦ Uobičajeno:
+No cuadra: ¦ Doesn't add up: ¦ 合わない: ¦ Non quadra: ¦ Ne correspond pas : ¦ Ne slaže se:
+Con filas sin leer: ¦ With unread rows: ¦ 読み取れない行あり: ¦ Con righe non lette: ¦ Avec lignes non lues : ¦ S nepročitanim recima:
