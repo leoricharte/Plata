@@ -6,7 +6,7 @@ Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola 
 
 **Probar:** [plataapp.net/app](https://plataapp.net/app/) · **Sitio:** [plataapp.net](https://plataapp.net)
 
-**Versión:** Beta 3 · **Compilación:** 443
+**Versión:** Beta 3 · **Compilación:** 444
 
 ---
 
