@@ -175,3 +175,5 @@ Neto: ¦ Net: ¦ 純額: ¦ Netto: ¦ Net : ¦ Neto:
 Usas {0} de tu crédito · ¦ You use {0} of your credit · ¦ クレジットの{0}を使用中 · ¦ Usi il {0} del tuo credito · ¦ Vous utilisez {0} de votre crédit · ¦ Koristiš {0} svog kredita ·
 Usas {0} de tu crédito · Neto: ¦ You use {0} of your credit · Net: ¦ クレジットの{0}を使用中 · 純額: ¦ Usi il {0} del tuo credito · Netto: ¦ Vous utilisez {0} de votre crédit · Net : ¦ Koristiš {0} svog kredita · Neto:
 % de tu crédito · ¦ % of your credit · ¦ %(クレジット)· ¦ % del tuo credito · ¦ % de votre crédit · ¦ % tvog kredita ·
+Intereses del año ¦ Interest this year ¦ 今年の利息 ¦ Interessi dell'anno ¦ Intérêts de l'année ¦ Kamate ove godine
+Rendimiento real ¦ Actual yield ¦ 実質利回り ¦ Rendimento reale ¦ Rendement réel ¦ Stvarni prinos
