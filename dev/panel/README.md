@@ -11,7 +11,7 @@ Este panel administra la lista de espera, las copias enviadas para análisis, No
 
 ## Publicarlo (gratis)
 
-1. Crea un repo **privado** (por ejemplo `plata-dev`) y copia esta carpeta (`index.html`, `_headers`, `README.md`).
+1. Corre `sh dev/panel/build.sh` (empaqueta el motor de Nazca en `dev/panel/nazca/`). Crea un repo **privado** (por ejemplo `plata-dev`) y copia esta carpeta completa (`index.html`, `nazca-panel.js`, `nazca/`, `_headers`, `README.md`).
 2. Cloudflare → Workers & Pages → Create → Pages → conecta el repo. Sin comando de compilación; carpeta de salida: `/`.
    Queda en `https://plata-dev.pages.dev` (o el nombre que elijas).
 3. Cloudflare → Zero Trust (plan Free, hasta 50 personas) → Access → Applications → Add → Self-hosted:
@@ -22,6 +22,10 @@ Este panel administra la lista de espera, las copias enviadas para análisis, No
 
 ¿Quieres `dev.plataapp.net` en lugar de `plata-dev.pages.dev`? Con Access, eso requiere que el DNS de plataapp.net esté en Cloudflare
 (también gratis). Sin moverlo, usa la dirección `.pages.dev`.
+
+## Pestaña Nazca
+
+Usa el mismo token. Panel (lectores y bancos, submissions pendientes) · Aportar manualmente (cargas un PDF o CSV, pones la contraseña si la pide, ves cómo lo lee Nazca y descargas la extracción sin contraseña, con enmascarado opcional) · Revisar submissions (`/nazca/list`, abrir en el analizador, descargar, eliminar) · Insertar nuevo banco (genera el esqueleto del lector, la entrada del catálogo y los pasos). El archivo se lee en tu navegador; no se sube a ningún servidor. Cada vez que cambie un lector, vuelve a correr `build.sh`.
 
 ## Usarlo en tu computadora
 

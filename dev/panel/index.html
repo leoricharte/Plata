@@ -1,5 +1,5 @@
 <!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob: https://plata-cloud.xleoricharte.workers.dev; connect-src https://plata-cloud.xleoricharte.workers.dev https://plataapp.net http://localhost:* http://127.0.0.1:*; base-uri 'none'; form-action 'none'"><meta name="theme-color" content="#0b1a13"><title>Panel · Plata</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; worker-src 'self' blob:; style-src 'unsafe-inline'; img-src 'self' data: blob: https://plata-cloud.xleoricharte.workers.dev; connect-src 'self' https://plata-cloud.xleoricharte.workers.dev https://plataapp.net http://localhost:* http://127.0.0.1:*; base-uri 'none'; form-action 'none'"><meta name="theme-color" content="#0b1a13"><title>Panel · Plata</title>
 <link rel="icon" href="data:,">
 <style>
 :root{--bg:#f4f6f5;--card:#fff;--ink:#14201a;--mute:#66736b;--line:#e3e8e5;--accent:#1A9D63;--warn:#C23B2E}
@@ -23,12 +23,13 @@ label{display:block;font-size:13px;font-weight:700;color:var(--mute);margin:12px
 <h1>Panel</h1><p class="sub" id="sub">Herramientas privadas del equipo de Plata.</p>
 <div class="card scold"><span class="bdg" id="scb"></span><div class="t" id="sct"></div><div id="scp"></div><a id="sca" class="btnl" href="https://plataapp.net/"></a></div>
 <div class="card" id="lcard"><input id="tok" type="password" placeholder="Tu token de administrador" autocomplete="off"><button id="go">Entrar</button><div id="msg"></div></div>
-<div class="tabs" id="tabs" hidden><button id="tR" class="on" type="button">Copias recibidas</button><button id="tN" type="button">Novedades</button><button id="tW" type="button">Lista de espera</button><button id="tE" type="button">Textos de la web</button><button id="lo" class="g" type="button" style="margin-left:auto">Cerrar sesión</button></div>
+<div class="tabs" id="tabs" hidden><button id="tR" class="on" type="button">Copias recibidas</button><button id="tN" type="button">Novedades</button><button id="tW" type="button">Lista de espera</button><button id="tE" type="button">Textos de la web</button><button id="tZ" type="button">Nazca</button><button id="lo" class="g" type="button" style="margin-left:auto">Cerrar sesión</button></div>
 <div id="pR" hidden><div id="list"></div></div>
 <div id="pW" hidden><div class="card"><div class="t">Lista de espera de Plata Cloud</div><p class="m" id="wsum" style="margin:6px 0 0"></p>
 <div class="row"><button id="wsel" class="g" type="button">Seleccionar pendientes</button><button id="wmail" type="button">Autorizar y enviar invitación</button><button id="wauth" class="g" type="button">Solo autorizar</button><button id="wrev" class="d" type="button">Quitar acceso</button></div><div id="wmsg" class="m" style="margin-top:10px"></div></div><div id="wl"></div></div>
 <div id="pE" hidden><div class="card"><div class="t">Textos de la web</div><p class="m" style="margin:6px 0 10px">Elige una página, busca el texto y edítalo en español e inglés. Se guarda al instante. Solo se aceptan &lt;b&gt;, &lt;i&gt;, &lt;em&gt;, &lt;strong&gt;, &lt;br&gt; y enlaces &lt;a href="…"&gt;.</p><div class="row" id="epg" style="margin-top:0"></div><input id="eq" placeholder="Buscar en esta página" style="margin:12px 0 0" hidden></div><div id="elist"></div>
 <div class="card" id="eform" hidden><div class="t" id="eft">Editar texto</div><div class="m" id="efo" style="margin-top:6px"></div><label>ESPAÑOL</label><textarea id="ees" style="min-height:110px"></textarea><label>INGLÉS</label><textarea id="een" style="min-height:110px"></textarea><div class="prev" id="epv"></div><div class="row"><button id="esv" type="button">Guardar</button><button class="g" id="ecx" type="button">Cancelar</button><button class="d" id="ers" type="button">Volver al original</button></div><div id="emsg" class="m" style="margin-top:10px"></div></div></div>
+<div id="pZ" hidden></div>
 <div id="pN" hidden>
 <div class="card" id="ed"><div class="t" id="edt">Nuevo artículo</div>
 <label>TÍTULO</label><input id="ti" maxlength="160" placeholder="Un título claro">
@@ -98,8 +99,8 @@ function md(src){var out=[];String(src).replace(/\r/g,'').split(/\n{2,}/).forEac
 var editId=null,img=null,curImg='',posts=[];
 function today(){var d=new Date(),z=function(v){return String(v).padStart(2,'0')};return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())}
 function pv(){$('pv').innerHTML=($('ti').value.trim()?'<h3>'+esc($('ti').value)+'</h3>':'')+md($('bo').value)||'<small>La vista previa aparece aquí.</small>'}
-function tab(n){$('pR').hidden=n!=='R';$('pN').hidden=n!=='N';$('pW').hidden=n!=='W';$('pE').hidden=n!=='E';$('tE').classList.toggle('on',n==='E');$('tR').classList.toggle('on',n==='R');$('tN').classList.toggle('on',n==='N');$('tW').classList.toggle('on',n==='W')}
-$('tR').onclick=function(){tab('R')};$('tN').onclick=function(){tab('N')};$('tW').onclick=function(){tab('W');loadW()};
+function tab(n){$('pR').hidden=n!=='R';$('pN').hidden=n!=='N';$('pW').hidden=n!=='W';$('pE').hidden=n!=='E';$('pZ').hidden=n!=='Z';$('tZ').classList.toggle('on',n==='Z');$('tE').classList.toggle('on',n==='E');$('tR').classList.toggle('on',n==='R');$('tN').classList.toggle('on',n==='N');$('tW').classList.toggle('on',n==='W')}
+$('tR').onclick=function(){tab('R')};$('tN').onclick=function(){tab('N')};$('tW').onclick=function(){tab('W');loadW()};$('tZ').onclick=function(){tab('Z');if(window.nazcaPanelOpen)window.nazcaPanelOpen()};
 var EP=[['Inicio',''],['Cómo usar','como-usar.html'],['Escritorio','escritorio.html'],['Cloud','cloud.html'],['Transparencia','transparencia.html'],['Prensa','prensa.html'],['Novedades','novedades.html'],['Ayuda','ayuda.html'],['Merch','merch.html']];
 /* Textos de la web: se lee el HTML público de cada página, se listan sus textos [data-es] y se editan aquí. Cada texto se identifica por un hash
  * de su versión original en español (igual que content.js en el sitio). Nada del sitio se ejecuta aquí: solo se lee como texto. */
@@ -191,4 +192,6 @@ var P=es?['Esta es la puertaza gigante que dice en rojo <b>ACCESO RESTRINGIDO</b
 $('scp').innerHTML=P.map(function(t,i){return '<p'+(i===P.length-1?' class="last"':'')+'>'+t+'</p>'}).join('');
 $('fn').textContent=es?'Y si sí eres del equipo y no puedes entrar, avisa a Leo nomás. No dejaremos ni correo porque, ¿para qué? Esa huevada es demasiado performativa.':'And if you’re on the team and can’t get in, just tell Leo. We won’t leave an email either because, why? That stuff is way too performative.';
 $('sca').textContent=es?'Volver a Plata →':'Back to Plata →'})();
-</script></body></html>
+</script>
+<script src="nazca/engine.js"></script>
+<script src="nazca-panel.js"></script></body></html>
