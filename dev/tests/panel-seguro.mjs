@@ -53,6 +53,40 @@ ok(dv.s === 200, 'dev publica directo (200)');
 ok((await j('/posts', 'POST', { date: '2026-10-27', title_es: 'Hola', body_es: 'Cuerpo', by: 'Mod' }, as(M, '10.0.0.2'))).s === 202, 'mod: artículo de Novedades → propuesta');
 ok(((await j('/posts', 'GET')).j.posts || []).length === 0, 'el artículo propuesto NO aparece en Novedades');
 
+// 4b) Personas con token propio + registro de auditoría
+const cu = await j('/admin/users', 'POST', { name: 'Ana Prueba', role: 'mod' }, as(D));
+const AT = cu.j.token;
+ok(cu.s === 200 && /^plt_[A-Za-z0-9_-]{6,12}\.[A-Za-z0-9_-]{30,}$/.test(AT || ''), 'dev crea a Ana (mod): recibe un token personal una sola vez');
+const ul = await j('/admin/users', 'GET', null, as(D));
+ok(ul.j.items.some((x) => x.name === 'Ana Prueba' && x.role === 'mod') && !JSON.stringify(ul.j).includes('"h"') && !JSON.stringify(ul.j).includes(AT), 'la lista no trae el token ni su hash');
+ok((await j('/admin/users', 'POST', { name: 'X', role: 'mod' }, as(M, '10.0.0.2'))).s === 403, 'mod no puede crear personas');
+ok((await j('/admin/audit', 'GET', null, as(M, '10.0.0.2'))).s === 403, 'mod no puede leer el registro');
+const am = await mint(AT, PANEL, '10.0.8.1');
+ok(am.s === 200 && am.j.role === 'mod' && am.j.name === 'Ana Prueba', 'el token de Ana abre sesión: rol mod y nombre');
+const AS = am.j.session;
+ok((await mint(AT.slice(0, -3) + 'aaa', PANEL, '10.0.8.2')).s === 401, 'token con el id correcto y el secreto equivocado → 401');
+const pa = await j('/content', 'POST', { k: 'a1b2c3d4', es: 'Cambio de Ana', en: 'Ana change', orig: 'o' }, as(AS, '10.0.8.1'));
+ok(pa.s === 202, 'Ana propone un cambio (202)');
+const aps = await j('/admin/proposals', 'GET', null, as(D));
+ok((aps.j.items.find((x) => x.id === pa.j.id) || {}).by === 'Ana Prueba', 'la propuesta dice que viene de Ana');
+await j('/admin/proposals/decide?id=' + pa.j.id + '&do=approve', 'POST', {}, as(D));
+const rv = await j('/admin/users/revoke?id=' + cu.j.id, 'POST', {}, as(D));
+ok(rv.s === 200 && (await j('/content/ping', 'GET', null, as(AS, '10.0.8.1'))).s === 401, 'al revocar a Ana, su sesión abierta deja de servir al instante');
+ok((await mint(AT, PANEL, '10.0.8.3')).s === 401, 'y su token ya no abre sesión nueva');
+await j('/admin/users/revoke?id=' + cu.j.id + '&undo=1', 'POST', {}, as(D));
+ok((await mint(AT, PANEL, '10.0.8.4')).s === 200, 'reactivarla le devuelve el acceso');
+const au = await j('/admin/audit?n=200', 'GET', null, as(D)); const ev = au.j.items || [];
+const has = (act, who) => ev.some((e) => e.act === act && (!who || e.who === who));
+ok(has('entrada', 'Ana Prueba') && has('entrada', 'root') && has('entrada', 'mod compartido'), 'registro: entradas de Ana, root y mod compartido');
+ok(has('entrada fallida') && has('crear persona', 'root') && has('revocar persona', 'root') && has('proponer content', 'Ana Prueba'), 'registro: entrada fallida, crear/revocar persona y propuesta de Ana');
+ok(has('aprobar propuesta', 'root') && has('guardar texto', 'root'), 'registro: la aprobación y el guardado quedan a nombre de quien aprobó');
+ok(has('salida', 'root'), 'registro: salida');
+ok(!JSON.stringify(ev).includes(AT) && !JSON.stringify(ev).includes(DEV) && !JSON.stringify(ev).includes('plt_'), 'el registro no contiene tokens');
+ok(ev.every((e) => e.t && e.ip && e.ip.length === 8), 'cada evento trae hora y una huella corta de la conexión (sin IP)');
+await j('/review/get?id=nada', 'GET', null, as(D)); await j('/nazca/delete?id=nada', 'POST', {}, as(D));
+const au2 = (await j('/admin/audit', 'GET', null, as(D))).j.items;
+ok(au2.some((e) => e.act === 'ver review/get') && au2.some((e) => e.act === 'nazca/delete'), 'registro: ver una copia y borrar un envío de Nazca');
+
 // 5) /nazca: solo archivos de verdad, con topes propios
 const b64 = (s) => Buffer.from(s, 'latin1').toString('base64');
 const nz = (kind, data, ip) => j('/nazca', 'POST', { v: 1, build: 1, plat: 't', kind, bank: '', why: '', b64: b64(data) }, { 'X-Test-IP': ip }, A);
