@@ -171,6 +171,9 @@ const sum = (it) => Math.round(it.reduce((s, x) => s + x.amount, 0) * 100) / 100
   ok(r.items.find((x) => /Apple Cash payment/.test(x.desc)).amount === 5 && r.items.find((x) => /TIENDA EJEMPLO 1/.test(x.desc)).amount === -15.29 && r.items.find((x) => /DEVOLUCION/.test(x.desc)).amount === 4 && r.items.find((x) => /Interest/i.test(x.desc)).amount === -12 && r.items.find((x) => /Interest/i.test(x.desc)).date === '2026-03-31', 'apple card: pagos y devoluciones +, compras e interés −');
   ok(r.check.ok === true && r.card.apr === 24.74 && r.card.minPayment === 25 && r.card.dueDate === '2026-04-30', 'apple card: cuadra y trae tasa, mínimo y fecha de pago ' + JSON.stringify(r.card));
   const dn = await P.read(bytes('apple-card-no-cuadra.pdf'), lib); ok(B.detect(dn).read(dn).check.ok === false, 'apple card: si el saldo no coincide → no cuadra');
+  const da = await P.read(bytes('apple-card-ajuste.pdf'), lib), ra = B.detect(da).read(da), aj = ra.items.find((x) => x.desc === 'Daily Cash Adjustment');
+  ok(ra.items.length === 8 && aj && aj.amount === -0.08 && aj.date === '2026-03-18' && ra.check.ok === true, 'apple card: «Daily Cash Adjustment» bajo una devolución cuenta como cargo y el estado cuadra (' + ra.items.length + ')');
+
   const sg = B.detectCsv('Transaction Date,Clearing Date,Description,Merchant,Category,Type,Amount (USD),Purchased By'.split(','));
   ok(sg && sg.bank === 'applecard' && sg.flip === true && B.detectCsv(['Date', 'Description', 'Amount']) === null, 'apple card CSV: se reconoce por sus columnas y un CSV común no'); }
 

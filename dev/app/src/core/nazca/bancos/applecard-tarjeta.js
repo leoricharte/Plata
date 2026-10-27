@@ -38,7 +38,7 @@ const NazcaAppleCard = (() => {
     const due = /\$[\d,]+\.\d{2}\s+\$([\d,]+\.\d{2})\s+([A-Z][a-z]{2}) (\d{1,2}), (\d{4})/.exec(all);
     if (due && MES[due[2].toLowerCase()]) { out.card.minPayment = parseFloat(due[1].replace(/,/g, '')); out.card.dueDate = due[4] + '-' + pad(MES[due[2].toLowerCase()]) + '-' + pad(+due[3]); out.card.dueDay = +due[3]; }
 
-    let sec = '', line = 0, sPay = 0, sChg = 0, sInt = 0;
+    let sec = '', line = 0, sPay = 0, sChg = 0, sInt = 0, lastDate = '';
     for (const ls of L) for (const l of ls) {
       const its = l.items, t = lineText(l);
       if (/^Payments$/.test(t)) { sec = 'pay'; continue; } if (/^Transactions$/.test(t)) { sec = 'chg'; continue; } if (/^Interest Charged$/.test(t)) { sec = 'int'; continue; } if (/^(Daily Cash|Interest Charges|Legal)$/.test(t)) { sec = ''; continue; }
@@ -46,13 +46,16 @@ const NazcaAppleCard = (() => {
       const am = its[its.length - 1], v = money(am.str); if (v === null) continue;
       const d = D.exec(its[0].str);
       if (sec === 'int') { if (/^Interest charge/i.test(its[0].str) && its.length === 2) { sInt = r2(sInt + v); out.items.push({ line: ++line, date: out.period.to, desc: its[0].str, amount: -v, cur: 'USD' }); } continue; }
+      /* «Daily Cash Adjustment»: al devolver una compra, Apple retira el Daily Cash que había dado; sale en una línea sin fecha bajo la devolución, cuenta como cargo y suma al total impreso */
+      if (sec === 'chg' && !d && /^Daily Cash Adjustment$/.test(its[0].str) && v > 0 && lastDate) { sChg = r2(sChg + v); out.items.push({ line: ++line, date: lastDate, desc: 'Daily Cash Adjustment', amount: -v, cur: 'USD' }); continue; }
       if (!d || its[0].x > 60 || its.length < 3) continue;
       const desc = its.slice(1, -1).filter((i) => i.x < 410).map((i) => i.str).join(' ').replace(/\s+/g, ' ').trim();
       if (!desc) { out.skipped.unreadable++; continue; }
       if (!v) { out.skipped.zero++; continue; }
       const amount = sec === 'pay' ? -v : -v;          // pagos vienen negativos (→ +) y compras positivas (→ −): en los dos casos el signo se invierte
       if (sec === 'pay') sPay = r2(sPay + v); else sChg = r2(sChg + v);
-      out.items.push({ line: ++line, date: d[3] + '-' + d[1] + '-' + d[2], desc, amount, cur: 'USD' });
+      lastDate = d[3] + '-' + d[1] + '-' + d[2];
+      out.items.push({ line: ++line, date: lastDate, desc, amount, cur: 'USD' });
     }
     const have = sm.prev != null && sm.end != null && sm.chg != null && sm.int != null && sm.pay != null;
     out.check = { have, prev: sm.prev, end: sm.end, totalCharges: sm.chg, totalCredits: sm.pay == null ? null : Math.abs(sm.pay), sumCharges: sChg, sumCredits: Math.abs(sPay), running: true,
