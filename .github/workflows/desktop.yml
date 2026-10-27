@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Etiqueta del release (ej. desktop-beta3-420)"
-        required: true
-        default: "desktop-beta3-420"
+        description: "Etiqueta del release. Si la dejas vacía usa desktop-b<compilación> (ej. desktop-b452)"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -16,6 +16,21 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Versión (sale de APP_BUILD, así no se desfasa)
+        id: ver
+        shell: bash
+        env:
+          TAG_IN: ${{ inputs.tag }}
+        run: |
+          build=$(grep -o 'const APP_BUILD = [0-9]*' dev/app/src/app.html | grep -o '[0-9]*$')
+          [ -n "$build" ] || { echo "No encontré APP_BUILD en dev/app/src/app.html"; exit 1; }
+          ver="3.0.$build"
+          echo "build=$build" >> "$GITHUB_OUTPUT"
+          echo "tag=${TAG_IN:-desktop-b$build}" >> "$GITHUB_OUTPUT"
+          sed -i "s/\"version\": \"[0-9.]*\"/\"version\": \"$ver\"/" dev/desktop/package.json dev/desktop/src-tauri/tauri.conf.json
+          sed -i "0,/^version = \"[0-9.]*\"/s//version = \"$ver\"/" dev/desktop/src-tauri/Cargo.toml
+          echo "Compilando Plata para Windows $ver"
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
@@ -49,11 +64,12 @@ jobs:
       - name: Publicar release
         uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
         with:
-          tag_name: ${{ inputs.tag }}
-          name: Plata para Windows (Beta 3 · compilación 420)
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: Plata para Windows (compilación ${{ steps.ver.outputs.build }})
           prerelease: true
           body: |
             Plata para Windows. Instalador sin firma: Windows puede mostrar «Windows protegió tu PC». Pulsa «Más información» → «Ejecutar de todos modos».
+          fail_on_unmatched_files: true
           files: |
             dev/desktop/src-tauri/target/release/bundle/nsis/*.exe
             dev/desktop/src-tauri/target/release/bundle/msi/*.msi
