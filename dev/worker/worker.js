@@ -292,7 +292,7 @@ async function nazcaDelete(req, env, h, url) {
 const AUTH_MAX = 5, AUTH_WIN = 900, ADMIN_SESSION = 3600, ROLE_RANK = { aud: 1, mod: 2, dev: 3 }, AUDIT_TTL = 90 * 86400, USERS_MAX = 40;
 /* Auditor (aud): solo mira. Puede hacer peticiones GET de administración y nada más; ninguna escritura, ni propuesta, ni invitación. Tampoco abre el CONTENIDO de datos de
  * usuarios (copias recibidas, archivos de Nazca, correos de la lista de espera) salvo que el Worker tenga AUDITOR_DATA=1: ver quién hizo qué no exige ver datos personales. */
-const AUD_DATA = /^\/(review\/get|nazca\/get|waitlist\/export)$/;
+const AUD_DATA = /^\/(review\/get|nazca\/get|waitlist\/export|admin\/nazca\/lib\/get)$/;
 const audCan = (req, env) => req.method === 'GET' && (env.AUDITOR_DATA === '1' || !AUD_DATA.test(new URL(req.url).pathname));
 const INTERNAL = new WeakSet(); // peticiones armadas por el propio servidor al aprobar una propuesta: ya vienen autorizadas por un dev
 const WHO = new WeakMap();      // petición → quién la hizo ({ role, who, uid }); lo usa el registro de auditoría
@@ -457,6 +457,53 @@ async function boardVote(req, env, h, url) { // POST /admin/board/vote?id= → a
   const me = a.uid || a.who; it.v = it.v || []; const at = it.v.indexOf(me);
   if (at >= 0) it.v.splice(at, 1); else if (it.v.length < 40) it.v.push(me);
   await kvPut(env, 'bd:' + id, it); return json({ ok: true, v: it.v, mine: it.v.indexOf(me) >= 0 }, 200, h);
+}
+/* Base de Nazca (solo dev; el auditor ve la lista pero no abre los casos): extracciones de PDF YA ENMASCARADAS que el equipo quiere conservar para escribir o vigilar lectores.
+ * nl:<id> → { data }, con lo que sirve para listar en los metadatos de KV. Sin vencimiento: el equipo decide qué borrar. Nunca el PDF original ni su contraseña. */
+const NZL_MAX = 200, NZL_WANT = { ok: 1, bad: 1, none: 1 };
+const nzClean = (v, n) => String(v || '').replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, n);
+function nzShapeOk(d) { // { v:1, pages:[{ w, h, items:[{ str, x, y, w }] }] }: forma exacta, sin campos de más
+  if (!d || typeof d !== 'object' || d.v !== 1 || !Array.isArray(d.pages) || !d.pages.length || d.pages.length > 12) return false;
+  let n = 0;
+  for (const p of d.pages) {
+    if (!p || !Array.isArray(p.items) || !Number.isFinite(p.w) || !Number.isFinite(p.h)) return false;
+    n += p.items.length; if (n > 20000) return false;
+    for (const i of p.items) if (!i || typeof i.str !== 'string' || i.str.length > 400 || !Number.isFinite(i.x) || !Number.isFinite(i.y) || !Number.isFinite(i.w)) return false;
+  }
+  return true;
+}
+async function nzLibList(req, env, h) {
+  { const g = await adminGate(req, env, h, 'dev'); if (g) return g; }
+  const items = []; let cursor;
+  do { const r = await env.WAITLIST.list({ prefix: 'nl:', cursor }); for (const k of r.keys) if (k.metadata) items.push(Object.assign({ id: k.name.slice(3) }, k.metadata)); cursor = r.list_complete ? undefined : r.cursor; } while (cursor && items.length < NZL_MAX + 50);
+  items.sort((a, b) => b.t - a.t);
+  return json({ ok: true, items }, 200, h);
+}
+async function nzLibSave(req, env, h) { // POST /admin/nazca/lib { name, bank, want, note, data }
+  const a = await adminAuth(req, env, h, 'dev'); if (a.res) return a.res;
+  const { b, err } = await readBody(req, 700000); if (err) return json({ ok: false, error: 'json' }, err, h);
+  const name = nzClean(b.name, 60), want = String(b.want || 'ok');
+  if (!name || !NZL_WANT[want] || !nzShapeOk(b.data)) return json({ ok: false, error: 'campos' }, 400, h);
+  let n = 0, cursor; do { const r = await env.WAITLIST.list({ prefix: 'nl:', cursor }); n += r.keys.length; cursor = r.list_complete ? undefined : r.cursor; } while (cursor && n < NZL_MAX);
+  if (n >= NZL_MAX) return json({ ok: false, error: 'full' }, 429, h);
+  const id = rndB64(6), data = { v: 1, pages: b.data.pages.map((p) => ({ w: p.w, h: p.h, items: p.items.map((i) => ({ str: i.str, x: i.x, y: i.y, w: i.w })) })) };
+  const meta = { name, bank: nzClean(b.bank, 40), want, note: nzClean(b.note, 160), by: a.who, t: Date.now(), pg: data.pages.length };
+  await env.WAITLIST.put('nl:' + id, JSON.stringify({ data }), { metadata: meta });
+  await audit(env, req, 'añadir a la base de Nazca', name + (meta.bank ? ' · ' + meta.bank : ''));
+  return json({ ok: true, id }, 200, h);
+}
+async function nzLibGet(req, env, h, url) { // GET /admin/nazca/lib/get?id=
+  { const g = await adminGate(req, env, h, 'dev'); if (g) return g; }
+  const id = url.searchParams.get('id') || '', v = okBoardId(id) ? await kvGet(env, 'nl:' + id) : null;
+  if (!v) return json({ ok: false, error: 'none' }, 404, h);
+  return json({ ok: true, data: v.data }, 200, h);
+}
+async function nzLibDel(req, env, h, url) { // DELETE /admin/nazca/lib?id=
+  const a = await adminAuth(req, env, h, 'dev'); if (a.res) return a.res;
+  const id = url.searchParams.get('id') || '', k = 'nl:' + id; if (!okBoardId(id)) return json({ ok: false, error: 'none' }, 404, h);
+  const r = await env.WAITLIST.getWithMetadata(k); if (r.value == null) return json({ ok: false, error: 'none' }, 404, h);
+  await env.WAITLIST.delete(k); await audit(env, req, 'borrar de la base de Nazca', (r.metadata && r.metadata.name) || id);
+  return json({ ok: true }, 200, h);
 }
 async function auditList(req, env, h, url) { // GET /admin/audit?n=200
   { const g = await adminGate(req, env, h, 'dev'); if (g) return g; }
@@ -998,6 +1045,10 @@ export default {
       if (p === '/admin/users' && m === 'GET') return await usersList(req, env, h);
       if (p === '/admin/users' && m === 'POST') return await usersCreate(req, env, h);
       if (p === '/admin/users/title' && m === 'POST') return await usersTitle(req, env, h, url);
+      if (p === '/admin/nazca/lib' && m === 'GET') return await nzLibList(req, env, h);
+      if (p === '/admin/nazca/lib' && m === 'POST') return await nzLibSave(req, env, h);
+      if (p === '/admin/nazca/lib' && m === 'DELETE') return await nzLibDel(req, env, h, url);
+      if (p === '/admin/nazca/lib/get' && m === 'GET') return await nzLibGet(req, env, h, url);
       if (p === '/admin/board' && m === 'GET') return await boardList(req, env, h);
       if (p === '/admin/board' && m === 'POST') return await boardSave(req, env, h);
       if (p === '/admin/board' && m === 'DELETE') return await boardDel(req, env, h, url);
