@@ -1,0 +1,29 @@
+Nada cambia hasta que aceptes. ¦ Nothing changes until you accept. ¦ 承認するまで何も変わりません。 ¦ Nulla cambia finché non accetti. ¦ Rien ne change tant que vous n'acceptez pas. ¦ Ništa se ne mijenja dok ne prihvatiš.
+Montos ¦ Amounts ¦ 金額 ¦ Importi ¦ Montants ¦ Iznosi
+Estados ¦ Statements ¦ 明細 ¦ Estratti ¦ Relevés ¦ Izvodi
+Convertir ¦ Convert ¦ 変換する ¦ Converti ¦ Convertir ¦ Pretvori
+casi seguras ¦ likely ones ¦ ほぼ確実なもの ¦ quasi certe ¦ quasi sûres ¦ gotovo sigurne
+casi seguro ¦ likely ¦ ほぼ確実 ¦ quasi certo ¦ quasi sûr ¦ gotovo sigurno
+revisa las fechas ¦ check the dates ¦ 日付を確認 ¦ controlla le date ¦ vérifiez les dates ¦ provjeri datume
+Desliza ¦ Swipe ¦ スワイプ ¦ Scorri ¦ Glissez ¦ Povuci
+y ¦ and ¦ 他 ¦ e ¦ et ¦ i
+más ¦ more ¦ 件 ¦ altri ¦ de plus ¦ još
+movimientos ¦ transactions ¦ 件の取引 ¦ movimenti ¦ opérations ¦ transakcija
+Salidas ¦ Out ¦ 出金 ¦ Uscite ¦ Sorties ¦ Odlivi
+Entradas ¦ In ¦ 入金 ¦ Entrate ¦ Entrées ¦ Prilivi
+Sin movimientos: ¦ No activity: ¦ 取引なし: ¦ Nessun movimento: ¦ Sans opérations : ¦ Bez prometa:
+¿Por qué? ¦ Why? ¦ なぜ？ ¦ Perché? ¦ Pourquoi ? ¦ Zašto?
+Es transferencia ¦ It's a transfer ¦ 振替です ¦ È un trasferimento ¦ C'est un virement ¦ To je prijenos
+Borrar el anotado a mano ¦ Delete the one I typed ¦ 手入力のほうを削除 ¦ Elimina quello a mano ¦ Supprimer celui saisi à la main ¦ Obriši ručno unesen
+Transferencia entre tus cuentas ¦ Transfer between your accounts ¦ 口座間の振替 ¦ Trasferimento tra i tuoi conti ¦ Virement entre vos comptes ¦ Prijenos među tvojim računima
+Pago de tarjeta ¦ Card payment ¦ カードの支払い ¦ Pagamento carta ¦ Paiement de carte ¦ Plaćanje kartice
+Movimiento repetido ¦ Repeated transaction ¦ 重複した取引 ¦ Movimento ripetuto ¦ Opération en double ¦ Ponovljena transakcija
+Monto muy alto ¦ Very high amount ¦ 高額すぎる金額 ¦ Importo molto alto ¦ Montant très élevé ¦ Vrlo visok iznos
+Estado faltante ¦ Missing statement ¦ 明細の不足 ¦ Estratto mancante ¦ Relevé manquant ¦ Izvod nedostaje
+Sale de una cuenta y entra en otra. ¦ Leaves one account and enters another. ¦ 一方の口座から出て、もう一方に入っています。 ¦ Esce da un conto ed entra in un altro. ¦ Sort d'un compte et entre dans un autre. ¦ Izlazi s jednog računa i ulazi na drugi.
+Va a una cuenta tuya fuera de Plata. ¦ Goes to an account of yours outside Plata. ¦ Plata にないあなたの口座との間の動きです。 ¦ Va a un tuo conto fuori da Plata. ¦ Va vers un de vos comptes hors de Plata. ¦ Ide na tvoj račun izvan Plate.
+Es el mismo pago, no lo cuentes doble. ¦ It's the same payment, don't count it twice. ¦ 同じ支払いです。二重に数えないでください。 ¦ È lo stesso pagamento, non contarlo due volte. ¦ C'est le même paiement, ne le comptez pas deux fois. ¦ To je isto plaćanje, ne računaj ga dvaput.
+Coincide con el pago de una tarjeta. ¦ Matches a card payment. ¦ カードの支払いと一致しています。 ¦ Coincide con il pagamento di una carta. ¦ Correspond au paiement d'une carte. ¦ Podudara se s plaćanjem kartice.
+Lo anotaste y también vino del banco. ¦ You entered it and it also came from the bank. ¦ 手入力した取引が銀行からも届いています。 ¦ L'hai inserito e è arrivato anche dalla banca. ¦ Vous l'avez saisi et il est aussi venu de la banque. ¦ Unio si ga ti, a stigao je i iz banke.
+Mucho más alto de lo normal. ¦ Much higher than usual. ¦ いつもよりかなり高額です。 ¦ Molto più alto del solito. ¦ Bien plus élevé que d'habitude. ¦ Puno viši nego inače.
+Puede faltar un estado. ¦ A statement may be missing. ¦ 明細が足りない可能性があります。 ¦ Potrebbe mancare un estratto. ¦ Il manque peut-être un relevé. ¦ Možda nedostaje izvod.
