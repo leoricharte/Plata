@@ -115,6 +115,20 @@ ok((await j('/admin/board', 'GET', null, as(M, '10.0.0.2'))).s === 403 && (await
 ok((await j('/admin/board/comment?id=' + bi.j.id + '&cid=' + bc.j.comment.i, 'DELETE', null, as(D))).s === 200, 'borrar un comentario');
 ok((await j('/admin/board?id=' + bn.j.id, 'DELETE', null, as(D))).s === 200 && (await j('/admin/board?id=' + bn.j.id, 'DELETE', null, as(D))).s === 404, 'borrar una nota (y no existe después)');
 ok((await j('/admin/board?id=' + bn.j.id, 'DELETE', null, as(AU, '10.0.9.1'))).s === 403, 'el auditor no puede borrar');
+// 4e) Base de Nazca: extracciones ya enmascaradas
+const ext = { v: 1, source: 'panel', pages: [{ w: 595, h: 842, items: [{ str: 'BANCO EJEMPLO', x: 40, y: 800, w: 90 }, { str: 'SALDO', x: 40, y: 780, w: 30 }] }] };
+const nz1 = await j('/admin/nazca/lib', 'POST', { name: 'interbank-tarjeta-sep', bank: 'interbank', want: 'ok', note: 'no cuadra el total\u0007', data: ext }, as(D));
+ok(nz1.s === 200 && nz1.j.id, 'dev añade un caso a la base de Nazca');
+for (const [why, bd] of [['sin nombre', { name: '', want: 'ok', data: ext }], ['«want» inválido', { name: 'x', want: 'si', data: ext }], ['sin páginas', { name: 'x', want: 'ok', data: { v: 1, pages: [] } }], ['con un archivo en vez de extracción', { name: 'x', want: 'ok', data: 'JVBERi0xLjQ=' }], ['texto demasiado largo', { name: 'x', want: 'ok', data: { v: 1, pages: [{ w: 1, h: 1, items: [{ str: 'a'.repeat(401), x: 0, y: 0, w: 1 }] }] } }], ['coordenada no numérica', { name: 'x', want: 'ok', data: { v: 1, pages: [{ w: 1, h: 1, items: [{ str: 'a', x: 'x', y: 0, w: 1 }] }] } }]]) ok((await j('/admin/nazca/lib', 'POST', bd, as(D))).s === 400, 'base de Nazca: rechaza ' + why);
+const nzl = await j('/admin/nazca/lib', 'GET', null, as(D));
+ok(nzl.j.items.length === 1 && nzl.j.items[0].bank === 'interbank' && nzl.j.items[0].want === 'ok' && !/\u0007/.test(nzl.j.items[0].note) && !('data' in nzl.j.items[0]), 'la lista trae metadatos limpios y no el contenido');
+const nzg = await j('/admin/nazca/lib/get?id=' + nz1.j.id, 'GET', null, as(D));
+ok(nzg.s === 200 && nzg.j.data.pages[0].items.length === 2 && !('source' in nzg.j.data), 'abrir un caso devuelve solo la extracción (sin campos de más)');
+ok((await j('/admin/nazca/lib', 'GET', null, as(AU, '10.0.9.1'))).s === 200, 'el auditor ve la lista de casos');
+ok((await j('/admin/nazca/lib/get?id=' + nz1.j.id, 'GET', null, as(AU, '10.0.9.1'))).s === 403, 'el auditor no abre el contenido de un caso');
+ok((await j('/admin/nazca/lib', 'POST', { name: 'x', want: 'ok', data: ext }, as(AU, '10.0.9.1'))).s === 403 && (await j('/admin/nazca/lib?id=' + nz1.j.id, 'DELETE', null, as(AU, '10.0.9.1'))).s === 403, 'el auditor no añade ni borra');
+ok((await j('/admin/nazca/lib', 'GET', null, as(M, '10.0.0.2'))).s === 403, 'el mod no entra a la base de Nazca');
+ok((await j('/admin/nazca/lib?id=' + nz1.j.id, 'DELETE', null, as(D))).s === 200 && (await j('/admin/nazca/lib?id=' + nz1.j.id, 'DELETE', null, as(D))).s === 404, 'borrar un caso (y ya no existe)');
 const au = await j('/admin/audit?n=200', 'GET', null, as(D)); const ev = au.j.items || [];
 const has = (act, who) => ev.some((e) => e.act === act && (!who || e.who === who));
 ok(has('entrada', 'Ana Prueba') && has('entrada', 'root') && has('entrada', 'mod compartido'), 'registro: entradas de Ana, root y mod compartido');

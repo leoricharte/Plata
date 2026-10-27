@@ -7,6 +7,7 @@ const lag = () => new Promise((r) => setTimeout(r, 2 + Math.random() * 8));
 const kv = new Map();
 const KV = {
   async get(k) { await lag(); const v = kv.get(k); if (!v) return null; if (v.exp && v.exp < Date.now()) { kv.delete(k); return null; } return v.v; },
+  async getWithMetadata(k) { const value = await this.get(k); const e = kv.get(k); return { value, metadata: value == null || !e ? null : e.md || null }; },
   async put(k, v, o) { await lag(); kv.set(k, { v: String(v), exp: o && o.expirationTtl ? Date.now() + o.expirationTtl * 1000 : 0, md: o && o.metadata }); },
   async delete(k) { await lag(); kv.delete(k); },
   async list({ prefix }) { await lag(); return { keys: [...kv.keys()].filter((k) => k.startsWith(prefix || '')).sort().map((name) => ({ name, metadata: kv.get(name).md })), list_complete: true }; }
