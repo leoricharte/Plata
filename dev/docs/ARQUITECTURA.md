@@ -6,7 +6,7 @@ Plata es una PWA de **un solo archivo** (`app/index.html`), sin framework ni dep
 
 | Pieza | Dónde | Qué hace |
 |---|---|---|
-| Fuente de la app | `dev/app/src/app.html` | HTML + CSS + JS de la app (≈7.000 líneas) |
+| Fuente de la app | `dev/app/src/app.html` | HTML + CSS + JS de la app (≈8.100 líneas; incluye el tutorial de primera vez, `TOUR`, y la lógica de pantallas) |
 | Núcleo sin pantalla | `dev/app/src/core/*.js` | Lógica pura que no toca el DOM ni el estado (hoy: `nazca/`, Nazca, el motor de importación de archivos del banco: `csv.js`, `pdf.js` y un lector por banco en `bancos/`). Se prueba en Node (`dev/tests`) y se podrá reusar en otras plataformas |
 | Traducciones | `dev/app/src/tr/*.txt`, `i18n*.js` | Una frase por línea: `es ¦ en ¦ ja ¦ it ¦ fr ¦ hr` |
 | Iconos | `icons_rmx.js` (Remix, Apache-2.0), `icons_sf.js` | SVG en objetos JS |

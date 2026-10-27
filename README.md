@@ -2,29 +2,24 @@
 
 # Plata
 
-Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola app web que funciona sin servidor ni dependencias. Tus datos se quedan en tu dispositivo.
+Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola app web que funciona sin cuenta y sin dependencias. Tus datos se quedan en tu dispositivo (y, si quieres, se sincronizan cifrados con Plata Cloud).
 
-**Probar:** [plataapp.net/app](https://plataapp.net/app/) · **Sitio:** [plataapp.net](https://plataapp.net)
+**Probar:** [web.plataapp.net](https://web.plataapp.net) · **Sitio:** [plataapp.net](https://plataapp.net)
 
-**Versión:** Beta 3 · **Compilación:** 451
+**Versión:** Beta 3 · **Compilación:** 452
 
 ---
 
-## Novedades de la compilación 251 (Beta 2)
+## Novedades (Beta 3 y Beta 4)
 
-Respecto a la Beta 1. El detalle completo está en [CHANGELOG.md](CHANGELOG.md).
+El detalle completo está en [CHANGELOG.md](CHANGELOG.md).
 
-- **Plata llega a tu mesa:** versión de escritorio con vista web en bento, con todas las secciones a la vez.
-- **Arma tu Bento. (exclusivo para escritorio):** varios Bentos con nombre, plantillas, widgets redimensionables, deshacer/rehacer (Ctrl+Z) y captura en PNG con QR a plataapp.net y @plataapp.
-- **Aviso de sincronización:** en Beta 2 Plata no sincronizaba entre dispositivos. Desde la Beta 3 existe Plata Cloud (opcional, cifrado de extremo a extremo, por invitación); sin ella, guarda tu archivo y cárgalo donde lo vayas a usar.
-- **Modo oscuro:** ajuste de apariencia con Auto (sigue al sistema), Claro y Oscuro. Se elige al empezar y se cambia en el perfil. La franja superior del iPhone también cambia de color.
-- **Franja del iPhone:** la barra de estado cambia con el tema (negra en oscuro, clara en claro) al abrir la app.
-- **Cambio de tema:** si cambias la apariencia con la app abierta, un aviso recuerda reabrirla para que cambie la barra de arriba.
-- **Historia de Plata:** al tocar «Compilación» al final de Créditos se abre una línea de tiempo con los hitos y sus fechas.
-- **Aviso de novedades:** la primera vez que abres Resumen tras actualizar, y desde Ajustes › Novedades.
-- **Edición de eventos previstos:** el monto y la fecha que editas en Proyección ahora se ven en Resumen, al confirmarlos y en el detalle.
-- **Navegadores integrados:** aviso para abrir Plata en Safari o Chrome si la abres desde Instagram u otra app con navegador propio.
-- **Pie del sitio:** crédito «Diseñado por Estudio 2² en Nueva York» en el landing; los pies del sitio ahora dicen Beta 2.
+- **Plata Cloud (Beta 3):** sincronización opcional entre dispositivos, cifrada de extremo a extremo en tu dispositivo. Por invitación y con frase de recuperación de 12 palabras. Sin Plata Cloud, todo sigue en tu dispositivo.
+- **Nazca:** el motor que lee en tu dispositivo el estado de cuenta (PDF) o el CSV que descargas de tu banco. Sin servidor, sin pedir tus claves. Lectores para Perú (BCP, BBVA, Interbank, IO, Yape), Chile (Mercado Pago) y Estados Unidos (Apple Card, Bank of America, Capital One, Chime, Community Bank, Milestone, Seen, TJX Rewards).
+- **Revisión:** un panel que propone transferencias, pagos de tarjeta, repetidos y montos raros.
+- **Tutorial de primera vez:** consejos de uno en uno, siempre con «Omitir tutorial».
+- **Escritorio:** vista en bento con todas las secciones a la vez y «Arma tu Bento.».
+- **Seis idiomas:** español, inglés, japonés, italiano, francés y croata (parte con ayuda de IA; puede haber errores).
 
 ## Historial
 
@@ -174,28 +169,33 @@ Respecto a la Beta 1. El detalle completo está en [CHANGELOG.md](CHANGELOG.md).
 
 ## Instalar en el iPhone
 
-Abre la URL en **Safari** → botón Compartir → **Añadir a pantalla de inicio**.
+Abre [web.plataapp.net](https://web.plataapp.net) en **Safari** → botón Compartir → **Añadir a pantalla de inicio**.
 
 ## Tus datos
 
-- Se guardan en el navegador de **ese dispositivo y ese dominio**.
-- Para mover datos entre copias: `Ajustes → Guardar archivo` y, en la otra, `Ajustes → Cargar archivo`.
-- Haz un respaldo de vez en cuando: si borras los datos de Safari se pierden.
+- Se guardan en el navegador de **ese dispositivo y ese dominio**. No pedimos cuenta ni nos conectamos a tu banco.
+- Para mover datos entre dispositivos sin Plata Cloud: `Ajustes → Guardar archivo` y, en el otro, `Ajustes → Cargar archivo`.
+- Haz un respaldo de vez en cuando: si borras los datos del navegador se pierden. Con Plata Cloud, tu frase de 12 palabras es la única llave: no podemos recuperarla.
+- Detalle de privacidad y seguridad: [transparencia](https://plataapp.net/transparencia.html) y [hoja técnica de seguridad](https://plataapp.net/arquitectura-seguridad.html).
 
-## Archivos
+## Estructura del repositorio
 
-| Archivo | Para qué sirve |
+| Ruta | Qué es |
 | --- | --- |
-| `index.html` | La app completa |
-| `sw.js` | Funcionamiento sin conexión y caché |
-| `manifest.webmanifest` | Nombre, colores e íconos al instalarla |
-| `icon-180/192/512.png` | Ícono de la app |
+| `*.html`, `site.css`, `pages.css`, `nav.js`, `fonts/` | El sitio informativo (plataapp.net), estático |
+| `app/` | La app compilada (se genera, no se edita) |
+| `dev/app/src/` | Fuente de la app (`app.html`), traducciones (`tr/`) y Nazca (`core/nazca/`) |
+| `dev/web/` | Compilación de web.plataapp.net (Cloudflare Pages) |
+| `dev/worker/`, `cloud/` | El servidor (Cloudflare Worker): Plata Cloud, lista de espera y análisis de uso |
+| `dev/tests/` | Pruebas de Nazca y de seguridad |
+| `dev/docs/` | Arquitectura, datos y servidor |
 | `LICENSE` | Licencia propietaria, todos los derechos reservados |
-| `.nojekyll` | Evita que GitHub procese los archivos |
+
+Para compilar, probar y publicar: [dev/README.md](dev/README.md).
 
 ## Licencia
 
-Software propietario. © 2026 Estudio 22 y Leonardo Richarte. **Todos los derechos reservados.** Prohibida su copia, modificación o redistribución sin permiso escrito; consulta el archivo [`LICENSE`](LICENSE). El nombre Plata, su logo e ícono son marcas de Estudio 22.
+Software propietario: el código está disponible para consulta (*source-available*), pero **no es código abierto**. © 2026 Estudio 22 y Leonardo Richarte. **Todos los derechos reservados.** Prohibida su copia, modificación o redistribución sin permiso escrito; consulta el archivo [`LICENSE`](LICENSE). El nombre, el logotipo y la identidad visual de Plata y Estudio 22 también están reservados.
 
 ---
 

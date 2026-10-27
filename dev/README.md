@@ -22,7 +22,7 @@ CHANNEL=alpha python3 dev/app/build.py   # variante con icono blanco
 - `app.html`: la app (HTML + CSS + JS). Todo el código está aquí.
 - `tr/*.txt`: traducciones, una por línea: `es ¦ en ¦ ja ¦ it ¦ fr ¦ hr`. Una frase nueva en la app se agrega aquí en los 6 idiomas.
 - `i18n*.js`, `icons_rmx.js` (Remix Icon, Apache-2.0), `icons_sf.js`, `demo_profiles.js`, `worldmap.js`.
-- `../assets/`: la fuente Inter, la fuente de números de tarjeta y los iconos. Se incrustan en el archivo final.
+- `../assets/`: la fuente Inter (la app); el sitio sirve Inter desde `fonts/` en la raíz, la fuente de números de tarjeta y los iconos. Se incrustan en el archivo final.
 
 ## Tres dominios
 
