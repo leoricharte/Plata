@@ -8,6 +8,8 @@ ok(await pre('/content', 'https://plataapp.net', 'POST') === null, 'sitio: NO pu
 ok(await pre('/review/list', 'https://plataapp.net', 'GET') === null, 'sitio: NO puede preparar GET /review/list');
 ok(await pre('/sync', 'https://web.plataapp.net', 'PUT') === 'https://web.plataapp.net', 'app nueva: verificación previa de PUT /sync');
 ok(await pre('/sync', 'https://evil.example', 'PUT') === null, 'origen ajeno: nada');
+ok(await pre('/review/list', 'http://localhost:5173', 'GET') === null, 'sin DEV: localhost NO puede usar el admin');
+ok(await pre('/admin/session', 'http://127.0.0.1:8788', 'POST') === null, 'sin DEV: 127.0.0.1 NO puede abrir sesión de admin');
 const g = await W.default.fetch(new Request('https://x/content', { headers: { Origin: 'https://plata-dev.pages.dev' } }), env, {});
 ok(g.headers.get('Access-Control-Allow-Origin') === 'https://plata-dev.pages.dev', 'panel: puede leer GET /content');
 process.exit(f ? 1 : 0);

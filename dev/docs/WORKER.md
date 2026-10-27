@@ -10,7 +10,7 @@ Almacenamiento:
 ## Orígenes (CORS)
 
 - Rutas públicas y de cuenta: `web.plataapp.net` (la app), `plataapp.net` (el sitio y la app vieja durante la mudanza) y la app de escritorio (Tauri).
-- Rutas de administración: solo los orígenes de `ADMIN_ORIGINS` (el panel privado) y `localhost`. Desde cualquier otro origen del navegador responden 403, aunque el token sea correcto.
+- Rutas de administración: solo los orígenes de `ADMIN_ORIGINS` (el panel privado) y, con `DEV=1`, `localhost`. Desde cualquier otro origen del navegador responden 403, aunque el token sea correcto.
 
 ## Claves del KV
 
@@ -66,15 +66,19 @@ Almacenamiento:
 
 El nuevo consulta con `POST /link/poll` y el activo con `GET /link/pending`. Ambos muestran un código de 6 dígitos derivado de `pkN ‖ pkA ‖ nA ‖ nN`.
 
+**Envíos de Nazca** (`POST /nazca` público): solo PDF, XLSX o CSV que lo sean de verdad (se revisan los primeros bytes), 12 intentos por hora y 5 envíos por día por conexión, y 60 envíos al día en total, con contadores del Gate (no gastan el cupo de la lista de espera). Admin: `GET /nazca/list`, `GET /nazca/get`, `POST /nazca/delete`.
+
 **Copias para análisis** (admin): `POST /review/mark`, `POST /review/delete`, `GET /review/list`, `GET /review/get`.
 
-**Administración** (`Authorization: Bearer ADMIN_TOKEN`, solo desde `ADMIN_ORIGINS` o localhost)
+**Sesiones de administración**: `POST /admin/session` (con `Authorization: Bearer ADMIN_TOKEN` o `MOD_TOKEN`) devuelve `{ session, role, exp }`: un token aleatorio que vive 1 hora (Gate `as:…`, sin renovación). Todas las rutas de administración usan `Authorization: Bearer <session>`. `POST /admin/logout` la revoca. Roles: **dev** (todo) y **mod** (solo `POST|DELETE /content` y `/posts`, que quedan como propuesta `pr:…` 14 días; un dev las ve en `GET /admin/proposals` y decide con `POST /admin/proposals/decide?id=…&do=approve|reject`). `ADMIN_LEGACY=1` vuelve a aceptar `ADMIN_TOKEN` directo (no recomendado).
+
+**Administración** (sesión dev, solo desde `ADMIN_ORIGINS`, o localhost con `DEV=1`)
 - `GET /content/ping`, `POST|DELETE /content` (solo `<b>`, `<i>`, `<em>`, `<strong>`, `<br>` y `<a href>` seguros), `POST|DELETE /posts`, `POST /admin/invite`, `GET /waitlist/export`.
 - Comparación del token en tiempo constante y bloqueo por IP tras 5 fallos en 15 minutos (HTTP 429), con contador atómico.
 
 ## Variables y secretos
 
-- `ADMIN_TOKEN` (secreto, **mínimo 32 caracteres**; si es más corto, el admin queda desactivado), `RL_SALT` (secreto; no cambiarlo: de él salen los identificadores de las cuentas), `RESEND_API_KEY` (secreto).
+- `ADMIN_TOKEN` (secreto, **mínimo 32 caracteres**; si es más corto, el admin queda desactivado), `MOD_TOKEN` (secreto opcional, 32+ caracteres: rol mod), `RL_SALT` (secreto, **obligatorio**: sin él, las rutas que anonimizan responden 503; no cambiarlo: de él salen los identificadores de las cuentas), `RESEND_API_KEY` (secreto).
 - `ADMIN_ORIGINS` (variable): origen del panel privado, por ejemplo `https://plata-dev.pages.dev`.
 - `CLOUD_TESTERS`, `CLOUD_OPEN` (variables, como antes).
 - `REVIEW_OFF = 1` (variable, opcional): desactiva el envío de copias para análisis (por ejemplo, durante un piloto). Así no entra nada legible al servidor.

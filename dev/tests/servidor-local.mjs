@@ -26,8 +26,9 @@ globalThis.fetch = async (url, init) => {
   if (String(url).startsWith('https://api.resend.com')) { const b = JSON.parse(init.body); mails.push({ to: b.to[0], subject: b.subject, text: b.text, t: Date.now() }); return new Response('{"id":"x"}', { status: 200 }); }
   return realFetch(url, init);
 };
-export const env = { WAITLIST: KV, GATE, RL_SALT: 'sal-de-prueba', ADMIN_TOKEN: 'a'.repeat(40), RESEND_API_KEY: 're_test', CLOUD_TESTERS: 'ana@prueba.co,beto@prueba.co,carla@prueba.co', DEV: '1', ADMIN_ORIGINS: 'https://plata-dev.pages.dev' };
+export const env = { WAITLIST: KV, GATE, RL_SALT: 'sal-de-prueba', ADMIN_TOKEN: 'a'.repeat(40), MOD_TOKEN: 'm'.repeat(40), RESEND_API_KEY: 're_test', CLOUD_TESTERS: 'ana@prueba.co,beto@prueba.co,carla@prueba.co', DEV: '1', ADMIN_ORIGINS: 'https://plata-dev.pages.dev' };
 if (process.env.NOGATE) delete env.GATE;
+if (process.env.NOSALT) delete env.RL_SALT;
 const port = Number(process.env.PORT || 8787);
 http.createServer(async (req, res) => {
   if (req.url.startsWith('/__mails')) { const to = new URL(req.url, 'http://x').searchParams.get('to'); res.setHeader('Content-Type', 'application/json'); res.setHeader('Access-Control-Allow-Origin', '*'); return res.end(JSON.stringify(mails.filter((m) => !to || m.to === to))); }

@@ -57,6 +57,7 @@ npx wrangler deploy
 Los secretos que ya están en el panel se conservan. Revisa:
 
 - `ADMIN_TOKEN`: mínimo 32 caracteres (con menos, el admin queda desactivado). Genera uno con `openssl rand -base64 48`.
+- `MOD_TOKEN` (opcional, mínimo 32 caracteres): rol mod del panel; lo que guarda queda como propuesta hasta que un dev la apruebe. `RL_SALT` es obligatorio: sin él el Worker responde 503.
 - `RL_SALT`: **no lo cambies**; de él salen los identificadores de las cuentas.
 - `RESEND_API_KEY`: correos.
 - Nueva variable `ADMIN_ORIGINS`: el origen del panel privado (por ejemplo `https://plata-dev.pages.dev`).

@@ -39,7 +39,8 @@ ok((await j('/me', 'GET', null, { Authorization: 'Bearer ' + tok2 })).s === 401,
 ok((await j('/me', 'GET', null, { Authorization: 'Bearer ' + la.j.token })).s === 200, 'la sesión nueva funciona');
 
 // 4) Administración
-const AD = { Authorization: 'Bearer ' + 'a'.repeat(40) };
+const ses = async (tk, ip) => (await j('/admin/session', 'POST', null, { Authorization: 'Bearer ' + tk, Origin: 'https://plata-dev.pages.dev', 'X-Test-IP': ip || '5.5.5.5' })).j.session;
+const AD = { Authorization: 'Bearer ' + await ses('a'.repeat(40)) };
 ok((await j('/review/list', 'GET', null, { ...AD, Origin: 'https://plataapp.net' })).s === 403, 'token de admin usado desde plataapp.net → 403');
 ok((await j('/review/list', 'GET', null, { ...AD, Origin: 'https://plata-dev.pages.dev' })).s === 200, 'token de admin desde el panel → 200');
 const AH = { ...AD, Origin: 'https://plata-dev.pages.dev' };
