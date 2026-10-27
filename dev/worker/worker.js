@@ -297,11 +297,11 @@ async function identify(env, header) {
   const m = /^Bearer (plt_([A-Za-z0-9_-]{6,12})\.[A-Za-z0-9_-]{30,64})$/.exec(header);
   if (m) {
     const u = await kvGet(env, 'au:' + m[2]);
-    if (u && !u.rev && ROLE_RANK[u.role] && same(await shaFull(m[1]), u.h)) return { role: u.role, who: u.name, uid: m[2] };
+    if (u && !u.rev && ROLE_RANK[u.role] && same(await shaFull(m[1]), u.h)) return { role: u.role, who: u.name, uid: m[2], title: u.title || '' };
     return null;
   }
-  for (const [role, name, who] of [['dev', 'ADMIN_TOKEN', 'root'], ['mod', 'MOD_TOKEN', 'mod compartido']]) {
-    const t = env[name]; if (t && t.length >= 32 && same(await shaFull(header), await shaFull('Bearer ' + t))) return { role, who, uid: '' };
+  for (const [role, name, who, title] of [['dev', 'ADMIN_TOKEN', 'root', 'Acceso raíz'], ['mod', 'MOD_TOKEN', 'mod compartido', '']]) {
+    const t = env[name]; if (t && t.length >= 32 && same(await shaFull(header), await shaFull('Bearer ' + t))) return { role, who, uid: '', title };
   }
   return null;
 }
@@ -322,7 +322,7 @@ async function adminAuth(req, env, h, need) { // → { res } si no pasa, o { rol
   let me = null; const m = /^Bearer ([A-Za-z0-9_-]{40,64})$/.exec(auth);
   if (m) {
     const s = (await gate(env, 'as:' + (await shaFull(m[1])), { op: 'get' })).val;
-    if (s && ROLE_RANK[s.role]) { const u = s.uid ? await kvGet(env, 'au:' + s.uid) : true; if (u && !u.rev) me = { role: s.role, who: s.who || '?', uid: s.uid || '' }; } // una persona revocada pierde su sesión al instante
+    if (s && ROLE_RANK[s.role]) { const u = s.uid ? await kvGet(env, 'au:' + s.uid) : true; if (u && !u.rev) me = { role: s.role, who: s.who || '?', uid: s.uid || '', title: (u === true ? s.title : u.title) || '' }; } // una persona revocada pierde su sesión al instante
   }
   if (!me && env.ADMIN_LEGACY === '1') { const r = await identify(env, auth); if (r && r.role === 'dev') me = r; }
   if (me && ROLE_RANK[me.role] >= ROLE_RANK[need]) {
@@ -347,34 +347,35 @@ async function adminSession(req, env, h) { // POST /admin/session con Authorizat
     return json({ ok: false, error: 'auth' }, 401, h);
   }
   const token = rndB64(32), now = Date.now();
-  await gate(env, 'as:' + (await shaFull(token)), { op: 'set', val: { role: me.role, who: me.who, uid: me.uid, t: now }, ttl: ADMIN_SESSION });
+  await gate(env, 'as:' + (await shaFull(token)), { op: 'set', val: { role: me.role, who: me.who, uid: me.uid, title: me.title || '', t: now }, ttl: ADMIN_SESSION });
   if (me.uid) { const u = await kvGet(env, 'au:' + me.uid); if (u) { u.last = now; await kvPut(env, 'au:' + me.uid, u); } }
   await audit(env, req, 'entrada', '', me);
-  return json({ ok: true, session: token, role: me.role, name: me.who, exp: now + ADMIN_SESSION * 1000 }, 200, h);
+  return json({ ok: true, session: token, role: me.role, name: me.who, title: me.title || '', exp: now + ADMIN_SESSION * 1000 }, 200, h);
 }
 async function adminLogout(req, env, h) { // revoca la sesión en el servidor (además de olvidarla en el panel)
   const m = /^Bearer ([A-Za-z0-9_-]{40,64})$/.exec(req.headers.get('Authorization') || '');
   if (m) { const k = 'as:' + (await shaFull(m[1])), s = (await gate(env, k, { op: 'get' })).val; if (s) { await audit(env, req, 'salida', '', { role: s.role, who: s.who, uid: s.uid }); await gate(env, k, { op: 'del' }); } }
   return json({ ok: true }, 200, h);
 }
+const cleanLabel = (v) => String(v || '').replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, 40); // nombre o cargo: texto corto, sin marcas
 /* Equipo: cada persona con su token. El token se muestra UNA vez al crearlo; el servidor solo guarda su hash. */
 async function usersList(req, env, h) {
   { const g = await adminGate(req, env, h, 'dev'); if (g) return g; }
   const out = []; let cursor;
-  do { const r = await env.WAITLIST.list({ prefix: 'au:', cursor }); for (const k of r.keys) { const u = await kvGet(env, k.name); if (u) out.push({ id: k.name.slice(3), name: u.name, role: u.role, c: u.c, by: u.by, last: u.last || 0, rev: u.rev || 0 }); } cursor = r.list_complete ? undefined : r.cursor; } while (cursor);
+  do { const r = await env.WAITLIST.list({ prefix: 'au:', cursor }); for (const k of r.keys) { const u = await kvGet(env, k.name); if (u) out.push({ id: k.name.slice(3), name: u.name, role: u.role, title: u.title || '', c: u.c, by: u.by, last: u.last || 0, rev: u.rev || 0 }); } cursor = r.list_complete ? undefined : r.cursor; } while (cursor);
   out.sort((a, b) => a.c - b.c);
   return json({ ok: true, items: out }, 200, h);
 }
 async function usersCreate(req, env, h) {
   const a = await adminAuth(req, env, h, 'dev'); if (a.res) return a.res;
   const { b, err } = await readBody(req, 2000); if (err) return json({ ok: false, error: 'json' }, err, h);
-  const name = String(b.name || '').replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, 40), role = b.role;
+  const name = cleanLabel(b.name), title = cleanLabel(b.title), role = b.role;
   if (!name || !ROLE_RANK[role]) return json({ ok: false, error: 'campos' }, 400, h);
   let n = 0, cursor; do { const r = await env.WAITLIST.list({ prefix: 'au:', cursor }); n += r.keys.length; cursor = r.list_complete ? undefined : r.cursor; } while (cursor);
   if (n >= USERS_MAX) return json({ ok: false, error: 'full' }, 429, h);
   const id = rndB64(6), token = 'plt_' + id + '.' + rndB64(32);
-  await kvPut(env, 'au:' + id, { name, role, h: await shaFull(token), c: Date.now(), by: a.who });
-  await audit(env, req, 'crear persona', name + ' (' + role + ')');
+  await kvPut(env, 'au:' + id, { name, role, title, h: await shaFull(token), c: Date.now(), by: a.who });
+  await audit(env, req, 'crear persona', name + (title ? ' · ' + title : '') + ' (' + role + ')');
   return json({ ok: true, id, token }, 200, h);
 }
 async function usersRevoke(req, env, h, url) { // POST /admin/users/revoke?id=…&undo=1
@@ -384,6 +385,15 @@ async function usersRevoke(req, env, h, url) { // POST /admin/users/revoke?id=�
   u.rev = url.searchParams.get('undo') === '1' ? 0 : Date.now(); await kvPut(env, 'au:' + id, u);
   await audit(env, req, u.rev ? 'revocar persona' : 'reactivar persona', u.name);
   return json({ ok: true }, 200, h);
+}
+async function usersTitle(req, env, h, url) { // POST /admin/users/title?id=… con { title } → cambia el cargo de una persona (solo dev)
+  const a = await adminAuth(req, env, h, 'dev'); if (a.res) return a.res;
+  const { b, err } = await readBody(req, 500); if (err) return json({ ok: false, error: 'json' }, err, h);
+  const id = url.searchParams.get('id') || '', u = /^[A-Za-z0-9_-]{6,12}$/.test(id) ? await kvGet(env, 'au:' + id) : null;
+  if (!u) return json({ ok: false, error: 'none' }, 404, h);
+  u.title = cleanLabel(b.title); await kvPut(env, 'au:' + id, u);
+  await audit(env, req, 'cambiar cargo', u.name + ' → ' + (u.title || '(sin cargo)'));
+  return json({ ok: true, title: u.title }, 200, h);
 }
 async function auditList(req, env, h, url) { // GET /admin/audit?n=200
   { const g = await adminGate(req, env, h, 'dev'); if (g) return g; }
@@ -924,6 +934,7 @@ export default {
       if (p === '/admin/logout' && m === 'POST') return await adminLogout(req, env, h);
       if (p === '/admin/users' && m === 'GET') return await usersList(req, env, h);
       if (p === '/admin/users' && m === 'POST') return await usersCreate(req, env, h);
+      if (p === '/admin/users/title' && m === 'POST') return await usersTitle(req, env, h, url);
       if (p === '/admin/users/revoke' && m === 'POST') return await usersRevoke(req, env, h, url);
       if (p === '/admin/audit' && m === 'GET') return await auditList(req, env, h, url);
       if (p === '/admin/proposals' && m === 'GET') return await propList(req, env, h);

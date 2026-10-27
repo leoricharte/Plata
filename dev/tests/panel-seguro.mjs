@@ -54,7 +54,7 @@ ok((await j('/posts', 'POST', { date: '2026-10-27', title_es: 'Hola', body_es: '
 ok(((await j('/posts', 'GET')).j.posts || []).length === 0, 'el artículo propuesto NO aparece en Novedades');
 
 // 4b) Personas con token propio + registro de auditoría
-const cu = await j('/admin/users', 'POST', { name: 'Ana Prueba', role: 'mod' }, as(D));
+const cu = await j('/admin/users', 'POST', { name: 'Ana Prueba', role: 'mod', title: 'Editora <b>de</b> contenido' }, as(D));
 const AT = cu.j.token;
 ok(cu.s === 200 && /^plt_[A-Za-z0-9_-]{6,12}\.[A-Za-z0-9_-]{30,}$/.test(AT || ''), 'dev crea a Ana (mod): recibe un token personal una sola vez');
 const ul = await j('/admin/users', 'GET', null, as(D));
@@ -63,6 +63,12 @@ ok((await j('/admin/users', 'POST', { name: 'X', role: 'mod' }, as(M, '10.0.0.2'
 ok((await j('/admin/audit', 'GET', null, as(M, '10.0.0.2'))).s === 403, 'mod no puede leer el registro');
 const am = await mint(AT, PANEL, '10.0.8.1');
 ok(am.s === 200 && am.j.role === 'mod' && am.j.name === 'Ana Prueba', 'el token de Ana abre sesión: rol mod y nombre');
+ok(/^Editora/.test(am.j.title) && !/[<>]/.test(am.j.title), 'la sesión trae el cargo que le asignó el dev, sin marcas HTML');
+ok((await j('/admin/users', 'GET', null, as(D))).j.items.some((x) => x.id === cu.j.id && /^Editora/.test(x.title)), 'la lista de Equipo muestra el cargo');
+const ct = await j('/admin/users/title?id=' + cu.j.id, 'POST', { title: 'Coordinadora' }, as(D));
+ok(ct.s === 200 && ct.j.title === 'Coordinadora', 'el dev cambia el cargo de Ana');
+ok((await j('/admin/users/title?id=' + cu.j.id, 'POST', { title: 'CEO' }, as(M, '10.0.0.2'))).s === 403, 'un mod no puede asignar cargos');
+ok((await mint(AT, PANEL, '10.0.8.9')).j.title === 'Coordinadora', 'la sesión nueva ya trae el cargo actualizado');
 const AS = am.j.session;
 ok((await mint(AT.slice(0, -3) + 'aaa', PANEL, '10.0.8.2')).s === 401, 'token con el id correcto y el secreto equivocado → 401');
 const pa = await j('/content', 'POST', { k: 'a1b2c3d4', es: 'Cambio de Ana', en: 'Ana change', orig: 'o' }, as(AS, '10.0.8.1'));
