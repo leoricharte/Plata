@@ -61,24 +61,26 @@ const NazcaCapitalOne = (() => {
     if (dd && MES[dd[1].toLowerCase()]) { card.dueDate = dd[3] + '-' + pad(MES[dd[1].toLowerCase()]) + '-' + pad(+dd[2]); card.dueDay = +dd[2]; }
     if (mp2 != null) card.minPayment = Math.abs(mp2); else if (mp) card.minPayment = Math.abs(money(mp[1])); if (cl) card.limit = Math.abs(money(cl[1])); else if (cl2 != null) card.limit = Math.abs(cl2);
     out.card = card;
-    let line = 0, sumBuy = 0, sumPay = 0;
+    let line = 0, sumBuy = 0, sumPay = 0, sumFee = 0, sec = '';
     for (const page of doc.pages) for (const l of pdf.lines(page, 3)) {
-      const s = lineText(l), m = ROW.exec(s); if (!m) continue;
+      const s = lineText(l);
+      if (/^Fees$/i.test(s)) sec = 'fees'; else if (/^(Interest Charged|Transactions|Totals Year-to-Date)$/i.test(s)) sec = '';   /* la tabla «Fees» (cuota de membresía, cargo por atraso) va aparte de las compras */
+      const m = ROW.exec(s); if (!m) continue;
       const mo = MES[m[1].toLowerCase()]; if (!mo) continue;
       const desc = m[5].replace(/\s*AuthDate \d{1,2}-[A-Za-z]{3}$/i, '').replace(/\s+/g, ' ').trim(); if (!desc || !/[A-Za-z]/.test(desc) || /^(previous|new|total|minimum|payments|purchases|fees)/i.test(desc)) continue;
       const v = money(m[6]); if (!v) { out.skipped.zero++; continue; }
       const y = f.y === t.y ? f.y : (mo >= f.m ? f.y : t.y);                              // diciembre → enero: los meses del inicio son del año anterior
       const date = y + '-' + pad(mo) + '-' + pad(+m[2]);
       const amount = v > 0 ? -v : Math.abs(v);                                          // compra (+) → gasto; pago o crédito (−) → ingreso
-      if (v > 0) sumBuy += v; else sumPay += Math.abs(v);
+      if (v > 0) { if (sec === 'fees') sumFee += v; else sumBuy += v; } else sumPay += Math.abs(v);
       out.items.push({ line: ++line, date, desc, amount, cur: 'USD' });
     }
     /* Estados reales: los intereses del ciclo vienen en el resumen (sin fecha propia): entran como un gasto a la fecha de cierre. */
     const intr = sm.int > 0 ? sm.int : 0; if (intr) { out.items.push({ line: ++line, date: out.period.to, desc: 'Interest charge', amount: -intr, cur: 'USD' }); }
-    sumBuy = r2(sumBuy); sumPay = r2(sumPay);
+    sumBuy = r2(sumBuy); sumPay = r2(sumPay); sumFee = r2(sumFee);
     const have = sm.prev != null && sm.end != null && sm.buy != null && sm.pay != null;
     out.check = { have, prev: sm.prev == null ? null : sm.prev, end: sm.end == null ? null : sm.end, totalCharges: sm.buy == null ? null : sm.buy, totalCredits: sm.pay == null ? null : r2(Math.abs(sm.pay) + Math.abs(sm.oc || 0)), sumCharges: sumBuy, sumCredits: sumPay, running: true,
-      ok: have ? near(sumBuy, sm.buy) && near(sumPay, Math.abs(sm.pay) + Math.abs(sm.oc || 0)) && near(r2(sm.prev + sumBuy + (sm.fees || 0) + intr - sumPay), sm.end) : null };
+      ok: have ? near(sumBuy, sm.buy) && near(sumFee, sm.fees || 0) && near(sumPay, Math.abs(sm.pay) + Math.abs(sm.oc || 0)) && near(r2(sm.prev + sumBuy + sumFee + intr - sumPay), sm.end) : null };
     return out;
   }
   return { id: 'capitalone-tarjeta', bank: 'capitalone', label: 'Capital One · Tarjeta de crédito', detect, read };
