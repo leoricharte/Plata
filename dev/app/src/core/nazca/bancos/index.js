@@ -24,7 +24,7 @@ const NazcaBancos = (() => {
       { id: 'tjx', name: 'TJX Rewards', hq: 'Framingham, Massachusetts', active: true } ] },
     { id: 'CL', name: 'Chile', banks: [
       { id: 'mercadopago', name: 'Mercado Pago', hq: 'Las Condes, Santiago', active: true } ] } ];
-  CATALOG.forEach((c) => c.banks.sort((a, b) => a.name.localeCompare(b.name, 'es', { sensitivity: 'base' })));   /* los bancos de cada país, en orden alfabético */
+  CATALOG.forEach((c) => c.banks.sort((a, b) => (b.active ? 1 : 0) - (a.active ? 1 : 0) || a.name.localeCompare(b.name, 'es', { sensitivity: 'base' })));   /* los bancos de cada país en orden alfabético; los no disponibles, al final */
   /* Devuelve el lector que reconoce el documento (el resultado de NazcaPDF.read) o null. onlyBank: si la persona ya eligió un banco, solo prueba ese. */
   function detect(doc, onlyBank) {
     for (const r of READERS) if ((!onlyBank || r.bank === onlyBank) && r.detect(doc) >= 1) return r;
