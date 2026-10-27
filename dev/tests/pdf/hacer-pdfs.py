@@ -301,7 +301,11 @@ def seen(path, creditos, compras, interes=3.10, previo=100.00, extra_impreso=0.0
     for f, desc, m in creditos: c.drawString(20, y, f); c.drawString(136, y, f); c.drawString(258, y, desc); c.drawString(442, y, "*0000"); c.drawRightString(595, y, d(m)); y -= 17
     c.drawString(311, y, "Total Payments, Refunds, And Other Credits For This Period:"); c.drawRightString(595, y, d(pagos + otros)); y -= 18
     c.setFont("Helvetica-Bold", 7); c.drawString(20, y, "Purchases"); c.setFont("Helvetica", 7); y -= 17
-    for f, desc, m in compras: c.drawString(20, y, f); c.drawString(136, y, f); c.drawString(258, y, desc); c.drawString(442, y, "*0000"); c.drawRightString(595, y, d(m)); y -= 17
+    for f, desc, m in compras:
+        if "|" in desc:     # descripción larga en 3 líneas: mitad arriba, la fila sin descripción y el resto debajo (como el estado real)
+            head, tail = desc.split("|"); c.drawString(258, y, head); y -= 9
+            c.drawString(20, y, f); c.drawString(136, y, f); c.drawString(442, y, "*0000"); c.drawRightString(595, y, d(m)); y -= 9; c.drawString(258, y, tail); y -= 17
+        else: c.drawString(20, y, f); c.drawString(136, y, f); c.drawString(258, y, desc); c.drawString(442, y, "*0000"); c.drawRightString(595, y, d(m)); y -= 17
     c.drawString(426, y, "Total Purchases For This Period:"); c.drawRightString(595, y, d(buy)); y -= 20
     c.setFont("Helvetica-Bold", 7); c.drawString(296, y, "Fees"); c.setFont("Helvetica", 7); y -= 16; c.drawString(258, y, "None during this statement period"); y -= 18
     c.setFont("Helvetica-Bold", 7); c.drawString(270, y, "Interest Charged"); c.setFont("Helvetica", 7); y -= 17; c.drawString(258, y, "Interest Charge on Purchases"); c.drawRightString(595, y, d(interes)); c.showPage()
@@ -726,6 +730,7 @@ if __name__ == "__main__":
     c = canvas.Canvas(str(OUT / "sin-movimientos.pdf"), pagesize=A4); c.setFont("Helvetica-Bold", 12); c.drawString(40, 780, "Banco Ejemplo - Informacion general"); c.setFont("Helvetica", 8)
     c.drawString(40, 750, "Este documento no trae movimientos, solo texto informativo sobre tu cuenta."); c.showPage(); c.save()
     seen(OUT / "seen-tarjeta.pdf", SEEN_CR, SEEN_BUY)
+    seen(OUT / "seen-partida.pdf", SEEN_CR, SEEN_BUY + [("03/29/2026", "SHAKE SHACK DEMO CONCOU CITY|GAUSA", 13.59)])
     seen(OUT / "seen-no-cuadra.pdf", SEEN_CR, SEEN_BUY, extra_impreso=7.00)
     tarjeta(OUT / "tarjeta-omega.pdf", "Omega Bank Visa Card (PRUEBA)", ["Credit Card Statement - Account ending in 7788", "Statement closing date: Apr 5, 2026", "Previous Balance $120.00   New Balance $155.50", "Credit Limit $2,000.00", "Minimum Payment Due $25.00", "Payment Due Date: Apr 30, 2026", "Purchase APR 27.99%"],
         [(40, "Date", 'l'), (120, "Description", 'l'), (540, "Amount", 'r')],
