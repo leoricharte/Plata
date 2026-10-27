@@ -410,6 +410,32 @@ def tjx(path, pagos, compras, interes=0.00, previo=26.99, extra_impreso=0.0):
 TJX_PAGOS = [("03/20", "8543096EX00XS6H14", "ONLINE PAYMENT THANK YOU", 26.99)]
 TJX_COMPRAS = [("03/14", "5543286ES5Y68LTP1", "TIENDA EJEMPLO LAKE PLACID NY", 43.18), ("03/15", "8518089ESWGVKPSZF", "NEWBURY COMICS 31 ALBANY NY", 29.16), ("03/20", "5543286EZ5ZZPTVDF", "MARKET DEMO SEATTLE WA", 194.78), ("04/02", "1230202F001FMQP1X", "CAFE PRUEBA LAKE PLACID NY", 17.00)]
 
+def milestone(path, filas, previo=20.00, cuota=3.95, interes=0.00, extra_impreso=0.0):
+    """Estado INVENTADO de Milestone Mastercard (Concora Credit): importes SIN «$» y con el menos DETRÁS (8.02-), fechas MM/DD, secciones TRANSACTIONS / FEES / INTEREST CHARGED. filas: (mm/dd, ref, desc, monto; negativo = crédito)."""
+    pagos = round(-sum(f[3] for f in filas if f[3] < 0), 2); compras = round(sum(f[3] for f in filas if f[3] > 0), 2); fin = round(previo - pagos + compras + cuota + interes + extra_impreso, 2)
+    am = lambda v: f"{abs(v):,.2f}" + ("-" if v < 0 else "")
+    c = canvas.Canvas(str(path), pagesize=letter); c.setTitle("Milestone - documento de prueba (inventado)"); c.setFont("Helvetica", 8)
+    c.setFillColorRGB(.8, 0, 0); c.drawString(43, 745, "DOCUMENTO DE PRUEBA - DATOS INVENTADOS"); c.setFillColorRGB(0, 0, 0)
+    c.drawString(36, 711, "PERSONA EJEMPLO"); c.drawString(435, 711, "Account number ending in 4242")
+    c.drawString(43, 675, "Credit Limit"); c.drawString(266, 675, "$500.00"); c.drawString(316, 675, "New Balance"); c.drawString(545, 675, "$" + m(fin))
+    c.drawString(316, 666, "Minimum Payment Due"); c.drawString(545, 666, "$" + m(min(fin, 25)))
+    c.drawString(316, 656, "Payment Due Date"); c.drawString(493, 656, "November 25, 2026")
+    c.drawString(43, 636, "Statement Closing Date"); c.drawString(233, 636, "October 26, 2026"); c.drawString(43, 626, "Days in Billing Cycle"); c.drawString(285, 626, "30")
+    c.drawString(43, 616, "Previous Balance"); c.drawString(275, 616, "$" + m(previo)); c.drawString(43, 606, "- Payments & Credits"); c.drawString(275, 606, "$" + m(pagos)); c.drawString(43, 597, "+ Purchases & Other Charges"); c.drawString(275, 597, "$" + m(compras))
+    c.drawString(43, 587, "+ FEES CHARGED"); c.drawString(275, 587, "$" + m(cuota)); c.drawString(43, 578, "+ INTEREST CHARGED"); c.drawString(275, 578, "$" + m(interes)); c.drawString(43, 569, "= New Balance"); c.drawString(275, 569, "$" + m(fin))
+    c.drawString(43, 495, "Concora Credit"); c.drawString(43, 485, "www.mymilestonecard.com")
+    c.drawString(40, 448, "TRANSACTIONS"); c.drawString(44, 423, "Date"); c.drawString(106, 423, "Reference Number"); c.drawString(213, 423, "Transaction Description"); c.drawString(540, 423, "Amount")
+    y = 411
+    for f, ref, desc, v in filas: c.drawString(40, y, f); c.drawString(73, y, f); c.drawString(106, y, ref); c.drawString(213, y, desc); c.drawRightString(570, y, am(v)); y -= 11
+    y -= 8; c.drawString(213, y, "FEES"); y -= 11; c.drawString(40, y, "10/25"); c.drawString(73, y, "10/25"); c.drawString(213, y, "MONTHLY FEE"); c.drawRightString(570, y, am(cuota)); y -= 11
+    c.drawString(213, y, "TOTAL FEES FOR THIS PERIOD"); c.drawRightString(570, y, am(cuota)); y -= 18
+    c.drawString(213, y, "INTEREST CHARGED"); y -= 11; c.drawString(40, y, "10/26"); c.drawString(73, y, "10/26"); c.drawString(213, y, "Interest Charge on Purchases"); c.drawRightString(570, y, am(interes)); y -= 11
+    c.drawString(40, y, "10/26"); c.drawString(73, y, "10/26"); c.drawString(213, y, "Interest Charge on Cash Advances"); c.drawRightString(570, y, "0.00"); y -= 11
+    c.drawString(213, y, "TOTAL INTEREST FOR THIS PERIOD"); c.drawRightString(570, y, am(interes)); c.showPage()
+    c.setFont("Helvetica", 8); c.drawString(54, 605, "The Purchase APR is 35.90% and the corresponding Monthly Periodic Rate is 2.992%."); c.showPage(); c.save()
+
+MS_FILAS = [("09/26", "8549806LY00XV9EV4", "PAYMENT RECEIVED - THANK YOU", -20.00), ("10/03", "0531461HBEHXAFS9Y", "TIENDA EJEMPLO WHITE PLAINS NY", 45.54), ("10/10", "0230537GS8PNQD2ST", "NEWBURY DEMO LAKE PLACID NY", 7.56), ("10/26", "", "CASHBACK REWARDS REDEEMED THIS CYCLE", -0.68)]
+
 AC_PAGOS = [("03/10/2026", "Apple Cash payment", -5.00), ("03/20/2026", "ACH Deposit Internet transfer from account ending in 0000", -100.00)]
 AC_COMPRAS = [("03/02/2026", "TIENDA EJEMPLO 1 CALLE DEMO CIUDAD NY USA", "2%", 15.29), ("03/05/2026", "CAFE DEMO 2 CALLE DEMO CIUDAD NY USA", "2%", 7.54), ("03/12/2026", "APPLE.COM/BILL ONE APPLE PARK WAY CUPERTINO CA USA", "3%", 6.99), ("03/18/2026", "DEVOLUCION TIENDA EJEMPLO", "2%", -4.00)]
 
@@ -712,6 +738,8 @@ if __name__ == "__main__":
     bofa(OUT / "bofa-no-cuadra.pdf", BOFA_DEP, BOFA_ATM, BOFA_OTH, extra_impreso=3.00)
     tjx(OUT / "tjx-rewards.pdf", TJX_PAGOS, TJX_COMPRAS, interes=4.55)
     tjx(OUT / "tjx-rewards-no-cuadra.pdf", TJX_PAGOS, TJX_COMPRAS, interes=4.55, extra_impreso=3.00)
+    milestone(OUT / "milestone.pdf", MS_FILAS)
+    milestone(OUT / "milestone-no-cuadra.pdf", MS_FILAS, extra_impreso=3.00)
     apple_card(OUT / "apple-card.pdf", AC_PAGOS, AC_COMPRAS)
     apple_card(OUT / "apple-card-no-cuadra.pdf", AC_PAGOS, AC_COMPRAS, extra_impreso=3.00)
     community_bank(OUT / "community-bank.pdf", CB_FILAS)
