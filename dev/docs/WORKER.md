@@ -10,7 +10,7 @@ Almacenamiento:
 ## Orígenes (CORS)
 
 - Rutas públicas y de cuenta: `web.plataapp.net` (la app), `plataapp.net` (el sitio y la app vieja durante la mudanza) y la app de escritorio (Tauri).
-- Rutas de administración: solo los orígenes de `ADMIN_ORIGINS` (el panel privado, que vive en el repo privado `plata-dev`) y, con `DEV=1`, `localhost`. Desde cualquier otro origen del navegador responden 403, aunque el token sea correcto.
+- Rutas de administración: solo los orígenes de `ADMIN_ORIGINS` (el panel privado, que vive en el repo privado `dev-estudio22`) y, con `DEV=1`, `localhost`. Desde cualquier otro origen del navegador responden 403, aunque el token sea correcto.
 
 ## Claves del KV
 
@@ -79,7 +79,7 @@ El nuevo consulta con `POST /link/poll` y el activo con `GET /link/pending`. Amb
 ## Variables y secretos
 
 - `ADMIN_TOKEN` (secreto, **mínimo 32 caracteres**; si es más corto, el admin queda desactivado), `MOD_TOKEN` (secreto opcional, 32+ caracteres: rol mod), `RL_SALT` (secreto, **obligatorio**: sin él, las rutas que anonimizan responden 503; no cambiarlo: de él salen los identificadores de las cuentas), `RESEND_API_KEY` (secreto).
-- `ADMIN_ORIGINS` (variable): origen del panel privado, por ejemplo `https://plata-dev.pages.dev`.
+- `ADMIN_ORIGINS` (variable): origen del panel privado, por ejemplo `https://dev-estudio22.pages.dev`.
 - `CLOUD_TESTERS`, `CLOUD_OPEN` (variables, como antes).
 - `REVIEW_OFF = 1` (variable, opcional): desactiva el envío de copias para análisis (por ejemplo, durante un piloto). Así no entra nada legible al servidor.
 - KV `WAITLIST` y Durable Object `GATE` (en `wrangler.toml`). Sin `GATE`, las rutas que lo necesitan responden 503 (`config`): fallan cerradas.

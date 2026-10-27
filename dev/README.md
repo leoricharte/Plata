@@ -30,7 +30,7 @@ CHANNEL=alpha python3 dev/app/build.py   # variante con icono blanco
 |---|---|---|
 | `plataapp.net` | El sitio informativo | GitHub Pages (este repo) |
 | `web.plataapp.net` | La app | Cloudflare Pages (este repo, `sh dev/web/build.sh` → `dist-web/`) |
-| panel privado | Herramientas del equipo | Repo privado `plata-dev` + Cloudflare Pages + Cloudflare Access (no está en este repo) |
+| panel privado | Herramientas del equipo | Repo privado `dev-estudio22` + Cloudflare Pages + Cloudflare Access (no está en este repo) |
 
 Los datos de cada persona viven en el navegador **por dominio**: un fallo en el sitio público no puede leer la frase de la app, y el token del admin nunca se escribe en un dominio público. La mudanza de `plataapp.net/app` a `web.plataapp.net` está en `dev/migracion/README.md`.
 
@@ -60,13 +60,13 @@ Los secretos que ya están en el panel se conservan. Revisa:
 - `MOD_TOKEN` (opcional, mínimo 32 caracteres): rol mod del panel; lo que guarda queda como propuesta hasta que un dev la apruebe. `RL_SALT` es obligatorio: sin él el Worker responde 503.
 - `RL_SALT`: **no lo cambies**; de él salen los identificadores de las cuentas.
 - `RESEND_API_KEY`: correos.
-- Nueva variable `ADMIN_ORIGINS`: el origen del panel privado (por ejemplo `https://plata-dev.pages.dev`).
+- Nueva variable `ADMIN_ORIGINS`: el origen del panel privado (por ejemplo `https://dev-estudio22.pages.dev`).
 
 Detalle de rutas, claves y del protocolo de aprobación: [`docs/WORKER.md`](docs/WORKER.md). (La carpeta `cloud/` es una versión antigua solo de lista de espera; no se usa.)
 
 ## Panel de administración
 
-El panel del equipo **no está en este repo**: vive en un repo privado (`plata-dev`) detrás de Cloudflare Access. Aquí queda lo que se audita: el Worker (`dev/worker/`), que es quien guarda y protege los datos y define las rutas de administración, sus roles, las sesiones de 1 hora, los tokens por persona y el registro de actividad (descritos en [`docs/WORKER.md`](docs/WORKER.md) y probados en `dev/tests/`), la app y los lectores de Nazca. El panel solo es una pantalla que llama a esas rutas: no tiene acceso a nada que el Worker no permita, así que no hace falta publicarlo para auditar.
+El panel del equipo **no está en este repo**: vive en un repo privado (`dev-estudio22`) detrás de Cloudflare Access. Aquí queda lo que se audita: el Worker (`dev/worker/`), que es quien guarda y protege los datos y define las rutas de administración, sus roles, las sesiones de 1 hora, los tokens por persona y el registro de actividad (descritos en [`docs/WORKER.md`](docs/WORKER.md) y probados en `dev/tests/`), la app y los lectores de Nazca. El panel solo es una pantalla que llama a esas rutas: no tiene acceso a nada que el Worker no permita, así que no hace falta publicarlo para auditar.
 
 - **Copias recibidas:** perfiles enviados por usuarios para análisis; descargar, marcar revisado, eliminar. Caducan solas a los 30 días.
 - **Novedades:** crear y editar artículos.

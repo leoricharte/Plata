@@ -1,6 +1,6 @@
 // Panel privado y administración: sesiones de 1 h, roles dev/mod, propuestas, /nazca cerrado. Requiere servidor-local.mjs en :8787 (reinícialo antes).
 import { spawn } from 'node:child_process';
-const A = 'http://localhost:8787', PANEL = 'https://plata-dev.pages.dev'; let fails = 0;
+const A = 'http://localhost:8787', PANEL = 'https://dev-estudio22.pages.dev'; let fails = 0;
 const ok = (c, m) => { console.log((c ? 'OK    ' : 'FALLA ') + m); if (!c) fails++; };
 const j = async (p, m, b, h, base) => { const r = await fetch((base || A) + p, { method: m || 'GET', headers: Object.assign({ 'Content-Type': 'application/json' }, h || {}), body: b ? JSON.stringify(b) : undefined }); return { s: r.status, j: await r.json().catch(() => ({})) }; };
 const DEV = 'a'.repeat(40), MOD = 'm'.repeat(40);
