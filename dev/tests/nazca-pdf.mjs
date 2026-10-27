@@ -89,7 +89,7 @@ const sum = (it) => Math.round(it.reduce((s, x) => s + x.amount, 0) * 100) / 100
 
 // 6) catálogo: el BCP y Interbank están activos
 { const pe = B.CATALOG.find((c) => c.id === 'PE'); const act = pe.banks.filter((b) => b.active).map((b) => b.id);
-  ok(pe.banks.length === 6 && act.join() === 'bcp,interbank,io,yape,bbva', 'catálogo: Perú con 6 bancos, activos el BCP, Interbank, iO, Yape y BBVA'); }
+  ok(pe.banks.length === 6 && act.join() === 'bcp,bbva,interbank,io,yape' && pe.banks[5].id === 'scotiabank', 'catálogo: Perú con 6 bancos en orden alfabético y el no disponible (Scotiabank) al final'); }
 
 // 7) Capital One (tarjeta): banco reconocido y verificado · documentos de prueba inventados
 { const d1 = await P.read(bytes('capital-one-marzo.pdf'), lib), rd = B.detect(d1);
@@ -228,6 +228,14 @@ const sum = (it) => Math.round(it.reduce((s, x) => s + x.amount, 0) * 100) / 100
   ok(r.check.have && r.check.ok === true, 'tjx: cuadra (anterior − pagos + compras + intereses = nuevo)');
   ok(r.card.apr === 29.99 && r.card.minPayment === 25 && r.card.limit === 700 && r.card.dueDate === '2026-05-03', 'tjx: tasa, pago mínimo, límite y fecha de pago');
   const dn = await P.read(bytes('tjx-rewards-no-cuadra.pdf'), lib); ok(B.detect(dn).read(dn).check.ok === false, 'tjx: si el saldo no coincide → no cuadra'); }
+// 17e) Milestone Mastercard (Concora Credit): importes sin «$» y con el menos DETRÁS (8.02-), cuota mensual e intereses aparte
+{ const d = await P.read(bytes('milestone.pdf'), lib), rd = B.detect(d, 'milestone'); ok(rd && rd.id === 'milestone-tarjeta' && B.detect(d).id === 'milestone-tarjeta', 'milestone: se reconoce por el contenido');
+  const r = rd.read(d); ok(r.period.from === '2026-09-26' && r.period.to === '2026-10-26' && r.account.last4 === '4242', 'milestone: periodo = cierre menos los días del ciclo, y últimos 4');
+  ok(r.items.length === 5 && r.skipped.zero === 2, 'milestone: 5 movimientos y los intereses en 0.00 se omiten (' + r.items.length + ')');
+  ok(r.items[0].amount === 20 && r.items[1].amount === -45.54 && r.items.find((x) => x.desc.startsWith('CASHBACK')).amount === 0.68 && r.items.find((x) => x.desc === 'MONTHLY FEE').amount === -3.95, 'milestone: «20.00-» pago → ingreso, cargo → gasto, cashback → ingreso, cuota mensual → gasto');
+  ok(r.check.have && r.check.ok === true, 'milestone: cuadra (anterior − pagos y créditos + compras + cuotas + intereses = nuevo)');
+  ok(r.card.limit === 500 && r.card.minPayment === 25 && r.card.apr === 35.9 && r.card.dueDate === '2026-11-25', 'milestone: límite, pago mínimo, tasa y fecha de pago');
+  const dn = await P.read(bytes('milestone-no-cuadra.pdf'), lib); ok(B.detect(dn).read(dn).check.ok === false, 'milestone: si el saldo no coincide → no cuadra'); }
 // 17) Capital One con el diseño real de hoy (Quicksilver / Savor): periodo sin título, "Transactions +", "Other Credits", intereses del resumen
 { const d = await P.read(bytes('capital-one-nuevo.pdf'), lib), rd = B.detect(d, 'capitalone'); ok(rd && rd.id === 'capitalone-tarjeta', 'capital one (nuevo): se reconoce');
   const r = rd.read(d); ok(r.period && r.period.from === '2026-06-16' && r.period.to === '2026-07-16' && r.account.last4 === '4242', 'capital one (nuevo): periodo "Jun 16, 2026 - Jul 16, 2026" y últimos 4');
