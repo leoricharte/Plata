@@ -381,6 +381,35 @@ def apple_card(path, pagos, compras, interes=12.00, previo=500.00, extra_impreso
     c.drawString(36, 453, "Interest Charges"); c.drawString(305, 453, "Interest Charge Calculation"); c.drawString(305, 443, "Annual Percentage Rate (APR)"); c.drawString(412, 443, "24.74 %"); c.drawString(441, 443, "(variable)")
     c.drawString(36, 36, "Apple Card is issued by Goldman Sachs Bank USA, Salt Lake City Branch."); c.showPage(); c.save()
 
+def tjx(path, pagos, compras, interes=0.00, previo=26.99, extra_impreso=0.0):
+    """Estado INVENTADO de TJX Rewards (Synchrony): mismas secciones y columnas que el real, ningún dato real. pagos: (mm/dd, ref, desc, monto positivo); compras: (mm/dd, ref, desc, monto)."""
+    tp = round(sum(p[3] for p in pagos), 2); tc = round(sum(c[3] for c in compras), 2); fin = round(previo - tp + tc + interes + extra_impreso, 2)
+    c = canvas.Canvas(str(path), pagesize=(498, 1008)); c.setTitle("TJX Rewards - documento de prueba (inventado)")
+    c.setFont("Helvetica", 8); c.setFillColorRGB(.8, 0, 0); c.drawString(38, 985, "DOCUMENTO DE PRUEBA - DATOS INVENTADOS"); c.setFillColorRGB(0, 0, 0)
+    c.drawString(165, 965, "Visit us at tjx.syf.com"); c.drawString(376, 965, "PERSONA EJEMPLO"); c.drawString(371, 955, "Account Number"); c.drawString(432, 955, "ending in 4242")
+    c.drawString(312, 946, "31 Day Billing Cycle from 03/12/2026 to 04/11/2026"); c.drawString(38, 928, "PAGE 1 of 3")
+    c.drawString(75, 888, "New Balance:"); c.drawString(256, 888, "$" + m(fin)); c.drawString(75, 875, "Total Minimum Payment Due:"); c.drawString(260, 875, "$25.00"); c.drawString(75, 864, "Payment Due Date:"); c.drawString(242, 864, "05/03/2026")
+    c.drawString(36, 600, "Previous Balance"); c.drawString(105, 600, "as of 03/12/2026"); c.drawString(262, 600, "$" + m(previo)); c.drawString(309, 600, "Credit Limit"); c.drawString(465, 600, "$700")
+    c.drawString(43, 591, "Payments"); c.drawString(263, 591, "- " + m(tp)); c.drawString(309, 591, "Available Credit"); c.drawString(469, 591, "$11")
+    c.drawString(43, 578, "Purchases/Debits"); c.drawString(256, 578, "+ " + m(tc))
+    y = 566
+    if interes: c.drawString(43, y, "Interest Charges"); c.drawString(260, y, "+ " + m(interes)); y -= 12
+    c.drawString(36, y, "New Balance"); c.drawString(89, y, "as of 04/11/2026"); c.drawString(257, y, "$" + m(fin)); c.showPage()
+    c.setFont("Helvetica", 8); c.drawString(38, 928, "PAGE 2 of 3"); c.drawString(36, 907, "Transaction Detail"); c.drawString(38, 608, "Date"); c.drawString(75, 608, "Reference #"); c.drawString(184, 608, "Description"); c.drawString(451, 608, "Amount")
+    y = 596; c.drawString(38, y, "Payments"); c.drawRightString(480, y, "-$" + m(tp)); y -= 10
+    for f, ref, desc, v in pagos: c.drawString(38, y, f); c.drawString(72, y, ref); c.drawString(182, y, desc); c.drawRightString(480, y, "-$" + m(v)); y -= 10
+    c.drawString(38, y, "Purchases and Other Debits"); c.drawRightString(480, y, "$" + m(tc)); y -= 10
+    for f, ref, desc, v in compras: c.drawString(38, y, f); c.drawString(72, y, ref); c.drawString(182, y, desc); c.drawRightString(480, y, "$" + m(v)); y -= 9; c.drawString(182, y, "PURCHASE"); y -= 10
+    c.drawString(38, y, "Total Fees Charged This Period"); c.drawRightString(480, y, "$0.00"); y -= 10; c.drawString(38, y, "Total Interest Charged This Period"); c.drawRightString(480, y, "$" + m(interes)); y -= 10
+    c.drawString(38, y, "04/11"); c.drawString(182, y, "INTEREST CHARGE ON PURCHASES"); c.drawRightString(480, y, "$" + m(interes)); y -= 10
+    c.drawString(38, y, "04/11"); c.drawString(182, y, "INTEREST CHARGE ON CASH ADVANCES"); c.drawRightString(480, y, "$0.00"); y -= 20
+    c.drawString(307, y, "2026 Year-to-Date Fees and Interest"); y -= 30; c.drawString(36, y, "Interest Charge Calculation"); y -= 20
+    c.drawString(38, y, "Purchases"); c.drawString(206, y, "N/A"); c.drawString(267, y, "29.99% (v)"); c.drawString(388, y, "$0.00"); c.drawString(462, y, "$" + m(interes)); c.showPage()
+    c.setFont("Helvetica", 8); c.drawString(36, 640, "The TJX Rewards Platinum Mastercard is issued by Synchrony Bank (documento de prueba)."); c.showPage(); c.save()
+
+TJX_PAGOS = [("03/20", "8543096EX00XS6H14", "ONLINE PAYMENT THANK YOU", 26.99)]
+TJX_COMPRAS = [("03/14", "5543286ES5Y68LTP1", "TIENDA EJEMPLO LAKE PLACID NY", 43.18), ("03/15", "8518089ESWGVKPSZF", "NEWBURY COMICS 31 ALBANY NY", 29.16), ("03/20", "5543286EZ5ZZPTVDF", "MARKET DEMO SEATTLE WA", 194.78), ("04/02", "1230202F001FMQP1X", "CAFE PRUEBA LAKE PLACID NY", 17.00)]
+
 AC_PAGOS = [("03/10/2026", "Apple Cash payment", -5.00), ("03/20/2026", "ACH Deposit Internet transfer from account ending in 0000", -100.00)]
 AC_COMPRAS = [("03/02/2026", "TIENDA EJEMPLO 1 CALLE DEMO CIUDAD NY USA", "2%", 15.29), ("03/05/2026", "CAFE DEMO 2 CALLE DEMO CIUDAD NY USA", "2%", 7.54), ("03/12/2026", "APPLE.COM/BILL ONE APPLE PARK WAY CUPERTINO CA USA", "3%", 6.99), ("03/18/2026", "DEVOLUCION TIENDA EJEMPLO", "2%", -4.00)]
 
@@ -681,6 +710,8 @@ if __name__ == "__main__":
         [("18/09/2026", "COMPRA SUPERMERCADO CENTRAL", "-US$ 86.40"), ("22/09/2026", "PAGO RECIBIDO GRACIAS", "US$ 250.00"), ("27/09/2026", "COMPRA TIENDA ONLINE", "-US$ 129.90"), ("02/10/2026", "COMPRA RESTAURANTE EL PUERTO", "-US$ 42.00"), ("09/10/2026", "COMPRA GASOLINERA", "-US$ 38.50"), ("14/10/2026", "SUSCRIPCION MUSICA", "-US$ 9.99"), ("15/10/2026", "INTERES DEL PERIODO", "-US$ 4.55")])
     bofa(OUT / "bofa-cheques.pdf", BOFA_DEP, BOFA_ATM, BOFA_OTH)
     bofa(OUT / "bofa-no-cuadra.pdf", BOFA_DEP, BOFA_ATM, BOFA_OTH, extra_impreso=3.00)
+    tjx(OUT / "tjx-rewards.pdf", TJX_PAGOS, TJX_COMPRAS, interes=4.55)
+    tjx(OUT / "tjx-rewards-no-cuadra.pdf", TJX_PAGOS, TJX_COMPRAS, interes=4.55, extra_impreso=3.00)
     apple_card(OUT / "apple-card.pdf", AC_PAGOS, AC_COMPRAS)
     apple_card(OUT / "apple-card-no-cuadra.pdf", AC_PAGOS, AC_COMPRAS, extra_impreso=3.00)
     community_bank(OUT / "community-bank.pdf", CB_FILAS)
