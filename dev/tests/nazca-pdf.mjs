@@ -219,6 +219,15 @@ const sum = (it) => Math.round(it.reduce((s, x) => s + x.amount, 0) * 100) / 100
   const pages = d.pages.map((p) => Object.assign({}, p, { items: p.items.map((i) => (i.str === 'SUPER DEMO 227 NY' ? Object.assign({}, i, { str: 'NEWBURY COMICS 31ALBANYNY' }) : i)) }));
   const r = B.detect({ pages }, 'capitalone').read({ pages });
   ok(r.items.length === 8 && r.items.some((x) => x.desc.startsWith('NEWBURY')) && r.check.ok === true, 'capital one: «NEWBURY COMICS» se lee como compra y el estado cuadra (' + r.items.length + ')'); }
+// 17d) TJX Rewards (Synchrony): fechas sin año (se deducen del ciclo), pagos con «-$», línea «PURCHASE» suelta, intereses
+{ const d = await P.read(bytes('tjx-rewards.pdf'), lib), rd = B.detect(d, 'tjx'); ok(rd && rd.id === 'tjx-tarjeta' && B.detect(d) && B.detect(d).id === 'tjx-tarjeta', 'tjx: se reconoce por el contenido');
+  const r = rd.read(d); ok(r.period.from === '2026-03-12' && r.period.to === '2026-04-11' && r.account.last4 === '4242', 'tjx: periodo del ciclo de facturación y últimos 4');
+  ok(r.items.length === 6 && r.skipped.zero === 1, 'tjx: 6 movimientos y los intereses en 0.00 se omiten (' + r.items.length + ')');
+  ok(r.items[0].amount === 26.99 && r.items[1].amount === -43.18 && r.items.find((x) => x.desc.startsWith('NEWBURY')).amount === -29.16, 'tjx: pago → ingreso, compra → gasto («NEWBURY…» no se descarta)');
+  ok(r.items.find((x) => /^INTEREST CHARGE/.test(x.desc)).amount === -4.55 && !r.items.some((x) => x.desc === 'PURCHASE'), 'tjx: interés como gasto y la línea «PURCHASE» se ignora');
+  ok(r.check.have && r.check.ok === true, 'tjx: cuadra (anterior − pagos + compras + intereses = nuevo)');
+  ok(r.card.apr === 29.99 && r.card.minPayment === 25 && r.card.limit === 700 && r.card.dueDate === '2026-05-03', 'tjx: tasa, pago mínimo, límite y fecha de pago');
+  const dn = await P.read(bytes('tjx-rewards-no-cuadra.pdf'), lib); ok(B.detect(dn).read(dn).check.ok === false, 'tjx: si el saldo no coincide → no cuadra'); }
 // 17) Capital One con el diseño real de hoy (Quicksilver / Savor): periodo sin título, "Transactions +", "Other Credits", intereses del resumen
 { const d = await P.read(bytes('capital-one-nuevo.pdf'), lib), rd = B.detect(d, 'capitalone'); ok(rd && rd.id === 'capitalone-tarjeta', 'capital one (nuevo): se reconoce');
   const r = rd.read(d); ok(r.period && r.period.from === '2026-06-16' && r.period.to === '2026-07-16' && r.account.last4 === '4242', 'capital one (nuevo): periodo "Jun 16, 2026 - Jul 16, 2026" y últimos 4');
