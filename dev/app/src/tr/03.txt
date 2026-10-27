@@ -177,3 +177,29 @@ Usas {0} de tu crédito · Neto: ¦ You use {0} of your credit · Net: ¦ クレ
 % de tu crédito · ¦ % of your credit · ¦ %(クレジット)· ¦ % del tuo credito · ¦ % de votre crédit · ¦ % tvog kredita ·
 Intereses del año ¦ Interest this year ¦ 今年の利息 ¦ Interessi dell'anno ¦ Intérêts de l'année ¦ Kamate ove godine
 Rendimiento real ¦ Actual yield ¦ 実質利回り ¦ Rendimento reale ¦ Rendement réel ¦ Stvarni prinos
+Revisión ¦ Review ¦ 見直し ¦ Revisione ¦ Révision ¦ Pregled
+Todo en orden ¦ All good ¦ 問題なし ¦ Tutto a posto ¦ Tout est en ordre ¦ Sve je u redu
+{0} por revisar ¦ {0} to review ¦ 確認待ち{0}件 ¦ {0} da rivedere ¦ {0} à vérifier ¦ {0} za pregled
+Nada cambia hasta que tú lo aceptes. ¦ Nothing changes until you accept it. ¦ あなたが承認するまで何も変わりません。 ¦ Nulla cambia finché non lo accetti. ¦ Rien ne change tant que tu ne l'acceptes pas. ¦ Ništa se ne mijenja dok to ne prihvatiš.
+Plata no encontró movimientos que parezcan mal clasificados. ¦ Plata found no transactions that look misclassified. ¦ 分類が誤っていそうな取引は見つかりませんでした。 ¦ Plata non ha trovato movimenti che sembrino classificati male. ¦ Plata n'a trouvé aucun mouvement qui semble mal classé. ¦ Plata nije pronašla transakcije koje izgledaju pogrešno razvrstane.
+Posible transferencia entre tus cuentas ¦ Possible transfer between your accounts ¦ 口座間の振替の可能性 ¦ Possibile trasferimento tra i tuoi conti ¦ Virement possible entre tes comptes ¦ Moguć prijenos između tvojih računa
+Salió de una cuenta y entró a otra por casi el mismo monto. Como transferencia no cuenta como gasto ni ingreso. ¦ It left one account and entered another for almost the same amount. As a transfer it counts as neither expense nor income. ¦ ある口座から出て、ほぼ同額が別の口座に入りました。振替にすれば支出にも収入にも数えません。 ¦ È uscito da un conto ed è entrato in un altro per quasi lo stesso importo. Come trasferimento non conta come spesa né entrata. ¦ Ça est sorti d'un compte et entré dans un autre pour presque le même montant. En virement, ça ne compte ni comme dépense ni comme revenu. ¦ Izašlo je s jednog računa i ušlo na drugi za gotovo isti iznos. Kao prijenos ne računa se ni kao trošak ni kao prihod.
+Convertir en transferencia ¦ Convert to transfer ¦ 振替にする ¦ Converti in trasferimento ¦ Convertir en virement ¦ Pretvori u prijenos
+Posible pago de tarjeta ¦ Possible card payment ¦ カード支払いの可能性 ¦ Possibile pagamento della carta ¦ Paiement de carte possible ¦ Moguće plaćanje kartice
+Una tarjeta recibió un pago y una cuenta tuvo un gasto parecido: es el mismo pago. Júntalos para que no cuente doble. ¦ A card received a payment and an account had a similar expense: it is the same payment. Merge them so it doesn't count twice. ¦ カードに支払いがあり、口座にも似た支出があります。同じ支払いです。二重に数えないよう1つにまとめます。 ¦ Una carta ha ricevuto un pagamento e un conto ha una spesa simile: è lo stesso pagamento. Uniscili per non contarlo due volte. ¦ Une carte a reçu un paiement et un compte a une dépense semblable : c'est le même paiement. Fusionne-les pour ne pas compter deux fois. ¦ Kartica je primila uplatu, a račun ima sličan trošak: to je ista uplata. Spoji ih da se ne računa dvaput.
+Juntar como un pago ¦ Merge as one payment ¦ 1件の支払いにまとめる ¦ Unisci come un pagamento ¦ Fusionner en un paiement ¦ Spoji u jednu uplatu
+Este gasto coincide con la cuota o el saldo de una de tus tarjetas. ¦ This expense matches the payment or balance of one of your cards. ¦ この支出はカードの支払額または残高と一致します。 ¦ Questa spesa coincide con la rata o il saldo di una delle tue carte. ¦ Cette dépense correspond à la mensualité ou au solde d'une de tes cartes. ¦ Ovaj trošak odgovara obroku ili stanju jedne od tvojih kartica.
+Registrar como pago ¦ Record as payment ¦ 支払いとして記録 ¦ Registra come pagamento ¦ Enregistrer comme paiement ¦ Evidentiraj kao uplatu
+Posible movimiento repetido ¦ Possible duplicate ¦ 重複の可能性 ¦ Possibile movimento duplicato ¦ Doublon possible ¦ Mogući duplikat
+Uno lo anotaste a mano y el otro vino del banco, con el mismo monto y casi el mismo día. Borra el que anotaste a mano. ¦ You entered one by hand and the other came from the bank, with the same amount and almost the same day. Delete the one you entered by hand. ¦ 1件は手入力、もう1件は銀行からで、金額も日付もほぼ同じです。手入力の方を削除します。 ¦ Uno l'hai inserito a mano e l'altro viene dalla banca, con lo stesso importo e quasi lo stesso giorno. Elimina quello inserito a mano. ¦ Tu en as saisi un à la main et l'autre vient de la banque, même montant et presque le même jour. Supprime celui saisi à la main. ¦ Jedan si unio ručno, a drugi je iz banke, s istim iznosom i gotovo istim danom. Izbriši onaj uneseni ručno.
+Borrar el anotado a mano ¦ Delete the one entered by hand ¦ 手入力の方を削除 ¦ Elimina quello inserito a mano ¦ Supprimer celui saisi à la main ¦ Izbriši ručno uneseni
+Monto muy alto para su categoría ¦ Unusually high for its category ¦ カテゴリの割に金額が大きい ¦ Importo molto alto per la sua categoria ¦ Montant très élevé pour sa catégorie ¦ Vrlo visok iznos za svoju kategoriju
+Es mucho más que lo habitual en esta categoría. ¿Lo escribiste bien? ¦ It is far more than usual in this category. Did you type it right? ¦ このカテゴリの通常よりかなり多い金額です。入力は合っていますか? ¦ È molto più del solito in questa categoria. L'hai scritto bene? ¦ C'est bien plus que d'habitude dans cette catégorie. Tu l'as bien saisi ? ¦ Puno je više od uobičajenog u ovoj kategoriji. Jesi li ga dobro upisao?
+No es ¦ Not this ¦ 違います ¦ Non è così ¦ Ce n'est pas ça ¦ Nije to
+Mostrar las descartadas ¦ Show dismissed ¦ 却下したものを表示 ¦ Mostra quelle scartate ¦ Afficher les écartées ¦ Prikaži odbačene
+Sale ¦ Out ¦ 出金 ¦ Esce ¦ Sort ¦ Izlazi
+Entra ¦ In ¦ 入金 ¦ Entra ¦ Entre ¦ Ulazi
+Anotado a mano ¦ Entered by hand ¦ 手入力 ¦ Inserito a mano ¦ Saisi à la main ¦ Uneseno ručno
+Del banco ¦ From the bank ¦ 銀行から ¦ Dalla banca ¦ De la banque ¦ Iz banke
+ · casi seguro ¦ · almost certain ¦ · ほぼ確実 ¦ · quasi certo ¦ · presque sûr ¦ · gotovo sigurno
+Lo normal: ¦ Usual: ¦ 通常: ¦ Di solito: ¦ Habituel : ¦ Uobičajeno:
