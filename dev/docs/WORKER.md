@@ -10,7 +10,7 @@ Almacenamiento:
 ## Orígenes (CORS)
 
 - Rutas públicas y de cuenta: `web.plataapp.net` (la app), `plataapp.net` (el sitio y la app vieja durante la mudanza) y la app de escritorio (Tauri).
-- Rutas de administración: solo los orígenes de `ADMIN_ORIGINS` (el panel privado) y, con `DEV=1`, `localhost`. Desde cualquier otro origen del navegador responden 403, aunque el token sea correcto.
+- Rutas de administración: solo los orígenes de `ADMIN_ORIGINS` (el panel privado, que vive en el repo privado `plata-dev`) y, con `DEV=1`, `localhost`. Desde cualquier otro origen del navegador responden 403, aunque el token sea correcto.
 
 ## Claves del KV
 

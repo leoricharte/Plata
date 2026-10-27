@@ -38,7 +38,7 @@ cp dev/migracion/sw.js app/sw.js                   # el service worker viejo se 
 `app/puente.html` ya está en el repo; debe seguir publicado al menos unos meses.
 Luego cambia los enlaces "Probar Plata" del sitio (`href="app/"`) a `https://web.plataapp.net/` (la redirección los cubre igual).
 
-**5. Panel privado.** Ver `dev/panel/README.md`. Cuando funcione, agrega su origen en `ADMIN_ORIGINS`.
+**5. Panel privado.** Está en el repo privado `plata-dev` (ver su README). Cuando funcione, agrega su origen en `ADMIN_ORIGINS`.
 
 ## Qué cambia para las personas
 
