@@ -1,5 +1,5 @@
 /* ---------- Nazca · Capital One 360 · Estado de cuenta de cheques/ahorros (PDF) ----------
- * Lee el "bank statement" mensual de una cuenta Capital One 360 (Checking). Probado con UN estado real (una sola cuenta, ~20 movimientos) y con el fixture
+ * Lee el "bank statement" mensual de una cuenta Capital One 360 (Checking). Probado con estados reales (una sola cuenta; ago 2025, mar y abr 2026) y con el fixture
  * inventado dev/tests/pdf/capital-one-cuenta.pdf. Si el estado trae varias cuentas (p. ej. Checking y Savings) no se lee: conviene revisar.
  * Diseño que espera: "STATEMENT PERIOD · Aug 1 - Aug 31, 2025", "360 Checking...8622" y la tabla "DATE · DESCRIPTION · CATEGORY · AMOUNT · BALANCE" con
  * "Opening Balance" y "Closing Balance"; cada fila trae el monto CON signo ("+ $1,018.47" / "- $169.64") y el saldo corrido. Fecha "Aug 6" sin año.
@@ -11,7 +11,7 @@ const NazcaCapitalOneCuenta = (() => {
   const pad = (n) => String(n).padStart(2, '0'), r2 = (n) => Math.round(n * 100) / 100, near = (a, b) => Math.abs(a - b) < 0.005;
   const text = (doc) => doc.pages.map((p) => p.items.map((i) => i.str).join(' ')).join(' ').replace(/\s+/g, ' ');
   const money = (s) => { const m = /^([+-])?\s?\$\s?([\d,]+\.\d{2})$/.exec(String(s).replace(/[−–]/g, '-').trim()); return m ? r2((m[1] === '-' ? -1 : 1) * parseFloat(m[2].replace(/,/g, ''))) : null; };
-  const START = /^(ATM|Debit|Digital|Deposit|Withdrawal|Zelle|Monthly|Check|ACH|Transfer|Wire|Direct|Interest|Fee|Refund|Payment|POS|Bill|Online|External|Mobile|Overdraft|Cash|Credit|Purchase|Service)\b/i;
+  const START = /^(ATM|Debit|Digital|Deposit|Withdrawal|Zelle|Monthly|Check|ACH|Transfer|Wire|Direct|Interest|Fee|Refund|Payment|POS|Bill|Online|External|Mobile|Overdraft|Cash|Credit|Purchase|Service|Instant|Incoming|Outgoing|Recurring|Remote|Round)\b/i;
 
   function detect(doc) {
     if (!doc || !doc.pages || !doc.pages.length) return 0;

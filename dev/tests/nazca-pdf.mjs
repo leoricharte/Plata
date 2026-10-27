@@ -218,8 +218,9 @@ const sum = (it) => Math.round(it.reduce((s, x) => s + x.amount, 0) * 100) / 100
 // 18) Capital One 360 Checking (cuenta de cheques): monto con signo, saldo corrido y descripciones de dos líneas
 { const d = await P.read(bytes('capital-one-cuenta.pdf'), lib), rd = B.detect(d, 'capitalone'); ok(rd && rd.id === 'capitalone-cuenta', 'capital one 360: se reconoce (y no se confunde con la tarjeta)');
   const r = rd.read(d); ok(r.kind === 'corriente' && r.account.last4 === '4242' && r.period.from === '2025-08-01' && r.period.to === '2025-08-31', 'capital one 360: cuenta corriente, últimos 4 y periodo');
-  ok(r.items.length === 6 && r.items[0].amount === 1018.47 && r.items[1].amount === -169.64, 'capital one 360: 6 movimientos; "+" → ingreso, "-" → gasto (' + r.items.length + ')');
+  ok(r.items.length === 7 && r.items[0].amount === 1018.47 && r.items[1].amount === -169.64, 'capital one 360: 7 movimientos; "+" → ingreso, "-" → gasto (' + r.items.length + ')');
   ok(r.items.find((x) => x.amount === -300).desc === 'ATM Withdrawal - CAJERO PRUEBA 316 SAN FRANCISCO, CA', 'capital one 360: descripción de dos líneas (una arriba y otra abajo de la fecha)');
+  { const it = r.items.find((q) => q.amount === 250); ok(it && it.desc === 'Instant transfer received from PERSONA EJEMPLO REF0000EJEMPLO', 'capital one 360: «Instant transfer…» con la descripción arriba de la fecha no se pega al movimiento anterior'); ok(r.items.find((q) => q.amount === -23.05).desc === 'Zelle money sent to PERSONA EJEMPLO', 'capital one 360: el movimiento anterior conserva su descripción'); }
   ok(r.check.have && r.check.ok === true && r.check.prev === 5 && r.check.running, 'capital one 360: cuadra con el saldo corrido y el saldo final');
   const d2 = await P.read(bytes('capital-one-cuenta-no-cuadra.pdf'), lib); ok(B.detect(d2, 'capitalone').read(d2).check.ok === false, 'capital one 360: saldo final mal impreso → no cuadra'); }
 
