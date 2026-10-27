@@ -201,7 +201,7 @@ CO_NUEVO = [("Jun 16", "Jun 16", "CREDIT-CASH BACK REWARD", -0.28), ("Jun 17", "
     ("Jun 15", "Jun 16", "TIENDA EJEMPLO ONLINE NY", 5.99), ("Jun 16", "Jun 17", "SUPER DEMO 227 NY", 12.20), ("Jun 25", "Jun 26", "TRANSPORTE DEMO WHITE PLAINS NY", 98.59), ("Jul 11", "Jul 11", "MARKET PRUEBA SEATTLE WA", 21.55)]
 
 CO_CUENTA = [("Aug 6", "Deposit from EMPRESA EJEMPLO PAYROLL", 1018.47), ("Aug 6", "Withdrawal from CAPITAL ONE MOBILE PMT", -169.64), ("Aug 7", "Debit Card Purchase - TIENDA DEMO SEATTLE WA", -393.84),
-    ("Aug 16", "ATM Withdrawal - CAJERO PRUEBA 316 SAN|FRANCISCO, CA", -300.00), ("Aug 20", "Zelle money sent to PERSONA EJEMPLO", -23.05), ("Aug 31", "Monthly Interest Paid", 0.01)]
+    ("Aug 16", "ATM Withdrawal - CAJERO PRUEBA 316 SAN|FRANCISCO, CA", -300.00), ("Aug 20", "Zelle money sent to PERSONA EJEMPLO", -23.05), ("Aug 24", "Instant transfer received from PERSONA EJEMPLO|REF0000EJEMPLO", 250.00), ("Aug 31", "Monthly Interest Paid", 0.01)]
 def capital_one_cuenta(path, filas, previo=5.00, cierre_impreso=None):
     """Estado INVENTADO de la cuenta Capital One 360 Checking (diseño actual): monto con signo, saldo corrido y descripciones de dos líneas (la primera ARRIBA de la fila con fecha)."""
     c = canvas.Canvas(str(path), pagesize=(612, 792)); c.setTitle("Capital One 360 - documento de prueba (inventado)")
