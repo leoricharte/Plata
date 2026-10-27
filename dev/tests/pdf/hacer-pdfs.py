@@ -357,9 +357,9 @@ BOFA_DEP = [("03/25/26", "EMPRESA DEMO DES:PAYROLL ID:000 INDN:PERSONA DE PRUEBA
 BOFA_ATM = [("03/26/26", "0325 TIENDA EJEMPLO SAN FRANCISCOCA", -42.10), ("03/27/26", "0326 CAFE DEMO LAKE PLACID NY", -6.50), ("04/02/26", "0401 APPLE.COM/BILL 866-712-7753 CA", -9.99)]
 BOFA_OTH = [("04/05/26", "Online Banking transfer to SAV 0000 Confirmation# 1", -200.00)]
 
-def apple_card(path, pagos, compras, interes=12.00, previo=500.00, extra_impreso=0.0):
+def apple_card(path, pagos, compras, interes=12.00, previo=500.00, extra_impreso=0.0, ajuste=0.0):
     """Estado INVENTADO de Apple Card (mismas secciones y textos que el real; ningún dato real). pagos: (mm/dd/aaaa, desc, monto negativo); compras: (mm/dd/aaaa, desc, %, monto)."""
-    tp = round(sum(p[2] for p in pagos), 2); tc = round(sum(c[3] for c in compras), 2); fin = round(previo + tp + tc + interes + extra_impreso, 2)
+    tp = round(sum(p[2] for p in pagos), 2); tc = round(sum(c[3] for c in compras) + (ajuste if any(c[3] < 0 for c in compras) else 0), 2); fin = round(previo + tp + tc + interes + extra_impreso, 2)
     d = lambda v: ("-" if v < 0 else "") + "$" + f"{abs(v):,.2f}"
     c = canvas.Canvas(str(path), pagesize=letter); c.setTitle("Apple Card - documento de prueba (inventado)")
     c.setFont("Helvetica", 9); c.drawString(481, 706, "Statement"); c.drawString(36, 696, "Apple Card Customer"); c.drawString(36, 686, "Persona de Prueba"); c.drawString(502, 686, "Mar 1 — Mar 31, 2026")
@@ -375,7 +375,9 @@ def apple_card(path, pagos, compras, interes=12.00, previo=500.00, extra_impreso
     c.setFont("Helvetica-Bold", 9); c.drawString(36, y, "Transactions"); c.setFont("Helvetica", 7); y -= 16
     for x, t in ((37, "Date"), (106, "Description"), (416, "Daily Cash"), (551, "Amount")): c.drawString(x, y, t)
     y -= 18
-    for f, desc, pc, m in compras: c.drawString(36, y, f); c.drawString(105, y, desc); c.drawString(415, y, pc); c.drawString(446, y, "$0.10"); c.drawRightString(570, y, d(m)); y -= 20
+    for f, desc, pc, m in compras:
+        c.drawString(36, y, f); c.drawString(105, y, desc); c.drawString(415, y, pc); c.drawString(446, y, "$0.10"); c.drawRightString(570, y, d(m)); y -= 20
+        if m < 0 and ajuste: c.drawString(105, y + 10, "Daily Cash Adjustment"); c.drawString(412, y + 10, "-2%"); c.drawRightString(570, y + 10, d(ajuste)); y -= 10
     c.drawString(36, y, "Total Daily Cash this month"); c.drawString(446, y, "$0.40"); y -= 18; c.drawString(36, y, "Total charges, credits and returns"); c.drawRightString(570, y, d(tc)); c.showPage()
     c.setFont("Helvetica-Bold", 9); c.drawString(36, 634, "Daily Cash"); c.drawString(36, 529, "Interest Charged"); c.setFont("Helvetica", 7); c.drawString(36, 502, "Interest charge"); c.drawRightString(570, 502, d(interes)); c.drawString(36, 485, "Total interest for this month"); c.drawRightString(570, 485, d(interes))
     c.drawString(36, 453, "Interest Charges"); c.drawString(305, 453, "Interest Charge Calculation"); c.drawString(305, 443, "Annual Percentage Rate (APR)"); c.drawString(412, 443, "24.74 %"); c.drawString(441, 443, "(variable)")
@@ -741,6 +743,7 @@ if __name__ == "__main__":
     milestone(OUT / "milestone.pdf", MS_FILAS)
     milestone(OUT / "milestone-no-cuadra.pdf", MS_FILAS, extra_impreso=3.00)
     apple_card(OUT / "apple-card.pdf", AC_PAGOS, AC_COMPRAS)
+    apple_card(OUT / "apple-card-ajuste.pdf", AC_PAGOS, AC_COMPRAS, ajuste=0.08)
     apple_card(OUT / "apple-card-no-cuadra.pdf", AC_PAGOS, AC_COMPRAS, extra_impreso=3.00)
     community_bank(OUT / "community-bank.pdf", CB_FILAS)
     community_bank(OUT / "community-bank-no-cuadra.pdf", CB_FILAS, extra_impreso=2.00)
