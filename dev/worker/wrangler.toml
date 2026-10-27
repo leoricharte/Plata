@@ -20,6 +20,6 @@ tag = "v1-gate"
 new_sqlite_classes = ["Gate"]
 
 # Secretos (no van aquí; ya existen en el panel y wrangler los conserva):
-#   ADMIN_TOKEN (mínimo 32 caracteres), RL_SALT, RESEND_API_KEY
+#   ADMIN_TOKEN (mínimo 32 caracteres, rol dev), MOD_TOKEN (opcional, 32+ caracteres, rol mod), RL_SALT (obligatorio), RESEND_API_KEY
 # Variables nuevas (Settings → Variables):
-#   ADMIN_ORIGINS = "https://plata-dev.pages.dev"   ← origen del panel privado (separado por comas si hay más)
+#   ADMIN_ORIGINS = "https://dev-estudio22.pages.dev"   ← origen del panel privado (separado por comas si hay más)

@@ -125,7 +125,7 @@ const list = (v) => String(v || '').split(',').map((x) => x.trim()).filter(Boole
 const LOCAL = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
 const cors = (req, env, admin) => {
   const o = req.headers.get('Origin') || '';
-  const adminOk = list(env.ADMIN_ORIGINS).includes(o) || LOCAL.test(o); // el panel también lee las rutas públicas (textos, Novedades)
+  const adminOk = list(env.ADMIN_ORIGINS).includes(o) || (env.DEV === '1' && LOCAL.test(o)); // el panel también lee las rutas públicas (textos, Novedades)
   const ok = admin ? adminOk : (ORIGINS.includes(o) || list(env.TEST_ORIGINS).includes(o) || (env.DEV === '1' && LOCAL.test(o)) || list(env.ADMIN_ORIGINS).includes(o));
   return ok ? { 'Access-Control-Allow-Origin': o, 'Access-Control-Allow-Methods': 'POST, GET, PUT, DELETE, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Plata-Write', 'Access-Control-Max-Age': '86400', Vary: 'Origin' } : { Vary: 'Origin' };
 };
@@ -177,7 +177,8 @@ async function gate(env, name, body) {
   return r.json();
 }
 async function hit(env, key, max, ttl) { return (await gate(env, key, { op: 'hit', max, ttl })).limited; } // true si ya se pasó del límite
-const ipKey = async (req, env, tag) => tag + ':' + (await sha((env.RL_SALT || 'plata') + (req.headers.get('CF-Connecting-IP') || 'x')));
+const salt = (env) => { if (!env.RL_SALT) throw new Error('GATE'); return env.RL_SALT; }; // sin RL_SALT no hay sal secreta: las rutas que anonimizan fallan cerradas (503), no con una sal conocida
+const ipKey = async (req, env, tag) => tag + ':' + (await sha(salt(env) + (req.headers.get('CF-Connecting-IP') || 'x')));
 async function rateLimited(req, env) {
   if (await hit(env, (await ipKey(req, env, 'rl')) + ':' + Math.floor(Date.now() / 3600000), LIMIT_PER_HOUR, 7200)) return true;
   // Tope global: aunque alguien rote IPs, las rutas públicas no pueden gastar más de 300 escrituras de KV al día (de 1.000 en el plan gratis).
@@ -231,7 +232,7 @@ async function reviewPut(req, env, h) {
   if (!b || typeof b !== 'object' || !b.data || typeof b.data !== 'object') return json({ ok: false, error: 'json' }, 400, h);
   if (await rateLimited(req, env)) return json({ ok: false, error: 'rate' }, 429, h);
   // espera creciente entre envíos desde la misma conexión: 10 min, 30 min, 1 h, 2 h, 1 día
-  const ipk = 'rvl:' + (await sha((env.RL_SALT || 'plata') + (req.headers.get('CF-Connecting-IP') || 'x'))), now = Date.now();
+  const ipk = 'rvl:' + (await sha(salt(env) + (req.headers.get('CF-Connecting-IP') || 'x'))), now = Date.now();
   let lim = await kvGet(env, ipk); if (!lim || now - lim.t > 7 * 86400000) lim = { n: 0, t: 0 };
   const until = lim.t + REVIEW_WAIT[Math.min(lim.n, REVIEW_WAIT.length) - 1] ;
   if (lim.n > 0 && now < until) return json({ ok: false, error: 'wait', until: until }, 429, h);
@@ -242,22 +243,30 @@ async function reviewPut(req, env, h) {
 }
 /* ---------- Archivos que Nazca no reconoció (la persona los manda a propósito, con permiso expreso, solo para entrenar a Nazca) ---------- */
 const MAX_NAZCA = 4200000, NAZCA_TTL = 30 * 86400, NAZCA_DAY = 5;   // 4.2 MB en base64 ≈ 3 MB de archivo · 30 días · 5 envíos por conexión al día
+const NAZCA_GLOBAL_DAY = 60, NAZCA_HOUR = 12;   // tope propio: ya no gasta el cupo de escrituras de la lista de espera
+const b64head = (b64, n) => { try { return atob(b64.slice(0, Math.ceil(n / 3) * 4)); } catch (e) { return null; } };
+function nazcaLooksLike(kind, b64) { // el tipo declarado tiene que coincidir con lo que realmente es (por los primeros bytes)
+  const head = b64head(b64, 1024); if (head === null) return false;
+  if (kind === 'pdf') return head.indexOf('%PDF-') >= 0;
+  if (kind === 'xlsx') return head.slice(0, 4) === 'PK\x03\x04';
+  return head.indexOf('\0') < 0 && !/^(%PDF-|PK\x03\x04|MZ|\x7fELF|#!|<\?php|<script)/i.test(head);   // csv / texto
+}
 async function nazcaPut(req, env, h) {
   if (env.REVIEW_OFF === '1') return json({ ok: false, error: 'off' }, 403, h);
   const origin = req.headers.get('Origin') || '';
   if (!h['Access-Control-Allow-Origin'] && origin) return json({ ok: false, error: 'origin' }, 403, h);
+  const ip = await ipKey(req, env, 'nz');
+  if (await hit(env, ip + ':h', NAZCA_HOUR, 3600)) return json({ ok: false, error: 'rate' }, 429, h);          // intentos por hora, válidos o no
   const raw = await req.text();
   if (raw.length > MAX_NAZCA + 2000) return json({ ok: false, error: 'size' }, 413, h);
   let b; try { b = JSON.parse(raw); } catch (e) { return json({ ok: false, error: 'json' }, 400, h); }
   if (!b || typeof b !== 'object' || typeof b.b64 !== 'string' || !b.b64 || b.b64.length > MAX_NAZCA || !/^[A-Za-z0-9+/=]+$/.test(b.b64)) return json({ ok: false, error: 'json' }, 400, h);
-  const kind = ['pdf', 'xlsx', 'csv'].includes(b.kind) ? b.kind : 'otro';
-  if (await rateLimited(req, env)) return json({ ok: false, error: 'rate' }, 429, h);
-  const ipk = 'nzl:' + (await sha((env.RL_SALT || 'plata') + (req.headers.get('CF-Connecting-IP') || 'x'))), now = Date.now();
-  let lim = await kvGet(env, ipk); if (!lim || now - lim.t > 86400000) lim = { n: 0, t: now };
-  if (lim.n >= NAZCA_DAY) return json({ ok: false, error: 'wait' }, 429, h);
-  const id = Date.now().toString(36) + '-' + rndB64(6);
+  const kind = ['pdf', 'xlsx', 'csv'].includes(b.kind) ? b.kind : '';
+  if (!kind || !nazcaLooksLike(kind, b.b64)) return json({ ok: false, error: 'tipo' }, 400, h);                  // solo PDF, XLSX o CSV, y que lo sean de verdad
+  if (await hit(env, ip + ':d', NAZCA_DAY, 86400)) return json({ ok: false, error: 'wait' }, 429, h);          // 5 envíos por día por conexión (contador atómico)
+  if (await hit(env, 'nz:cap:' + Math.floor(Date.now() / 86400000), NAZCA_GLOBAL_DAY, 2 * 86400)) return json({ ok: false, error: 'wait' }, 429, h); // tope global del día
+  const id = Date.now().toString(36) + '-' + rndB64(6), now = Date.now();
   await env.WAITLIST.put('nz:' + id, JSON.stringify({ t: now, build: Number(b.build) || 0, plat: String(b.plat || '').slice(0, 40), kind: kind, bank: String(b.bank || '').slice(0, 30), why: String(b.why || '').slice(0, 60), b64: b.b64 }), { expirationTtl: NAZCA_TTL });
-  await kvPut(env, ipk, { n: lim.n + 1, t: lim.t }, 86400);
   return json({ ok: true, id: id }, 200, h);
 }
 async function nazcaList(req, env, h) {
@@ -276,16 +285,112 @@ async function nazcaDelete(req, env, h, url) {
   await env.WAITLIST.delete('nz:' + (url.searchParams.get('id') || ''));
   return json({ ok: true }, 200, h);
 }
-/* Acceso de administrador: comparación en tiempo constante (se comparan hashes) y bloqueo por IP tras 5 fallos en 15 minutos (429), con contador atómico. */
-const AUTH_MAX = 5, AUTH_WIN = 900;
-async function adminGate(req, env, h) { // devuelve null si el token es correcto; si no, la respuesta 401 o 429
-  const o = req.headers.get('Origin'); if (o && !h['Access-Control-Allow-Origin']) return json({ ok: false, error: 'origin' }, 403, h); // solo desde el panel privado
+/* Acceso de administrador. El token fijo (ADMIN_TOKEN = rol dev, MOD_TOKEN = rol mod) solo sirve para abrir una sesión (POST /admin/session); todo lo demás exige
+ * esa sesión: un token aleatorio que vive 1 hora en el Gate (sin renovación), se puede revocar (POST /admin/logout) y no se escribe en ningún otro lado.
+ * Comparación en tiempo constante (se comparan hashes) y bloqueo por IP tras 5 fallos en 15 minutos (429), con contador atómico.
+ * ADMIN_LEGACY=1 vuelve a aceptar ADMIN_TOKEN directo en cada petición (solo para scripts viejos; no recomendado). */
+const AUTH_MAX = 5, AUTH_WIN = 900, ADMIN_SESSION = 3600, ROLE_RANK = { mod: 1, dev: 2 }, AUDIT_TTL = 90 * 86400, USERS_MAX = 40;
+const INTERNAL = new WeakSet(); // peticiones armadas por el propio servidor al aprobar una propuesta: ya vienen autorizadas por un dev
+const WHO = new WeakMap();      // petición → quién la hizo ({ role, who, uid }); lo usa el registro de auditoría
+/* Quién entra: tokens personales (plt_<id>.<secreto>, guardados solo como hash en au:<id>) o, de respaldo, los tokens compartidos ADMIN_TOKEN (dev) y MOD_TOKEN (mod). */
+async function identify(env, header) {
+  const m = /^Bearer (plt_([A-Za-z0-9_-]{6,12})\.[A-Za-z0-9_-]{30,64})$/.exec(header);
+  if (m) {
+    const u = await kvGet(env, 'au:' + m[2]);
+    if (u && !u.rev && ROLE_RANK[u.role] && same(await shaFull(m[1]), u.h)) return { role: u.role, who: u.name, uid: m[2] };
+    return null;
+  }
+  for (const [role, name, who] of [['dev', 'ADMIN_TOKEN', 'root'], ['mod', 'MOD_TOKEN', 'mod compartido']]) {
+    const t = env[name]; if (t && t.length >= 32 && same(await shaFull(header), await shaFull('Bearer ' + t))) return { role, who, uid: '' };
+  }
+  return null;
+}
+/* Registro de auditoría: al/<hora>-<azar> con el evento en los metadatos de KV (se lista sin leer cada uno). Guarda quién, qué y sobre qué id: nunca tokens ni el contenido. 90 días. */
+async function audit(env, req, act, d, who) {
+  const w = who || WHO.get(req) || { role: '', who: '?', uid: '' };
+  const t = Date.now(), ip = (await ipKey(req, env, 'au')).slice(3, 11);
+  try { await env.WAITLIST.put('al:' + String(t).padStart(13, '0') + '-' + rndB64(3), '1', { expirationTtl: AUDIT_TTL, metadata: { t, who: w.who, uid: w.uid, role: w.role, act, d: String(d || '').slice(0, 120), ip } }); } catch (e) { /* el registro nunca debe tumbar la acción */ }
+}
+const AUDITED = /^(GET \/(review\/get|nazca\/get|waitlist\/export)|POST \/(review\/(mark|delete)|nazca\/delete|admin\/invite))$/;
+async function adminAuth(req, env, h, need) { // → { res } si no pasa, o { role, who, uid } si pasa
+  need = need || 'dev';
+  if (INTERNAL.has(req)) return Object.assign({ role: 'dev' }, WHO.get(req) || {});
+  const o = req.headers.get('Origin'); if (o && !h['Access-Control-Allow-Origin']) return { res: json({ ok: false, error: 'origin' }, 403, h) }; // solo desde el panel privado
+  const key = await ipKey(req, env, 'af');
+  if ((await gate(env, key, { op: 'peek' })).n >= AUTH_MAX) return { res: json({ ok: false, error: 'rate' }, 429, Object.assign({}, h, { 'Retry-After': String(AUTH_WIN) })) };
+  const auth = req.headers.get('Authorization') || '';
+  let me = null; const m = /^Bearer ([A-Za-z0-9_-]{40,64})$/.exec(auth);
+  if (m) {
+    const s = (await gate(env, 'as:' + (await shaFull(m[1])), { op: 'get' })).val;
+    if (s && ROLE_RANK[s.role]) { const u = s.uid ? await kvGet(env, 'au:' + s.uid) : true; if (u && !u.rev) me = { role: s.role, who: s.who || '?', uid: s.uid || '' }; } // una persona revocada pierde su sesión al instante
+  }
+  if (!me && env.ADMIN_LEGACY === '1') { const r = await identify(env, auth); if (r && r.role === 'dev') me = r; }
+  if (me && ROLE_RANK[me.role] >= ROLE_RANK[need]) {
+    WHO.set(req, me);
+    const u = new URL(req.url); if (AUDITED.test(req.method + ' ' + u.pathname)) await audit(env, req, (req.method === 'GET' ? 'ver ' : '') + u.pathname.slice(1), u.searchParams.get('id') || u.searchParams.get('do') || '', me);
+    return me;
+  }
+  if (me) return { res: json({ ok: false, error: 'role' }, 403, h) }; // sesión válida, pero con un rol que no alcanza
+  await hit(env, key, AUTH_MAX, AUTH_WIN);
+  return { res: json({ ok: false, error: 'auth' }, 401, h) };
+}
+async function adminGate(req, env, h, need) { const a = await adminAuth(req, env, h, need); return a.res || null; } // devuelve null si pasa; si no, la respuesta 401, 403 o 429
+async function adminSession(req, env, h) { // POST /admin/session con Authorization: Bearer <token personal | ADMIN_TOKEN | MOD_TOKEN> → { session, role, name, exp }
+  const o = req.headers.get('Origin'); if (o && !h['Access-Control-Allow-Origin']) return json({ ok: false, error: 'origin' }, 403, h);
   const key = await ipKey(req, env, 'af');
   if ((await gate(env, key, { op: 'peek' })).n >= AUTH_MAX) return json({ ok: false, error: 'rate' }, 429, Object.assign({}, h, { 'Retry-After': String(AUTH_WIN) }));
-  const ok = !!env.ADMIN_TOKEN && env.ADMIN_TOKEN.length >= 32 && same(await shaFull(req.headers.get('Authorization') || ''), await shaFull('Bearer ' + env.ADMIN_TOKEN));
-  if (ok) return null;
-  await hit(env, key, AUTH_MAX, AUTH_WIN);
-  return json({ ok: false, error: 'auth' }, 401, h);
+  const hdr = req.headers.get('Authorization') || '', me = await identify(env, hdr);
+  if (!me) {
+    await hit(env, key, AUTH_MAX, AUTH_WIN);
+    const pm = /^Bearer plt_([A-Za-z0-9_-]{6,12})\./.exec(hdr);
+    if (!(await hit(env, 'au:fail:' + Math.floor(Date.now() / 86400000), 60, 2 * 86400))) await audit(env, req, 'entrada fallida', pm ? 'usuario ' + pm[1] : 'token no reconocido', { role: '', who: '—', uid: '' }); // con tope diario: nadie puede llenar el registro
+    return json({ ok: false, error: 'auth' }, 401, h);
+  }
+  const token = rndB64(32), now = Date.now();
+  await gate(env, 'as:' + (await shaFull(token)), { op: 'set', val: { role: me.role, who: me.who, uid: me.uid, t: now }, ttl: ADMIN_SESSION });
+  if (me.uid) { const u = await kvGet(env, 'au:' + me.uid); if (u) { u.last = now; await kvPut(env, 'au:' + me.uid, u); } }
+  await audit(env, req, 'entrada', '', me);
+  return json({ ok: true, session: token, role: me.role, name: me.who, exp: now + ADMIN_SESSION * 1000 }, 200, h);
+}
+async function adminLogout(req, env, h) { // revoca la sesión en el servidor (además de olvidarla en el panel)
+  const m = /^Bearer ([A-Za-z0-9_-]{40,64})$/.exec(req.headers.get('Authorization') || '');
+  if (m) { const k = 'as:' + (await shaFull(m[1])), s = (await gate(env, k, { op: 'get' })).val; if (s) { await audit(env, req, 'salida', '', { role: s.role, who: s.who, uid: s.uid }); await gate(env, k, { op: 'del' }); } }
+  return json({ ok: true }, 200, h);
+}
+/* Equipo: cada persona con su token. El token se muestra UNA vez al crearlo; el servidor solo guarda su hash. */
+async function usersList(req, env, h) {
+  { const g = await adminGate(req, env, h, 'dev'); if (g) return g; }
+  const out = []; let cursor;
+  do { const r = await env.WAITLIST.list({ prefix: 'au:', cursor }); for (const k of r.keys) { const u = await kvGet(env, k.name); if (u) out.push({ id: k.name.slice(3), name: u.name, role: u.role, c: u.c, by: u.by, last: u.last || 0, rev: u.rev || 0 }); } cursor = r.list_complete ? undefined : r.cursor; } while (cursor);
+  out.sort((a, b) => a.c - b.c);
+  return json({ ok: true, items: out }, 200, h);
+}
+async function usersCreate(req, env, h) {
+  const a = await adminAuth(req, env, h, 'dev'); if (a.res) return a.res;
+  const { b, err } = await readBody(req, 2000); if (err) return json({ ok: false, error: 'json' }, err, h);
+  const name = String(b.name || '').replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, 40), role = b.role;
+  if (!name || !ROLE_RANK[role]) return json({ ok: false, error: 'campos' }, 400, h);
+  let n = 0, cursor; do { const r = await env.WAITLIST.list({ prefix: 'au:', cursor }); n += r.keys.length; cursor = r.list_complete ? undefined : r.cursor; } while (cursor);
+  if (n >= USERS_MAX) return json({ ok: false, error: 'full' }, 429, h);
+  const id = rndB64(6), token = 'plt_' + id + '.' + rndB64(32);
+  await kvPut(env, 'au:' + id, { name, role, h: await shaFull(token), c: Date.now(), by: a.who });
+  await audit(env, req, 'crear persona', name + ' (' + role + ')');
+  return json({ ok: true, id, token }, 200, h);
+}
+async function usersRevoke(req, env, h, url) { // POST /admin/users/revoke?id=…&undo=1
+  const a = await adminAuth(req, env, h, 'dev'); if (a.res) return a.res;
+  const id = url.searchParams.get('id') || '', u = /^[A-Za-z0-9_-]{6,12}$/.test(id) ? await kvGet(env, 'au:' + id) : null;
+  if (!u) return json({ ok: false, error: 'none' }, 404, h);
+  u.rev = url.searchParams.get('undo') === '1' ? 0 : Date.now(); await kvPut(env, 'au:' + id, u);
+  await audit(env, req, u.rev ? 'revocar persona' : 'reactivar persona', u.name);
+  return json({ ok: true }, 200, h);
+}
+async function auditList(req, env, h, url) { // GET /admin/audit?n=200
+  { const g = await adminGate(req, env, h, 'dev'); if (g) return g; }
+  const n = Math.min(500, Math.max(1, Number(url.searchParams.get('n')) || 200)), keys = []; let cursor;
+  do { const r = await env.WAITLIST.list({ prefix: 'al:', cursor }); for (const k of r.keys) keys.push(k); cursor = r.list_complete ? undefined : r.cursor; } while (cursor);
+  const items = keys.slice(-n).reverse().map((k) => k.metadata).filter(Boolean);
+  return json({ ok: true, count: keys.length, items }, 200, h);
 }
 async function reviewList(req, env, h) {
   { const g = await adminGate(req, env, h); if (g) return g; }
@@ -356,12 +461,14 @@ async function postSave(req, env, h) {
     await env.WAITLIST.put('pi:' + id, m[1]); rec.hasImg = true;
   }
   await kvPut(env, 'po:' + id, rec); delete MEMO.posts;
+  await audit(env, req, old ? 'editar artículo' : 'publicar artículo', id + ' · ' + rec.title_es.slice(0, 60));
   return json({ ok: true, id: id }, 200, h);
 }
 async function postDel(req, env, h, url) {
   { const g = await adminGate(req, env, h); if (g) return g; }
   const id = url.searchParams.get('id') || ''; if (!POST_ID.test(id)) return json({ ok: false, error: 'none' }, 404, h);
   await env.WAITLIST.delete('po:' + id); await env.WAITLIST.delete('pi:' + id); delete MEMO.posts;
+  await audit(env, req, 'eliminar artículo', id);
   return json({ ok: true }, 200, h);
 }
 
@@ -385,12 +492,50 @@ async function contentSave(req, env, h) {
   if (!b || !CT_KEY.test(String(b.k || '')) || typeof b.es !== 'string' || typeof b.en !== 'string' || b.es.length > 6000 || b.en.length > 6000) return json({ ok: false, error: 'campos' }, 400, h);
   if (!safeText(b.es) || !safeText(b.en)) return json({ ok: false, error: 'html' }, 400, h); // el sitio también lo limpia al mostrarlo
   await kvPut(env, 'ct:' + b.k, { es: b.es, en: b.en, orig: String(b.orig || '').slice(0, 160), t: Date.now() }); delete MEMO.content;
+  await audit(env, req, 'guardar texto', b.k);
   return json({ ok: true }, 200, h);
 }
 async function contentDel(req, env, h, url) {
   { const g = await adminGate(req, env, h); if (g) return g; }
   const k = url.searchParams.get('k') || ''; if (!CT_KEY.test(k)) return json({ ok: false, error: 'none' }, 404, h);
-  await env.WAITLIST.delete('ct:' + k); delete MEMO.content; return json({ ok: true }, 200, h);
+  await env.WAITLIST.delete('ct:' + k); delete MEMO.content; await audit(env, req, 'volver al texto original', k); return json({ ok: true }, 200, h);
+}
+
+/* ---------- Propuestas del rol mod ----------
+ * Quien entra con MOD_TOKEN puede escribir Novedades y editar textos, pero nada se publica: queda una propuesta (pr:…, 14 días) que un dev ve y aprueba o rechaza.
+ * Al aprobar, el servidor ejecuta la misma ruta de siempre con los mismos controles (HTML seguro, tamaños, campos). Un dev publica directo. */
+const PROP_TTL = 14 * 86400, PROP_MAX = 40, EDIT_KINDS = { 'content': ['POST', '/content'], 'content-del': ['DELETE', '/content'], 'post': ['POST', '/posts'], 'post-del': ['DELETE', '/posts'] };
+async function editRoute(req, env, h, url, kind, handler) {
+  const a = await adminAuth(req, env, h, 'mod'); if (a.res) return a.res;
+  if (a.role === 'dev') return handler(req, env, h, url);
+  const body = req.method === 'DELETE' ? '' : await req.text(); if (body.length > 3000000) return json({ ok: false, error: 'size' }, 413, h);
+  if (body) { try { JSON.parse(body); } catch (e) { return json({ ok: false, error: 'json' }, 400, h); } }
+  let n = 0, cursor; do { const r = await env.WAITLIST.list({ prefix: 'pr:', cursor }); n += r.keys.length; cursor = r.list_complete ? undefined : r.cursor; } while (cursor);
+  if (n >= PROP_MAX) return json({ ok: false, error: 'full' }, 429, h);   // hay demasiadas propuestas sin revisar
+  const id = Date.now().toString(36) + '-' + rndB64(5);
+  await kvPut(env, 'pr:' + id, { t: Date.now(), kind, q: url.search, body, by: a.who }, PROP_TTL);
+  await audit(env, req, 'proponer ' + kind, id);
+  return json({ ok: true, proposed: true, id }, 202, h);
+}
+async function propList(req, env, h) {
+  { const g = await adminGate(req, env, h, 'dev'); if (g) return g; }
+  const out = []; let cursor;
+  do { const r = await env.WAITLIST.list({ prefix: 'pr:', cursor }); for (const k of r.keys) { const v = await kvGet(env, k.name); if (v) { let b = null; try { b = v.body ? JSON.parse(v.body) : null; } catch (e) { /* queda sin vista previa */ } if (b && typeof b.img === 'string' && b.img !== 'remove') b = Object.assign({}, b, { img: 'data:…(imagen)' }); out.push({ id: k.name.slice(3), t: v.t, kind: v.kind, q: v.q, by: v.by || '', b }); } } cursor = r.list_complete ? undefined : r.cursor; } while (cursor);
+  out.sort((x, y) => y.t - x.t);
+  return json({ ok: true, count: out.length, items: out }, 200, h);
+}
+async function propDecide(req, env, h, url) { // POST /admin/proposals/decide?id=…&do=approve|reject
+  const a = await adminAuth(req, env, h, 'dev'); if (a.res) return a.res;
+  const id = url.searchParams.get('id') || '', k = 'pr:' + id, v = /^[A-Za-z0-9_-]{4,40}$/.test(id) ? await kvGet(env, k) : null;
+  if (!v) return json({ ok: false, error: 'none' }, 404, h);
+  if (url.searchParams.get('do') === 'reject') { await env.WAITLIST.delete(k); await audit(env, req, 'rechazar propuesta', v.kind + ' · ' + id + (v.by ? ' · de ' + v.by : '')); return json({ ok: true, rejected: true }, 200, h); }
+  const kind = EDIT_KINDS[v.kind]; if (!kind) { await env.WAITLIST.delete(k); return json({ ok: false, error: 'kind' }, 400, h); }
+  const fake = new Request('https://internal' + kind[1] + (v.q || ''), { method: kind[0], body: kind[0] === 'DELETE' ? undefined : v.body, headers: { 'Content-Type': 'application/json' } });
+  INTERNAL.add(fake); WHO.set(fake, a);
+  const f = { content: contentSave, 'content-del': contentDel, post: postSave, 'post-del': postDel }[v.kind];
+  const r = await f(fake, env, h, new URL(fake.url));
+  if (r.status === 200) { await env.WAITLIST.delete(k); await audit(env, req, 'aprobar propuesta', v.kind + ' · ' + id + (v.by ? ' · de ' + v.by : '')); }
+  return r;
 }
 
 /* ---------- Cuentas y sincronización (E2E: el servidor solo guarda texto cifrado) ---------- */
@@ -403,7 +548,7 @@ async function shaFull(s) {
 const rndB64 = (n) => { const a = new Uint8Array(n); crypto.getRandomValues(a); return btoa(String.fromCharCode.apply(null, a)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
 const rnd6 = () => { const a = new Uint32Array(1); let v; do { crypto.getRandomValues(a); v = a[0]; } while (v >= 4294000000); return String(v % 1000000).padStart(6, '0'); };
 const same = (a, b) => { if (a.length !== b.length) return false; let d = 0; for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i); return d === 0; };
-const emailKey = async (env, email) => (await shaFull((env.RL_SALT || 'plata') + ':u:' + email)).slice(0, 40);
+const emailKey = async (env, email) => (await shaFull(salt(env) + ':u:' + email)).slice(0, 40);
 const kvGet = async (env, k) => { const v = await env.WAITLIST.get(k); try { return v ? JSON.parse(v) : null; } catch (e) { return null; } };
 const kvPut = (env, k, o, ttl) => env.WAITLIST.put(k, JSON.stringify(o), ttl ? { expirationTtl: ttl } : undefined);
 
@@ -462,7 +607,7 @@ async function sendCodeMail(env, email, lang, code, kind, x) {
 }
 
 /* Códigos de 6 dígitos (correo): guardados como hash en el Gate, con intentos contados sin carreras. */
-const codeHash = async (env, tag, ek, code) => shaFull((env.RL_SALT || 'plata') + ':' + tag + ':' + ek + ':' + code);
+const codeHash = async (env, tag, ek, code) => shaFull(salt(env) + ':' + tag + ':' + ek + ':' + code);
 async function codeSet(env, tag, ek, code) { await gate(env, tag + ':' + ek, { op: 'set', val: await codeHash(env, tag, ek, code), ttl: CODE_TTL / 1000 }); }
 async function codeTry(env, tag, ek, code, keep) {
   if (!/^\d{6}$/.test(code)) return false;
@@ -774,13 +919,21 @@ export default {
       if (url.pathname === '/waitlist/export' && req.method === 'GET') return await exportList(req, env, h);
       const p = url.pathname, m = req.method;
       if (p === '/content' && m === 'GET') return await contentList(env, h);
-      if (p === '/content/ping' && m === 'GET') return (await adminGate(req, env, h)) || json({ ok: true }, 200, h);
-      if (p === '/content' && m === 'POST') return await contentSave(req, env, h);
-      if (p === '/content' && m === 'DELETE') return await contentDel(req, env, h, url);
+      if (p === '/content/ping' && m === 'GET') return (await adminGate(req, env, h, 'mod')) || json({ ok: true }, 200, h);
+      if (p === '/admin/session' && m === 'POST') return await adminSession(req, env, h);
+      if (p === '/admin/logout' && m === 'POST') return await adminLogout(req, env, h);
+      if (p === '/admin/users' && m === 'GET') return await usersList(req, env, h);
+      if (p === '/admin/users' && m === 'POST') return await usersCreate(req, env, h);
+      if (p === '/admin/users/revoke' && m === 'POST') return await usersRevoke(req, env, h, url);
+      if (p === '/admin/audit' && m === 'GET') return await auditList(req, env, h, url);
+      if (p === '/admin/proposals' && m === 'GET') return await propList(req, env, h);
+      if (p === '/admin/proposals/decide' && m === 'POST') return await propDecide(req, env, h, url);
+      if (p === '/content' && m === 'POST') return await editRoute(req, env, h, url, 'content', contentSave);
+      if (p === '/content' && m === 'DELETE') return await editRoute(req, env, h, url, 'content-del', contentDel);
       if (p === '/posts' && m === 'GET') return await postsList(env, h);
       if (p === '/posts/img' && m === 'GET') return await postImg(env, url);
-      if (p === '/posts' && m === 'POST') return await postSave(req, env, h);
-      if (p === '/posts' && m === 'DELETE') return await postDel(req, env, h, url);
+      if (p === '/posts' && m === 'POST') return await editRoute(req, env, h, url, 'post', postSave);
+      if (p === '/posts' && m === 'DELETE') return await editRoute(req, env, h, url, 'post-del', postDel);
       if (p === '/nazca' && m === 'POST') return await nazcaPut(req, env, h);
       if (p === '/nazca/list' && m === 'GET') return await nazcaList(req, env, h);
       if (p === '/nazca/get' && m === 'GET') return await nazcaGet(req, env, h, url);

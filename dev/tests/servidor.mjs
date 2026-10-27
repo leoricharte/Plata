@@ -39,14 +39,15 @@ ok((await j('/me', 'GET', null, { Authorization: 'Bearer ' + tok2 })).s === 401,
 ok((await j('/me', 'GET', null, { Authorization: 'Bearer ' + la.j.token })).s === 200, 'la sesión nueva funciona');
 
 // 4) Administración
-const AD = { Authorization: 'Bearer ' + 'a'.repeat(40) };
+const ses = async (tk, ip) => (await j('/admin/session', 'POST', null, { Authorization: 'Bearer ' + tk, Origin: 'https://dev-estudio22.pages.dev', 'X-Test-IP': ip || '5.5.5.5' })).j.session;
+const AD = { Authorization: 'Bearer ' + await ses('a'.repeat(40)) };
 ok((await j('/review/list', 'GET', null, { ...AD, Origin: 'https://plataapp.net' })).s === 403, 'token de admin usado desde plataapp.net → 403');
-ok((await j('/review/list', 'GET', null, { ...AD, Origin: 'https://plata-dev.pages.dev' })).s === 200, 'token de admin desde el panel → 200');
-const AH = { ...AD, Origin: 'https://plata-dev.pages.dev' };
+ok((await j('/review/list', 'GET', null, { ...AD, Origin: 'https://dev-estudio22.pages.dev' })).s === 200, 'token de admin desde el panel → 200');
+const AH = { ...AD, Origin: 'https://dev-estudio22.pages.dev' };
 ok((await j('/content', 'POST', { k: 'abcdef12', es: '<img src=x onerror=alert(1)>', en: 'x' }, AH)).j.error === 'html', 'texto con <img onerror> → rechazado');
 ok((await j('/content', 'POST', { k: 'abcdef12', es: '<a href="javascript:alert(1)">x</a>', en: 'x' }, AH)).j.error === 'html', 'enlace javascript: → rechazado');
 ok((await j('/content', 'POST', { k: 'abcdef12', es: 'Hola <b>mundo</b>, lee <a href="ayuda.html">ayuda</a> o <a href=\'https://x.co\'>esto</a>.<br>', en: 'Hi' }, AH)).s === 200, 'formato permitido → 200');
-for (let i = 0; i < 5; i++) await j('/review/list', 'GET', null, { Authorization: 'Bearer malo', 'X-Test-IP': '7.7.7.7', Origin: 'https://plata-dev.pages.dev' });
+for (let i = 0; i < 5; i++) await j('/review/list', 'GET', null, { Authorization: 'Bearer malo', 'X-Test-IP': '7.7.7.7', Origin: 'https://dev-estudio22.pages.dev' });
 ok((await j('/review/list', 'GET', null, { ...AH, 'X-Test-IP': '7.7.7.7' })).s === 429, 'tras 5 tokens malos desde una IP → bloqueo 429');
 
 // 5) Copias para análisis: no se aceptan conteos fabricados como HTML (se guardan, pero el panel solo usa números) y caducan
