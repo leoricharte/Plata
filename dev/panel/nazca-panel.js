@@ -70,7 +70,7 @@
     if (!isPdf(bytes)) { runCsv(bytes); return; }
     var go = Z.lib ? Promise.resolve(Z.lib) : NazcaPDF.load(new URL('nazca/', location.href).href).then(function (l) { Z.lib = l; return l; });
     go.then(function (lib) { return NazcaPDF.read(bytes, lib, Z.pwd); }).then(function (doc) {
-      Z.doc = doc; q('zpw').hidden = true; say(Z.name + ' · ' + doc.total + (doc.total === 1 ? ' página' : ' páginas') + (doc.truncated ? ' (solo se leyeron las primeras)' : '') + ' · ' + kb(bytes.length));
+      Z.doc = doc; Z.pwd = ''; q('zpwi').value = ''; q('zpw').hidden = true; say(Z.name + ' · ' + doc.total + (doc.total === 1 ? ' página' : ' páginas') + (doc.truncated ? ' (solo se leyeron las primeras)' : '') + ' · ' + kb(bytes.length));
       var r = NazcaBancos.detect(doc), res = null, err = '';
       if (r) { try { res = r.read(doc); } catch (e) { err = String(e && e.message || e); } }
       Z.res = res; drawResult(doc, r, res, err);
