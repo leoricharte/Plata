@@ -354,7 +354,7 @@ async function adminSession(req, env, h) { // POST /admin/session con Authorizat
   await gate(env, 'as:' + (await shaFull(token)), { op: 'set', val: { role: me.role, who: me.who, uid: me.uid, title: me.title || '', t: now }, ttl: ADMIN_SESSION });
   if (me.uid) { const u = await kvGet(env, 'au:' + me.uid); if (u) { u.last = now; await kvPut(env, 'au:' + me.uid, u); } }
   await audit(env, req, 'entrada', '', me);
-  return json({ ok: true, session: token, role: me.role, name: me.who, title: me.title || '', exp: now + ADMIN_SESSION * 1000 }, 200, h);
+  return json({ ok: true, session: token, role: me.role, name: me.who, uid: me.uid || '', title: me.title || '', exp: now + ADMIN_SESSION * 1000 }, 200, h);
 }
 async function adminLogout(req, env, h) { // revoca la sesión en el servidor (además de olvidarla en el panel)
   const m = /^Bearer ([A-Za-z0-9_-]{40,64})$/.exec(req.headers.get('Authorization') || '');
