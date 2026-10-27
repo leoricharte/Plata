@@ -1,0 +1,19 @@
+Historial ¦ History ¦ 履歴 ¦ Cronologia ¦ Historique ¦ Povijest
+Aún no hay cobros de esta suscripción en tus movimientos. ¦ There are no charges for this subscription in your transactions yet. ¦ この定期購読の請求はまだ取引にありません。 ¦ Non ci sono ancora addebiti di questo abbonamento nei tuoi movimenti. ¦ Aucun prélèvement de cet abonnement dans vos opérations pour l'instant. ¦ U tvojim transakcijama još nema naplata ove pretplate.
+Primer cobro en Plata ¦ First charge in Plata ¦ Plata での最初の請求 ¦ Primo addebito in Plata ¦ Premier prélèvement dans Plata ¦ Prva naplata u Plati
+Sin datos ¦ No data ¦ データなし ¦ Nessun dato ¦ Pas de données ¦ Nema podataka
+Puede faltar un estado de cuenta ¦ A statement may be missing ¦ 明細が足りない可能性があります ¦ Potrebbe mancare un estratto conto ¦ Il manque peut-être un relevé ¦ Možda nedostaje izvod
+Mes sin cobro ¦ Month without a charge ¦ 請求のない月 ¦ Mese senza addebito ¦ Mois sans prélèvement ¦ Mjesec bez naplate
+Quiebre ¦ Gap ¦ 中断 ¦ Interruzione ¦ Rupture ¦ Prekid
+meses sin cobro ¦ months without a charge ¦ か月間請求なし ¦ mesi senza addebito ¦ mois sans prélèvement ¦ mjeseci bez naplate
+Subió de ¦ Went up from ¦ 値上がり: ¦ Salito da ¦ Hausse de ¦ Poskupilo s
+Bajó de ¦ Went down from ¦ 値下がり: ¦ Sceso da ¦ Baisse de ¦ Pojeftinilo s
+Cambió de cuenta ¦ Changed account ¦ 口座が変わりました ¦ Cambio di conto ¦ Changement de compte ¦ Promijenjen račun
+Cobro fuera de fecha ¦ Charge off schedule ¦ 予定外の日の請求 ¦ Addebito fuori data ¦ Prélèvement hors date ¦ Naplata izvan termina
+Cobró el día ¦ Charged on day ¦ 請求日: ¦ Addebitato il giorno ¦ Prélevé le ¦ Naplaćeno dana
+esperado el ¦ expected on ¦ 予定日: ¦ previsto il ¦ prévu le ¦ očekivano dana
+Último cobro ¦ Last charge ¦ 最後の請求 ¦ Ultimo addebito ¦ Dernier prélèvement ¦ Zadnja naplata
+¿Se canceló? ¦ Was it cancelled? ¦ 解約しましたか？ ¦ È stato cancellato? ¦ A-t-il été annulé ? ¦ Je li otkazano?
+Sin cobros desde ¦ No charges since ¦ 請求なし: ¦ Nessun addebito da ¦ Aucun prélèvement depuis ¦ Bez naplata od
+Cobros ¦ Charges ¦ 請求 ¦ Addebiti ¦ Prélèvements ¦ Naplate
+Quiebres ¦ Gaps ¦ 中断 ¦ Interruzioni ¦ Ruptures ¦ Prekidi
