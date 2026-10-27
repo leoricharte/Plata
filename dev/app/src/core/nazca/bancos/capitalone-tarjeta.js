@@ -67,7 +67,7 @@ const NazcaCapitalOne = (() => {
       if (/^Fees$/i.test(s)) sec = 'fees'; else if (/^(Interest Charged|Transactions|Totals Year-to-Date)$/i.test(s)) sec = '';   /* la tabla «Fees» (cuota de membresía, cargo por atraso) va aparte de las compras */
       const m = ROW.exec(s); if (!m) continue;
       const mo = MES[m[1].toLowerCase()]; if (!mo) continue;
-      const desc = m[5].replace(/\s*AuthDate \d{1,2}-[A-Za-z]{3}$/i, '').replace(/\s+/g, ' ').trim(); if (!desc || !/[A-Za-z]/.test(desc) || /^(previous|new|total|minimum|payments|purchases|fees)/i.test(desc)) continue;
+      const desc = m[5].replace(/\s*AuthDate \d{1,2}-[A-Za-z]{3}$/i, '').replace(/\s+/g, ' ').trim(); if (!desc || !/[A-Za-z]/.test(desc) || /^(previous balance|new balance|total|minimum|payments|purchases|fees)\b/i.test(desc)) continue;
       const v = money(m[6]); if (!v) { out.skipped.zero++; continue; }
       const y = f.y === t.y ? f.y : (mo >= f.m ? f.y : t.y);                              // diciembre → enero: los meses del inicio son del año anterior
       const date = y + '-' + pad(mo) + '-' + pad(+m[2]);

@@ -214,6 +214,11 @@ const sum = (it) => Math.round(it.reduce((s, x) => s + x.amount, 0) * 100) / 100
   const r = B.detect({ pages: es.concat(en) }, 'capitalone').read({ pages: es.concat(en) });
   ok(r.items.length === 8 && r.check.ok === true, 'capital one (es+en): lee solo la copia en inglés, 8 movimientos y cuadra (' + r.items.length + ')');
   ok(B.detect({ pages: es.concat(en) }, 'capitalone').read({ pages: en.concat(es) }).items.length === 8, 'capital one (en+es): también funciona al revés'); }
+// 17c) Capital One: un comercio cuyo nombre empieza con «New…» o «Total…» no se confunde con un título del resumen
+{ const d = await P.read(bytes('capital-one-nuevo.pdf'), lib);
+  const pages = d.pages.map((p) => Object.assign({}, p, { items: p.items.map((i) => (i.str === 'SUPER DEMO 227 NY' ? Object.assign({}, i, { str: 'NEWBURY COMICS 31ALBANYNY' }) : i)) }));
+  const r = B.detect({ pages }, 'capitalone').read({ pages });
+  ok(r.items.length === 8 && r.items.some((x) => x.desc.startsWith('NEWBURY')) && r.check.ok === true, 'capital one: «NEWBURY COMICS» se lee como compra y el estado cuadra (' + r.items.length + ')'); }
 // 17) Capital One con el diseño real de hoy (Quicksilver / Savor): periodo sin título, "Transactions +", "Other Credits", intereses del resumen
 { const d = await P.read(bytes('capital-one-nuevo.pdf'), lib), rd = B.detect(d, 'capitalone'); ok(rd && rd.id === 'capitalone-tarjeta', 'capital one (nuevo): se reconoce');
   const r = rd.read(d); ok(r.period && r.period.from === '2026-06-16' && r.period.to === '2026-07-16' && r.account.last4 === '4242', 'capital one (nuevo): periodo "Jun 16, 2026 - Jul 16, 2026" y últimos 4');
