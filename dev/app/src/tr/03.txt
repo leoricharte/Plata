@@ -224,3 +224,6 @@ Mismo monto, en cuentas distintas y con un día o menos de diferencia. ¦ Same a
 Casi seguras: ¦ Almost certain: ¦ ほぼ確実: ¦ Quasi certi: ¦ Presque sûrs : ¦ Gotovo sigurni:
 Convertir las casi seguras ¦ Convert the almost-certain ones ¦ ほぼ確実なものを変換 ¦ Converti i quasi certi ¦ Convertir les presque sûrs ¦ Pretvori gotovo sigurne
 Tienes {0} sugerencia por revisar ¦ You have {0} {0?suggestion:suggestions} to review ¦ 確認待ちの提案が{0}件あります ¦ Hai {0} {0?suggerimento:suggerimenti} da rivedere ¦ Tu as {0} {0?suggestion:suggestions} à vérifier ¦ Imaš {0} {0?prijedlog:prijedloga} za pregled
+Ajustar recorte ¦ Adjust crop ¦ トリミングを調整 ¦ Regola il ritaglio ¦ Ajuster le recadrage ¦ Podesi izrez
+Arrastra para mover y usa el control para acercar. ¦ Drag to move and use the slider to zoom in. ¦ ドラッグで動かし、スライダーで拡大します。 ¦ Trascina per spostare e usa il cursore per ingrandire. ¦ Fais glisser pour déplacer et utilise le curseur pour zoomer. ¦ Povuci za pomicanje i koristi klizač za povećanje.
+Acercar ¦ Zoom in ¦ 拡大 ¦ Ingrandisci ¦ Zoomer ¦ Povećaj
