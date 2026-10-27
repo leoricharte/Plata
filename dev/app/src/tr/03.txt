@@ -205,3 +205,22 @@ Del banco ¦ From the bank ¦ 銀行から ¦ Dalla banca ¦ De la banque ¦ Iz 
 Lo normal: ¦ Usual: ¦ 通常: ¦ Di solito: ¦ Habituel : ¦ Uobičajeno:
 No cuadra: ¦ Doesn't add up: ¦ 合わない: ¦ Non quadra: ¦ Ne correspond pas : ¦ Ne slaže se:
 Con filas sin leer: ¦ With unread rows: ¦ 読み取れない行あり: ¦ Con righe non lette: ¦ Avec lignes non lues : ¦ S nepročitanim recima:
+Plata que solo cambió de lugar ¦ Money that just moved ¦ 移動しただけのお金 ¦ Soldi solo spostati ¦ Argent simplement déplacé ¦ Novac koji se samo premjestio
+Van o vienen de otra cuenta tuya que no está en Plata. Marcados como transferencia, dejan de contar como gasto o ingreso. ¦ They go to or come from another account of yours that isn't in Plata. Marked as a transfer, they stop counting as expense or income. ¦ Plataにない別のあなたの口座との間のお金です。振替にすると、支出にも収入にも数えません。 ¦ Vanno verso o arrivano da un altro tuo conto che non è in Plata. Segnati come trasferimento, non contano più come spesa o entrata. ¦ Ils vont vers ou viennent d'un autre de tes comptes qui n'est pas dans Plata. Marqués comme virement, ils ne comptent plus comme dépense ni revenu. ¦ Idu na drugi tvoj račun ili dolaze s njega, a nije u Plati. Označeni kao prijenos, više se ne računaju kao trošak ni prihod.
+Marcar como transferencia ¦ Mark as transfer ¦ 振替にする ¦ Segna come trasferimento ¦ Marquer comme virement ¦ Označi kao prijenos
+Movimientos: ¦ Transactions: ¦ 取引: ¦ Movimenti: ¦ Mouvements : ¦ Transakcije:
+Salidas: ¦ Out: ¦ 出金: ¦ Uscite: ¦ Sorties : ¦ Izlazi:
+Entradas: ¦ In: ¦ 入金: ¦ Entrate: ¦ Entrées : ¦ Ulazi:
+Posible estado de cuenta faltante ¦ Possible missing statement ¦ 明細書が不足している可能性 ¦ Possibile estratto conto mancante ¦ Relevé peut-être manquant ¦ Moguće da nedostaje izvadak
+Puede faltar un estado, o la cuenta ya tenía saldo antes del primero que importaste. ¦ A statement may be missing, or the account already had a balance before the first one you imported. ¦ 明細書が足りないか、最初に取り込む前から口座に残高があった可能性があります。 ¦ Potrebbe mancare un estratto conto, oppure il conto aveva già un saldo prima del primo importato. ¦ Il peut manquer un relevé, ou le compte avait déjà un solde avant le premier importé. ¦ Možda nedostaje izvadak ili je račun već imao stanje prije prvog uvezenog.
+Meses sin movimientos: ¦ Months without activity: ¦ 取引のない月: ¦ Mesi senza movimenti: ¦ Mois sans mouvement : ¦ Mjeseci bez prometa:
+Diferencia de saldo: ¦ Balance difference: ¦ 残高の差: ¦ Differenza di saldo: ¦ Écart de solde : ¦ Razlika u stanju:
+Importar un estado ¦ Import a statement ¦ 明細書を取り込む ¦ Importa un estratto conto ¦ Importer un relevé ¦ Uvezi izvadak
+· revisa las fechas ¦ · check the dates ¦ · 日付を確認 ¦ · controlla le date ¦ · vérifie les dates ¦ · provjeri datume
+Hecho ¦ Done ¦ 完了 ¦ Fatto ¦ Fait ¦ Gotovo
+Deshecho ¦ Undone ¦ 元に戻しました ¦ Annullato ¦ Annulé ¦ Poništeno
+Transferencias casi seguras ¦ Almost-certain transfers ¦ ほぼ確実な振替 ¦ Trasferimenti quasi certi ¦ Virements presque sûrs ¦ Gotovo sigurni prijenosi
+Mismo monto, en cuentas distintas y con un día o menos de diferencia. ¦ Same amount, in different accounts and one day apart or less. ¦ 金額が同じで、別の口座にあり、日付の差が1日以内です。 ¦ Stesso importo, in conti diversi e a non più di un giorno di distanza. ¦ Même montant, dans des comptes différents et à un jour d'écart ou moins. ¦ Isti iznos, na različitim računima i s razlikom od najviše jednog dana.
+Casi seguras: ¦ Almost certain: ¦ ほぼ確実: ¦ Quasi certi: ¦ Presque sûrs : ¦ Gotovo sigurni:
+Convertir las casi seguras ¦ Convert the almost-certain ones ¦ ほぼ確実なものを変換 ¦ Converti i quasi certi ¦ Convertir les presque sûrs ¦ Pretvori gotovo sigurne
+Tienes {0} sugerencia por revisar ¦ You have {0} {0?suggestion:suggestions} to review ¦ 確認待ちの提案が{0}件あります ¦ Hai {0} {0?suggerimento:suggerimenti} da rivedere ¦ Tu as {0} {0?suggestion:suggestions} à vérifier ¦ Imaš {0} {0?prijedlog:prijedloga} za pregled
