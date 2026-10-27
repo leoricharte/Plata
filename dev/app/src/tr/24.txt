@@ -17,3 +17,5 @@ esperado el ¦ expected on ¦ 予定日: ¦ previsto il ¦ prévu le ¦ očekiva
 Sin cobros desde ¦ No charges since ¦ 請求なし: ¦ Nessun addebito da ¦ Aucun prélèvement depuis ¦ Bez naplata od
 Cobros ¦ Charges ¦ 請求 ¦ Addebiti ¦ Prélèvements ¦ Naplate
 Quiebres ¦ Gaps ¦ 中断 ¦ Interruzioni ¦ Ruptures ¦ Prekidi
+Un archivo ya estaba cargado ¦ One file was already loaded ¦ 1つのファイルはすでに読み込み済みです ¦ Un file era già stato caricato ¦ Un fichier était déjà chargé ¦ Jedna datoteka već je učitana
+{0} archivos ya estaban cargados ¦ {0} files were already loaded ¦ {0}個のファイルはすでに読み込み済みです ¦ {0} file erano già stati caricati ¦ {0} fichiers étaient déjà chargés ¦ {0} datoteke već su učitane
