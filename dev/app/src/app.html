@@ -270,7 +270,7 @@ html[data-theme=dark] .gdot{border:0;width:12px;height:12px}
 .rvall{display:flex;align-items:center;gap:6px;border:0;background:none;color:var(--accent);font:inherit;font-size:14.5px;font-weight:600;padding:2px 4px 16px;cursor:pointer}
 .rvcar{display:flex;align-items:stretch;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 -16px;padding:0 16px 4px;-webkit-overflow-scrolling:touch}.rvcar::-webkit-scrollbar{display:none}.rvcar .rvcard{flex:0 0 88%;min-width:0;max-width:88%;overflow:hidden;scroll-snap-align:center;margin:0;box-sizing:border-box}.rvcar .rvcard:only-child{flex-basis:100%;max-width:100%}
 .rvcar .rvcard,.scard.rvcard{padding:24px 18px 16px;display:flex;flex-direction:column}.rvcard .rvbt{margin-top:auto;padding-top:14px}.rvrows{margin-top:10px;min-width:0}.rvcard .rvmeta{margin:8px 0 0;line-height:1.45}.rvt{font-size:17px;font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap}.rvs{font-size:14px;color:var(--sec);margin:4px 0 0}.rvmeta{font-size:13px;color:var(--sec);margin:4px 0 2px}.rvmore{font-size:12.5px;color:var(--mute);padding:6px 0 0}
-.rvbd{font-size:11.5px;font-weight:700;border-radius:999px;padding:2px 8px}.rvbd.g{background:rgba(34,181,115,.14);color:var(--gt,#1A9D63)}.rvbd.a{background:rgba(229,161,0,.16);color:#B07F00}
+.rvbd{font-size:11.5px;font-weight:700;border-radius:999px;padding:2px 8px}.rvbd.g{background:rgba(34,181,115,.14);color:var(--gt,#1A9D63)}.rvlogo{width:26px;height:26px;border-radius:8px;display:inline-grid;place-items:center;flex:none;overflow:hidden}.rvbd.n{background:var(--fill);color:var(--sec)}.rvbd.a{background:rgba(229,161,0,.16);color:#B07F00}
 .rvwhy{margin:4px 0 0}.rvwhy summary{list-style:none;cursor:pointer}.rvsum{display:flex;align-items:center;gap:6px;font-size:15px;font-weight:600;color:var(--sec);padding:10px 0}.rvsum>svg:last-child{margin-left:-2px;transition:transform .2s}.rvwhy[open]>.rvsum>svg:last-child{transform:rotate(180deg)}.rvmoreD{margin-top:0}.rvwhy summary::-webkit-details-marker{display:none}.rvwhy p{font-size:13px;color:var(--sec);margin:0 0 4px;line-height:1.4}
 .rvbt{display:flex;gap:8px;margin-top:8px}.rvbt .primary{margin:0;flex:1;padding:13px 14px;font-size:15.5px}.rvbt .linkrow{width:auto;padding:13px 14px}
 .rvdots{display:flex;justify-content:center;gap:7px;padding:14px 0 8px}.rvdots i{width:7px;height:7px;border-radius:50%;background:var(--mute);opacity:.35;transition:opacity .2s}.rvdots i.on{opacity:1;background:var(--ink)}.rvcnt{font-size:13px;color:var(--mute);font-weight:600}
@@ -4508,7 +4508,7 @@ document.addEventListener('change', (e) => { const el = e.target; if (el && el.m
 })();
 const APP_VERSION = 'Beta 3';
 const WSOC = '<div class="wsoc"><span class="wver">' + APP_VERSION + '</span><a href="https://instagram.com/plataapp" target="_blank" rel="noopener" data-notr>' + RMI('instagram-line', 20, 'currentColor') + 'plataapp</a><a href="https://plataapp.net" target="_blank" rel="noopener" data-notr>' + RMI('link', 20, 'currentColor') + 'plataapp.net</a></div>';
-const APP_BUILD = 456;
+const APP_BUILD = 457;
 const ALPHA_TESTERS = ['Rodrigo Espinoza', 'Mariana Richarte', 'Jeny Surichaqui', 'Carlos Flores'];
 const BETA_TESTERS = ['Bastián Guajardo', 'Sara Rondón']; // los testers de la beta se añaden aquí
 const E22_LOGO = 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 1900.3 316.3%27%3E%3Cg fill=%27%233C3C43%27 fill-opacity=%27.6%27%3E%3Cpath d=%27M0,311.8V4.1h205.9v52.2H63v74.3h132.2v51.4H63v77.4h143.3v52.2H0Z%27/%3E%3Cpath d=%27M315.1,316.3c-24.6,0-46.1-3.8-64.3-11.4-18.2-7.6-32.5-18.8-42.6-33.7-10.2-14.9-15.6-33.2-16.1-54.9h61.3c.8,10.3,3.9,19,9.3,25.9,5.4,7,12.5,12.2,21.5,15.6,8.9,3.4,19.1,5.2,30.4,5.2s21.1-1.6,29.4-4.9c8.3-3.2,14.8-7.8,19.5-13.7,4.7-5.9,7-12.8,7-20.6s-2.1-12.9-6.3-17.7c-4.2-4.7-10.2-8.8-18.1-12.3-7.8-3.4-17.4-6.5-28.7-9.1l-33.9-8.5c-26-6.3-46.4-16.3-61.1-29.8-14.7-13.6-22.1-31.5-22.1-53.8s5-34.8,15-48.7c10-13.9,23.7-24.7,41.1-32.4,17.4-7.7,37.3-11.6,59.6-11.6s42.5,3.9,59.5,11.7c16.9,7.8,30.1,18.6,39.6,32.4,9.5,13.8,14.4,29.8,14.7,47.8h-60.9c-1.1-12.4-6.4-22-15.8-28.7-9.4-6.7-22-10.1-37.7-10.1s-19.7,1.5-27.3,4.5c-7.6,3-13.3,7.2-17.2,12.6-3.9,5.4-5.9,11.5-5.9,18.4s2.3,13.9,6.8,18.9c4.5,5,10.6,9.1,18.2,12.2,7.6,3.1,15.6,5.7,24.2,7.7l27.9,6.8c12.9,2.9,25,6.8,36.1,11.8,11.2,5,20.9,11,29.3,18.3,8.4,7.2,14.9,15.8,19.5,25.7,4.6,9.9,6.9,21.3,6.9,34.3,0,18.6-4.7,34.8-14,48.6-9.4,13.8-22.9,24.5-40.7,32.1-17.8,7.6-39.1,11.4-64,11.4Z%27/%3E%3Cpath d=%27M409.2,56.4V4.1h251.3v52.2h-94v255.4h-63.2V56.4h-94.2Z%27/%3E%3Cpath d=%27M776.1,316.1c-25.3,0-47.5-4.7-66.6-14.1-19.1-9.4-33.9-22.5-44.4-39.3-10.5-16.8-15.8-36.4-15.8-58.8V4.1h63v194.5c0,12,2.6,22.6,8,31.9,5.3,9.3,12.7,16.6,22.3,21.9,9.6,5.3,20.8,7.9,33.6,7.9s24.2-2.6,33.8-7.9c9.6-5.3,17-12.6,22.3-21.9,5.3-9.3,8-19.9,8-31.9V4.1h63.2v199.7c0,22.4-5.3,42.1-15.9,58.8-10.6,16.8-25.4,29.9-44.5,39.3-19.1,9.4-41.3,14.1-66.8,14.1Z%27/%3E%3Cpath d=%27M967.2,4.1v307.7h-63V4.1h63ZM1012.4,311.8h-79.7v-54.3h76.6c19.8,0,36.4-3.5,49.9-10.5,13.4-7,23.5-17.9,30.3-32.6,6.7-14.7,10.1-33.6,10.1-56.6s-3.4-41.6-10.2-56.3c-6.8-14.7-16.9-25.5-30.1-32.5-13.3-7-29.8-10.5-49.5-10.5h-78.5V4.1h82.2c30.8,0,57.4,6.2,79.6,18.5,22.2,12.3,39.3,29.9,51.3,52.9s18,50.4,18,82.3-6,59.6-18,82.6c-12,23-29.2,40.6-51.5,53-22.4,12.3-49.2,18.5-80.4,18.5Z%27/%3E%3Cpath d=%27M1218.1,4.1v307.7h-63V4.1h63Z%27/%3E%3Cpath d=%27M1354.3,315.9c-27.1,0-51.5-6.2-73.2-18.6-21.7-12.4-38.8-30.4-51.4-53.9s-18.9-52-18.9-85.3,6.3-62,18.9-85.6c12.6-23.6,29.7-41.6,51.4-54,21.7-12.4,46.1-18.6,73.2-18.6s51.7,6.2,73.3,18.6c21.6,12.4,38.7,30.4,51.3,54,12.6,23.6,18.9,52.1,18.9,85.6s-6.3,61.7-18.9,85.3-29.7,41.5-51.3,53.9c-21.6,12.4-46,18.6-73.3,18.6ZM1354.3,260c16,0,29.9-3.9,41.8-11.7,11.9-7.8,21.2-19.3,27.8-34.5,6.6-15.2,9.9-33.8,9.9-55.6s-3.3-40.8-9.9-56.1c-6.6-15.2-15.9-26.7-27.8-34.5-11.9-7.8-25.8-11.7-41.8-11.7s-29.7,3.9-41.7,11.8c-12,7.8-21.3,19.4-27.9,34.6-6.6,15.2-9.9,33.8-9.9,55.9s3.3,40.4,9.9,55.5c6.6,15.1,15.9,26.6,27.9,34.5,12,7.8,25.9,11.8,41.7,11.8Z%27/%3E%3Cpath d=%27M1533.9,311.8v-45.4l109-102.2c9.4-9.1,17.2-17.3,23.6-24.7,6.4-7.4,11.3-14.6,14.7-21.7,3.4-7.1,5.1-14.8,5.1-23s-2.1-17.1-6.2-23.7c-4.1-6.6-9.8-11.7-16.9-15.3-7.2-3.6-15.4-5.4-24.6-5.4s-17.8,1.9-25,5.8c-7.2,3.9-12.7,9.4-16.5,16.5-3.9,7.2-5.8,15.8-5.8,25.8h-60.3c0-20,4.6-37.3,13.7-52.1,9.2-14.8,21.9-26.2,38.1-34.3,16.2-8.1,35-12.1,56.2-12.1s40.7,3.9,57,11.7c16.2,7.8,28.9,18.5,37.9,32.1,9,13.6,13.5,29.3,13.5,47.1s-2.2,22.7-6.7,33.9c-4.5,11.2-12.5,23.6-24,37.5-11.5,13.8-27.8,30.4-48.8,49.7l-46.5,45.8v2.3h130.1v51.8h-217.6Z%27/%3E%3Cpath d=%27M1755.5,207.4v-30.2l72.5-68c6.2-6,11.5-11.5,15.7-16.4,4.3-4.9,7.5-9.7,9.7-14.4,2.2-4.7,3.4-9.8,3.4-15.3s-1.4-11.4-4.1-15.8c-2.7-4.4-6.5-7.8-11.3-10.2-4.8-2.4-10.2-3.6-16.3-3.6s-11.9,1.3-16.6,3.8c-4.8,2.6-8.4,6.2-11,11-2.6,4.8-3.8,10.5-3.8,17.2h-40.1c0-13.3,3-24.8,9.1-34.7,6.1-9.8,14.5-17.4,25.3-22.8,10.8-5.4,23.3-8,37.4-8s27.1,2.6,37.9,7.8c10.8,5.2,19.2,12.3,25.2,21.4,6,9.1,9,19.5,9,31.3s-1.5,15.1-4.5,22.5c-3,7.4-8.3,15.7-15.9,24.9-7.6,9.2-18.5,20.2-32.5,33l-30.9,30.5v1.5h86.5v34.5h-144.7Z%27/%3E%3C/g%3E%3C/svg%3E';
@@ -4965,6 +4965,9 @@ const RV_TXT = {
   dup: ['Posible movimiento repetido', 'Uno lo anotaste a mano y el otro vino del banco, con el mismo monto y casi el mismo día. Borra el que anotaste a mano.', 'Borrar el anotado a mano'],
   big: ['Monto muy alto para su categoría', 'Es mucho más que lo habitual en esta categoría. ¿Lo escribiste bien?', 'Editar'],
   own: ['Plata que solo cambió de lugar', 'Van o vienen de otra cuenta tuya que no está en Plata. Marcados como transferencia, dejan de contar como gasto o ingreso.', 'Marcar como transferencia'],
+  rec_job: ['Posible trabajo', 'Llega de la misma fuente, con ritmo regular y monto parecido. Como trabajo, Plata prevé tu próximo pago.', 'Crear trabajo'],
+  rec_sub: ['Posible suscripción', 'Se cobra con el mismo ritmo y monto, sumando todas tus cuentas. Como suscripción, Plata la prevé cada mes.', 'Crear suscripción'],
+  rec_fix: ['Posible gasto fijo', 'Se repite con ritmo regular. Como gasto fijo, Plata lo prevé cada vez.', 'Crear gasto fijo'],
   gap: ['Posible estado de cuenta faltante', 'Puede faltar un estado, o la cuenta ya tenía saldo antes del primero que importaste.', 'Importar un estado']
 };
 const RV_OWN = [
@@ -5025,6 +5028,8 @@ function revScan() {
     const rep = T.some((x) => x !== t && x.category === t.category && Math.abs(Math.abs(x.amount) - Math.abs(t.amount)) <= Math.abs(t.amount) * 0.02);   /* un monto que se repite (alquiler, cuota) no es un error de tipeo */
     if (med > 0 && !rep && Math.abs(t.amount) >= med * 10) { const c = mk('big', [t], 9000, { med: med }); if (c) res.push(c); }
   });
+  /* trabajos, suscripciones y gastos que se repiten */
+  recFind(T, used).forEach((c) => { if (!skip.has(c.k)) res.push(c); });
   /* estados que faltan: meses sin movimientos entre otros con datos, o el saldo no coincide con la suma de lo importado (solo cuentas hechas de importaciones) */
   data.accounts.forEach((a) => {
     const tx = T.filter((x) => x.acc === a.id); if (tx.length < 20 || !tx.every((x) => x.imp)) return;
@@ -5040,13 +5045,58 @@ function revScan() {
   rvCache = { d: ui.dirty, n: T.length, o: (data.settings.rv_off || []).length, res: res };
   return res;
 }
+/* ---------- Recurrentes: mismo comercio, ritmo regular y monto estable, sumando todas las cuentas ---------- */
+const REC_STOP = new Set(['pos', 'purchase', 'debit', 'card', 'visa', 'checkcard', 'compra', 'pago', 'payment', 'recurring', 'www', 'com', 'inc', 'llc', 'des', 'the', 'ach', 'web', 'online', 'pmt', 'sq', 'tst', 'mktp']);
+const REC_NAME = { openai: 'ChatGPT', 'twitter-x': 'X', copilot: 'GitHub Copilot', applemusic: 'Apple Music', appletv: 'Apple TV', icloud: 'iCloud', youtube: 'YouTube', github: 'GitHub', linkedin: 'LinkedIn', playstation: 'PlayStation', xbox: 'Xbox', switch: 'Nintendo Switch Online', 'cursor-ai': 'Cursor', soundcloud: 'SoundCloud', amazon: 'Amazon Prime', google: 'Google One', microsoft: 'Microsoft 365', meta: 'Meta' };
+const recTitle = (w) => w.map((x) => x.charAt(0).toUpperCase() + x.slice(1)).join(' ');
+const recWords = (t) => bankNorm(t).replace(/\s(id|indn|ppd|ccd|ref|conf)\b.*$/, ' ').replace(/[^a-z ]+/g, ' ').split(/\s+/).filter((w) => w.length >= 2 && !REC_STOP.has(w)).slice(0, 3);
+const recKey = (t) => { const b = subBrand({ name: t }); if (b) return 'b:' + b.i; return recWords(t).join(' '); };
+const recDays = (a, b) => Math.round((pd(b) - pd(a)) / 864e5);
+const recMed = (v) => { const x = v.slice().sort((a, b) => a - b); return x[Math.floor(x.length / 2)]; };
+function recFind(T, used) {
+  const known = new Set(); [].concat(data.subs, data.expected_income, data.expected_expense, data.jobs, data.recurring).forEach((o) => { const k = o && o.name ? recKey(o.name) : ''; if (k) known.add(k); });
+  const G = {}; let ref = '';
+  T.forEach((t) => {
+    if (t.date > ref) ref = t.date;
+    if (used.has(t.id) || isPay(t) || t.pair || t.job || !t.note || (t.amount < 0 && txSub(t))) return;
+    const k = recKey(t.note); if (!k) return;
+    const g = (t.amount < 0 ? '-' : '+') + k; (G[g] = G[g] || { k: k, neg: t.amount < 0, tx: [] }).tx.push(t);
+  });
+  const out = [];
+  Object.keys(G).forEach((g) => {
+    const o = G[g]; if (known.has(o.k)) return;
+    const seen = {}, L = []; o.tx.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0)).forEach((t) => { if (!seen[t.date]) { seen[t.date] = 1; L.push(t); } });
+    const n = L.length, cur = accOf(L[0].acc).cur; if (n < 2 || L.some((t) => accOf(t.acc).cur !== cur)) return;
+    const gaps = []; for (let i = 1; i < n; i++) gaps.push(recDays(L[i - 1].date, L[i].date));
+    const med = recMed(gaps), cad = med >= 5 && med <= 9 ? 'w' : med >= 12 && med <= 17 ? 'b' : med >= 26 && med <= 35 ? 'm' : ''; if (!cad) return;
+    const win = { w: [5, 9], b: [12, 17], m: [26, 35] }[cad]; if (gaps.filter((x) => x >= win[0] && x <= win[1]).length / gaps.length < 0.75) return;
+    const amts = L.map((t) => Math.abs(t.amount)), m = recMed(amts); if (m < 1) return;
+    const fixed = amts.every((a) => Math.abs(a - m) <= Math.max(0.5, m * 0.05)), loose = amts.every((a) => Math.abs(a - m) <= m * 0.35), brand = o.k.slice(0, 2) === 'b:';
+    if (!fixed && !(loose && cad === 'm')) return;
+    if (n < (cad === 'm' ? (brand && fixed ? 2 : 3) : 4)) return;
+    if (recDays(L[n - 1].date, ref) > med * 1.7 + 3) return;
+    let q = null, cd = cad;
+    if (!o.neg && cad === 'b') {
+      const dy = L.map((t) => +t.date.slice(8, 10)), A = dy.filter((x) => x >= 13 && x <= 17), B = dy.filter((x) => x >= 27 || x <= 2);
+      if (A.length && B.length && A.length + B.length === dy.length) { cd = 'q'; q = [recMed(A), B.every((x) => x >= 27) ? 30 : recMed(B.map((x) => (x <= 2 ? 30 : x)))]; }
+    }
+    const accs = {}; L.forEach((t) => { accs[t.acc] = (accs[t.acc] || 0) + 1; });
+    const acc = Object.keys(accs).sort((a, b) => accs[b] - accs[a])[0], bd = brand ? SUBBRANDS.find((x) => x.i === o.k.slice(2)) : null;
+    const type = !o.neg ? 'job' : brand && cad === 'm' ? 'sub' : 'fix';
+    const name = bd ? (REC_NAME[bd.i] || recTitle(bd.keys[0].split(' '))) : recTitle(o.k.split(' '));
+    out.push({ kind: 'rec', type: type, k: 'rec:' + g, txs: L, name: name, amt: round2(m), fixed: fixed, cad: cd, cur: cur, q: q, acc: acc, brand: bd, neg: o.neg, score: type === 'job' ? 6000 : type === 'sub' ? 6100 : 6200 });
+  });
+  return out;
+}
 const revCount = () => { try { return revScan().length; } catch (e) { return 0; } };
 /* ---------- Revisión, vista nueva: textos cortos y tarjetas por tipo (carrusel por tipo) ---------- */
-const RV_G = [['transf', 'Transferencias', 'arrow-left-right-line', ['xfer', 'own']], ['pago', 'Pagos', 'bank-card-line', ['pay2', 'card']], ['rep', 'Repetidos', 'file-search-line', ['dup']], ['monto', 'Montos', 'error-warning-line', ['big']], ['falta', 'Estados', 'folder-chart-line', ['gap']]];
-const RV_ONE = { xfer: 'Sale de una cuenta y entra en otra.', own: 'Va a una cuenta tuya fuera de Plata.', pay2: 'Es el mismo pago, no lo cuentes doble.', card: 'Coincide con el pago de una tarjeta.', dup: 'Lo anotaste y también vino del banco.', big: 'Mucho más alto de lo normal.', gap: 'Puede faltar un estado.' };
-const RV_BTN = { xfer: 'Es transferencia', own: 'Es transferencia', pay2: 'Juntar como un pago', card: 'Registrar como pago', dup: 'Borrar el mío', big: 'Editar', gap: 'Importar un estado' };
-const RV_TTL = { xfer: 'Transferencia entre tus cuentas', pay2: 'Pago de tarjeta', card: 'Pago de tarjeta', dup: 'Movimiento repetido', big: 'Monto muy alto', gap: 'Estado faltante' };
+const RV_G = [['transf', 'Transferencias', 'arrow-left-right-line', ['xfer', 'own']], ['pago', 'Pagos', 'bank-card-line', ['pay2', 'card']], ['rec', 'Recurrentes', 'repeat-line', ['rec']], ['rep', 'Repetidos', 'file-search-line', ['dup']], ['monto', 'Montos', 'error-warning-line', ['big']], ['falta', 'Estados', 'folder-chart-line', ['gap']]];
+const RV_ONE = { xfer: 'Sale de una cuenta y entra en otra.', own: 'Va a una cuenta tuya fuera de Plata.', pay2: 'Es el mismo pago, no lo cuentes doble.', card: 'Coincide con el pago de una tarjeta.', dup: 'Lo anotaste y también vino del banco.', big: 'Mucho más alto de lo normal.', gap: 'Puede faltar un estado.', rec_job: 'Ingreso que se repite.', rec_sub: 'Cobro que se repite.', rec_fix: 'Gasto que se repite.' };
+const RV_BTN = { xfer: 'Es transferencia', own: 'Es transferencia', pay2: 'Juntar como un pago', card: 'Registrar como pago', dup: 'Borrar el mío', big: 'Editar', gap: 'Importar un estado', rec_job: 'Crear trabajo', rec_sub: 'Crear suscripción', rec_fix: 'Crear gasto fijo' };
+const RV_TTL = { xfer: 'Transferencia entre tus cuentas', pay2: 'Pago de tarjeta', card: 'Pago de tarjeta', dup: 'Movimiento repetido', big: 'Monto muy alto', gap: 'Estado faltante', rec_job: 'Trabajo', rec_sub: 'Suscripción', rec_fix: 'Gasto fijo' };
+const RV_CAD = { w: 'cada semana', b: 'cada 2 semanas', m: 'cada mes', q: 'cada quincena' };
 function rvInner(r) {
+  const rk = r.kind === 'rec' ? 'rec_' + r.type : r.kind;
   const cur = r.txs.length ? accOf(r.txs[0].acc).cur : '', A = (t) => '<span>' + t + '</span> ';
   let rows = '', mid = '';
   if (r.kind === 'xfer') rows = smRow(r.txs[0], 'Sale') + smRow(r.txs[1], 'Entra');
@@ -5056,14 +5106,18 @@ function rvInner(r) {
     const s0 = r.txs.slice().sort((a, b) => (a.date < b.date ? 1 : -1)), s2 = s0.slice(0, 2), ds = r.txs.map((x) => x.date).sort();
     mid = '<div class="rvmeta">' + r.txs.length + ' <span>movimientos</span> · ' + ds[0].slice(0, 7) + ' → ' + ds[ds.length - 1].slice(0, 7) + (r.out != null ? '<br>' + A('Salidas') + fmtC2(r.out, r.cur) + ' · ' + A('Entradas') + fmtC2(r.inn, r.cur) : '') + '</div>';
     rows = s2.map((x) => smRow(x, 'Transferencia')).join('') + (r.txs.length > 2 ? '<details class="rvwhy rvmoreD"><summary class="rvsum"><span>y</span> ' + (r.txs.length - 2) + ' <span>más</span>' + RMI('arrow-down-s-line', 22, 'currentColor') + '</summary>' + s0.slice(2, 12).map((x) => smRow(x, 'Transferencia')).join('') + (r.txs.length > 12 ? '<div class="rvmore">…</div>' : '') + '</details>' : '');
+  } else if (r.kind === 'rec') {
+    const s0 = r.txs.slice().sort((a, b) => (a.date < b.date ? 1 : -1)), lb = r.neg ? 'Cargo' : 'Ingreso';
+    mid = '<div class="rvmeta">' + (r.fixed ? '' : '<span>aprox.</span> ') + fmtC2(r.amt, r.cur) + ' <span>' + RV_CAD[r.cad] + '</span> · ' + r.txs.length + ' <span>veces</span></div>';
+    rows = s0.slice(0, 2).map((x) => smRow(x, lb)).join('') + (s0.length > 2 ? '<details class="rvwhy rvmoreD"><summary class="rvsum"><span>y</span> ' + (s0.length - 2) + ' <span>más</span>' + RMI('arrow-down-s-line', 22, 'currentColor') + '</summary>' + s0.slice(2, 12).map((x) => smRow(x, lb)).join('') + (s0.length > 12 ? '<div class="rvmore">…</div>' : '') + '</details>' : '');
   } else if (r.kind === 'gap') {
     const a = accOf(r.acc);
     mid = '<div class="rvmeta"><b data-notr>' + esc(a.name) + l4(a) + '</b>' + (r.miss.length ? '<br>' + A('Sin movimientos:') + '<span data-notr>' + r.miss.join(' · ') + '</span>' : '') + (r.diff ? '<br>' + A('Diferencia de saldo:') + fmtC2(Math.abs(r.diff), a.cur) : '') + '</div>';
   } else rows = smRow(r.txs[0], r.kind === 'big' ? 'Lo editas tú' : 'Se reemplazará') + (r.kind === 'big' ? '<div class="rvmeta">' + A('Lo normal:') + fmtC2(r.med, cur) + '</div>' : '');
   const badge = r.hi ? '<span class="rvbd g">casi seguro</span>' : r.far ? '<span class="rvbd a">revisa las fechas</span>' : '';
-  return '<div class="rvt">' + (r.kind === 'own' ? '<span data-notr>' + esc(r.label) + '</span>' : RV_TTL[r.kind]) + badge + '</div><div class="rvs">' + RV_ONE[r.kind] + '</div>' + mid + '<div class="rvrows">' + rows + '</div>' +
-    '<details class="rvwhy"><summary class="rvsum">' + RMI('question-line', 20, 'currentColor') + '<span>¿Por qué?</span>' + RMI('arrow-down-s-line', 22, 'currentColor') + '</summary><p>' + RV_TXT[r.kind][1] + '</p></details>' +
-    '<div class="rvbt"><button class="primary" data-act="rv:ok:' + esc(r.k) + '">' + RV_BTN[r.kind] + '</button><button class="linkrow" data-act="rv:no:' + esc(r.k) + '">No es</button></div>';
+  return '<div class="rvt">' + (r.kind === 'rec' ? (r.brand ? '<span class="rvlogo" style="background:' + r.brand.bg + '">' + subSVG(r.brand, 18) + '</span>' : '') + '<span data-notr>' + esc(r.name) + '</span><span class="rvbd n">' + RV_TTL[rk] + '</span>' : r.kind === 'own' ? '<span data-notr>' + esc(r.label) + '</span>' : RV_TTL[r.kind]) + badge + '</div><div class="rvs">' + RV_ONE[rk] + '</div>' + mid + '<div class="rvrows">' + rows + '</div>' +
+    '<details class="rvwhy"><summary class="rvsum">' + RMI('question-line', 20, 'currentColor') + '<span>¿Por qué?</span>' + RMI('arrow-down-s-line', 22, 'currentColor') + '</summary><p>' + RV_TXT[rk][1] + '</p></details>' +
+    '<div class="rvbt"><button class="primary" data-act="rv:ok:' + esc(r.k) + '">' + RV_BTN[rk] + '</button><button class="linkrow" data-act="rv:no:' + esc(r.k) + '">No es</button></div>';
 }
 function rvShell(body) {
   const off = (data.settings.rv_off || []).length;
@@ -5086,9 +5140,10 @@ document.addEventListener('scroll', (e) => { const c = e.target; if (!c || !c.cl
 function revAct(arg) {
   const i = arg.indexOf(':'), op = i < 0 ? arg : arg.slice(0, i), k = i < 0 ? '' : arg.slice(i + 1);
   if (op === 'open') { revUndo = null; showSheet(revHTML()); return; }
-  if (op === 'tab') { ui.rvTab = k; showSheet(revHTML()); return; }
+  if (op === 'tab') { ui.rvTab = k; showSheet(revHTML()); const e = document.querySelector('.rvtab.on'); if (e && e.parentNode) e.parentNode.scrollLeft = e.offsetLeft - (e.parentNode.clientWidth - e.offsetWidth) / 2; return; }
   if (op === 'undo') {
-    if (revUndo) { revUndo.snap.forEach((q) => { q.x.category = q.category; q.x.note = q.note; if (q.pair === undefined) delete q.x.pair; else q.x.pair = q.pair; }); revUndo = null; rvCache = null; ui.dirty++; persist(); renderAll(); toast('Deshecho'); }
+    if (revUndo) { revUndo.snap.forEach((q) => { q.x.category = q.category; q.x.note = q.note; if (q.pair === undefined) delete q.x.pair; else q.x.pair = q.pair; if ('sub' in q) { if (q.sub === undefined) delete q.x.sub; else q.x.sub = q.sub; } if ('job' in q) { if (q.job === undefined) delete q.x.job; else q.x.job = q.job; } });
+      const mk = revUndo.mk; if (mk) { data[mk.coll] = data[mk.coll].filter((x) => x.id !== mk.id); if (mk.coll === 'jobs') syncJobs(); } revUndo = null; rvCache = null; ui.dirty++; persist(); renderAll(); toast('Deshecho'); }
     showSheet(revHTML()); return;
   }
   if (op === 'bn') { data.settings.rv_bn = revCount(); ui.dirty++; persist(); renderAll(); return; }
@@ -5111,6 +5166,25 @@ function revAct(arg) {
     const t = r.txs[0], card = data.cards.find((x) => x.id === r.card), acc = accOf(t.acc); if (!card || data.transactions.indexOf(t) < 0) { showSheet(revHTML()); return; }
     data.transactions.splice(data.transactions.indexOf(t), 1); applyTo(acc, -t.amount);
     registerPay(card, round2(fromUSD(usd(-t.amount, acc.cur), card.cur)), t.date, acc.id, 'Pago de ' + card.name); toast('Pago registrado');
+  }
+  else if (r.kind === 'rec') {
+    const L = r.txs, last = L[L.length - 1].date, id = uid(), sn = () => { revUndo = { snap: L.map((x) => ({ x: x, category: x.category, pair: x.pair, note: x.note, sub: x.sub, job: x.job })), mk: null }; };
+    sn();
+    if (r.type === 'sub') {
+      data.subs.push({ id: id, since: L[0].date, name: r.name, amount: r.amt, cur: r.cur, day: +last.slice(8, 10) || 1, acc: r.acc }); L.forEach((x) => { x.sub = id; });
+      revUndo.mk = { coll: 'subs', id: id }; toast('Suscripción creada');
+    } else if (r.type === 'fix') {
+      const rep = r.cad === 'm' ? 'm' : r.cad === 'w' ? 7 : 14;
+      data.expected_expense.push({ id: id, name: r.name, amount: r.amt, acc: r.acc, date: iso(nextRep(pd(last), rep)), repeat: rep, until: '' });
+      revUndo.mk = { coll: 'expected_expense', id: id }; toast('Gasto fijo creado');
+    } else {
+      const f = r.cad, jq = r.q ? qDays('q' + r.q[0] + ',' + r.q[1]) : null, rate = f === 'm' ? r.amt : f === 'w' ? round2(r.amt * 52 / 12) : round2(r.amt * 2);
+      const jo = { id: id, mode: 's', name: r.name, rate: rate, hours: 0, tax: 0, freq: f, acc: r.acc, start: '', until: '', sim: 0 };
+      if (jq) { jo.q1 = jq[0]; jo.q2 = jq[1]; }
+      jo.start = iso(nextRep(pd(last), jobRep(f, jo)));
+      data.jobs.push(jo); L.forEach((x) => { x.job = id; }); syncJobs();
+      revUndo.mk = { coll: 'jobs', id: id }; toast('Trabajo creado');
+    }
   }
   else if (r.kind === 'big') { const t = r.txs[0]; ui.txId = t.id; ui.confirmId = null; ui.form = null; showSheet(txEditHTML(t)); return; }
   rvCache = null; ui.dirty++; persist(); renderAll(); showSheet(revHTML());
