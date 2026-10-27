@@ -266,6 +266,12 @@ html:not(.web) #plusbtn svg{width:28px;height:28px;fill:var(--ink)!important}
 html[data-theme=dark] .gdot{border:0;width:12px;height:12px}
 .gearbtn:active{transform:scale(1.08)}
 .gearbtn.gearhint{z-index:190;pointer-events:none;animation:gblink .75s ease-in-out 5}
+.tourring{position:absolute;z-index:480;pointer-events:none;border-radius:18px;border:2.5px solid #22B573;animation:tpulse 1.5s ease-out infinite}
+@keyframes tpulse{0%{box-shadow:0 0 0 0 rgba(34,181,115,.55)}100%{box-shadow:0 0 0 15px rgba(34,181,115,0)}}
+.tourtip{position:absolute;z-index:481;width:min(276px,calc(100% - 28px));box-sizing:border-box;background:var(--card);color:var(--ink);border-radius:20px;padding:14px 14px 8px;box-shadow:0 12px 40px rgba(0,0,0,.24),0 0 0 1.5px rgba(34,181,115,.45);font-size:14px;line-height:1.38;animation:tipin .22s ease-out}
+@keyframes tipin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.tourtip b{display:block;font-size:15.5px;margin-bottom:3px}.tourtip .tr{display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:8px}.tourtip button{border:0;background:none;font:inherit;font-weight:600;cursor:pointer;min-height:40px;padding:0 12px;border-radius:12px}.tourtip .tok{background:#22B573;color:#fff}.tourtip .tskip{color:var(--mute);font-weight:500;padding-left:0}
+@media (prefers-reduced-motion:reduce){.tourring{animation:none;box-shadow:0 0 0 6px rgba(34,181,115,.3)}.tourtip{animation:none}}
 @keyframes gblink{0%,100%{opacity:1;transform:scale(1);box-shadow:0 0 0 0 rgba(34,181,115,0)}50%{opacity:.25;transform:scale(1.16);box-shadow:0 0 0 9px rgba(34,181,115,.28)}}
 @media (prefers-reduced-motion:reduce){.gearbtn.gearhint{animation:none!important;box-shadow:0 0 0 6px rgba(34,181,115,.3)}}
 .wgear{display:inline-block;vertical-align:-5px;margin:0 1px;padding:2px 4px;border-radius:8px;background:rgba(60,60,67,.1);line-height:0}
@@ -4482,7 +4488,7 @@ document.addEventListener('change', (e) => { const el = e.target; if (el && el.m
 })();
 const APP_VERSION = 'Beta 3';
 const WSOC = '<div class="wsoc"><span class="wver">' + APP_VERSION + '</span><a href="https://instagram.com/plataapp" target="_blank" rel="noopener" data-notr>' + RMI('instagram-line', 20, 'currentColor') + 'plataapp</a><a href="https://plataapp.net" target="_blank" rel="noopener" data-notr>' + RMI('link', 20, 'currentColor') + 'plataapp.net</a></div>';
-const APP_BUILD = 448;
+const APP_BUILD = 449;
 const ALPHA_TESTERS = ['Rodrigo Espinoza', 'Mariana Richarte', 'Jeny Surichaqui', 'Carlos Flores'];
 const BETA_TESTERS = ['Bastián Guajardo', 'Sara Rondón']; // los testers de la beta se añaden aquí
 const E22_LOGO = 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 1900.3 316.3%27%3E%3Cg fill=%27%233C3C43%27 fill-opacity=%27.6%27%3E%3Cpath d=%27M0,311.8V4.1h205.9v52.2H63v74.3h132.2v51.4H63v77.4h143.3v52.2H0Z%27/%3E%3Cpath d=%27M315.1,316.3c-24.6,0-46.1-3.8-64.3-11.4-18.2-7.6-32.5-18.8-42.6-33.7-10.2-14.9-15.6-33.2-16.1-54.9h61.3c.8,10.3,3.9,19,9.3,25.9,5.4,7,12.5,12.2,21.5,15.6,8.9,3.4,19.1,5.2,30.4,5.2s21.1-1.6,29.4-4.9c8.3-3.2,14.8-7.8,19.5-13.7,4.7-5.9,7-12.8,7-20.6s-2.1-12.9-6.3-17.7c-4.2-4.7-10.2-8.8-18.1-12.3-7.8-3.4-17.4-6.5-28.7-9.1l-33.9-8.5c-26-6.3-46.4-16.3-61.1-29.8-14.7-13.6-22.1-31.5-22.1-53.8s5-34.8,15-48.7c10-13.9,23.7-24.7,41.1-32.4,17.4-7.7,37.3-11.6,59.6-11.6s42.5,3.9,59.5,11.7c16.9,7.8,30.1,18.6,39.6,32.4,9.5,13.8,14.4,29.8,14.7,47.8h-60.9c-1.1-12.4-6.4-22-15.8-28.7-9.4-6.7-22-10.1-37.7-10.1s-19.7,1.5-27.3,4.5c-7.6,3-13.3,7.2-17.2,12.6-3.9,5.4-5.9,11.5-5.9,18.4s2.3,13.9,6.8,18.9c4.5,5,10.6,9.1,18.2,12.2,7.6,3.1,15.6,5.7,24.2,7.7l27.9,6.8c12.9,2.9,25,6.8,36.1,11.8,11.2,5,20.9,11,29.3,18.3,8.4,7.2,14.9,15.8,19.5,25.7,4.6,9.9,6.9,21.3,6.9,34.3,0,18.6-4.7,34.8-14,48.6-9.4,13.8-22.9,24.5-40.7,32.1-17.8,7.6-39.1,11.4-64,11.4Z%27/%3E%3Cpath d=%27M409.2,56.4V4.1h251.3v52.2h-94v255.4h-63.2V56.4h-94.2Z%27/%3E%3Cpath d=%27M776.1,316.1c-25.3,0-47.5-4.7-66.6-14.1-19.1-9.4-33.9-22.5-44.4-39.3-10.5-16.8-15.8-36.4-15.8-58.8V4.1h63v194.5c0,12,2.6,22.6,8,31.9,5.3,9.3,12.7,16.6,22.3,21.9,9.6,5.3,20.8,7.9,33.6,7.9s24.2-2.6,33.8-7.9c9.6-5.3,17-12.6,22.3-21.9,5.3-9.3,8-19.9,8-31.9V4.1h63.2v199.7c0,22.4-5.3,42.1-15.9,58.8-10.6,16.8-25.4,29.9-44.5,39.3-19.1,9.4-41.3,14.1-66.8,14.1Z%27/%3E%3Cpath d=%27M967.2,4.1v307.7h-63V4.1h63ZM1012.4,311.8h-79.7v-54.3h76.6c19.8,0,36.4-3.5,49.9-10.5,13.4-7,23.5-17.9,30.3-32.6,6.7-14.7,10.1-33.6,10.1-56.6s-3.4-41.6-10.2-56.3c-6.8-14.7-16.9-25.5-30.1-32.5-13.3-7-29.8-10.5-49.5-10.5h-78.5V4.1h82.2c30.8,0,57.4,6.2,79.6,18.5,22.2,12.3,39.3,29.9,51.3,52.9s18,50.4,18,82.3-6,59.6-18,82.6c-12,23-29.2,40.6-51.5,53-22.4,12.3-49.2,18.5-80.4,18.5Z%27/%3E%3Cpath d=%27M1218.1,4.1v307.7h-63V4.1h63Z%27/%3E%3Cpath d=%27M1354.3,315.9c-27.1,0-51.5-6.2-73.2-18.6-21.7-12.4-38.8-30.4-51.4-53.9s-18.9-52-18.9-85.3,6.3-62,18.9-85.6c12.6-23.6,29.7-41.6,51.4-54,21.7-12.4,46.1-18.6,73.2-18.6s51.7,6.2,73.3,18.6c21.6,12.4,38.7,30.4,51.3,54,12.6,23.6,18.9,52.1,18.9,85.6s-6.3,61.7-18.9,85.3-29.7,41.5-51.3,53.9c-21.6,12.4-46,18.6-73.3,18.6ZM1354.3,260c16,0,29.9-3.9,41.8-11.7,11.9-7.8,21.2-19.3,27.8-34.5,6.6-15.2,9.9-33.8,9.9-55.6s-3.3-40.8-9.9-56.1c-6.6-15.2-15.9-26.7-27.8-34.5-11.9-7.8-25.8-11.7-41.8-11.7s-29.7,3.9-41.7,11.8c-12,7.8-21.3,19.4-27.9,34.6-6.6,15.2-9.9,33.8-9.9,55.9s3.3,40.4,9.9,55.5c6.6,15.1,15.9,26.6,27.9,34.5,12,7.8,25.9,11.8,41.7,11.8Z%27/%3E%3Cpath d=%27M1533.9,311.8v-45.4l109-102.2c9.4-9.1,17.2-17.3,23.6-24.7,6.4-7.4,11.3-14.6,14.7-21.7,3.4-7.1,5.1-14.8,5.1-23s-2.1-17.1-6.2-23.7c-4.1-6.6-9.8-11.7-16.9-15.3-7.2-3.6-15.4-5.4-24.6-5.4s-17.8,1.9-25,5.8c-7.2,3.9-12.7,9.4-16.5,16.5-3.9,7.2-5.8,15.8-5.8,25.8h-60.3c0-20,4.6-37.3,13.7-52.1,9.2-14.8,21.9-26.2,38.1-34.3,16.2-8.1,35-12.1,56.2-12.1s40.7,3.9,57,11.7c16.2,7.8,28.9,18.5,37.9,32.1,9,13.6,13.5,29.3,13.5,47.1s-2.2,22.7-6.7,33.9c-4.5,11.2-12.5,23.6-24,37.5-11.5,13.8-27.8,30.4-48.8,49.7l-46.5,45.8v2.3h130.1v51.8h-217.6Z%27/%3E%3Cpath d=%27M1755.5,207.4v-30.2l72.5-68c6.2-6,11.5-11.5,15.7-16.4,4.3-4.9,7.5-9.7,9.7-14.4,2.2-4.7,3.4-9.8,3.4-15.3s-1.4-11.4-4.1-15.8c-2.7-4.4-6.5-7.8-11.3-10.2-4.8-2.4-10.2-3.6-16.3-3.6s-11.9,1.3-16.6,3.8c-4.8,2.6-8.4,6.2-11,11-2.6,4.8-3.8,10.5-3.8,17.2h-40.1c0-13.3,3-24.8,9.1-34.7,6.1-9.8,14.5-17.4,25.3-22.8,10.8-5.4,23.3-8,37.4-8s27.1,2.6,37.9,7.8c10.8,5.2,19.2,12.3,25.2,21.4,6,9.1,9,19.5,9,31.3s-1.5,15.1-4.5,22.5c-3,7.4-8.3,15.7-15.9,24.9-7.6,9.2-18.5,20.2-32.5,33l-30.9,30.5v1.5h86.5v34.5h-144.7Z%27/%3E%3C/g%3E%3C/svg%3E';
@@ -4606,7 +4612,8 @@ function profileViewHTML() {
   const GN = { n: 'Neutro', m: 'Masculino', f: 'Femenino' }, lg = LANG_LIST.filter((x) => x[0] === langPref())[0], P = curP(), S = curS();
   return top + (clBeta() ? clCardHTML() : '') + (anRead(data) ? '<div style="margin:0 0 16px">' + anNoteHTML(anRead(data)) + '</div>' : '') + '<div class="scard">' + (st.first ? rv('Nombre', st.first) : '') + (st.last ? rv('Apellido', st.last) : '') + (st.nick ? rv('Apodo', st.nick) : '') + rv('Género', GN[userGender()] || 'Neutro') + '</div>' +
     '<div class="scard">' + rv('Idioma', lg ? lg[1] : 'Automático') + '</div>' + themeCardHTML() +
-    '<div class="scard">' + rv('Moneda principal', P + ' (' + symOf(P).trim() + ')') + (S ? rv('Segunda moneda', S + ' (' + symOf(S).trim() + ')') : '') + '</div>';
+    '<div class="scard">' + rv('Moneda principal', P + ' (' + symOf(P).trim() + ')') + (S ? rv('Segunda moneda', S + ' (' + symOf(S).trim() + ')') : '') + '</div>' +
+    '<div class="scard"><div class="row"><span class="grow" style="font-size:17px">Tutorial</span>' + swHTML(tourOn(), 'tourtog') + '</div></div><div class="sub" style="padding:0 10px 6px;font-size:13px">Muestra una guía breve la primera vez que tocas cada cosa.</div>';
 }
 // recorta al centro, reduce a 256 px y devuelve JPEG en base64
 function readPhoto(file, cb) {
@@ -4724,6 +4731,7 @@ function profileHTML() {
     (scoreOn() ? '<div class="scard"><div class="row"><span class="grow" style="font-size:17px">Mostrar puntuaciones</span>' + swHTML(gradesShown(), 'proftog') + '</div></div><div class="sub" style="padding:0 10px 6px;font-size:13px">Muestra tus puntajes históricos bajo tu foto.</div>' : '') +
     '<div class="scard"><div class="row"><span class="grow" style="font-size:17px">Idioma</span><select class="mini" id="sLang" style="width:auto;padding:0 8px;text-align-last:right">' + LANG_LIST.map((x) => '<option value="' + x[0] + '"' + (langPref() === x[0] ? ' selected' : '') + '>' + x[1] + '</option>').join('') + '</select></div></div>' + themeCardHTML() +
     '<div class="scard"><div class="row"><span class="grow" style="font-size:17px">Hemisferio</span><select class="mini" id="sHemi" style="width:auto;padding:0 8px;text-align-last:right"><option value=""' + (!(data.settings.hemi) ? ' selected' : '') + '>Automático</option><option value="n"' + (data.settings.hemi === 'n' ? ' selected' : '') + '>Norte</option><option value="s"' + (data.settings.hemi === 's' ? ' selected' : '') + '>Sur</option></select></div></div><div class="sub" style="padding:0 10px 6px;font-size:13px">Define la estación de tu aviso mensual.</div>' +
+    '<div class="scard"><div class="row"><span class="grow" style="font-size:17px">Tutorial</span>' + swHTML(tourOn(), 'tourtog') + '</div></div><div class="sub" style="padding:0 10px 6px;font-size:13px">Muestra una guía breve la primera vez que tocas cada cosa.</div>' +
     (isWebView() ? '<div class="scard"><div class="row"><span class="grow" style="font-size:17px">Bentos al deslizar</span><select class="mini" id="sFlow" style="width:auto;padding:0 8px;text-align-last:right"><option value="after"' + (flowMode() === 'after' ? ' selected' : '') + '>Después del Resumen</option><option value="before"' + (flowMode() === 'before' ? ' selected' : '') + '>Antes del Resumen</option><option value="off"' + (flowMode() === 'off' ? ' selected' : '') + '>Desactivado</option></select></div><div class="sub" style="font-size:13px;margin-top:6px">Desliza en el Resumen para ver tus dos primeros Bentos.</div></div>' : '') +
     curSettingsHTML();
 }
@@ -4836,7 +4844,7 @@ function openQMenu(btn) {
   m.addEventListener('animationend', (e) => { if (e.target === m && !m.classList.contains('out')) { m.style.animation = 'none'; m.querySelectorAll('.qi,.qsep').forEach((x) => { x.style.animation = 'none'; x.style.opacity = '1'; }); } });
   m.addEventListener('click', () => setTimeout(closeQMenu, 0));
 }
-document.addEventListener('pointerdown', (e) => { const m = $('#qmenu'); if (m && !m.contains(e.target) && !(e.target.closest && e.target.closest('#plusbtn'))) closeQMenu(); }, true);
+document.addEventListener('pointerdown', (e) => { const m = $('#qmenu'); if (m && !m.contains(e.target) && !(e.target.closest && e.target.closest('#plusbtn, .tourtip'))) closeQMenu(); }, true);
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeQMenu(); });
 function openSettings() { if (ui.tab === 'cuenta' && ui.itemKind === 'settings' && ui.itemId != null) return; ui.confirmId = null; ui.form = null; openItem('settings', 's'); }
 function navSlide(mode) { const e = $('#s-cuenta'); if (!e) return; e.classList.remove('nav-tab', 'nav-push', 'nav-pop'); void e.offsetWidth; e.classList.add('nav-' + mode); e.scrollTop = 0; }
@@ -6444,7 +6452,7 @@ document.addEventListener('click', (e) => {
   else if (a === 'wclclose') wclClose();
   else if (a === 'wclgo') { wclClose(); clAct('open', el); }
   else if (a === 'wclstay') { /* no cerrar */ }
-  else if (a === 'wquick') { wCloseMenu(); wPriv(() => { data = migrate(clone(EMPTY)); ui.dirty = 0; persist(); renderAll(); setTab('resumen'); hideWelcome(); }); }
+  else if (a === 'wquick') { wCloseMenu(); wPriv(() => { data = migrate(clone(EMPTY)); ui.dirty = 0; data.settings.tour = { on: true, seen: {} }; persist(); renderAll(); setTab('resumen'); hideWelcome(); }); }
   else if (a === 'wgear') wGearHint();
   else if (a === 'wpriv') { const fn = ui.wfn; ui.wpriv = false; ui.wfn = null; if (fn) fn(); }
   else if (a === 'wdemo') { wCloseMenu(); ui.w = { demo: true, level: null, step: 0 }; welcomeHTML('next'); }
@@ -6480,6 +6488,7 @@ document.addEventListener('click', (e) => {
   else if (a === 'profile') openProfile();
   else if (a === 'profedit') { ui.profEdit = true; ui.profSkip = 0; refreshProf(); const sc = document.querySelector('#sheet .pscroll'); if (sc) sc.scrollTop = 0; }
   else if (a === 'profview') { ui.profEdit = false; ui.profSkip = 0; refreshProf(); }
+  else if (a === 'tourtog') { const on = !tourOn(); data.settings.tour = { on: on, seen: {} }; persist(); renderAll(); tourTick(); toast(on ? 'Tutorial activado' : 'Tutorial desactivado'); }
   else if (a === 'proftog') { data.settings.showGrades = !gradesShown(); ui.dirty++; persist(); renderAll(); }
   else if (a === 'wclose') window.winClose();
   else if (a === 'itback') { if (ui.itemKind === 'imp') impBack(); else if (ui.itemKind === 'credits' || ui.itemKind === 'transp' || ui.itemKind === 'profile') { ui.itemKind = 'settings'; renderCuenta(); navSlide('pop'); } else itemBackNav(); }
@@ -7250,7 +7259,7 @@ function wFinish(skip) {
   newsMark();
   wSync(); const w = ui.w; if (!w) return; if (skip) wClear(w);
   const fresh = clone(EMPTY), acc = fresh.accounts[0];
-  fresh.settings = Object.assign({}, fresh.settings || {}, w.photo ? { photo: w.photo, photoSrc: w.photoSrc, photoCrop: w.photoCrop } : {}, { first: (w.first || '').trim(), last: (w.last || '').trim(), nick: (w.nick || '').trim(), gender: w.gender || 'n', insights: w.ins !== false, score: w.ins !== false && w.score !== false, currency: w.cur[0], currency2: w.cur[1] || '', customCur: w.custom || '', fx: w.cur[1] ? (w.fx > 0 ? w.fx : fxDefault(w.cur[0], w.cur[1])) : (fresh.settings && fresh.settings.fx) || 3.5 });
+  fresh.settings = Object.assign({}, fresh.settings || {}, w.photo ? { photo: w.photo, photoSrc: w.photoSrc, photoCrop: w.photoCrop } : {}, { first: (w.first || '').trim(), last: (w.last || '').trim(), nick: (w.nick || '').trim(), gender: w.gender || 'n', insights: w.ins !== false, score: w.ins !== false && w.score !== false, currency: w.cur[0], currency2: w.cur[1] || '', customCur: w.custom || '', fx: w.cur[1] ? (w.fx > 0 ? w.fx : fxDefault(w.cur[0], w.cur[1])) : (fresh.settings && fresh.settings.fx) || 3.5, tour: { on: true, seen: {} } });
   acc.name = (w.accName || '').trim() || 'Cuenta principal'; acc.type = w.accType; acc.cur = w.cur.indexOf(w.accCur) >= 0 ? w.accCur : w.cur[0]; acc.balance = round2(parseFloat(String(w.bal).replace(',', '.')) || 0);
   const amt = parseFloat(String(w.incAmt).replace(',', '.'));
   if (w.incKind === 'j') {
@@ -7274,6 +7283,64 @@ function wFinish(skip) {
   if (w.level !== 'simple') { const bd = {}; Object.keys(w.bud || {}).forEach((k) => { const v = wnum(w.bud[k]); if (v > 0) bd[k] = v; }); if (Object.keys(bd).length) fresh.budget = bd; }
   wPriv(() => { data = migrate(fresh); syncJobs(); ui.dirty = 1; persist(); renderAll(); setTab('resumen'); hideWelcome(); toast('¡Todo listo!'); if (w.cloud && clIn()) setTimeout(() => clSync('tour'), 300); if (w.impAfter === '1') setTimeout(() => { try { impOpen(); } catch (e) { /* sin importador */ } }, 650); });
 }
+
+/* ---------- Tutorial de primera vez ----------
+ * Solo se activa para quien termina la bienvenida (no con datos de demostración ni con perfiles que ya existían).
+ * Muestra UN consejo a la vez, una sola vez cada uno, cuando la persona llega a esa parte. Siempre se puede omitir. */
+const tourOn = () => !!(data && data.settings && data.settings.tour && data.settings.tour.on);
+const tourSheetOpen = () => { const sh = document.getElementById('sheet'); return !!(sh && sh.classList.contains('show')); };
+const tourFree = () => !tourSheetOpen() && !document.querySelector('.qmenu') && ui.itemId == null;
+const TOUR = [
+  { id: 'qmenu', auto: 1, sel: '.qmenu', ring: 0, when: () => !!document.querySelector('.qmenu'), t: 'Qué quieres añadir', x: 'Transacción es algo que ya pasó. Lo previsto (alquiler, sueldo, un pago futuro) es lo que alimenta tu proyección.' },
+  { id: 'addtx', auto: 1, sel: '#sheet [data-act="submit"]', when: () => tourSheetOpen() && !!document.querySelector('#sheet [data-act="type:out"]'), t: 'Guarda aquí', x: 'Escribe el monto, elige gasto o ingreso y la categoría, y toca el check verde para guardar.' },
+  { id: 'start', sel: '.tab[data-act="tab:deuda"]', when: () => ui.tab === 'resumen' && tourFree(), t: 'Empieza por Cuentas', x: 'Ahí pones tu saldo real, agregas tarjetas y puedes importar tus estados de cuenta.' },
+  { id: 'plus', sel: '#plusbtn', when: () => ui.tab === 'resumen' && tourFree(), t: 'Añade desde aquí', x: 'Con el + registras un movimiento, algo previsto, una transferencia o tu trabajo.' },
+  { id: 'deuda', auto: 1, opt: 1, sel: '#s-deuda [data-act="imp:start"]', ring: 1, when: () => ui.tab === 'deuda' && tourFree(), t: 'Importa en vez de escribir', x: 'Sube el PDF o CSV de tu banco y Plata lee los movimientos en tu dispositivo. Nada sale de aquí.' },
+  { id: 'presu', auto: 1, sel: '', when: () => ui.tab === 'presupuesto' && tourFree(), t: 'Presupuesto', x: 'Pon un tope por categoría y mira cuánto llevas gastado este mes.' },
+  { id: 'proy', auto: 1, sel: '', when: () => ui.tab === 'proyeccion' && tourFree(), t: 'Proyección', x: 'Con lo que tienes previsto, aquí ves cómo irá tu saldo en las próximas semanas.' },
+  { id: 'gear', sel: '#gearbtn', when: () => ui.tab === 'resumen' && tourFree() && !!(data.settings.tour.seen.plus), t: 'Ajustes', x: 'Perfil, idioma, tema y respaldo de tus datos. Aquí también puedes repetir este tutorial.' }
+];
+let tourCur = '', tourSig = '';
+function tourClear() { document.querySelectorAll('.tourring,.tourtip').forEach((n) => n.remove()); tourCur = ''; tourSig = ''; }
+function tourSeen(id) { if (!tourOn()) return; data.settings.tour.seen[id] = 1; persist(); tourClear(); setTimeout(tourTick, 250); }
+function tourEnd() { if (data && data.settings) { data.settings.tour = { on: false, seen: (data.settings.tour && data.settings.tour.seen) || {} }; persist(); } tourClear(); if (ui.tab === 'cuenta') { try { renderCuenta(); } catch (e) { /* sin ajustes */ } } }
+function tourTick() {
+  const dev = document.getElementById('device'), root = document.documentElement;
+  const blocked = !tourOn() || !dev || data.demo || ui.w || document.getElementById('welcome') || document.getElementById('splash') || document.querySelector('.alertback.in') || document.hidden || /lk90|lk270/.test(root.className);
+  if (blocked) { if (tourCur) tourClear(); return; }
+  const seen = data.settings.tour.seen || {};
+  let tip = null, el = null;
+  for (const c of TOUR) {
+    if ((seen[c.id] && c.id !== tourCur) || !c.when()) continue;
+    if (c.sel) { el = document.querySelector(c.sel); const r = el && el.getBoundingClientRect(); if (!r || r.width < 8 || r.height < 8 || getComputedStyle(el).visibility === 'hidden') { if (c.opt) el = null; else continue; } } else el = null;
+    tip = c; break;
+  }
+  if (!tip) { if (tourCur) tourClear(); return; }
+  const d = dev.getBoundingClientRect(), k = d.width / (dev.offsetWidth || d.width) || 1, W = dev.offsetWidth, H = dev.offsetHeight;
+  const r = el ? el.getBoundingClientRect() : null;
+  const box = r ? { x: (r.left - d.left) / k, y: (r.top - d.top) / k, w: r.width / k, h: r.height / k } : null;
+  const sig = tip.id + '|' + (box ? [box.x, box.y, box.w, box.h].map(Math.round).join(',') : '') + '|' + W + 'x' + H;
+  if (sig === tourSig) return;
+  tourClear(); tourCur = tip.id; tourSig = sig;
+  if (tip.auto && !seen[tip.id]) { seen[tip.id] = 1; persist(); }
+  if (box && tip.ring !== 0) { const g = document.createElement('div'); g.className = 'tourring'; const pad = 3; g.style.cssText = 'left:' + (box.x - pad) + 'px;top:' + (box.y - pad) + 'px;width:' + (box.w + pad * 2) + 'px;height:' + (box.h + pad * 2) + 'px;border-radius:' + Math.min(22, (box.h + pad * 2) / 2 + 4) + 'px'; dev.appendChild(g); }
+  const b = document.createElement('div'); b.className = 'tourtip'; b.setAttribute('role', 'status');
+  b.innerHTML = '<b>' + tip.t + '</b>' + tip.x + '<div class="tr"><button class="tskip" data-tour="skip">Omitir tutorial</button><button class="tok" data-tour="ok">Entendido</button></div>';
+  dev.appendChild(b);
+  const bw = b.offsetWidth, bh = b.offsetHeight;
+  let left, top;
+  if (box) { left = Math.max(14, Math.min(W - bw - 14, box.x + box.w / 2 - bw / 2)); top = box.y + box.h / 2 > H / 2 ? box.y - bh - 16 : box.y + box.h + 16; if (tip.sel === '.qmenu') top = Math.max(70, box.y - bh - 14); }
+  else { left = (W - bw) / 2; top = H - bh - 110; }
+  b.style.left = left + 'px'; b.style.top = Math.max(60, Math.min(H - bh - 12, top)) + 'px';
+}
+document.addEventListener('click', (e) => {
+  const t = e.target.closest && e.target.closest('[data-tour]');
+  if (t) { e.stopPropagation(); if (t.dataset.tour === 'skip') tourEnd(); else tourSeen(tourCur); return; }
+  if (!tourCur || !tourOn()) return;
+  const c = TOUR.find((x) => x.id === tourCur); if (c && c.sel && c.ring !== 0 && e.target.closest && e.target.closest(c.sel)) tourSeen(c.id);
+  else setTimeout(tourTick, 350);
+}, true);
+setInterval(tourTick, 800);
 
 /* ---------- Arranque ---------- */
 (function () {
