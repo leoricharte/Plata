@@ -1,0 +1,17 @@
+Recurrentes ¦ Recurring ¦ 定期 ¦ Ricorrenti ¦ Récurrents ¦ Ponavljajući
+veces ¦ times ¦ 回 ¦ volte ¦ fois ¦ puta
+aprox. ¦ approx. ¦ 約 ¦ circa ¦ env. ¦ oko
+cada 2 semanas ¦ every 2 weeks ¦ 2週間ごと ¦ ogni 2 settimane ¦ toutes les 2 semaines ¦ svaka 2 tjedna
+cada quincena ¦ twice a month ¦ 月2回 ¦ due volte al mese ¦ deux fois par mois ¦ dvaput mjesečno
+Trabajo creado ¦ Job created ¦ 仕事を作成しました ¦ Lavoro creato ¦ Travail créé ¦ Posao stvoren
+Suscripción creada ¦ Subscription created ¦ サブスクを作成しました ¦ Abbonamento creato ¦ Abonnement créé ¦ Pretplata stvorena
+Gasto fijo creado ¦ Fixed expense created ¦ 固定費を作成しました ¦ Spesa fissa creata ¦ Dépense fixe créée ¦ Fiksni trošak stvoren
+Crear trabajo ¦ Create job ¦ 仕事を作成 ¦ Crea lavoro ¦ Créer le travail ¦ Stvori posao
+Crear suscripción ¦ Create subscription ¦ サブスクを作成 ¦ Crea abbonamento ¦ Créer l'abonnement ¦ Stvori pretplatu
+Crear gasto fijo ¦ Create fixed expense ¦ 固定費を作成 ¦ Crea spesa fissa ¦ Créer la dépense fixe ¦ Stvori fiksni trošak
+Ingreso que se repite. ¦ Income that repeats. ¦ 繰り返される収入です。 ¦ Entrata che si ripete. ¦ Revenu qui se répète. ¦ Prihod koji se ponavlja.
+Cobro que se repite. ¦ Charge that repeats. ¦ 繰り返される請求です。 ¦ Addebito che si ripete. ¦ Prélèvement qui se répète. ¦ Naplata koja se ponavlja.
+Gasto que se repite. ¦ Expense that repeats. ¦ 繰り返される支出です。 ¦ Spesa che si ripete. ¦ Dépense qui se répète. ¦ Trošak koji se ponavlja.
+Llega de la misma fuente, con ritmo regular y monto parecido. Como trabajo, Plata prevé tu próximo pago. ¦ It comes from the same source, at a regular rhythm and a similar amount. As a job, Plata predicts your next payment. ¦ 同じ送り主から、一定のリズムで似た金額が入っています。仕事にすると、Plata が次の入金を予測します。 ¦ Arriva dalla stessa fonte, con ritmo regolare e importo simile. Come lavoro, Plata prevede il tuo prossimo pagamento. ¦ Il vient de la même source, à rythme régulier et pour un montant proche. Comme travail, Plata prévoit votre prochain paiement. ¦ Dolazi iz istog izvora, redovito i u sličnom iznosu. Kao posao, Plata predviđa tvoju sljedeću isplatu.
+Se cobra con el mismo ritmo y monto, sumando todas tus cuentas. Como suscripción, Plata la prevé cada mes. ¦ It's charged at the same rhythm and amount, across all your accounts. As a subscription, Plata predicts it every month. ¦ すべての口座を合わせて、同じリズムと金額で請求されています。サブスクにすると、Plata が毎月予測します。 ¦ Viene addebitato con lo stesso ritmo e importo, sommando tutti i tuoi conti. Come abbonamento, Plata lo prevede ogni mese. ¦ Il est prélevé au même rythme et pour le même montant, tous comptes confondus. Comme abonnement, Plata le prévoit chaque mois. ¦ Naplaćuje se istim ritmom i iznosom, na svim tvojim računima. Kao pretplatu, Plata je predviđa svaki mjesec.
+Se repite con ritmo regular. Como gasto fijo, Plata lo prevé cada vez. ¦ It repeats at a regular rhythm. As a fixed expense, Plata predicts it every time. ¦ 一定のリズムで繰り返されています。固定費にすると、Plata が毎回予測します。 ¦ Si ripete con ritmo regolare. Come spesa fissa, Plata la prevede ogni volta. ¦ Il se répète à rythme régulier. Comme dépense fixe, Plata le prévoit à chaque fois. ¦ Ponavlja se redovito. Kao fiksni trošak, Plata ga predviđa svaki put.
