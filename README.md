@@ -6,7 +6,7 @@ Finanzas simples. Presupuesto, proyección, cuentas, ahorro y deuda en una sola 
 
 **Probar:** [plataapp.net/app](https://plataapp.net/app/) · **Sitio:** [plataapp.net](https://plataapp.net)
 
-**Versión:** Beta 3 · **Compilación:** 450
+**Versión:** Beta 3 · **Compilación:** 451
 
 ---
 
@@ -16,7 +16,7 @@ Respecto a la Beta 1. El detalle completo está en [CHANGELOG.md](CHANGELOG.md).
 
 - **Plata llega a tu mesa:** versión de escritorio con vista web en bento, con todas las secciones a la vez.
 - **Arma tu Bento. (exclusivo para escritorio):** varios Bentos con nombre, plantillas, widgets redimensionables, deshacer/rehacer (Ctrl+Z) y captura en PNG con QR a plataapp.net y @plataapp.
-- **Aviso de sincronización:** Plata no sincroniza entre dispositivos; guarda tu archivo y cárgalo donde lo vayas a usar.
+- **Aviso de sincronización:** en Beta 2 Plata no sincronizaba entre dispositivos. Desde la Beta 3 existe Plata Cloud (opcional, cifrado de extremo a extremo, por invitación); sin ella, guarda tu archivo y cárgalo donde lo vayas a usar.
 - **Modo oscuro:** ajuste de apariencia con Auto (sigue al sistema), Claro y Oscuro. Se elige al empezar y se cambia en el perfil. La franja superior del iPhone también cambia de color.
 - **Franja del iPhone:** la barra de estado cambia con el tema (negra en oscuro, clara en claro) al abrir la app.
 - **Cambio de tema:** si cambias la apariencia con la app abierta, un aviso recuerda reabrirla para que cambie la barra de arriba.
