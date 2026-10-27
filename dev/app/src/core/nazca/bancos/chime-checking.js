@@ -47,7 +47,7 @@ const NazcaChime = (() => {
       const netIt = its.find((i) => i.x >= cols.net - 20 && i.x < cols.set - 3 && money(i.str) !== null) || its.find((i) => i.x >= cols.amt - 20 && i.x < cols.net - 20 && money(i.str) !== null);
       if (!desc || !netIt) { out.skipped.unreadable++; continue; }
       const v = money(netIt.str); if (!v) { out.skipped.zero++; continue; }
-      total = r2(total + v); if (/^Deposit$/i.test(type)) dep = r2(dep + v); if (/^Fee$/i.test(type)) fees = r2(fees + v);
+      total = r2(total + v); if (/^(Deposit|Cash Bonus)$/i.test(type)) dep = r2(dep + v);   /* Chime suma los bonos en «Deposits» del resumen */ if (/^Fee$/i.test(type)) fees = r2(fees + v);
       out.items.push({ line: ++line, date: d[3] + '-' + pad(+d[1]) + '-' + pad(+d[2]), desc, type, amount: v, cur: 'USD' });
     }
     const have = sum.prev != null && sum.end != null;

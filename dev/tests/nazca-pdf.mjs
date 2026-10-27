@@ -123,8 +123,9 @@ const sum = (it) => Math.round(it.reduce((s, x) => s + x.amount, 0) * 100) / 100
   ok(rd && rd.id === 'chime-checking' && B.detect(d, 'bcp') === null, 'chime: reconocido por el contenido');
   const r = rd.read(d);
   ok(r.cur === 'USD' && r.kind === 'corriente' && r.account.last4 === '2345' && r.period.from === '2026-03-01' && r.period.to === '2026-03-31', 'chime: USD, últimos 4 y periodo');
-  ok(r.items.length === 8 && r.items[0].date === '2026-03-02' && r.items[0].amount === 1200 && r.items[2].amount === -35.5 && r.items[2].desc === 'Tienda Ejemplo', 'chime: 8 movimientos, fecha m/d/aaaa, signo del monto neto y se ignora la línea de detalle');
-  ok(r.check.ok === true, 'chime: cuadra (saldo inicial + movimientos = saldo final; depósitos y comisiones iguales al resumen)');
+  ok(r.items.length === 9 && r.items[0].date === '2026-03-02' && r.items[0].amount === 1200 && r.items[2].amount === -35.5 && r.items[2].desc === 'Tienda Ejemplo', 'chime: 9 movimientos, fecha m/d/aaaa, signo del monto neto y se ignora la línea de detalle');
+  ok(r.items.some((q) => q.type === 'Cash Bonus' && q.amount === 100), 'chime: el bono (tipo Cash Bonus) se lee como ingreso');
+  ok(r.check.ok === true, 'chime: cuadra, con el bono dentro de «Deposits» (saldo inicial + movimientos = saldo final; depósitos y comisiones iguales al resumen)');
   const nc = B.detect(await P.read(bytes('chime-no-cuadra.pdf'), lib)).read(await P.read(bytes('chime-no-cuadra.pdf'), lib)); ok(nc.check.ok === false, 'chime: si el saldo final no coincide → no cuadra'); }
 { const gv = async (n) => { const d = await P.read(bytes(n), lib); return { d, g: G.read(d) }; };
   let v = await gv('banco-eta.pdf'); ok(v.g.count === 3 && /85\.40|-85\.40/.test(v.g.text) && /,-85\.40/.test(v.g.text) && /,2500\.00/.test(v.g.text) && /,-120\.00/.test(v.g.text), 'genérico: columnas Cargo / Abono (sin signo) → cargo negativo, abono positivo, sin tomar el saldo');

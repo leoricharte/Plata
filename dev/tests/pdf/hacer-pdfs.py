@@ -255,7 +255,7 @@ VARIANTES = {
 
 def chime(path, filas, previo=0.00, fin_extra=0.0):
     """Estado INVENTADO de cuenta corriente Chime (mismo orden de columnas y textos que el real; ningún dato real). filas: (fecha m/d/aaaa, descripción, tipo, monto, detalle|None)."""
-    dep = round(sum(f[3] for f in filas if f[2] == "Deposit"), 2); fee = round(sum(f[3] for f in filas if f[2] == "Fee"), 2)
+    dep = round(sum(f[3] for f in filas if f[2] in ("Deposit", "Cash Bonus")), 2); fee = round(sum(f[3] for f in filas if f[2] == "Fee"), 2)
     pur = round(sum(f[3] for f in filas if f[2] in ("Purchase", "Direct Debit")), 2); tra = round(sum(f[3] for f in filas if f[2] == "Transfer"), 2)
     fin = round(previo + sum(f[3] for f in filas) + fin_extra, 2)
     d = lambda v: ("-" if v < 0 else "") + "$" + f"{abs(v):,.2f}"
@@ -278,7 +278,8 @@ def chime(path, filas, previo=0.00, fin_extra=0.0):
 
 CHIME_FILAS = [("3/02/2026", "Empresa Demo, Payroll", "Deposit", 1200.00, "EMPRESA DEMO"), ("3/02/2026", "Moved to Secured Deposit Account", "Transfer", -1200.00, None), ("3/05/2026", "Tienda Ejemplo", "Purchase", -35.50, "TIENDA EJEMPLO CIUDAD NYUS"),
     ("3/05/2026", "Moved from Secured Deposit Account", "Transfer", 35.50, None), ("3/12/2026", "Outbound Instant Transfer Fee", "Fee", -2.50, None), ("3/12/2026", "Moved from Secured Deposit Account", "Transfer", 2.50, None),
-    ("3/20/2026", "Direct Debit: Servicio Demo, Payment", "Direct Debit", -20.00, "SERVICIO DEMO,PAYMENT"), ("3/20/2026", "Moved from Secured Deposit Account", "Transfer", 20.00, None)]
+    ("3/20/2026", "Direct Debit: Servicio Demo, Payment", "Direct Debit", -20.00, "SERVICIO DEMO,PAYMENT"), ("3/20/2026", "Moved from Secured Deposit Account", "Transfer", 20.00, None),
+    ("3/25/2026", "Direct Deposit Bonus", "Cash Bonus", 100.00, None)]
 
 def seen(path, creditos, compras, interes=3.10, previo=100.00, extra_impreso=0.0):
     """Estado INVENTADO de tarjeta Seen (mismo orden de secciones y textos que el real; ningún dato real). creditos/compras: (fecha mm/dd/aaaa, descripción, monto positivo)."""
