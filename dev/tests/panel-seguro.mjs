@@ -81,6 +81,40 @@ ok(rv.s === 200 && (await j('/content/ping', 'GET', null, as(AS, '10.0.8.1'))).s
 ok((await mint(AT, PANEL, '10.0.8.3')).s === 401, 'y su token ya no abre sesión nueva');
 await j('/admin/users/revoke?id=' + cu.j.id + '&undo=1', 'POST', {}, as(D));
 ok((await mint(AT, PANEL, '10.0.8.4')).s === 200, 'reactivarla le devuelve el acceso');
+// 4c) Auditor: solo lectura, y sin abrir datos de usuarios
+const ca = await j('/admin/users', 'POST', { name: 'Aldo Auditor', title: 'Auditoría externa', role: 'aud' }, as(D));
+ok(ca.s === 200, 'dev crea a un auditor');
+const aa = await mint(ca.j.token, PANEL, '10.0.9.1'); const AU = aa.j.session;
+ok(aa.s === 200 && aa.j.role === 'aud' && aa.j.title === 'Auditoría externa', 'el auditor abre sesión con rol aud y su cargo');
+for (const pth of ['/admin/users', '/admin/audit', '/admin/proposals', '/nazca/list', '/review/list', '/content/ping', '/admin/board']) ok((await j(pth, 'GET', null, as(AU, '10.0.9.1'))).s === 200, 'auditor puede leer ' + pth);
+for (const [pth, mt, bd] of [['/admin/users', 'POST', { name: 'Z', role: 'dev' }], ['/admin/users/revoke?id=' + cu.j.id, 'POST', {}], ['/admin/users/title?id=' + cu.j.id, 'POST', { title: 'x' }], ['/content', 'POST', { k: 'a1b2c3d4', es: 'x', en: 'x', orig: 'o' }], ['/posts', 'POST', { date: '2026-10-27', title_es: 'x', body_es: 'y', by: 'z' }], ['/admin/proposals/decide?id=zzzzzzzz&do=approve', 'POST', {}], ['/review/mark', 'POST', {}], ['/admin/invite', 'POST', {}], ['/nazca/delete', 'POST', {}], ['/admin/board', 'POST', { type: 'note', title: 'x' }]]) {
+  const r = await j(pth, mt, bd, as(AU, '10.0.9.1')); ok(r.s === 403 && r.j.error === 'readonly', 'auditor NO puede ' + mt + ' ' + pth.split('?')[0] + ' (403 readonly)');
+}
+for (const pth of ['/review/get?id=aaaaaaaa', '/nazca/get?id=aaaaaaaa', '/waitlist/export']) ok((await j(pth, 'GET', null, as(AU, '10.0.9.1'))).s === 403, 'auditor no abre datos de usuarios: ' + pth.split('?')[0]);
+ok((await j('/review/list', 'GET', null, as(M, '10.0.0.2'))).s === 403, 'el mod sigue sin ver copias');
+// 4d) Proyecto: notas, hitos, ideas, comentarios
+const bn = await j('/admin/board', 'POST', { type: 'note', title: 'Revisar el token\u0007 de Resend', body: 'Línea 1\nLínea 2 con <b> y \u0000nulo', pin: true }, as(D));
+ok(bn.s === 200 && bn.j.item.title === 'Revisar el token de Resend' && !/[\u0000-\u0008]/.test(bn.j.item.body) && bn.j.item.body.includes('\n') && bn.j.item.pin === true, 'crear nota: limpia caracteres de control y conserva saltos de línea');
+const be = await j('/admin/board', 'POST', { type: 'event', title: 'Lanzar beta 3', date: '2026-11-15', status: 'doing' }, as(D));
+ok(be.s === 200 && be.j.item.st === 'doing' && be.j.item.date === '2026-11-15', 'crear hito con fecha y estado');
+ok((await j('/admin/board', 'POST', { type: 'event', title: 'Sin fecha' }, as(D))).s === 400, 'un hito sin fecha → 400');
+ok((await j('/admin/board', 'POST', { type: 'idea', title: 'x', status: 'raro' }, as(D))).s === 400, 'estado inválido → 400');
+ok((await j('/admin/board', 'POST', { type: 'otro', title: 'x' }, as(D))).s === 400, 'tipo inválido → 400');
+const bi = await j('/admin/board', 'POST', { type: 'idea', title: 'Widget de gastos' }, as(D));
+ok(bi.s === 200 && bi.j.item.st === 'new', 'crear idea (estado inicial: nueva)');
+const bc = await j('/admin/board/comment?id=' + bi.j.id, 'POST', { txt: 'Me gusta, pero chiquito' }, as(D));
+ok(bc.s === 200 && bc.j.comment.by === 'root', 'comentar una idea: queda a nombre de quien comentó');
+ok((await j('/admin/board/comment?id=' + bi.j.id, 'POST', { txt: '   ' }, as(D))).s === 400, 'comentario vacío → 400');
+ok((await j('/admin/board/vote?id=' + bi.j.id, 'POST', {}, as(D))).j.mine === true && (await j('/admin/board/vote?id=' + bi.j.id, 'POST', {}, as(D))).j.mine === false, 'votar y quitar el voto');
+ok((await j('/admin/board/vote?id=' + bn.j.id, 'POST', {}, as(D))).s === 404, 'solo las ideas se votan');
+const bl = await j('/admin/board', 'GET', null, as(D));
+ok(bl.j.items.length === 3 && bl.j.items.find((x) => x.id === bi.j.id).com.length === 1, 'el tablero lista los 3 ítems con sus comentarios');
+const bu = await j('/admin/board', 'POST', { id: bi.j.id, title: 'Widget de gastos v2', status: 'keep' }, as(D));
+ok(bu.s === 200 && bu.j.item.type === 'idea' && bu.j.item.com.length === 1 && bu.j.item.title.endsWith('v2'), 'editar conserva el tipo y los comentarios');
+ok((await j('/admin/board', 'GET', null, as(M, '10.0.0.2'))).s === 403 && (await j('/admin/board', 'POST', { type: 'note', title: 'x' }, as(M, '10.0.0.2'))).s === 403, 'el mod no entra al tablero');
+ok((await j('/admin/board/comment?id=' + bi.j.id + '&cid=' + bc.j.comment.i, 'DELETE', null, as(D))).s === 200, 'borrar un comentario');
+ok((await j('/admin/board?id=' + bn.j.id, 'DELETE', null, as(D))).s === 200 && (await j('/admin/board?id=' + bn.j.id, 'DELETE', null, as(D))).s === 404, 'borrar una nota (y no existe después)');
+ok((await j('/admin/board?id=' + bn.j.id, 'DELETE', null, as(AU, '10.0.9.1'))).s === 403, 'el auditor no puede borrar');
 const au = await j('/admin/audit?n=200', 'GET', null, as(D)); const ev = au.j.items || [];
 const has = (act, who) => ev.some((e) => e.act === act && (!who || e.who === who));
 ok(has('entrada', 'Ana Prueba') && has('entrada', 'root') && has('entrada', 'mod compartido'), 'registro: entradas de Ana, root y mod compartido');

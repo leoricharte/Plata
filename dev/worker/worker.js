@@ -289,7 +289,11 @@ async function nazcaDelete(req, env, h, url) {
  * esa sesión: un token aleatorio que vive 1 hora en el Gate (sin renovación), se puede revocar (POST /admin/logout) y no se escribe en ningún otro lado.
  * Comparación en tiempo constante (se comparan hashes) y bloqueo por IP tras 5 fallos en 15 minutos (429), con contador atómico.
  * ADMIN_LEGACY=1 vuelve a aceptar ADMIN_TOKEN directo en cada petición (solo para scripts viejos; no recomendado). */
-const AUTH_MAX = 5, AUTH_WIN = 900, ADMIN_SESSION = 3600, ROLE_RANK = { mod: 1, dev: 2 }, AUDIT_TTL = 90 * 86400, USERS_MAX = 40;
+const AUTH_MAX = 5, AUTH_WIN = 900, ADMIN_SESSION = 3600, ROLE_RANK = { aud: 1, mod: 2, dev: 3 }, AUDIT_TTL = 90 * 86400, USERS_MAX = 40;
+/* Auditor (aud): solo mira. Puede hacer peticiones GET de administración y nada más; ninguna escritura, ni propuesta, ni invitación. Tampoco abre el CONTENIDO de datos de
+ * usuarios (copias recibidas, archivos de Nazca, correos de la lista de espera) salvo que el Worker tenga AUDITOR_DATA=1: ver quién hizo qué no exige ver datos personales. */
+const AUD_DATA = /^\/(review\/get|nazca\/get|waitlist\/export)$/;
+const audCan = (req, env) => req.method === 'GET' && (env.AUDITOR_DATA === '1' || !AUD_DATA.test(new URL(req.url).pathname));
 const INTERNAL = new WeakSet(); // peticiones armadas por el propio servidor al aprobar una propuesta: ya vienen autorizadas por un dev
 const WHO = new WeakMap();      // petición → quién la hizo ({ role, who, uid }); lo usa el registro de auditoría
 /* Quién entra: tokens personales (plt_<id>.<secreto>, guardados solo como hash en au:<id>) o, de respaldo, los tokens compartidos ADMIN_TOKEN (dev) y MOD_TOKEN (mod). */
@@ -325,12 +329,12 @@ async function adminAuth(req, env, h, need) { // → { res } si no pasa, o { rol
     if (s && ROLE_RANK[s.role]) { const u = s.uid ? await kvGet(env, 'au:' + s.uid) : true; if (u && !u.rev) me = { role: s.role, who: s.who || '?', uid: s.uid || '', title: (u === true ? s.title : u.title) || '' }; } // una persona revocada pierde su sesión al instante
   }
   if (!me && env.ADMIN_LEGACY === '1') { const r = await identify(env, auth); if (r && r.role === 'dev') me = r; }
-  if (me && ROLE_RANK[me.role] >= ROLE_RANK[need]) {
+  if (me && (ROLE_RANK[me.role] >= ROLE_RANK[need] || (me.role === 'aud' && audCan(req, env)))) {
     WHO.set(req, me);
     const u = new URL(req.url); if (AUDITED.test(req.method + ' ' + u.pathname)) await audit(env, req, (req.method === 'GET' ? 'ver ' : '') + u.pathname.slice(1), u.searchParams.get('id') || u.searchParams.get('do') || '', me);
     return me;
   }
-  if (me) return { res: json({ ok: false, error: 'role' }, 403, h) }; // sesión válida, pero con un rol que no alcanza
+  if (me) return { res: json({ ok: false, error: me.role === 'aud' ? 'readonly' : 'role' }, 403, h) }; // sesión válida, pero con un rol que no alcanza (el auditor solo lee)
   await hit(env, key, AUTH_MAX, AUTH_WIN);
   return { res: json({ ok: false, error: 'auth' }, 401, h) };
 }
@@ -394,6 +398,65 @@ async function usersTitle(req, env, h, url) { // POST /admin/users/title?id=… 
   u.title = cleanLabel(b.title); await kvPut(env, 'au:' + id, u);
   await audit(env, req, 'cambiar cargo', u.name + ' → ' + (u.title || '(sin cargo)'));
   return json({ ok: true, title: u.title }, 200, h);
+}
+/* Proyecto (solo dev; el auditor lo lee): notas, línea de tiempo e ideas del equipo, con comentarios cortos y votos. bd:<id>. Texto plano: el panel lo pinta con textContent. */
+const BOARD_MAX = 300, BOARD_TYPES = { note: 1, event: 1, idea: 1 }, BOARD_ST = { event: { plan: 1, doing: 1, done: 1 }, idea: { new: 1, keep: 1, done: 1, drop: 1 }, note: { '': 1 } }, BOARD_COM = 60;
+const cleanBody = (v, n) => String(v || '').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '').replace(/\r\n?/g, '\n').trim().slice(0, n);
+const okBoardId = (id) => /^[A-Za-z0-9_-]{6,12}$/.test(id || '');
+async function boardKeys(env) { const out = []; let cursor; do { const r = await env.WAITLIST.list({ prefix: 'bd:', cursor }); for (const k of r.keys) out.push(k.name); cursor = r.list_complete ? undefined : r.cursor; } while (cursor && out.length < 2 * BOARD_MAX); return out; }
+async function boardList(req, env, h) {
+  { const g = await adminGate(req, env, h, 'dev'); if (g) return g; }
+  const keys = (await boardKeys(env)).slice(0, BOARD_MAX), items = [];
+  for (let i = 0; i < keys.length; i += 20) { const part = await Promise.all(keys.slice(i, i + 20).map((k) => kvGet(env, k))); part.forEach((v, j) => { if (v) items.push(Object.assign({ id: keys[i + j].slice(3) }, v)); }); }
+  return json({ ok: true, items }, 200, h);
+}
+async function boardSave(req, env, h) { // POST /admin/board { id?, type, title, body, date, status, pin }
+  const a = await adminAuth(req, env, h, 'dev'); if (a.res) return a.res;
+  const { b, err } = await readBody(req, 12000); if (err) return json({ ok: false, error: 'json' }, err, h);
+  let cur = null, id = String(b.id || '');
+  if (id) { if (!okBoardId(id)) return json({ ok: false, error: 'id' }, 400, h); cur = await kvGet(env, 'bd:' + id); if (!cur) return json({ ok: false, error: 'none' }, 404, h); }
+  const type = cur ? cur.type : b.type, title = cleanBody(b.title, 120).replace(/\n/g, ' ');
+  if (!BOARD_TYPES[type] || !title) return json({ ok: false, error: 'campos' }, 400, h);
+  const date = String(b.date || ''); if (type === 'event' && !/^\d{4}-\d{2}-\d{2}$/.test(date)) return json({ ok: false, error: 'fecha' }, 400, h);
+  const st = String(b.status || (type === 'event' ? 'plan' : type === 'idea' ? 'new' : '')); if (!BOARD_ST[type][st]) return json({ ok: false, error: 'estado' }, 400, h);
+  if (!cur) { if ((await boardKeys(env)).length >= BOARD_MAX) return json({ ok: false, error: 'full' }, 429, h); id = rndB64(6); }
+  const now = Date.now(), it = cur || { type, c: now, by: a.who, com: [], v: [] };
+  Object.assign(it, { title, body: cleanBody(b.body, 4000), st, date: type === 'event' ? date : '', pin: type === 'note' && b.pin === true, u: now, ub: a.who });
+  await kvPut(env, 'bd:' + id, it);
+  await audit(env, req, (cur ? 'editar ' : 'crear ') + ({ note: 'nota', event: 'hito', idea: 'idea' })[type], title.slice(0, 60));
+  return json({ ok: true, id, item: Object.assign({ id }, it) }, 200, h);
+}
+async function boardDel(req, env, h, url) { // DELETE /admin/board?id=
+  const a = await adminAuth(req, env, h, 'dev'); if (a.res) return a.res;
+  const id = url.searchParams.get('id') || '', it = okBoardId(id) ? await kvGet(env, 'bd:' + id) : null;
+  if (!it) return json({ ok: false, error: 'none' }, 404, h);
+  await env.WAITLIST.delete('bd:' + id); await audit(env, req, 'borrar ' + ({ note: 'nota', event: 'hito', idea: 'idea' })[it.type], String(it.title).slice(0, 60));
+  return json({ ok: true }, 200, h);
+}
+async function boardComment(req, env, h, url) { // POST /admin/board/comment?id= { txt }   ·   DELETE /admin/board/comment?id=&cid=
+  const a = await adminAuth(req, env, h, 'dev'); if (a.res) return a.res;
+  const id = url.searchParams.get('id') || '', it = okBoardId(id) ? await kvGet(env, 'bd:' + id) : null;
+  if (!it) return json({ ok: false, error: 'none' }, 404, h);
+  it.com = it.com || [];
+  if (req.method === 'DELETE') {
+    const cid = url.searchParams.get('cid') || '', n = it.com.length; it.com = it.com.filter((c) => c.i !== cid);
+    if (it.com.length === n) return json({ ok: false, error: 'none' }, 404, h);
+    await kvPut(env, 'bd:' + id, it); await audit(env, req, 'borrar comentario', String(it.title).slice(0, 60)); return json({ ok: true }, 200, h);
+  }
+  const { b, err } = await readBody(req, 2000); if (err) return json({ ok: false, error: 'json' }, err, h);
+  const x = cleanBody(b.txt, 300); if (!x) return json({ ok: false, error: 'campos' }, 400, h);
+  if (it.com.length >= BOARD_COM) return json({ ok: false, error: 'full' }, 429, h);
+  const c = { i: rndB64(4), by: a.who, t: Date.now(), x }; it.com.push(c); await kvPut(env, 'bd:' + id, it);
+  await audit(env, req, 'comentar', String(it.title).slice(0, 60));
+  return json({ ok: true, comment: c }, 200, h);
+}
+async function boardVote(req, env, h, url) { // POST /admin/board/vote?id= → alterna el voto de quien llama (solo ideas)
+  const a = await adminAuth(req, env, h, 'dev'); if (a.res) return a.res;
+  const id = url.searchParams.get('id') || '', it = okBoardId(id) ? await kvGet(env, 'bd:' + id) : null;
+  if (!it || it.type !== 'idea') return json({ ok: false, error: 'none' }, 404, h);
+  const me = a.uid || a.who; it.v = it.v || []; const at = it.v.indexOf(me);
+  if (at >= 0) it.v.splice(at, 1); else if (it.v.length < 40) it.v.push(me);
+  await kvPut(env, 'bd:' + id, it); return json({ ok: true, v: it.v, mine: it.v.indexOf(me) >= 0 }, 200, h);
 }
 async function auditList(req, env, h, url) { // GET /admin/audit?n=200
   { const g = await adminGate(req, env, h, 'dev'); if (g) return g; }
@@ -935,6 +998,11 @@ export default {
       if (p === '/admin/users' && m === 'GET') return await usersList(req, env, h);
       if (p === '/admin/users' && m === 'POST') return await usersCreate(req, env, h);
       if (p === '/admin/users/title' && m === 'POST') return await usersTitle(req, env, h, url);
+      if (p === '/admin/board' && m === 'GET') return await boardList(req, env, h);
+      if (p === '/admin/board' && m === 'POST') return await boardSave(req, env, h);
+      if (p === '/admin/board' && m === 'DELETE') return await boardDel(req, env, h, url);
+      if (p === '/admin/board/comment' && (m === 'POST' || m === 'DELETE')) return await boardComment(req, env, h, url);
+      if (p === '/admin/board/vote' && m === 'POST') return await boardVote(req, env, h, url);
       if (p === '/admin/users/revoke' && m === 'POST') return await usersRevoke(req, env, h, url);
       if (p === '/admin/audit' && m === 'GET') return await auditList(req, env, h, url);
       if (p === '/admin/proposals' && m === 'GET') return await propList(req, env, h);
