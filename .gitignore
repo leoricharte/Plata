@@ -1,6 +1,7 @@
 # Nunca subir perfiles de usuario ni copias de datos reales
 *.json
 !manifest.webmanifest
+!swift/PlataApp/Plata/Resources/tr_en.json
 !package.json
 !dev/**/package.json
 dev/app/out/

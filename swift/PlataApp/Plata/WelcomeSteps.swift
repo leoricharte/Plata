@@ -55,7 +55,7 @@ struct WTitle: View {
 }
 
 private func wSegmented<V: Hashable>(_ items: [(V, String)], _ sel: Binding<V>) -> some View {
-    PillSegmented(items: items.map { ($0.0, LocalizedStringKey($0.1)) }, selection: sel).padding(.bottom, 12)
+    PillSegmented(items: items.map { ($0.0, ($0.1)) }, selection: sel).padding(.bottom, 12)
 }
 
 private let otherCurrencies: [String] = Currencies.table.keys.filter { !wCurGrid.contains($0) }.sorted()
@@ -527,7 +527,7 @@ struct LookPreview: View {
             Text("Vista previa").font(.inter(16)).foregroundStyle(.secondary).padding(.top, 22).padding(.bottom, 8)
             if let info {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Hola, \(info.name)").font(.inter(22, .bold)).tracking(-0.4).padding(.horizontal, 2).padding(.bottom, 2)
+                    Text(verbatim: Tr.f("Hola, {0}", info.name)).font(.inter(22, .bold)).tracking(-0.4).padding(.horizontal, 2).padding(.bottom, 2)
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Disponible").font(.inter(13)).foregroundStyle(.secondary)
                         Text(info.total).font(.inter(28, .bold)).tracking(-0.6).monospacedDigit()

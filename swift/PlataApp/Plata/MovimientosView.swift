@@ -11,7 +11,7 @@ struct MovimientosView: View {
     enum Filter: String, CaseIterable, Identifiable {
         case all, income, out
         var id: String { rawValue }
-        var title: LocalizedStringKey {
+        var title: String {
             switch self {
             case .all: return "Todos"
             case .income: return "Ingresos"

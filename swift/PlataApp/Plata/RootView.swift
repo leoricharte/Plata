@@ -7,13 +7,13 @@ struct RootView: View {
         @Bindable var model = model
         // Barra de pestañas del sistema: en iOS 26 es Liquid Glass (lupa al arrastrar); en iOS 18 a 25, la clásica.
         TabView(selection: $model.tab) {
-            Tab("Resumen", systemImage: "chart.pie", value: AppTab.resumen) {
+            Tab(value: AppTab.resumen) {
                 ResumenView().toolbarVisibility(model.path.isEmpty ? .automatic : .hidden, for: .tabBar)
-            }
-            Tab("Presupuesto", systemImage: "wallet.bifold", value: AppTab.presupuesto) { NavigationStack { PresupuestoView().routeDestinations() } }
-            Tab("Proyección", systemImage: "chart.line.uptrend.xyaxis", value: AppTab.proyeccion) { NavigationStack { ProyeccionView().routeDestinations() } }
-            Tab("Ahorro", systemImage: "leaf", value: AppTab.ahorro) { NavigationStack { AhorroView().routeDestinations().navigationDestination(for: AcctRef.self) { AccountDetailView(id: $0.id) } } }
-            Tab("Cuentas", systemImage: "creditcard", value: AppTab.cuentas) { NavigationStack { CuentasView().routeDestinations().navigationDestination(for: AcctRef.self) { AccountDetailView(id: $0.id) } } }
+            } label: { Label("Resumen", systemImage: "chart.pie") }
+            Tab(value: AppTab.presupuesto) { NavigationStack { PresupuestoView().routeDestinations() } } label: { Label("Presupuesto", systemImage: "wallet.bifold") }
+            Tab(value: AppTab.proyeccion) { NavigationStack { ProyeccionView().routeDestinations() } } label: { Label("Proyección", systemImage: "chart.line.uptrend.xyaxis") }
+            Tab(value: AppTab.ahorro) { NavigationStack { AhorroView().routeDestinations().navigationDestination(for: AcctRef.self) { AccountDetailView(id: $0.id) } } } label: { Label("Ahorro", systemImage: "leaf") }
+            Tab(value: AppTab.cuentas) { NavigationStack { CuentasView().routeDestinations().navigationDestination(for: AcctRef.self) { AccountDetailView(id: $0.id) } } } label: { Label("Cuentas", systemImage: "creditcard") }
         }
         .sheet(isPresented: $model.showAddTransaction) { TransactionSheet(mode: .new) }
         .sheet(item: $model.activeSheet) { sheet in

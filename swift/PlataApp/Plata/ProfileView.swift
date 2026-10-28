@@ -23,7 +23,7 @@ struct ProfileView: View {
 
                 SCard {
                     ForEach(Array(identityRows(s).enumerated()), id: \.offset) { i, r in
-                        SettingRow(LocalizedStringKey(r.0), first: i == 0) { value(r.1) }
+                        SettingRow((r.0), first: i == 0) { value(r.1) }
                     }
                 }
                 LanguageCard(editable: false)

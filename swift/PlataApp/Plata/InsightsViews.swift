@@ -125,7 +125,7 @@ struct InsightsView: View {
         let mesIdx = InsightsText.monthIndex(m.mk)
         let mes = Spanish.monthsFull[mesIdx]
         let pm = Spanish.monthsFull[InsightsText.monthIndex(m.pmk)]
-        let eyebrow: LocalizedStringKey = isHalf ? "Hasta el día 15" : m.isCur ? LocalizedStringKey("\(mes.prefix(1).uppercased() + mes.dropFirst()) · día \(m.day)") : LocalizedStringKey("Cierre de \(mes)")
+        let eyebrow: String = isHalf ? "Hasta el día 15" : m.isCur ? ("\(mes.prefix(1).uppercased() + mes.dropFirst()) · día \(m.day)") : ("Cierre de \(mes)")
         ScrollView {
             VStack(spacing: 14) {
                 PageHead(eyebrow: eyebrow, title: isHalf ? "Half‑time" : "Insights")
@@ -176,7 +176,7 @@ struct InsightsView: View {
 
     private func pct(_ a: Double, _ b: Double) -> Double? { b > 0 ? (a - b) / b : nil }
 
-    private func statRow<T: View>(_ label: LocalizedStringKey, _ value: String, sub: String, @ViewBuilder trailing: () -> T) -> some View {
+    private func statRow<T: View>(_ label: String, _ value: String, sub: String, @ViewBuilder trailing: () -> T) -> some View {
         HStack(alignment: .center) {
             VStack(alignment: .leading, spacing: 0) {
                 Text(label).font(.inter(14)).foregroundStyle(.secondary)
@@ -263,7 +263,7 @@ struct InsightsView: View {
         let vs = m.hasPrev ? "vs. \(pm)" + (m.est ? " (aprox.)" : "") : "sin mes anterior"
         let netC = m.cur.inc - m.cur.exp, netP = m.prev.inc - m.prev.exp
         return VStack(alignment: .leading, spacing: 8) {
-            SectionHead(closed ? LocalizedStringKey("Cierre vs. \(pm)") : LocalizedStringKey("Este mes vs. \(pm)"))
+            SectionHead(closed ? ("Cierre vs. \(pm)") : ("Este mes vs. \(pm)"))
             ListCard {
                 statRow("Gastado", f.whole(m.cur.exp), sub: vs) { chip(pct(m.cur.exp, m.prev.exp), upIsBad: true) }
                 if !isHalf {

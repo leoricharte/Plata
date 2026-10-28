@@ -171,7 +171,7 @@ struct MonthView: View {
         hasPay(e).any ? [.all, .income, .out, .pay] : [.all, .income, .out]
     }
 
-    private func label(_ f: Filter, _ e: Engine) -> LocalizedStringKey {
+    private func label(_ f: Filter, _ e: Engine) -> String {
         switch f {
         case .all: return "Todos"
         case .income: return "Ingresos"
@@ -209,7 +209,7 @@ struct MonthView: View {
 
     // MARK: piezas
 
-    private func stat(_ title: LocalizedStringKey, _ value: String, _ color: Color) -> some View {
+    private func stat(_ title: String, _ value: String, _ color: Color) -> some View {
         VStack(spacing: 2) {
             Text(title).font(.inter(15)).foregroundStyle(.secondary)
             Text(value).font(.inter(17, .semibold)).monospacedDigit().foregroundStyle(color).lineLimit(1).minimumScaleFactor(0.7)
@@ -218,7 +218,7 @@ struct MonthView: View {
     }
 
     /// El `execbtn` de la web: píldora verde de 28 pt (la zona de toque es más alta).
-    private func pager(_ title: LocalizedStringKey, disabled: Bool, _ action: @escaping () -> Void) -> some View {
+    private func pager(_ title: String, disabled: Bool, _ action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(title).font(.inter(13, .semibold)).foregroundStyle(Brand.accent)
                 .frame(minWidth: 104, minHeight: 28)

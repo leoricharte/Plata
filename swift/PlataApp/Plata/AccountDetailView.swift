@@ -117,7 +117,7 @@ struct AccountDetailView: View {
             .padding(.bottom, 14)
     }
 
-    private func stat(_ label: LocalizedStringKey, _ value: String, _ color: Color? = nil) -> some View {
+    private func stat(_ label: String, _ value: String, _ color: Color? = nil) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(label).font(.inter(15)).foregroundStyle(.secondary)
             Text(value).font(.inter(20, .bold)).tracking(-0.4).foregroundStyle(color ?? Color.primary).lineLimit(2).minimumScaleFactor(0.7)
@@ -125,7 +125,7 @@ struct AccountDetailView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private func pair(_ a: (LocalizedStringKey, String, Color?), _ b: (LocalizedStringKey, String, Color?)?, top: CGFloat = 0) -> some View {
+    private func pair(_ a: (String, String, Color?), _ b: (String, String, Color?)?, top: CGFloat = 0) -> some View {
         HStack(alignment: .top, spacing: 20) {
             stat(a.0, a.1, a.2)
             if let b { stat(b.0, b.1, b.2) } else { Spacer(minLength: 0).frame(maxWidth: .infinity) }

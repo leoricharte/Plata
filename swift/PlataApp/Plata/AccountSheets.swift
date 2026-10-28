@@ -39,7 +39,7 @@ struct AccountSheet: View {
                 AmountField(symbol: f.symbol(cur).trimmingCharacters(in: .whitespaces), text: $balance,
                             placeholder: Money.decimals(cur) > 0 ? "0.00" : "0", focus: $focus, label: "Saldo")
                 PillSegmented(items: [("checking", "Corriente"), ("savings", "Ahorros"), ("cash", "Efectivo")], selection: $type).padding(.bottom, 10)
-                if curs.count > 1 { PillSegmented(items: curs.map { ($0, LocalizedStringKey($0)) }, selection: $cur).padding(.bottom, 10) }
+                if curs.count > 1 { PillSegmented(items: curs.map { ($0, ($0)) }, selection: $cur).padding(.bottom, 10) }
                 SCard {
                     FieldRow(symbol: "pencil", label: "Nombre", placeholder: "Nombre", text: $name)
                     if type != "cash" {
@@ -83,8 +83,8 @@ struct AccountSheet: View {
     private func linkedMessage(_ info: (transactions: Int, links: [String])?) -> String {
         let n = info?.transactions ?? 0
         let links = info?.links ?? []
-        return "Tiene \(n) \(n == 1 ? "movimiento" : "movimientos")" + (links.isEmpty ? "" : " y está ligada a " + links.joined(separator: ", "))
-            + ". Si la eliminas, se borran esos movimientos. Para conservar el historial, mejor ocúltala."
+        return Tr.t("Tiene \(n) \(n == 1 ? "movimiento" : "movimientos")") + (links.isEmpty ? "" : " " + Tr.t("y está ligada a") + " " + links.joined(separator: ", "))
+            + ". " + Tr.t("Si la eliminas, se borran esos movimientos. Para conservar el historial, mejor ocúltala.")
     }
 
     private func remove() {
@@ -150,7 +150,7 @@ struct DebtSheet: View {
                 AmountField(symbol: f.symbol(cur).trimmingCharacters(in: .whitespaces), text: $balance,
                             placeholder: Money.decimals(cur) > 0 ? "0.00" : "0", focus: $focus, label: "Saldo adeudado (lo que debes)")
                 PillSegmented(items: [("card", "Tarjeta"), ("loan", "Préstamo")], selection: $kind).padding(.bottom, 10)
-                if curs.count > 1 { PillSegmented(items: curs.map { ($0, LocalizedStringKey($0)) }, selection: $cur).padding(.bottom, 10) }
+                if curs.count > 1 { PillSegmented(items: curs.map { ($0, ($0)) }, selection: $cur).padding(.bottom, 10) }
                 SCard {
                     FieldRow(symbol: "pencil", label: "Nombre", placeholder: "Nombre", text: $name)
                     RowDivider()
@@ -195,8 +195,8 @@ struct DebtSheet: View {
         } message: {
             let n = info?.transactions ?? 0
             let links = info?.links ?? []
-            Text("Tiene \(n) \(n == 1 ? "movimiento" : "movimientos")" + (links.isEmpty ? "" : " y está ligada a " + links.joined(separator: ", "))
-                 + ". Si la eliminas, se borran esos movimientos. Para conservar el historial, mejor ocúltala.")
+            Text(verbatim: Tr.t("Tiene \(n) \(n == 1 ? "movimiento" : "movimientos")") + (links.isEmpty ? "" : " " + Tr.t("y está ligada a") + " " + links.joined(separator: ", "))
+                 + ". " + Tr.t("Si la eliminas, se borran esos movimientos. Para conservar el historial, mejor ocúltala."))
         }
     }
 
@@ -258,7 +258,7 @@ struct SubSheet: View {
                 SheetHead(title: id == nil ? "Nuevo servicio o suscripción" : "Servicio o suscripción", onClose: { dismiss() }, onSave: { save() })
                 AmountField(symbol: f.symbol(cur).trimmingCharacters(in: .whitespaces), text: $amount,
                             placeholder: Money.decimals(cur) > 0 ? "0.00" : "0", focus: $focus, label: "Por mes")
-                if curs.count > 1 { PillSegmented(items: curs.map { ($0, LocalizedStringKey($0)) }, selection: $cur).padding(.bottom, 10) }
+                if curs.count > 1 { PillSegmented(items: curs.map { ($0, ($0)) }, selection: $cur).padding(.bottom, 10) }
                 SCard {
                     FieldRow(symbol: "pencil", label: "Nombre", placeholder: "Nombre", text: $name)
                     RowDivider()

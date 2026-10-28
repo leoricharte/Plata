@@ -166,7 +166,7 @@ struct BudgetSetsSheet: View {
             dismiss()
         } catch ProfileEditor.FormError.missingName { errorText = "Escribe un nombre."
         } catch ProfileEditor.FormError.endBeforeStart { errorText = "El fin debe ser posterior al inicio."
-        } catch ProfileEditor.FormError.setOverlap(let n) { errorText = "Esas fechas se cruzan con «\(n)». Cámbialas."
+        } catch ProfileEditor.FormError.setOverlap(let n) { errorText = Tr.f("Esas fechas se cruzan con «{0}». Cámbialas.", n)
         } catch { errorText = "No se pudo guardar." }
     }
 }

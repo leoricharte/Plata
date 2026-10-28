@@ -4,8 +4,8 @@ import PlataCore
 
 /// Título de pantalla de la web: texto pequeño arriba (`.eyebrow`) y título de 34 pt (`h1`).
 struct PageHead: View {
-    let eyebrow: LocalizedStringKey
-    let title: LocalizedStringKey
+    let eyebrow: String
+    let title: String
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(eyebrow).font(.inter(15)).foregroundStyle(.secondary)
@@ -18,7 +18,7 @@ struct PageHead: View {
 
 /// Nota pequeña bajo una tarjeta de ajustes.
 struct SettingsNote: View {
-    let text: LocalizedStringKey
+    let text: String
     var body: some View {
         Text(text).font(.inter(13)).foregroundStyle(.secondary)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -28,11 +28,11 @@ struct SettingsNote: View {
 
 /// Fila de ajustes (`.row`): título a la izquierda y el control a la derecha.
 struct SettingRow<Trailing: View>: View {
-    let title: LocalizedStringKey
-    var note: LocalizedStringKey? = nil
+    let title: String
+    var note: String? = nil
     var first = false
     let trailing: Trailing
-    init(_ title: LocalizedStringKey, note: LocalizedStringKey? = nil, first: Bool = false, @ViewBuilder trailing: () -> Trailing) {
+    init(_ title: String, note: String? = nil, first: Bool = false, @ViewBuilder trailing: () -> Trailing) {
         self.title = title; self.note = note; self.first = first; self.trailing = trailing()
     }
     var body: some View {
@@ -53,7 +53,7 @@ struct SettingRow<Trailing: View>: View {
 
 /// Campo numérico o de texto pequeño de la web (`.mini`): 40 pt de alto, fondo gris, texto a la derecha.
 struct MiniField: View {
-    let placeholder: LocalizedStringKey
+    let placeholder: String
     @Binding var text: String
     var width: CGFloat = 96
     var numeric = true
@@ -71,7 +71,7 @@ struct MiniField: View {
 /// Fila-botón con enlace verde (`.linkrow`): icono y texto de 17 pt, 44 pt como mínimo.
 struct LinkRow: View {
     var symbol: String?
-    let title: LocalizedStringKey
+    let title: String
     var color: Color = Brand.accent
     var first = false
     var trailing: AnyView? = nil
@@ -180,7 +180,7 @@ struct AjustesView: View {
                     SectionHead("Cuentas ocultas").padding(.top, 30).padding(.bottom, 0)
                     SCard {
                         ForEach(Array(hidden.enumerated()), id: \.offset) { i, a in
-                            SettingRow(LocalizedStringKey(Engine.text(a["name"])), first: i == 0) {
+                            SettingRow((Engine.text(a["name"])), first: i == 0) {
                                 Toggle("", isOn: Binding(get: { false }, set: { _ in model.setAccountHidden(id: Engine.identifier(a["id"]), hidden: false) }))
                                     .labelsHidden().tint(Brand.accent)
                             }
@@ -428,13 +428,13 @@ struct ProfileSettingsView: View {
                 TutorialCard()
 
                 SCard {
-                    SettingRow("Moneda principal", note: LocalizedStringKey(currencyName(e.primaryCurrency)), first: true) {
+                    SettingRow("Moneda principal", note: (currencyName(e.primaryCurrency)), first: true) {
                         Picker("Moneda principal", selection: Binding(get: { e.primaryCurrency }, set: { chooseCurrencies($0, $0 == e.secondaryCurrency ? e.primaryCurrency : e.secondaryCurrency) })) {
                             ForEach(profileCurrencyOrder(e), id: \.self) { Text("\($0) (\(f.symbol($0).trimmingCharacters(in: .whitespaces)))").tag($0) }
                         }
                         .labelsHidden().tint(.primary)
                     }
-                    SettingRow("Segunda moneda", note: e.secondaryCurrency.isEmpty ? "Opcional" : LocalizedStringKey(currencyName(e.secondaryCurrency))) {
+                    SettingRow("Segunda moneda", note: e.secondaryCurrency.isEmpty ? "Opcional" : (currencyName(e.secondaryCurrency))) {
                         Picker("Segunda moneda", selection: Binding(get: { e.secondaryCurrency }, set: { chooseCurrencies(e.primaryCurrency, $0) })) {
                             Text("Ninguna").tag("")
                             ForEach(profileCurrencyOrder(e).filter { $0 != e.primaryCurrency }, id: \.self) { Text("\($0) (\(f.symbol($0).trimmingCharacters(in: .whitespaces)))").tag($0) }
@@ -445,7 +445,7 @@ struct ProfileSettingsView: View {
                         .labelsHidden().tint(.primary)
                     }
                     if !e.secondaryCurrency.isEmpty {
-                        SettingRow(LocalizedStringKey("1 \(e.primaryCurrency) en \(e.secondaryCurrency)")) { MiniField(placeholder: "", text: $fxText) }
+                        SettingRow(("1 \(e.primaryCurrency) en \(e.secondaryCurrency)")) { MiniField(placeholder: "", text: $fxText) }
                     }
                     SettingRow("Moneda personalizada", note: "Hasta 3 caracteres, p. ej. ARS") {
                         MiniField(placeholder: "", text: $customText, width: 78, numeric: false)
@@ -466,12 +466,12 @@ struct ProfileSettingsView: View {
         .confirmationDialog("Cambiar de moneda", isPresented: Binding(get: { pendingCur != nil && !askingRate }, set: { if !$0 && !askingRate { pendingCur = nil } }), titleVisibility: .visible) {
             if let p = pendingCur {
                 Button("Mantener los montos") { finishCurrencies(.keep) }
-                Button(p.plan.assigned > 0 ? "Convertir al tipo asignado (1 \(p.plan.lost.joined(separator: ", ")) = \(plain(p.plan.assigned)) \(p.primary))" : "Convertir al tipo asignado") { finishCurrencies(.assigned) }
+                Button(p.plan.assigned > 0 ? Tr.f("Convertir al tipo asignado (1 {0} = {1} {2})", p.plan.lost.joined(separator: ", "), plain(p.plan.assigned), p.primary) : "Convertir al tipo asignado") { finishCurrencies(.assigned) }
                 if p.plan.single { Button("Usar otro tipo de cambio") { manualRate = plain(p.plan.assigned); askingRate = true } }
                 Button("Cancelar", role: .cancel) { pendingCur = nil }
             }
         } message: {
-            if let p = pendingCur { Text("\(p.plan.lost.joined(separator: ", ")) → \(p.primary)\n¿Qué hacemos con los montos?") }
+            if let p = pendingCur { Text(verbatim: Tr.f("{0} → {1}\n¿Qué hacemos con los montos?", p.plan.lost.joined(separator: ", "), p.primary)) }
         }
         .alert("Tipo de cambio", isPresented: $askingRate) {
             TextField("0.00", text: $manualRate).keyboardType(.decimalPad)

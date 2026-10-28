@@ -80,7 +80,7 @@ struct CuentasView: View {
             .padding(.bottom, 14)
     }
 
-    private func stat(_ label: LocalizedStringKey, _ value: String, _ color: Color? = nil) -> some View {
+    private func stat(_ label: String, _ value: String, _ color: Color? = nil) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(label).font(.inter(15)).foregroundStyle(.secondary)
             Text(value).font(.inter(20, .bold)).tracking(-0.4).foregroundStyle(color ?? Color.primary).lineLimit(1).minimumScaleFactor(0.7)
@@ -89,7 +89,7 @@ struct CuentasView: View {
     }
 
     /// Título de sección con el botón de ordenar a la derecha (`sechead` + `sortbtn`).
-    private func sectionHead(_ title: LocalizedStringKey, pf: String) -> some View {
+    private func sectionHead(_ title: String, pf: String) -> some View {
         let s = model.engine.data["settings"]
         let mode = Engine.text(s?["\(pf)_sort"]).isEmpty ? "name" : Engine.text(s?["\(pf)_sort"])
         let desc = Engine.text(s?["\(pf)_dir"]) == "desc"
@@ -119,7 +119,7 @@ struct CuentasView: View {
         .padding(.horizontal, 4).padding(.top, 6).padding(.bottom, 12)
     }
 
-    private func addRow(_ title: LocalizedStringKey, _ action: (() -> Void)? = nil) -> some View {
+    private func addRow(_ title: String, _ action: (() -> Void)? = nil) -> some View {
         Button { if let action { action() } else { soon = true } } label: {
             HStack(spacing: 10) {
                 Image(systemName: "plus.circle").font(.system(size: 22))
@@ -358,7 +358,7 @@ struct CuentasView: View {
         .accessibilityLabel("Filtrar")
     }
 
-    private func linkRow(_ title: LocalizedStringKey, symbol: String, _ action: @escaping () -> Void) -> some View {
+    private func linkRow(_ title: String, symbol: String, _ action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 10) {
                 Image(systemName: symbol).font(.system(size: 20)).frame(width: 26)

@@ -1,0 +1,235 @@
+Tiene 1 movimiento
+Tiene 3 movimientos
+40% de $1,000 · Meta en 5 meses · mar 2027
+40% de $1,000
+Última vez guardado · mié 28 oct, 3:05 p. m.
+Última vez guardado · nunca
+1 USD en PEN
+Convertir al tipo asignado (1 USD = 3.75 PEN)
+Convertir al tipo asignado
+USD → PEN
+No se pudo guardar en el dispositivo: error
+Pago de Visa · final
+Pago de Visa
+Del 5 oct al 12 oct 2026
+Del 5 oct al 12 oct
+Atrás
+En Plata debes $1,200 en Visa y estás pagando $1,500. Si es por intereses, registra el pago completo.
+$0 ya está en 0. ¿Seguro que quieres registrar este pago?
+para mié 28 oct
+hoy
+ayer
+hace 3 días
+Pagar solo $120
+Registrar el pago completo
+Registrar de todos modos
+esperado hoy
+esperado 28 oct
+ · 1 de 12
+ · hasta 28 oct
+Libre de deuda en Oct 2026
+Libre de deuda
+No se liquida
+DEUDA EN TARJETAS · 2 CUENTAS
+DEUDA EN PRÉSTAMOS · 1 CUENTA
+Editar toda la serie del ingreso
+Editar toda la serie del gasto
+Editar toda la suscripción
+¿Eliminar este pago previsto?
+¿Eliminar este ingreso previsto?
+¿Eliminar este gasto previsto?
+2 años
+1 año y 3 meses
+Tiempo
+Gastaste 12% menos que en septiembre
+Gastas 12% más que en septiembre a esta altura
+Ahorraste el 12% de tus ingresos (antes 8%)
+Estás ahorrando el 12% de tus ingresos
+Estás ahorrando el 12% de tus ingresos (antes 8%)
+12% de tus ingresos
+vs. septiembre (aprox.)
+vs. septiembre
+sin mes anterior
+Cierre vs. septiembre
+Este mes vs. septiembre
+3 de 5 categorías dentro de su límite
+Vas mejor que en septiembre
+Tus servicios y suscripciones suman $45 al mes.
+1 suscripción nueva · +$10 al mes frente a septiembre
+2 suscripciones nuevas · +$10 al mes frente a septiembre
+−$5 al mes frente a septiembre
+Aún sin mes anterior para comparar
+Aún no tenemos suficientes datos tuyos. Necesitamos un mes de movimientos para aconsejarte.
+Vuelve a revisar en unos días.
+Tus tendencias de octubre.
+Tu evaluación fue A+.
+Octubre · día 28
+Cierre de octubre
+Quedan 3 días del mes
+Quedan 1 día del mes
+Del 5 oct al 12 oct
+Variación media vs. lo previsto: +$12.00 (3 ingresos confirmados)
+Variación media vs. lo previsto: +$12.00 (1 ingreso confirmado)
+$25/h · 40 h/sem · 15% impuestos · Banco
+12 hrs
+Pago de crédito
+Pago de crédito previsto
+esperado hace 3 días
+previsto hace 1 día
+Llevas 3 días sin registrar movimientos
+Aún sin movimientos en octubre
+Ver todo octubre
+Presupuesto de octubre
+Gastos de octubre
+Te quedan $120
+Te pasaste por $120
+Esta pantalla llega en la siguiente versión de la app nativa.
+Llega en la siguiente versión
+Entendido
+Ingreso mensual estimado ($)
+Pago por hora (US$)
+Hola, Leo
+Principal: USD
+Principal: USD · Segunda: PEN
+Saldo actual (USD)
+Monto por mes (USD)
+Saldo adeudado (USD)
+Límite de la tarjeta (USD)
+Pago mensual (USD)
+Meta (USD)
+Aporte mensual (USD)
+Meta de ahorro · mar 2027
+Meta en 5 meses · mar 2027
+Cuenta corriente
+Cuenta de ahorro
+Más de 10 años
+Neto: +$120
+Semana 3 de 4
+Página 1 de 3
+Día 15
+Día 15 de cada mes
+El día 15 de cada mes te preguntamos cuánto pagaste.
+Te recordamos el día 15 para que registres tu pago.
+¡Vamos! Ya llegaste a $500.
+Meta $500
+15% usado · disponible $500 de $1,000
+Usas 40% de tu crédito · 
+ · 12% anual · ≈ $20/mes
+12% anual
+≈ $20/mes
+$20/mes
+pago día 15
+Superaste el límite por $20.
+Vas rápido: llevas el 80% y va el día 12 de 30.
+A este ritmo cerrarías pasándote por unos $50.
+$500 al año
+$500 · sin límite
+Bruto ($25/h)
+Bajo tu colchón de $500
+¿Cuánto tendré el 28 oct?
+$20 frente a hoy
+({0} por semana)
+Del 5 oct al 12 oct · mínimo $50 el 8 oct (sin esto: $60)
+$500/mes · sueldo · Banco
+ · saldo $120
+Mes
+Total
+Orden
+Ordenar por
+Moneda
+Reemplazar
+Archivo importado.
+No se pudo leer el archivo.
+Este archivo no parece un perfil de Plata.
+¿Reemplazar tus datos con este archivo?
+Lo que tienes ahora se sustituye. Guarda antes un archivo si quieres conservarlo.
+Tutorial
+Foto de perfil
+Color
+Espectro
+Real
+Solo simular
+Escribe un monto.
+Escribe un nombre.
+Escribe el monto.
+Escribe cuánto pagaste.
+Elige dos cuentas distintas.
+Elige una fecha futura.
+Elige una tarjeta o préstamo.
+Primero crea una meta de ahorro.
+Debes tener al menos una cuenta.
+Ese nombre está reservado.
+Ya existe esa categoría.
+El día de pago va del 1 al 31.
+El interés no puede ser negativo.
+El fin debe ser posterior a la fecha.
+El fin debe ser posterior al inicio.
+Escribe las horas por semana.
+Escribe los días de pago (del 1 al 31).
+No se pudo guardar.
+No se pudo eliminar.
+No se pudo guardar el movimiento.
+No se pudo registrar la transferencia.
+No se pudo registrar el pago.
+No se pudo confirmar.
+No se pudo posponer.
+No se pudo abrir
+No se encontró el perfil de demostración.
+Este archivo es de una versión muy antigua de Plata y no se puede abrir aquí.
+El saldo de la cuenta se corrige.
+La meta es una forma de contar parte de tu dinero: el saldo de tus cuentas no cambia.
+¿Eliminar esta meta?
+¿Eliminar este trabajo?
+¿Eliminar este gasto simulado?
+¿Eliminar este set?
+Empieza con una copia de los límites de «Base». Luego los ajustas en Presupuesto.
+Esas fechas se cruzan con «Base». Cámbialas.
+Elige uno para ver Plata con datos de ejemplo. Tus datos reales siguen guardados aparte.
+Elige hasta 2 monedas. Puedes cambiarlo después en Ajustes.
+Puedes usar hasta 2 monedas a la vez. El tipo de cambio es tuyo: edítalo cuando cambie.
+Aunque por el momento cerrar y abrir la app mantiene tus datos, haz siempre una copia desde Ajustes para mantenerla al día y segura.
+Esta información no es recopilada por Plata ni Estudio 22. Toda la información se maneja en tu archivo de perfil.
+Diseñado por Estudio 22 en Nueva York.
+© Estudio 22 y Leonardo Richarte, 2026.
+Historia de Plata
+Lo más destacado, cada 50 compilaciones y en cada beta.
+Compilación 463
+Beta 4 · 463
+Plata · Beta 4
+Buenos días, Leo.
+Buenas tardes.
+Buenas noches, Leo.
+Domingo
+Lunes
+Miércoles
+Sábado
+Un mes intermedio. No está mal, pero puedes hacerlo un poquito mejor: elige una categoría para recortar y mira cómo cambia tu nota. Los grandes cambios empiezan con uno pequeño.
+Un mal mes no define tu camino. Empecemos de nuevo: un límite por categoría y un pequeño aporte a tus metas. Lo importante es seguir intentando.
+Un mes ejemplar: gastas con control, ahorras y cumples tus metas. Mantén este ritmo y sigue puliendo los detalles. Estás construyendo un hábito que se nota.
+Ritmo de primera. Mantenlo y cierra el mes con nota perfecta.
+Tu primer half‑time.
+Beta 1 · Lanzamiento público
+En 1 mes
+En 1 semana
+Incluir gasto variable estimado
+Mes redondo
+Hasta el día 15
+Quedan 3 días del mes
+Planifica tu mes
+Presupuesto
+Brenda
+NAZCA
+Nazca
+Tu opinión nos ayuda a mejorarla. Son unos 3 minutos.
+
+Al continuar, aceptas que la información que envíes en el formulario sí se recopila y autorizas a Estudio 22 y a Plata a usarla para mejorar la app.
+
+Este botón lleva a Google Forms.
+Ayuda en el taller de su papá y ahorra para una PS5
+Se repite cada mes
+Se repite 
+Pagar desde (monto en USD)
+Cuenta al ejecutarlo (monto en USD)
+Gasto previsto
+Pago simulado
+Ingreso previsto

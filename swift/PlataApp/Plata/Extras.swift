@@ -27,6 +27,11 @@ enum Prefs {
 
 private let langChoices: [(String, String)] = [("auto", "Automático"), ("es", "Español"), ("en", "English")]
 
+/// El nombre de un idioma: «Automático» se traduce; «Español» y «English» se muestran siempre en su propio idioma.
+@ViewBuilder private func langName(_ code: String) -> some View {
+    if code == "auto" { Text("Automático") } else { Text(verbatim: code == "es" ? "Español" : "English") }
+}
+
 /// Tarjeta «Idioma». En modo lectura es un valor; al editar, un selector.
 struct LanguageCard: View {
     @AppStorage(Prefs.langKey) private var lang = "auto"
@@ -37,11 +42,11 @@ struct LanguageCard: View {
             SettingRow("Idioma", first: true) {
                 if editable {
                     Picker("Idioma", selection: $lang) {
-                        ForEach(langChoices, id: \.0) { Text($0.1).tag($0.0) }
+                        ForEach(langChoices, id: \.0) { langName($0.0).tag($0.0) }
                     }
                     .labelsHidden().tint(.primary)
                 } else {
-                    Text(langChoices.first { $0.0 == lang }?.1 ?? "Automático").font(.inter(17)).foregroundStyle(.secondary)
+                    langName(langChoices.contains { $0.0 == lang } ? lang : "auto").font(.inter(17)).foregroundStyle(.secondary)
                 }
             }
         }

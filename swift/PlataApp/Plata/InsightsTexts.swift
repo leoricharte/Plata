@@ -19,6 +19,34 @@ enum InsightsText {
               ["Esto no define tu año, {n}. Hagamos un plan.", "Esto no define tu año. Hagamos un plan."], ["Un mal mes le pasa a cualquiera, {n}. Seguimos.", "Un mal mes le pasa a cualquiera. Seguimos."]],
     ]
 
+    /// Las frases del banner de cierre en inglés (`PH_T.en` de la web).
+    static let phrasesEN: [String: [[String]]] = [
+        "S": [["Excellent work in {mes}, {n}.", "Excellent work in {mes}."],
+              ["{n}, {mes} was a first-rate month.", "{Mes} was a first-rate month."],
+              ["Well done, {n}: {mes} came out spotless.", "Well done: {mes} came out spotless."],
+              ["A well-rounded month, {n}. Keep it up.", "A well-rounded month. Keep it up."]],
+        "A": [["A very good {mes}, {n}.", "A very good {mes}."],
+              ["You’re on a great path, {n}.", "You’re on a great path."],
+              ["Nice work in {mes}, {n}. Almost perfect.", "Nice work in {mes}. Almost perfect."],
+              ["{n}, {mes} went really well.", "{Mes} went really well."]],
+        "B": [["Good pace in {mes}, {n}.", "Good pace in {mes}."],
+              ["You’re doing well, {n}. One small tweak and you’ll move up.", "You’re doing well. One small tweak and you’ll move up."],
+              ["{Mes} turned out solid, {n}.", "{Mes} turned out solid."],
+              ["{bien}, {n}. There’s still room for more.", "{bien}. There’s still room for more."]],
+        "C": [["{Mes} was so-so, {n}. It can improve.", "{Mes} was so-so. It can improve."],
+              ["You’re halfway there, {n}. Let’s see where to adjust.", "You’re halfway there. Let’s see where to adjust."],
+              ["There’s room to improve, {n}.", "There’s room to improve."],
+              ["Neither bad nor good, {n}. You can do more.", "Neither bad nor good. You can do more."]],
+        "D": [["We can do better, {n}.", "We can do better."],
+              ["{Mes} was a tough one, {n}. You still have time.", "{Mes} was a tough one. You still have time."],
+              ["Time to adjust, {n}. Start with the biggest thing.", "Time to adjust. Start with the biggest thing."],
+              ["Let’s correct course, {n}.", "Let’s correct course."]],
+        "F": [["{Mes} was hard, {n}. Let’s start over.", "{Mes} was hard. Let’s start over."],
+              ["Time to hit the brakes, {n}. We’ll take it step by step.", "Time to hit the brakes. We’ll take it step by step."],
+              ["This doesn’t define your year, {n}. Let’s make a plan.", "This doesn’t define your year. Let’s make a plan."],
+              ["A bad month happens to everyone, {n}. We keep going.", "A bad month happens to everyone. We keep going."]],
+    ]
+
     static let evaluation: [String: String] = [
         "S": "Un mes ejemplar: gastas con control, ahorras y cumples tus metas. Mantén este ritmo y sigue puliendo los detalles. Estás construyendo un hábito que se nota.",
         "A": "Muy buen mes. Estás cerca de la excelencia; un pequeño ajuste en tus gastos más grandes te llevaría a la cima. Ya casi lo tienes.",
@@ -52,16 +80,20 @@ enum InsightsText {
     /// La frase del banner de cierre (`insPhrase`).
     static func phrase(_ m: InsightsModel, nick: String, gender: String) -> String {
         if !m.hasPrev { return "Registra un mes completo para recibir tu evaluación." }
-        let list = phrases[m.letter] ?? phrases["B"]!
+        let en = Tr.isEnglish
+        let table = en ? phrasesEN : phrases
+        let list = table[m.letter] ?? table["B"]!
         let y = Int(m.mk.prefix(4)) ?? 0, mo = (Int(String(m.mk.dropFirst(5).prefix(2))) ?? 1) - 1
         let v = list[(y * 12 + mo) % list.count]
-        let mes = Spanish.monthsFull[mo]
-        let bien = gender == "m" ? "Bien hecho" : "Buen trabajo"
+        let mes = en ? monthsEN[mo] : Spanish.monthsFull[mo]
+        let bien = en ? (gender == "m" || gender == "f" ? "Well done" : "Good work") : (gender == "m" ? "Bien hecho" : "Buen trabajo")
         return (nick.isEmpty ? v[1] : v[0])
             .replacingOccurrences(of: "{n}", with: nick).replacingOccurrences(of: "{bien}", with: bien)
             .replacingOccurrences(of: "{Mes}", with: mes.prefix(1).uppercased() + mes.dropFirst())
             .replacingOccurrences(of: "{mes}", with: mes)
     }
+
+    private static let monthsEN = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
     static func monthIndex(_ mk: String) -> Int { (Int(String(mk.dropFirst(5).prefix(2))) ?? 1) - 1 }
 }

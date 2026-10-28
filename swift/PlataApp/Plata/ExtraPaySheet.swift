@@ -65,7 +65,7 @@ struct ExtraPaySheet: View {
         return "\(Spanish.monthsShort[(c.month ?? 1) - 1]) \(c.year ?? 2000)"
     }
 
-    private func row(_ a: LocalizedStringKey, _ b: String, green: Bool = false) -> some View {
+    private func row(_ a: String, _ b: String, green: Bool = false) -> some View {
         HStack {
             Text(a).font(.inter(16))
             Spacer(minLength: 8)

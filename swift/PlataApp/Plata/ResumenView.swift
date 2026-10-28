@@ -120,7 +120,7 @@ struct ResumenView: View {
         }
     }
 
-    private func startRow(_ symbol: String, _ title: LocalizedStringKey, _ action: @escaping () -> Void) -> some View {
+    private func startRow(_ symbol: String, _ title: String, _ action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 10) {
                 Image(systemName: symbol).font(.system(size: 22)).foregroundStyle(Brand.green).frame(width: 26)
@@ -322,12 +322,12 @@ struct ResumenView: View {
                 }
             }
             RowDivider()
-            NavigationLink(value: Route.month) { MoreRow(title: LocalizedStringKey("Ver todo \(month)")) }
+            NavigationLink(value: Route.month) { MoreRow(title: ("Ver todo \(month)")) }
                 .buttonStyle(.plain)
         }
     }
 
-    private func stat(_ title: LocalizedStringKey, _ value: String, _ color: Color) -> some View {
+    private func stat(_ title: String, _ value: String, _ color: Color) -> some View {
         VStack(spacing: 2) {
             Text(title).font(.inter(15)).foregroundStyle(.secondary)
             Text(value).font(.inter(17, .semibold)).monospacedDigit().foregroundStyle(color).lineLimit(1).minimumScaleFactor(0.7)
@@ -341,7 +341,7 @@ struct ResumenView: View {
         let left = c.budgetTotal - c.expV
         let pct = c.budgetTotal > 0 ? min(1, max(0, c.expV / c.budgetTotal)) : 0
         let month = Spanish.monthsFull[model.today.month0]
-        return Card(title: LocalizedStringKey("Presupuesto de \(month)")) {
+        return Card(title: ("Presupuesto de \(month)")) {
             HStack(alignment: .firstTextBaseline, spacing: 6) {
                 Text(f.whole(c.expV)).font(.inter(26, .bold, relativeTo: .title)).tracking(-0.9)
                 Text("de \(f.whole(c.budgetTotal))").font(.inter(15, .medium)).foregroundStyle(.secondary)
@@ -363,7 +363,7 @@ struct ResumenView: View {
 
     private func expensesCard(_ c: CalcResult, _ f: Fmt) -> some View {
         let month = Spanish.monthsFull[model.today.month0]
-        return Card(title: LocalizedStringKey("Gastos de \(month)")) {
+        return Card(title: ("Gastos de \(month)")) {
             Text(f.whole(c.expense)).font(.inter(30, .bold, relativeTo: .title)).tracking(-1)
             ChartLegend().padding(.top, 2).padding(.bottom, 6)
             MonthsChart(months: c.months, symbol: f.symbol(f.currency).trimmingCharacters(in: .whitespaces))
@@ -457,7 +457,11 @@ struct ComingSoonView: View {
     let title: String
 
     var body: some View {
-        ContentUnavailableView(title, systemImage: "hammer.fill", description: Text("Esta pantalla llega en la siguiente versión de la app nativa."))
+        ContentUnavailableView {
+            Label(title, systemImage: "hammer.fill")
+        } description: {
+            Text("Esta pantalla llega en la siguiente versión de la app nativa.")
+        }
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
     }

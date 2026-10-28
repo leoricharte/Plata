@@ -1,0 +1,116 @@
+# Textos que solo existen en la app nativa (es ¦ en). Se suman a los diccionarios de la web (dev/app/src/tr/*.txt) y ganan sobre ellos.
+# Reglas: los números van como {0}, {1}… en el orden en que aparecen; el nombre del usuario es {n}; los meses {m} / {M}; las fechas {d} {e} {f}.
+# Los plurales se normalizan al singular («{0} días» → «{0} día»); en inglés se usa {0?singular:plural}.
+
+# --- Mensajes de error y avisos
+Atrás ¦ Back
+Mes ¦ Month
+Orden ¦ Order
+Ordenar por ¦ Sort by
+Moneda ¦ Currency
+Tiempo ¦ Time
+Reemplazar ¦ Replace
+Espectro ¦ Spectrum
+Foto de perfil ¦ Profile photo
+Archivo importado. ¦ File imported.
+No se pudo leer el archivo. ¦ Couldn’t read the file.
+Este archivo no parece un perfil de Plata. ¦ This file doesn’t look like a Plata profile.
+Este archivo es de una versión muy antigua de Plata y no se puede abrir aquí. ¦ This file is from a very old version of Plata and can’t be opened here.
+¿Reemplazar tus datos con este archivo? ¦ Replace your data with this file?
+Lo que tienes ahora se sustituye. Guarda antes un archivo si quieres conservarlo. ¦ What you have now will be replaced. Save a file first if you want to keep it.
+Elige dos cuentas distintas. ¦ Choose two different accounts.
+No se pudo guardar. ¦ Couldn’t save.
+No se pudo eliminar. ¦ Couldn’t delete.
+No se pudo guardar el movimiento. ¦ Couldn’t save the transaction.
+No se pudo registrar la transferencia. ¦ Couldn’t record the transfer.
+No se pudo registrar el pago. ¦ Couldn’t record the payment.
+No se pudo confirmar. ¦ Couldn’t confirm.
+No se pudo posponer. ¦ Couldn’t postpone.
+No se pudo abrir ¦ Couldn’t open
+No se pudo guardar en el dispositivo ¦ Couldn’t save to the device
+No se encontró el perfil de demostración. ¦ Demo profile not found.
+El saldo de la cuenta se corrige. ¦ The account balance is corrected.
+La meta es una forma de contar parte de tu dinero: el saldo de tus cuentas no cambia. ¦ A goal is a way to set aside part of your money: your account balances don’t change.
+¿Eliminar esta meta? ¦ Delete this goal?
+¿Eliminar este trabajo? ¦ Delete this job?
+¿Eliminar este gasto simulado? ¦ Delete this simulated expense?
+¿Eliminar este set? ¦ Delete this set?
+¿Eliminar este pago previsto? ¦ Delete this planned payment?
+¿Eliminar este ingreso previsto? ¦ Delete this planned income?
+¿Eliminar este gasto previsto? ¦ Delete this planned expense?
+Esas fechas se cruzan con «{0}». Cámbialas. ¦ Those dates overlap with “{0}”. Change them.
+En Plata debes {0} en {1} y estás pagando {2}. Si es por intereses, registra el pago completo. ¦ In Plata you owe {0} on {1} and you’re paying {2}. If it’s for interest, record the full payment.
+{0} ya está en 0. ¿Seguro que quieres registrar este pago? ¦ {0} is already at 0. Are you sure you want to record this payment?
+Convertir al tipo asignado (1 {0} = {1} {2}) ¦ Convert at the set rate (1 {0} = {1} {2})
+{0} → {1}\n¿Qué hacemos con los montos? ¦ {0} → {1}\nWhat should we do with the amounts?
+Hola, {0} ¦ Hello, {0}
+Principal ¦ Primary
+Tiene {0} movimiento ¦ It has {0} {0?transaction:transactions}
+ y está ligada a  ¦  and is linked to 
+Esta pantalla llega en la siguiente versión de la app nativa. ¦ This screen arrives in the next version of the native app.
+Llega en la siguiente versión ¦ Coming in the next version
+Elige uno para ver Plata con datos de ejemplo. Tus datos reales siguen guardados aparte. ¦ Pick one to see Plata with sample data. Your real data stays saved separately.
+Aunque por el momento cerrar y abrir la app mantiene tus datos, haz siempre una copia desde Ajustes para mantenerla al día y segura. ¦ Even though closing and reopening the app keeps your data for now, always make a copy from Settings to keep it up to date and safe.
+
+# --- Composiciones con números, meses y fechas
+hace {0} día ¦ {0} {0?day:days} ago
+Pagar solo {0} ¦ Pay only {0}
+para {d} ¦ for {d}
+esperado {d} ¦ expected {d}
+· {0} de {1} ¦ · {0} of {1}
+· hasta {d} ¦ · until {d}
+Estás ahorrando el {0} de tus ingresos ¦ You’re saving {0} of your income
+{0} de tus ingresos ¦ {0} of your income
+vs. {m} (aprox.) ¦ vs. {M} (approx.)
+Tus servicios y suscripciones suman {0} al mes ¦ Your services and subscriptions add up to {0} a month
+Tus servicios y suscripciones suman {0} al mes, el {1} de lo que has ingresado este mes ¦ Your services and subscriptions add up to {0} a month, {1} of what you’ve earned this month
+{0} suscripción nueva ¦ {0} new {0?subscription:subscriptions}
+{0} al mes frente a {m} ¦ {0} a month vs. {M}
+Aún no tenemos suficientes datos tuyos. Necesitamos un mes de movimientos para aconsejarte. ¦ We don’t have enough of your data yet. We need a month of transactions to advise you.
+Variación media vs. lo previsto: {0} ({1} ingreso confirmado) ¦ Average variance vs. planned: {0} ({1} confirmed {1?income:incomes})
+Variación media vs. lo previsto: {0} ({1} ingreso confirmados) ¦ Average variance vs. planned: {0} ({1} confirmed {1?income:incomes})
+{0} h/sem ¦ {0} h/wk
+{0} impuestos ¦ {0} tax
+Aún sin movimientos en {m} ¦ No transactions yet in {M}
+Ver todo {m} ¦ See all {M}
+Meta {0} ¦ Goal {0}
+Bruto ({0}/h) ¦ Gross ({0}/h)
+({0} por semana) ¦ ({0} per week)
+Neto: {0} ¦ Net: {0}
+{d}, {0}:{1} p. m. ¦ {d}, {0}:{1} PM
+{d}, {0}:{1} a. m. ¦ {d}, {0}:{1} AM
+
+# --- Saludos y días
+Buenos días ¦ Good morning
+Buenos días, {n} ¦ Good morning, {n}
+Buenas tardes ¦ Good afternoon
+Buenas tardes, {n} ¦ Good afternoon, {n}
+Buenas noches ¦ Good evening
+Buenas noches, {n} ¦ Good evening, {n}
+Domingo ¦ Sunday
+Lunes ¦ Monday
+Martes ¦ Tuesday
+Miércoles ¦ Wednesday
+Jueves ¦ Thursday
+Viernes ¦ Friday
+Sábado ¦ Saturday
+Diamante ¦ Diamond
+Cuenta corriente ¦ Checking account
+Cuenta de ahorro ¦ Savings account
+más de {0} año ¦ more than {0} {0?year:years}
+
+# --- Evaluaciones que faltaban
+Un mes intermedio. No está mal, pero puedes hacerlo un poquito mejor: elige una categoría para recortar y mira cómo cambia tu nota. Los grandes cambios empiezan con uno pequeño. ¦ A middle-of-the-road month. Not bad, but you can do a little better: pick a category to trim and watch how your grade changes. Big changes start small.
+Un mal mes no define tu camino. Empecemos de nuevo: un límite por categoría y un pequeño aporte a tus metas. Lo importante es seguir intentando. ¦ One bad month doesn’t define your path. Let’s start over: a limit per category and a small contribution to your goals. What matters is to keep trying.
+
+# --- Créditos e historia
+© Estudio 22 y Leonardo Richarte, 2026. ¦ © Estudio 22 and Leonardo Richarte, 2026.
+Historia de Plata ¦ Plata’s history
+Lo más destacado, cada 50 compilaciones y en cada beta. ¦ The highlights, every 50 builds and with each beta.
+Beta 1 · Lanzamiento público ¦ Beta 1 · Public launch
+Plata sale a internet con su sitio en plataapp.net. ¦ Plata goes online with its site at plataapp.net.
+Plata llega a tu mesa: versión de escritorio y Bentos, además del modo oscuro y nuevas secciones en la web. ¦ Plata comes to your desk: desktop version and Bentos, plus dark mode and new sections on the web.
+Plata Cloud: sincronización cifrada entre tus dispositivos, por invitación y con el primer mes gratis. Además, notas y rachas con laureles, transferencias entre cuentas, logos automáticos de bancos y servicios, y avisos inteligentes. ¦ Plata Cloud: encrypted sync between your devices, by invitation and with the first month free. Plus grades and streaks with laurels, transfers between accounts, automatic bank and service logos, and smart notices.
+Nazca lee tus estados de cuenta en tu dispositivo, Revisión con sugerencias en tarjetas y detección de recurrentes, historial de cada suscripción e infraestructura blindada. ¦ Nazca reads your account statements on your device, Review with suggestions on cards and recurring detection, history for each subscription and hardened infrastructure.
+Aviso para abrir Plata en el navegador real si la abres desde Instagram u otras apps. ¦ A notice to open Plata in the real browser if you open it from Instagram or other apps.
+La primera versión guardada de la app. ¦ The first saved version of the app.

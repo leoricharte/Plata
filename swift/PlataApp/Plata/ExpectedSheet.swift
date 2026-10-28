@@ -34,7 +34,7 @@ struct ExpectedSheet: View {
         let cur = e.accountCurrency(.string(account))
         ScrollView {
             VStack(spacing: 0) {
-                SheetHead(title: LocalizedStringKey(isIncome ? "Ingreso previsto" : (isCardPay ? "Pago de crédito previsto" : "Gasto previsto")), onClose: { dismiss() }, onSave: { save() })
+                SheetHead(title: (isIncome ? "Ingreso previsto" : (isCardPay ? "Pago de crédito previsto" : "Gasto previsto")), onClose: { dismiss() }, onSave: { save() })
                 AmountField(symbol: f.symbol(cur).trimmingCharacters(in: .whitespaces), text: $amountText,
                             placeholder: Money.decimals(cur) > 0 ? "0.00" : "0", focus: $amountFocused, label: isCardPay ? "Pago previsto" : "Monto previsto")
                 PillSegmented(items: [("0", "Una vez"), ("7", "Semanal"), ("14", "14 días"), ("q", "Quincenal"), ("m", "Mensual")], selection: $repeatKey)
@@ -53,7 +53,7 @@ struct ExpectedSheet: View {
                         }
                         RowDivider()
                     }
-                    SRow(symbol: "creditcard", label: LocalizedStringKey(isIncome ? "Cuenta" : (isCardPay ? "Pagar desde" : "Cuenta o tarjeta"))) {
+                    SRow(symbol: "creditcard", label: (isIncome ? "Cuenta" : (isCardPay ? "Pagar desde" : "Cuenta o tarjeta"))) {
                         Menu {
                             Picker("", selection: $account) {
                                 Section("Débito") {

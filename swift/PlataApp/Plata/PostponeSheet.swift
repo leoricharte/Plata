@@ -54,7 +54,7 @@ struct PostponeSheet: View {
         Calendar.current.startOfDay(for: Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date())
     }
 
-    private func chip(_ title: LocalizedStringKey, days: Int) -> some View {
+    private func chip(_ title: String, days: Int) -> some View {
         Button {
             date = Calendar.current.date(byAdding: .day, value: days, to: Date()) ?? date
         } label: {

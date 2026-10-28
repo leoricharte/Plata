@@ -86,9 +86,9 @@ private struct ConfirmBody: View {
         } message: {
             if let owed = overpay, let c = card(e) {
                 let cur = Engine.text(c["cur"])
-                Text(owed > 0.005
-                     ? "En Plata debes \(f.exact(owed, cur)) en \(Engine.text(c["name"])) y estás pagando \(f.exact(num(amountText), cur)). Si es por intereses, registra el pago completo."
-                     : "\(Engine.text(c["name"])) ya está en 0. ¿Seguro que quieres registrar este pago?")
+                Text(verbatim: owed > 0.005
+                     ? Tr.f("En Plata debes {0} en {1} y estás pagando {2}. Si es por intereses, registra el pago completo.", f.exact(owed, cur), Engine.text(c["name"]), f.exact(num(amountText), cur))
+                     : Tr.f("{0} ya está en 0. ¿Seguro que quieres registrar este pago?", Engine.text(c["name"])))
             }
         }
     }
@@ -125,7 +125,7 @@ private struct ConfirmBody: View {
         let loan = Engine.text(c["kind"]) == "loan"
         SheetHead(title: loan ? "¿Pagaste tu préstamo?" : "¿Pagaste tu tarjeta?", onClose: { dismiss() }, onSave: { tapPay(c) })
         AmountField(symbol: f.symbol(cur).trimmingCharacters(in: .whitespaces), text: $amountText,
-                    placeholder: Money.decimals(cur) > 0 ? "0.00" : "0", focus: $focus, label: LocalizedStringKey(header(Engine.text(c["name"]) + " · día de pago " + when(Engine.text(c["auto"]?["next"])))))
+                    placeholder: Money.decimals(cur) > 0 ? "0.00" : "0", focus: $focus, label: (header(Engine.text(c["name"]) + " · día de pago " + when(Engine.text(c["auto"]?["next"])))))
         Text(isFinal(c) ? "Última cuota · es lo que te queda" : "¿Cuánto pagaste?")
             .font(.inter(13, .semibold)).foregroundStyle(.secondary).padding(.bottom, 14)
         SCard {
@@ -153,9 +153,9 @@ private struct ConfirmBody: View {
         let job = out ? nil : e.jobOf(x)
         let title = pcd != nil ? (Engine.text(pcd?["kind"]) == "loan" ? "¿Pagaste tu préstamo?" : "¿Pagaste tu tarjeta?") : (out ? "¿Se cobró este gasto?" : "¿Llegó tu ingreso?")
         let label = Engine.text(x["name"]) + " · " + (out ? "previsto " : "esperado ") + when(Engine.text(x["date"]))
-        SheetHead(title: LocalizedStringKey(title), onClose: { dismiss() }, onSave: { tapItem(e) })
+        SheetHead(title: (title), onClose: { dismiss() }, onSave: { tapItem(e) })
         AmountField(symbol: f.symbol(cur).trimmingCharacters(in: .whitespaces), text: $amountText,
-                    placeholder: "0", focus: $focus, label: LocalizedStringKey(header(label)))
+                    placeholder: "0", focus: $focus, label: (header(label)))
         deltaChip(f, cur, amount: num(amountText), expected: eff, out: out)
         if let job, Engine.text(job["mode"]) != "s" {
             let hrs = num(hoursText)

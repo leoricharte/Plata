@@ -32,7 +32,7 @@ struct SavingSheet: View {
                 AmountField(symbol: f.symbol(cur).trimmingCharacters(in: .whitespaces), text: $goalText,
                             placeholder: Money.decimals(cur) > 0 ? "0.00" : "0", focus: $goalFocused, label: "Meta")
                 if curs.count > 1 {
-                    PillSegmented(items: curs.map { ($0, LocalizedStringKey($0)) }, selection: $cur).padding(.bottom, 10)
+                    PillSegmented(items: curs.map { ($0, ($0)) }, selection: $cur).padding(.bottom, 10)
                 }
                 SCard {
                     FieldRow(symbol: "pencil", label: "Nombre", placeholder: "Nombre", text: $name)

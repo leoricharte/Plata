@@ -63,6 +63,7 @@ enum Spanish {
     /// «Ejemplo: «Estás listo, Ana. Bienvenido.»» (`genderExampleL`, en español).
     static func genderExample(_ g: String, nick: String) -> String {
         let n = nick.trimmingCharacters(in: .whitespaces)
+        if Tr.isEnglish { return "Example: “Well done" + (n.isEmpty ? "" : ", " + n) + ". Welcome.”" }
         let a = ["m": "Estás listo", "f": "Estás lista"][g] ?? "Todo listo"
         let b = ["m": "Bienvenido", "f": "Bienvenida"][g] ?? "Te damos la bienvenida"
         return "Ejemplo: «\(a)\(n.isEmpty ? "" : ", " + n). \(b).»"
@@ -145,10 +146,10 @@ struct LetterTile: View {
 
 /// Una tarjeta: texto pequeño arriba y el contenido; esquinas de 26 pt como la web.
 struct Card<Content: View>: View {
-    let title: LocalizedStringKey?
+    let title: String?
     let content: Content
 
-    init(title: LocalizedStringKey? = nil, @ViewBuilder content: () -> Content) {
+    init(title: String? = nil, @ViewBuilder content: () -> Content) {
         self.title = title
         self.content = content()
     }
@@ -181,8 +182,8 @@ struct ListCard<Content: View>: View {
 
 /// Título de sección grande ("Cuentas", "Más").
 struct SectionHead: View {
-    let title: LocalizedStringKey
-    init(_ title: LocalizedStringKey) { self.title = title }
+    let title: String
+    init(_ title: String) { self.title = title }
 
     var body: some View {
         Text(title)
@@ -196,7 +197,7 @@ struct SectionHead: View {
 
 /// Fila de una tarjeta de lista con flecha: título a la izquierda y detalle a la derecha.
 struct MoreRow: View {
-    let title: LocalizedStringKey
+    let title: String
     var detail: String = ""
     var detailColor: Color = .secondary
 
@@ -221,7 +222,7 @@ struct RowDivider: View {
 
 /// Enlace verde de una tarjeta ("Ver ahorro").
 struct GreenLink: View {
-    let title: LocalizedStringKey
+    let title: String
     var body: some View {
         Text(title).font(.inter(15, .medium)).foregroundStyle(Brand.green).padding(.top, 6)
     }

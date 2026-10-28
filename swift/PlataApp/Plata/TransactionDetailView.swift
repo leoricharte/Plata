@@ -127,7 +127,7 @@ struct TransactionDetailView: View {
 
     /// Una fila de datos de la tarjeta (`.stats`): dos columnas con etiqueta pequeña y valor en negrita; desde la segunda lleva una línea arriba.
     @ViewBuilder
-    private func statsRow(first: Bool, _ a: (LocalizedStringKey, String, Color?), _ b: (LocalizedStringKey, String, Color?)?) -> some View {
+    private func statsRow(first: Bool, _ a: (String, String, Color?), _ b: (String, String, Color?)?) -> some View {
         VStack(spacing: 0) {
             if !first { RowDivider().padding(.top, 14) }
             HStack(alignment: .top, spacing: 20) {
@@ -138,7 +138,7 @@ struct TransactionDetailView: View {
         }
     }
 
-    private func stat(_ label: LocalizedStringKey, _ value: String, _ color: Color?) -> some View {
+    private func stat(_ label: String, _ value: String, _ color: Color?) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(label).font(.inter(15)).foregroundStyle(.secondary)
             Text(value).font(.inter(20, .bold)).tracking(-0.4).foregroundStyle(color ?? Color.primary)

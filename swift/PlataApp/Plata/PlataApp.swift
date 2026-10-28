@@ -15,7 +15,7 @@ struct PlataApp: App {
     var body: some Scene {
         WindowGroup {
             ZStack {
-                RootView()
+                RootView().id(Tr.resolve(lang))
                 if showSplash {
                     SplashView(opening: opening).zIndex(1)
                 }

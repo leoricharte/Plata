@@ -28,7 +28,7 @@ struct EventSheet: View {
             VStack(spacing: 0) {
                 SheetHead(title: "Editar este evento", onClose: { dismiss() }, onSave: { save() })
                 AmountField(symbol: f.symbol(cur).trimmingCharacters(in: .whitespaces), text: $amount,
-                            placeholder: Money.decimals(cur) > 0 ? "0.00" : "0", focus: $focus, label: LocalizedStringKey(entry?.name ?? ""))
+                            placeholder: Money.decimals(cur) > 0 ? "0.00" : "0", focus: $focus, label: (entry?.name ?? ""))
                 SCard { DateRow(symbol: "calendar", label: "Fecha de este evento", date: $date) }
                 Text("Solo cambia este evento; el resto de la serie sigue igual.")
                     .font(.inter(13)).foregroundStyle(.secondary)

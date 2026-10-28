@@ -20,7 +20,7 @@ struct PresupuestoView: View {
         let dl = c.dim - model.today.day + 1
         ScrollView {
             VStack(spacing: 0) {
-                PageHead(eyebrow: bt > 0 ? LocalizedStringKey("Quedan \(dl) \(dl == 1 ? "día" : "días") del mes") : "Planifica tu mes", title: "Presupuesto")
+                PageHead(eyebrow: bt > 0 ? ("Quedan \(dl) \(dl == 1 ? "día" : "días") del mes") : "Planifica tu mes", title: "Presupuesto")
 
                 setCard(set, active: set == act)
                 ringCard(e, c, f, bt, left, dl, preview: set != act)
@@ -201,7 +201,7 @@ struct PresupuestoView: View {
         .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 26, style: .continuous))
     }
 
-    private func addRow(_ title: LocalizedStringKey, _ action: (() -> Void)? = nil) -> some View {
+    private func addRow(_ title: String, _ action: (() -> Void)? = nil) -> some View {
         Button { if let action { action() } else { soon = true } } label: {
             HStack(spacing: 10) {
                 Image(systemName: "plus.circle").font(.system(size: 22))

@@ -114,7 +114,7 @@ struct TransactionSheet: View {
                         Text(Self.dateText(date))
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .overlay {
-                                DatePicker("Fecha", selection: $date, in: ...Date(), displayedComponents: .date)
+                                DatePicker(selection: $date, in: ...Date(), displayedComponents: .date) { Text("Fecha") }
                                     .labelsHidden()
                                     .colorMultiply(.clear)
                                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -149,9 +149,9 @@ struct TransactionSheet: View {
             if let owed = overpay {
                 let cur = e.accountCurrency(.string(card))
                 let name = e.allCards.first(where: { Engine.text($0["id"]) == card }).map { Engine.text($0["name"]) } ?? ""
-                Text(owed > 0.005
-                     ? "En Plata debes \(f.exact(owed, cur)) en \(name) y estás pagando \(f.exact(parsedAmount() ?? 0, cur)). Si es por intereses, registra el pago completo."
-                     : "\(name) ya está en 0. ¿Seguro que quieres registrar este pago?")
+                Text(verbatim: owed > 0.005
+                     ? Tr.f("En Plata debes {0} en {1} y estás pagando {2}. Si es por intereses, registra el pago completo.", f.exact(owed, cur), name, f.exact(parsedAmount() ?? 0, cur))
+                     : Tr.f("{0} ya está en 0. ¿Seguro que quieres registrar este pago?", name))
             }
         }
         .onChange(of: isOut) { _, nowOut in
@@ -217,8 +217,8 @@ struct TransactionSheet: View {
 
     // MARK: pago de crédito
 
-    private func typeItems(_ e: Engine) -> [(String, LocalizedStringKey)] {
-        var items: [(String, LocalizedStringKey)] = [("out", "Gasto"), ("in", "Ingreso")]
+    private func typeItems(_ e: Engine) -> [(String, String)] {
+        var items: [(String, String)] = [("out", "Gasto"), ("in", "Ingreso")]
         if editedTx == nil && !e.allCards.isEmpty { items.append(("pay", "Pago de crédito")) }
         return items
     }

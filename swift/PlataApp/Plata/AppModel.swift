@@ -57,6 +57,18 @@ final class AppModel {
         self.today = t
         self.engine = Engine(profile: p, today: t)
         self.showWelcome = !Welcome.seen && !p.hasData && !p.isDemo
+        Self.syncTrNames(engine)
+    }
+
+    /// Los nombres que el traductor reemplaza por `{n}` (apodo y nombre, como `userNames` en la web).
+    private static func syncTrNames(_ e: Engine) {
+        let s = e.data["settings"]
+        var out: [String] = []
+        for k in ["nick", "first"] {
+            let x = Engine.text(s?[k]).trimmingCharacters(in: .whitespaces)
+            if x.count >= 2 && !out.contains(x) { out.append(x) }
+        }
+        Tr.names = out
     }
 
     var isDemo: Bool { profile.isDemo }
@@ -76,6 +88,7 @@ final class AppModel {
         guard t != today else { return }
         today = t
         engine = Engine(profile: profile, today: t)
+        Self.syncTrNames(engine)
     }
 
     // MARK: cambios
@@ -86,8 +99,9 @@ final class AppModel {
         stamper.stamp(&raw, now: Date().timeIntervalSince1970 * 1000)
         profile = Profile(raw: raw)
         engine = Engine(profile: profile, today: today)
+        Self.syncTrNames(engine)
         changes += 1
-        do { try store.save(profile); stampSaved() } catch { errorMessage = "No se pudo guardar en el dispositivo: \(error.localizedDescription)" }
+        do { try store.save(profile); stampSaved() } catch { errorMessage = Tr.t("No se pudo guardar en el dispositivo") + ": \(error.localizedDescription)" }
     }
 
     func addTransaction(date: LocalDate, amount: Double, category: String, note: String, account: String) throws {
@@ -464,6 +478,7 @@ final class AppModel {
         stamper.stamp(&raw, now: Date().timeIntervalSince1970 * 1000)
         profile = Profile(raw: raw)
         engine = Engine(profile: profile, today: today)
+        Self.syncTrNames(engine)
         changes += 1
         try store.save(profile)
         stampSaved()
@@ -493,6 +508,7 @@ final class AppModel {
         stamper.stamp(&raw, now: Date().timeIntervalSince1970 * 1000)
         profile = Profile(raw: raw)
         engine = Engine(profile: profile, today: today)
+        Self.syncTrNames(engine)
         changes += 1
         try store.save(profile)
         stampSaved()

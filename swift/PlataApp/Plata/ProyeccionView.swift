@@ -186,7 +186,7 @@ struct ProyeccionView: View {
                 ForEach(Array([("Ingreso", "in"), ("Gasto", "out"), ("Servicio o suscripción", "sub"), ("Pago de deuda", "card"), ("Simulado", "sim")].enumerated()), id: \.offset) { _, x in
                     HStack(spacing: 6) {
                         Circle().fill(Color(hex: Self.dot[x.1] ?? "#8E8E93")).frame(width: 10, height: 10)
-                        Text(LocalizedStringKey(x.0))
+                        Text((x.0))
                     }
                 }
             }
@@ -277,7 +277,7 @@ struct ProyeccionView: View {
             if cur < 0 {
                 StatusBadge(text: "En rojo", fg: Brand.lossText, bg: Color(light: "#FFE5E3", dark: "#3A1B19"), size: 13).padding(.top, 4)
             } else if cur < cushion {
-                StatusBadge(text: LocalizedStringKey("Bajo tu colchón de \(f.whole(cushion))"), size: 13).padding(.top, 4)
+                StatusBadge(text: ("Bajo tu colchón de \(f.whole(cushion))"), size: 13).padding(.top, 4)
             }
             ProjectionChart(series: ser, sel: w, symbol: sym).padding(.top, 12)
             HStack {
@@ -313,7 +313,7 @@ struct ProyeccionView: View {
 
     // MARK: listas
 
-    private func row(tile: AnyView, title: String, badge: LocalizedStringKey? = nil, sub: String, trailing: AnyView, onTap: (() -> Void)? = nil) -> some View {
+    private func row(tile: AnyView, title: String, badge: String? = nil, sub: String, trailing: AnyView, onTap: (() -> Void)? = nil) -> some View {
         HStack(spacing: 12) {
             tile
             VStack(alignment: .leading, spacing: 2) {
@@ -332,7 +332,7 @@ struct ProyeccionView: View {
         .onTapGesture { if let onTap { onTap() } else { soon = true } }
     }
 
-    private func addRow(_ title: LocalizedStringKey, _ action: (() -> Void)? = nil) -> some View {
+    private func addRow(_ title: String, _ action: (() -> Void)? = nil) -> some View {
         Button { if let action { action() } else { soon = true } } label: {
             HStack(spacing: 10) {
                 Image(systemName: "plus.circle").font(.system(size: 22))

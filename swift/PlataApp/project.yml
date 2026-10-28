@@ -3,6 +3,7 @@
 name: Plata
 options:
   bundleIdPrefix: net.plataapp
+  developmentLanguage: es
   createIntermediateGroups: true
   deploymentTarget:
     iOS: "18.0"

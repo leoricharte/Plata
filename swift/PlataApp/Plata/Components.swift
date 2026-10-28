@@ -52,7 +52,7 @@ struct ChartLegend: View {
         .foregroundStyle(.secondary)
     }
 
-    private func item(_ color: Color, _ title: LocalizedStringKey) -> some View {
+    private func item(_ color: Color, _ title: String) -> some View {
         HStack(spacing: 6) {
             RoundedRectangle(cornerRadius: 3, style: .continuous).fill(color).frame(width: 10, height: 10)
             Text(title)
@@ -117,7 +117,7 @@ struct MonthsChart: View {
             AxisMarks { value in
                 AxisValueLabel {
                     if let s = value.as(String.self) {
-                        Text(s).font(.inter(13, s == current ? .semibold : .regular)).foregroundStyle(s == current ? Color.primary : Color.secondary)
+                        Text(verbatim: Tr.monthAbbr(s)).font(.inter(13, s == current ? .semibold : .regular)).foregroundStyle(s == current ? Color.primary : Color.secondary)
                     }
                 }
             }

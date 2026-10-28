@@ -5,7 +5,7 @@ import PlataCore
 
 /// Cabecera de una hoja: ✕ de vidrio a la izquierda, título centrado y ✓ verde a la derecha.
 struct SheetHead: View {
-    let title: LocalizedStringKey
+    let title: String
     var onClose: () -> Void
     var onSave: (() -> Void)? = nil
 
@@ -47,7 +47,7 @@ struct AmountField: View {
     @Binding var text: String
     var placeholder = "0"
     var focus: FocusState<Bool>.Binding
-    var label: LocalizedStringKey = "Monto"
+    var label: String = "Monto"
     static let font = Font.custom("Inter", fixedSize: 52).weight(.bold)
 
     var body: some View {
@@ -92,9 +92,9 @@ struct SCard<Content: View>: View {
 /// Una fila de formulario: icono verde, etiqueta pequeña y el valor debajo.
 struct SRow<Content: View>: View {
     let symbol: String
-    let label: LocalizedStringKey
+    let label: String
     let content: Content
-    init(symbol: String, label: LocalizedStringKey, @ViewBuilder content: () -> Content) {
+    init(symbol: String, label: String, @ViewBuilder content: () -> Content) {
         self.symbol = symbol
         self.label = label
         self.content = content()
@@ -146,7 +146,7 @@ struct ChipRow: View {
 
 /// El selector en cápsula de la web (`.seg`): fondo gris y una pastilla blanca que se desliza.
 struct PillSegmented<Value: Hashable>: View {
-    let items: [(Value, LocalizedStringKey)]
+    let items: [(Value, String)]
     @Binding var selection: Value
     @Namespace private var ns
 
@@ -200,7 +200,7 @@ struct SecondaryPillStyle: ButtonStyle {
 
 /// Etiqueta pequeña de la web (`.badge`): «Por confirmar», «Activo», «Simulado»…
 struct StatusBadge: View {
-    let text: LocalizedStringKey
+    let text: String
     var fg: Color = Brand.warnText
     var bg: Color = Color(light: "#FFF1D6", dark: "#3A2A10")
     var size: CGFloat = 12
@@ -214,8 +214,8 @@ struct StatusBadge: View {
 /// Fila de formulario con un campo de texto o número (`.srow` + `.sinput`).
 struct FieldRow: View {
     let symbol: String
-    let label: LocalizedStringKey
-    let placeholder: LocalizedStringKey
+    let label: String
+    let placeholder: String
     @Binding var text: String
     var numeric = false
     var prefix: String? = nil
@@ -233,7 +233,7 @@ struct FieldRow: View {
 /// Fila de fecha: el texto como en la web y el selector nativo invisible encima.
 struct DateRow: View {
     let symbol: String
-    let label: LocalizedStringKey
+    let label: String
     @Binding var date: Date
     var maxToday = false
 
@@ -259,7 +259,7 @@ struct DateRow: View {
 /// Fecha opcional («Termina el (opcional)»): «Sin fecha» hasta que se elige una.
 struct OptionalDateRow: View {
     let symbol: String
-    let label: LocalizedStringKey
+    let label: String
     @Binding var date: Date?
 
     var body: some View {
