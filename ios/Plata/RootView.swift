@@ -83,6 +83,12 @@ struct SystemTabs: View {
         model.state.labels[key.rawValue] ?? key.rawValue.capitalized
     }
 
+    /// iOS 27 separa el botón redondo solo con el rol .prominent; iOS 18–26 lo hacen con .search.
+    private var plusRole: TabRole {
+        if #available(iOS 27.0, *) { return .prominent }
+        return .search
+    }
+
     private func slot(_ id: String) -> some View {
         WebSlot(webView: model.webView, active: selection == id)
             .ignoresSafeArea()
@@ -104,7 +110,7 @@ struct SystemTabs: View {
             Tab(title(.presupuesto), systemImage: TabKey.presupuesto.sfLine, value: "presupuesto") { slot("presupuesto") }
             Tab(title(.proyeccion), systemImage: TabKey.proyeccion.sfLine, value: "proyeccion") { slot("proyeccion") }
             Tab(title(.deuda), systemImage: TabKey.deuda.sfLine, value: "deuda") { slot("deuda") }
-            Tab("", systemImage: "plus", value: "plus", role: .search) { slot("plus") }
+            Tab("", systemImage: "plus", value: "plus", role: plusRole) { slot("plus") }
         }
         .onChange(of: model.state.on) { _, new in
             if TabKey(rawValue: new) != nil, new != selection {
