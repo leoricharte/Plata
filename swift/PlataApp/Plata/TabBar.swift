@@ -35,14 +35,23 @@ struct PlataTabBar: View {
         Item(tab: .cuentas, title: "Cuentas", symbol: "creditcard"),
     ]
 
-    var body: some View {
-        HStack(spacing: 8) {
-            if !showTabs { Spacer(minLength: 0) }
-            if showTabs {
-            HStack(spacing: 2) {
-                ForEach(items, id: \.tab) { item in
-                    let on = tab == item.tab
-                    Button { tab = item.tab } label: {
+    @State private var held = false
+    @State private var dragX: CGFloat?
+
+    /// Las 4 pestañas con la píldora que se arrastra: al tocar y deslizar, la píldora sigue al dedo (como la web) y al soltar elige.
+    private var tabsBar: some View {
+        GeometryReader { geo in
+            let tw = geo.size.width / CGFloat(items.count)
+            let idx = items.firstIndex(where: { $0.tab == tab }) ?? 0
+            let hover = dragX.map { min(max(Int($0 / tw), 0), items.count - 1) } ?? idx
+            let pillX = dragX.map { min(max($0 - tw / 2, 0), geo.size.width - tw) } ?? CGFloat(idx) * tw
+            ZStack(alignment: .leading) {
+                pill(width: tw, height: geo.size.height)
+                    .offset(x: pillX)
+                    .animation(dragX == nil ? .spring(response: 0.35, dampingFraction: 0.8) : .interactiveSpring(), value: pillX)
+                HStack(spacing: 0) {
+                    ForEach(Array(items.enumerated()), id: \.offset) { i, item in
+                        let on = i == hover
                         VStack(spacing: 0) {
                             Image(systemName: item.symbol)
                                 .symbolVariant(on ? .fill : .none)
@@ -51,18 +60,56 @@ struct PlataTabBar: View {
                             Text(item.title).font(.inter(10, .semibold)).lineLimit(1).minimumScaleFactor(0.8)
                         }
                         .foregroundStyle(on ? Brand.accent : Color.primary)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(on ? Color(.secondarySystemFill) : Color.clear, in: Capsule())
-                        .contentShape(Capsule())
+                        .frame(width: tw, height: geo.size.height)
+                        .accessibilityElement(children: .combine)
+                        .accessibilityAddTraits(item.tab == tab ? .isSelected : [])
+                        .accessibilityAction { tab = item.tab }
                     }
-                    .buttonStyle(.plain)
-                    .accessibilityAddTraits(on ? .isSelected : [])
                 }
             }
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { v in
+                        held = true
+                        dragX = min(max(v.location.x, 0), geo.size.width)
+                    }
+                    .onEnded { v in
+                        let x = min(max(v.location.x, 0), geo.size.width)
+                        let i = min(max(Int(x / tw), 0), items.count - 1)
+                        held = false
+                        dragX = nil
+                        if tab != items[i].tab { tab = items[i].tab }
+                    }
+            )
+        }
+    }
+
+    @ViewBuilder
+    private func pill(width: CGFloat, height: CGFloat) -> some View {
+        if #available(iOS 26, *) {
+            Capsule().fill(Color.clear)
+                .frame(width: width, height: height)
+                .glassEffect(held ? .regular.interactive() : .clear, in: Capsule())
+                .overlay(Capsule().fill(Color(.secondarySystemFill)).opacity(held ? 0 : 1))
+        } else {
+            Capsule().fill(held ? Color(.systemFill) : Color(.secondarySystemFill))
+                .frame(width: width, height: height)
+                .shadow(color: .black.opacity(held ? 0.14 : 0), radius: 7, y: 3)
+        }
+    }
+
+    var body: some View {
+        HStack(spacing: 8) {
+            if !showTabs { Spacer(minLength: 0) }
+            if showTabs {
+            tabsBar
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
             .frame(height: 62)
             .modifier(GlassCapsule())
+            .scaleEffect(held ? 1.05 : 1)
+            .animation(.spring(response: 0.3, dampingFraction: 0.75), value: held)
             }
 
             Menu {
