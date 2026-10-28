@@ -49,7 +49,7 @@
     ['.welcome .wcloud', 'glass'], ['.welcome .clb', 'glass'],
     ['.welcome .wdotbtn', 'icon'], ['.welcome .back', 'icon'], ['.welcome .wdown', 'icon'],
     ['#sheet .xbtn', 'icon'], ['#sheet .okbtn', 'icon'],
-    ['[role="switch"]', 'switch'], ['input[type="range"]', 'slider']
+    ['.seg', 'seg'], ['[role="switch"]', 'switch'], ['input[type="range"]', 'slider']
   ];
   var nid = 0, tracked = [], scrollingUntil = 0;
   /* Menú del «+»: la web lo abre como #qmenu (posición fija). Se informa su rectángulo final (sin la animación) y sus filas. */
@@ -76,6 +76,21 @@
     }
     return false;
   }
+  /* Control segmentado (.seg): cada botón recibe su data-nid para poder "tocarlo" desde Swift */
+  function segBtns(e) { return e.querySelectorAll(':scope > button'); }
+  function segItems(e) {
+    var bs = segBtns(e), out = [];
+    for (var i = 0; i < bs.length; i++) {
+      if (!bs[i].hasAttribute('data-nid')) bs[i].setAttribute('data-nid', String(++nid));
+      out.push({ id: +bs[i].getAttribute('data-nid'), label: (bs[i].textContent || '').replace(/\s+/g, ' ').trim() });
+    }
+    return out;
+  }
+  function segSel(e) {
+    var bs = segBtns(e);
+    for (var i = 0; i < bs.length; i++) if (bs[i].classList.contains('on')) return i;
+    return 0;
+  }
   function buttons() {
     var out = [], now = [];
     for (var i = 0; i < KINDS.length && out.length < 12; i++) {
@@ -91,6 +106,7 @@
         e.classList.add('plata-nbtn'); now.push(e);
         var b = boxEl(e);
         out.push({ id: +e.getAttribute('data-nid'), kind: KINDS[i][1], act: (e.getAttribute('data-act') || '').split(':')[0],
+          items: KINDS[i][1] === 'seg' ? segItems(e) : null, sel: KINDS[i][1] === 'seg' ? segSel(e) : 0,
           ok: e.classList.contains('okbtn'), x_: e.classList.contains('xbtn'),
           label: (e.textContent || '').replace(/\s+/g, ' ').trim() || e.getAttribute('aria-label') || '',
           chk: e.getAttribute('aria-checked') === 'true', dis: e.classList.contains('dis') || e.disabled === true,

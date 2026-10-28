@@ -74,6 +74,8 @@ struct NativeBar: View {
         if b.box.isUsable && b.box.o > 0.02 {
             if b.kind == "switch" {
                 NativeSwitch(b: b, perform: perform)
+            } else if b.kind == "seg" {
+                NativeSegmented(b: b, perform: perform)
             } else if b.kind == "slider" {
                 NativeSlider(b: b, setValue: setValue)
             } else {
@@ -228,6 +230,31 @@ struct NativeSwitch: View {
         .position(b.box.center)
         .onAppear { on = b.chk }
         .onChange(of: b.chk) { _, new in on = new }
+    }
+}
+
+/// Control segmentado nativo (en iOS 26 es de vidrio). Tocar un segmento "toca" el botón original de la web.
+struct NativeSegmented: View {
+    let b: NativeBtn
+    let perform: (WebAction) -> Void
+    @State private var sel = 0
+
+    var body: some View {
+        Picker("", selection: Binding(get: { sel }, set: { new in
+            guard new != sel, b.segs.indices.contains(new) else { return }
+            sel = new
+            UISelectionFeedbackGenerator().selectionChanged()
+            perform(.nid(b.segs[new].id))
+        })) {
+            ForEach(Array(b.segs.enumerated()), id: \.offset) { i, s in Text(s.label).tag(i) }
+        }
+        .pickerStyle(.segmented)
+        .labelsHidden()
+        .frame(width: b.box.w, height: b.box.h)
+        .opacity(b.box.o)
+        .position(b.box.center)
+        .onAppear { sel = b.sel }
+        .onChange(of: b.sel) { _, new in sel = new }
     }
 }
 

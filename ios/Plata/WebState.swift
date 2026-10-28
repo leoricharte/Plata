@@ -66,6 +66,12 @@ struct Box: Equatable {
 
 /// Un botón de la web que se dibuja en nativo (ver KINDS en Bridge.js).
 struct NativeBtn: Equatable, Identifiable {
+    static func == (a: NativeBtn, b: NativeBtn) -> Bool {
+        a.id == b.id && a.kind == b.kind && a.act == b.act && a.label == b.label && a.box == b.box && a.chk == b.chk && a.dis == b.dis
+            && a.val == b.val && a.lo == b.lo && a.hi == b.hi && a.sel == b.sel && a.ok == b.ok && a.xb == b.xb
+            && a.segs.map(\.id) == b.segs.map(\.id) && a.segs.map(\.label) == b.segs.map(\.label)
+    }
+
     var id = 0
     var kind = "glass"      // prominent · glass · icon
     var act = ""
@@ -73,12 +79,16 @@ struct NativeBtn: Equatable, Identifiable {
     var box = Box()
     var chk = false          // interruptores: aria-checked
     var dis = false
+    var segs: [(id: Int, label: String)] = []   // control segmentado
+    var sel = 0
     var ok = false, xb = false   // .okbtn (confirmar) / .xbtn (cerrar) de las hojas
     var val = 0.0, lo = 0.0, hi = 1.0   // sliders
 
     init(_ m: [String: Any]) {
         func n(_ v: Any?) -> Double { (v as? NSNumber)?.doubleValue ?? 0 }
         id = Int(n(m["id"])); kind = (m["kind"] as? String) ?? "glass"
+        segs = ((m["items"] as? [[String: Any]]) ?? []).map { (id: ((($0["id"]) as? NSNumber)?.intValue ?? 0), label: ($0["label"] as? String) ?? "") }
+        sel = (m["sel"] as? NSNumber)?.intValue ?? 0
         ok = (m["ok"] as? Bool) ?? false; xb = (m["x_"] as? Bool) ?? false
         act = (m["act"] as? String) ?? ""; label = (m["label"] as? String) ?? ""
         chk = (m["chk"] as? Bool) ?? false; dis = (m["dis"] as? Bool) ?? false
