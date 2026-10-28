@@ -87,13 +87,6 @@ struct CloudPriceLine: View {
     }
 }
 
-struct BetaPill: View {
-    var body: some View {
-        Text(verbatim: "B E T A").font(.inter(10, .bold)).foregroundStyle(Brand.gainText)
-            .padding(.horizontal, 8).padding(.vertical, 3).background(Brand.gainBg, in: Capsule())
-    }
-}
-
 /// Nubes verdes de fondo de las tarjetas de Plata Cloud.
 private struct CloudBackdrop: View {
     var body: some View {
