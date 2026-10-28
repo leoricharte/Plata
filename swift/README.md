@@ -15,6 +15,8 @@ Versión nativa de Plata para Apple (iPhone, iPad, Mac y Apple Watch). Convive c
 | `Merge.swift` | Combinación de perfiles de 3 vías (saldos por diferencia, lápidas). | `mergeData` |
 | `CloudAPI.swift` | Cliente del servidor (`/auth`, `/me/key`, `/sync`). | `clFetch` |
 | `SyncEngine.swift` | Motor de sincronización. Dice a la interfaz qué hacer (`apply`, `needsChoice`, `loggedOut`…). | `clSync`, `clFirstPick` |
+| `LocalDate.swift` | Fecha de calendario con el desborde de `new Date(y, m, d)`. | `pd`, `iso`, `addDays` |
+| `Engine.swift` + `Currencies.swift` | Resumen del mes, eventos futuros, proyección, impacto de simulaciones, pendientes y simulador de deuda. | `calc`, `genEvents`, `projection`, `dailySeries`, `simImpact`, `pendingItems`, `payoff` |
 | `SessionStore.swift` | Semilla y token en el **Llavero**; estado y base en disco; `ProfileStore` para el perfil. | `localStorage` |
 
 ## Compatibilidad (lo importante)
@@ -27,7 +29,8 @@ Versión nativa de Plata para Apple (iPhone, iPad, Mac y Apple Watch). Convive c
 Si cambias el cifrado, el formato del perfil o `mergeData` en la web, regenera los vectores y corre las pruebas:
 
 ```
-node swift/tools/gen-vectors.mjs
+node swift/tools/gen-vectors.mjs        # cifrado y combinación
+node swift/tools/gen-engine-vectors.mjs # motor de cálculo (y Currencies.swift)
 cd swift/PlataCore && swift test
 ```
 
@@ -37,7 +40,7 @@ cd swift/PlataCore && swift test
 
 1. Compilar y pasar las pruebas en la Mac (este código se escribió sin compilador).
 2. `migrate()` completo: el saneado de textos, colores e iconos de la web (`safeProfile`).
-3. Motor de cálculo: proyección, presupuesto, deuda e intereses, con pruebas contra la web.
+3. Motor de cálculo: hecho (`Engine`), probado contra 70 perfiles. Falta el motor de puntaje e insights (`monthScore`, `insightsModel`).
 4. Pantallas SwiftUI: Resumen, Movimientos, Ajustes; después Presupuesto, Proyección y Deuda.
 5. Inicio de sesión en la nube (pantallas) y aprobación desde otro dispositivo (`/link/*`).
 6. Importación de CSV/PDF del banco (Nazca) y las 6 lenguas.
