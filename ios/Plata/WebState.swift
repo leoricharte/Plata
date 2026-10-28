@@ -73,11 +73,13 @@ struct NativeBtn: Equatable, Identifiable {
     var box = Box()
     var chk = false          // interruptores: aria-checked
     var dis = false
+    var ok = false, xb = false   // .okbtn (confirmar) / .xbtn (cerrar) de las hojas
     var val = 0.0, lo = 0.0, hi = 1.0   // sliders
 
     init(_ m: [String: Any]) {
         func n(_ v: Any?) -> Double { (v as? NSNumber)?.doubleValue ?? 0 }
         id = Int(n(m["id"])); kind = (m["kind"] as? String) ?? "glass"
+        ok = (m["ok"] as? Bool) ?? false; xb = (m["x_"] as? Bool) ?? false
         act = (m["act"] as? String) ?? ""; label = (m["label"] as? String) ?? ""
         chk = (m["chk"] as? Bool) ?? false; dis = (m["dis"] as? Bool) ?? false
         val = n(m["val"]); lo = n(m["min"]); hi = n(m["max"])
@@ -86,6 +88,8 @@ struct NativeBtn: Equatable, Identifiable {
 
     /// SF Symbol de los botones de solo icono, según la acción que dispara en la web.
     var symbol: String {
+        if ok { return "checkmark" }
+        if xb { return act == "profview" ? "chevron.left" : "xmark" }
         switch act {
         case "wback", "back", "acctback": return "chevron.left"
         case "whome", "close": return "xmark"

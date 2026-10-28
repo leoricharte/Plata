@@ -91,6 +91,7 @@
         e.classList.add('plata-nbtn'); now.push(e);
         var b = boxEl(e);
         out.push({ id: +e.getAttribute('data-nid'), kind: KINDS[i][1], act: (e.getAttribute('data-act') || '').split(':')[0],
+          ok: e.classList.contains('okbtn'), x_: e.classList.contains('xbtn'),
           label: (e.textContent || '').replace(/\s+/g, ' ').trim() || e.getAttribute('aria-label') || '',
           chk: e.getAttribute('aria-checked') === 'true', dis: e.classList.contains('dis') || e.disabled === true,
           val: e.type === 'range' ? (parseFloat(e.value) || 0) : 0, min: e.type === 'range' ? (parseFloat(e.min) || 0) : 0, max: e.type === 'range' ? (parseFloat(e.max) || 1) : 1,
