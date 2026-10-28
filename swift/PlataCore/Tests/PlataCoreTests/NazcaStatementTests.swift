@@ -106,7 +106,7 @@ final class NazcaStatementTests: XCTestCase {
     }
 
     func testCatalogAndCsvSignature() {
-        let pe = Nazca.catalog.first { $0.id == "PE" }!
+        let pe = Nazca.bankCatalog.first { $0.id == "PE" }!
         XCTAssertEqual(pe.banks.map(\.id), ["bcp", "bbva", "interbank", "io", "yape", "scotiabank"])
         XCTAssertEqual(Nazca.bankShort("bcp"), "BCP")
         XCTAssertEqual(Nazca.bankShort("yape"), "Yape")

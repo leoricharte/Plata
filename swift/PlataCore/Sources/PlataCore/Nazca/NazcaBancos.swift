@@ -16,7 +16,7 @@ extension Nazca {
     }
 
     /// Países y bancos, en el orden de la web: los activos primero y, dentro de cada grupo, alfabético.
-    public static let catalog: [Country] = {
+    public static let bankCatalog: [Country] = {
         func b(_ id: String, _ name: String, _ hq: String, _ active: Bool = true) -> Bank { Bank(id: id, name: name, hq: hq, active: active) }
         let raw: [Country] = [
             Country(id: "PE", name: "Perú", banks: [
@@ -40,9 +40,9 @@ extension Nazca {
         }
     }()
 
-    public static func bankName(_ id: String?) -> String { catalog.flatMap(\.banks).first { $0.id == id }?.name ?? "" }
+    public static func bankName(_ id: String?) -> String { bankCatalog.flatMap(\.banks).first { $0.id == id }?.name ?? "" }
     public static func bankShort(_ id: String?) -> String { id == "bcp" ? "BCP" : bankName(id) }
-    public static func countryOf(_ bank: String) -> Country? { catalog.first { $0.banks.contains { $0.id == bank } } }
+    public static func countryOf(_ bank: String) -> Country? { bankCatalog.first { $0.banks.contains { $0.id == bank } } }
     /// El nombre del país de un banco («Perú» si no se conoce).
     public static func countryName(_ bank: String) -> String { countryOf(bank)?.name ?? "Perú" }
 
