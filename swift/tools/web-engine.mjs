@@ -48,7 +48,7 @@ export function load({ today, entry, prelude = '' }) {
     window: {}, setTimeout() {}, clearTimeout() {} });
   const boot = 'var data = null, ui = { variable: true, bsel: null, itemId: null, tab: "resumen" };\n' + prelude + '\n';
   // `const`/`let` de un solo contexto: se ejecutan juntos para que se vean entre sí
-  const code = boot + ordered.map((c) => c.text).join('\n') + '\n;globalThis.__api = { ' + entry.join(', ') + ', setData(d){ data = d; }, getData(){ return data; }, setUi(u){ Object.assign(ui, u); } };';
+  const code = boot + ordered.map((c) => c.text).join('\n') + '\n;globalThis.__api = { ' + entry.join(', ') + ', setData(d){ data = d; }, getData(){ return data; }, setUi(u){ Object.assign(ui, u); }, setNow(n){ if (typeof __now !== "undefined") __now = n; } };';
   vm.runInContext(code, ctx, { filename: 'app.html (motor)' });
   return { api: ctx.__api, names: ordered.map((c) => c.name) };
 }
