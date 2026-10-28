@@ -54,7 +54,7 @@ struct ImportFlowView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 0) {
-                    PageHead(eyebrow: head.0, title: head.1)
+                    PageHead(eyebrow: head.0, title: head.1, bankMark: step == .bank ? bank : nil)
                     if let notice { NoticeCard(notice: notice, onAs: asGo) }
                     content
                 }
@@ -162,8 +162,8 @@ struct ImportFlowView: View {
                     let on = b.active && Nazca.ready.contains(b.id)
                     Button { bank = b.id; step = .bank; notice = nil } label: {
                         HStack(spacing: 12) {
-                            Image(systemName: "building.columns").font(.system(size: 18)).foregroundStyle(.secondary)
-                                .frame(width: 38, height: 38).background(Color(.tertiarySystemFill), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                            BankMarkView(id: b.id, size: nil).foregroundStyle(on ? Color.primary.opacity(0.46) : Color.secondary)
+                                .frame(width: 40, height: 40)
                             VStack(alignment: .leading, spacing: 0) {
                                 Text(verbatim: b.name).font(.inter(16))
                                 Text(verbatim: b.hq).font(.inter(13.5)).foregroundStyle(.secondary)
@@ -900,7 +900,11 @@ struct ImportReviewBody: View {
         let due = ci?.dueDate.flatMap { LocalDate(iso: $0) }
         return SCard {
             HStack(spacing: 14) {
-                Image(systemName: bank != nil ? "building.columns" : "doc.text").font(.system(size: 30)).foregroundStyle(Color.primary.opacity(0.46)).frame(width: 52, height: 52)
+                Group {
+                    if let b = bank, BankMarks.all[b] != nil { BankMarkView(id: b, size: 32) }
+                    else { Image(systemName: bank != nil ? "building.columns" : "doc.text").font(.system(size: 30)) }
+                }
+                .foregroundStyle(Color.primary.opacity(0.46)).frame(width: 52, height: 52)
                 VStack(alignment: .leading, spacing: 5) {
                     HStack(spacing: 6) {
                         Text(verbatim: title).font(.inter(19, .bold))

@@ -6,10 +6,17 @@ import PlataCore
 struct PageHead: View {
     let eyebrow: String
     let title: String
+    /// El banco cuyo logo reemplaza al título (pantalla de cada banco al importar).
+    var bankMark: String? = nil
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(eyebrow).font(.inter(15)).foregroundStyle(.secondary)
-            Text(title).font(.inter(34, .bold, relativeTo: .largeTitle)).tracking(-1.2).padding(.top, 2)
+            if let id = bankMark, BankMarks.all[id] != nil {
+                BankMarkView(id: id, logo: true).foregroundStyle(Color.primary.opacity(0.46)).padding(.top, 8).padding(.bottom, 4)
+                    .accessibilityElement(children: .ignore).accessibilityLabel(title).accessibilityAddTraits(.isHeader)
+            } else {
+                Text(title).font(.inter(34, .bold, relativeTo: .largeTitle)).tracking(-1.2).padding(.top, 2)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 4).padding(.top, 6).padding(.bottom, 10)
