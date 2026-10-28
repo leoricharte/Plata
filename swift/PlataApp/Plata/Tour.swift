@@ -45,7 +45,7 @@ struct TourOverlay: View {
 
     private var free: Bool {
         model.activeSheet == nil && !model.showAddTransaction && !model.showNews && !model.showHistory
-            && !model.showWelcome && !model.showFeedback
+            && !model.showWelcome && !model.showFeedback && !model.showImport
     }
 
     private var current: TourTip? {

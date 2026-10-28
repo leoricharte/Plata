@@ -63,6 +63,18 @@ struct MovimientosView: View {
                 .buttonStyle(.plain)
                 .listRowInsets(EdgeInsets(top: 0, leading: 18, bottom: 0, trailing: 18))
                 .listRowBackground(Color(.secondarySystemGroupedBackground))
+                Button { model.showImport = true } label: {
+                    HStack(spacing: 10) {
+                        Image(systemName: "folder.badge.plus").font(.system(size: 22)).foregroundStyle(Brand.accent).frame(width: 26)
+                        Text("Importar datos de banco").font(.inter(17)).foregroundStyle(Brand.accent)
+                        Spacer(minLength: 0)
+                    }
+                    .frame(minHeight: 44)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .listRowInsets(EdgeInsets(top: 0, leading: 18, bottom: 0, trailing: 18))
+                .listRowBackground(Color(.secondarySystemGroupedBackground))
             }
 
             Section {

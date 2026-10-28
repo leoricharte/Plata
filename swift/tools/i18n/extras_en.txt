@@ -114,3 +114,10 @@ Plata Cloud: sincronización cifrada entre tus dispositivos, por invitación y c
 Nazca lee tus estados de cuenta en tu dispositivo, Revisión con sugerencias en tarjetas y detección de recurrentes, historial de cada suscripción e infraestructura blindada. ¦ Nazca reads your account statements on your device, Review with suggestions on cards and recurring detection, history for each subscription and hardened infrastructure.
 Aviso para abrir Plata en el navegador real si la abres desde Instagram u otras apps. ¦ A notice to open Plata in the real browser if you open it from Instagram or other apps.
 La primera versión guardada de la app. ¦ The first saved version of the app.
+{0} archivos no se pudieron leer ¦ {0} files couldn’t be read
+Nazca no pudo leer esos archivos ¦ Nazca couldn’t read those files
+Revisa que sean los archivos que descargaste de tu banco. ¦ Check that they’re the files you downloaded from your bank.
+Importa o quita uno y usa «Cargar más». ¦ Import or remove one and use “Load more”.
+Nazca todavía no lee PDF en esta versión ¦ Nazca can’t read PDFs in this version yet
+Por ahora puedes importar el CSV de tu banco. ¦ For now you can import your bank’s CSV.
+Nazca todavía no lee archivos de Excel en esta versión ¦ Nazca can’t read Excel files in this version yet

@@ -269,6 +269,7 @@ struct GlassIcon: View {
 
 /// El botón principal oscuro de la web (píldora negra, texto blanco).
 struct PrimaryPillStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var enabled
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.inter(18, .semibold))
@@ -276,6 +277,6 @@ struct PrimaryPillStyle: ButtonStyle {
             .frame(maxWidth: .infinity)
             .frame(height: 54)
             .background(Color(hex: "#111111"), in: Capsule())
-            .opacity(configuration.isPressed ? 0.8 : 1)
+            .opacity(enabled ? (configuration.isPressed ? 0.8 : 1) : 0.4)
     }
 }

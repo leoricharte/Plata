@@ -23,6 +23,8 @@ final class AppModel {
     /// La bienvenida (se muestra hasta que la termines, o si no hay datos y nunca la viste).
     var showWelcome = false
     var showHistory = false
+    /// «Importar datos de banco» (Nazca): pantalla completa que presenta `RootView`.
+    var showImport = false
     var showFeedback = false
     var feedbackManual = false
     /// Hoja abierta desde el botón «+» o desde las listas (transferir, ingreso o gasto previsto).
@@ -102,6 +104,18 @@ final class AppModel {
         Self.syncTrNames(engine)
         changes += 1
         do { try store.save(profile); stampSaved() } catch { errorMessage = Tr.t("No se pudo guardar en el dispositivo") + ": \(error.localizedDescription)" }
+    }
+
+    /// Importa los movimientos marcados de una revisión de Nazca. Devuelve lo necesario para mostrar el resumen y deshacerla.
+    func importApply(_ review: ImportReview) -> ImportReview.Applied? {
+        var out: ImportReview.Applied?
+        let nid = String(UUID().uuidString.replacingOccurrences(of: "-", with: "").prefix(6)).lowercased()
+        _ = try? commit { raw in out = review.apply(to: &raw, now: Date().timeIntervalSince1970 * 1000, newAccountId: nid) }
+        return out
+    }
+
+    func importUndo(_ applied: ImportReview.Applied) {
+        _ = try? commit { raw in ImportReview.undo(applied, in: &raw) }
     }
 
     func addTransaction(date: LocalDate, amount: Double, category: String, note: String, account: String) throws {

@@ -35,6 +35,7 @@ struct RootView: View {
         }
         .fullScreenCover(isPresented: $model.showWelcome) { WelcomeView().interactiveDismissDisabled() }
         .fullScreenCover(isPresented: $model.showNews) { NewsStoryView() }
+        .fullScreenCover(isPresented: $model.showImport) { ImportFlowView() }
         .sheet(isPresented: $model.showHistory) { HistorySheet() }
         .feedbackAlert(isPresented: $model.showFeedback, manual: model.feedbackManual)
         .tint(Brand.accent)

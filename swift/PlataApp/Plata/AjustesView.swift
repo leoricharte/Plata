@@ -162,6 +162,9 @@ struct AjustesView: View {
                         }
                         .overlay(alignment: .top) { RowDivider() }
                     }
+                    if !model.isDemo {
+                        LinkRow(symbol: "folder.badge.plus", title: "Importar datos de banco", color: Brand.green) { model.showImport = true }
+                    }
                 }
                 .padding(.top, 8)
 

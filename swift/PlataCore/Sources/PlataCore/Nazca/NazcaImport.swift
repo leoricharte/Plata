@@ -281,10 +281,11 @@ public struct ImportReview {
         }
         public var parts: [Part]
         public var dones: [Done]
+        public init(parts: [Part], dones: [Done]) { self.parts = parts; self.dones = dones }
         public var total: Int { dones.reduce(0) { $0 + $1.n } }
     }
 
-    static func l4(_ o: JSONValue) -> String {
+    public static func l4(_ o: JSONValue) -> String {
         let s = Engine.str(o["last4"])
         return s.isEmpty ? "" : " ··" + s
     }
