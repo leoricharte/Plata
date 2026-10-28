@@ -143,3 +143,44 @@ public extension Engine {
         return activeSet()
     }
 }
+
+
+public extension Engine {
+    /// Del día 15 en adelante (o con half‑time forzado) y con mes anterior: la nota preliminar (`isHalfTime`).
+    func isHalfTime(_ m: InsightsModel) -> Bool {
+        scoreOn && m.hasPrev && (m.day >= 15 || Engine.flag(settings["forceHalf"]))
+    }
+
+    /// Tu primer half‑time: aparece aunque aún no haya mes anterior (`firstHalfOn`, sin escribir nada: ver `claimFirstHalf`).
+    func firstHalfOn(_ m: InsightsModel) -> Bool {
+        if !insightsOn || !scoreOn || m.cur.n < 5 { return false }
+        if !(m.day >= 15 || Engine.flag(settings["forceHalf"])) { return false }
+        let f = Engine.str(data["firstHalf"])
+        if !f.isEmpty && f != m.mk { return false }
+        return f == m.mk || !m.hasPrev
+    }
+
+    /// Qué valor de `firstHalf` hay que guardar ahora (nil = nada).
+    func firstHalfClaim(_ m: InsightsModel) -> String? {
+        if !insightsOn || !scoreOn || m.cur.n < 5 { return nil }
+        if !(m.day >= 15 || Engine.flag(settings["forceHalf"])) { return nil }
+        if !Engine.str(data["firstHalf"]).isEmpty { return nil }
+        return m.hasPrev ? "2000-01" : m.mk
+    }
+
+    /// La nota que quedó guardada al llegar al half‑time de ese mes.
+    func halfSnap(_ mk: String) -> (letter: String, score: Int)? {
+        guard let s = data["halfSnaps"]?[mk], !Engine.str(s["letter"]).isEmpty else { return nil }
+        return (Engine.str(s["letter"]), Int(Engine.num(s["score"])))
+    }
+
+    static func previousMonthKey(_ mk: String) -> String { prevMonthKey(mk) }
+}
+
+
+public extension Engine {
+    /// Pago de tarjeta o préstamo (no cuenta como gasto en Insights).
+    func isCreditPayment(_ t: JSONValue) -> Bool { isPay(t) }
+    /// Monto de un movimiento en dólares (negativo = gasto).
+    func amountUSD(_ t: JSONValue) -> Double { txUSD(t) }
+}

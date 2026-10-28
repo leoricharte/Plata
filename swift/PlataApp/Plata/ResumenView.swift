@@ -9,6 +9,7 @@ enum Route: Hashable {
     case ajustes
     case soon(String)
     case profile
+    case insights(mk: String, half: Bool)
 }
 
 struct ResumenView: View {
@@ -32,6 +33,7 @@ struct ResumenView: View {
                     payCard(e)
                     subscriptionsCard(e, f)
                     monthSection(e, c, f)
+                    if hasData(e) { InsightsBanner(bottom: false) }
                     budgetCard(c, f)
                     expensesCard(c, f)
                     categoriesCard(c, f)
@@ -39,6 +41,7 @@ struct ResumenView: View {
                     accountsList(e, c, f)
                     SectionHead("Más")
                     moreList(e, c, f)
+                    if hasData(e) { InsightsBanner(bottom: true) }
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
@@ -47,6 +50,7 @@ struct ResumenView: View {
             .background(Color(.systemGroupedBackground))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { rootToolbar }
+            .task(id: model.changes) { model.syncInsightsState() }
             .navigationDestination(for: Route.self) { route in
                 switch route {
                 case .movimientos: MovimientosView()
@@ -54,6 +58,7 @@ struct ResumenView: View {
                 case .tx(let id): TransactionDetailView(id: id)
                 case .ajustes: AjustesView()
                 case .profile: ProfileSettingsView()
+                case .insights(let mk, let half): InsightsView(mk: mk, half: half)
                 case .soon(let title): ComingSoonView(title: title)
                 }
             }

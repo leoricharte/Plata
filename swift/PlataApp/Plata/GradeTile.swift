@@ -111,13 +111,14 @@ struct GradeTile: View {
 /// El puntaje que aún no se puede mostrar: contorno punteado y «?».
 struct GhostScore: View {
     var size: CGFloat = 52
+    var letter = "?"
     var body: some View {
-        let g: [Color] = [Color(hex: "#C7C7CC"), Color(hex: "#9A9AA2"), Color(hex: "#8E8E93")]
+        let g: [Color] = letter == "?" ? [Color(hex: "#C7C7CC"), Color(hex: "#9A9AA2"), Color(hex: "#8E8E93")] : Array(GradePalette.letter(letter).prefix(3))
         ZStack {
             RoundedRectangle(cornerRadius: 20 * size / 64, style: .continuous)
                 .stroke(g[1].opacity(0.8), style: StrokeStyle(lineWidth: 2.8 * size / 64, lineCap: .round, dash: [0.01, 5.2 * size / 64]))
                 .frame(width: 60 * size / 64, height: 60 * size / 64)
-            Text("?")
+            Text(letter)
                 .font(.system(size: 36 * size / 64, weight: .heavy))
                 .foregroundStyle(LinearGradient(colors: [g[0], g[1], g[2]], startPoint: .topLeading, endPoint: .bottomTrailing))
         }

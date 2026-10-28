@@ -218,6 +218,28 @@ final class AppModel {
         if isNew { bsel = id }
     }
 
+    /// Guarda lo que la web guarda sola al abrir Resumen: el primer half‑time y la foto de la nota a mitad de mes.
+    func syncInsightsState() {
+        let e = engine
+        guard e.insightsEnabled, e.scoreEnabled else { return }
+        let cm = e.insightsModel()
+        let claim = e.firstHalfClaim(cm)
+        var snap: (String, Int)?
+        if e.halfSnap(cm.mk) == nil, cm.day >= 15 || Engine.flag(e.data["settings"]?["forceHalf"]) {
+            let hm = e.insightsModel(month: cm.mk, upTo: 15)
+            if hm.hasPrev { snap = (hm.letter, hm.score) }
+        }
+        if claim == nil && snap == nil { return }
+        try? commit { raw in
+            if let claim { raw["firstHalf"] = .string(claim) }
+            if let snap {
+                var s = raw["halfSnaps"] ?? .object([:])
+                s[cm.mk] = .object(["letter": .string(snap.0), "score": .number(Double(snap.1))])
+                raw["halfSnaps"] = s
+            }
+        }
+    }
+
     func deleteBudgetSet(id: String) {
         try? commit { raw in ProfileEditor.deleteBudgetSet(&raw, id: id) }
         if bsel == id { bsel = nil }
