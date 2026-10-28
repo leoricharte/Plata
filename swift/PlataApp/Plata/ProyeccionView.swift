@@ -349,7 +349,7 @@ struct ProyeccionView: View {
     }
 
     private func untilText(_ x: JSONValue) -> String {
-        guard x["repeat"] != nil, JS.truthy(x["repeat"]), let u = LocalDate(iso: Engine.text(x["until"])) else { return "" }
+        guard x["repeat"] != nil, Engine.flag(x["repeat"]), let u = LocalDate(iso: Engine.text(x["until"])) else { return "" }
         return " · hasta \(u.day) \(Spanish.monthsShort[u.month0])"
     }
 
@@ -383,7 +383,7 @@ struct ProyeccionView: View {
 
     private func jobsSection(_ e: Engine, _ f: Fmt) -> some View {
         let jobs = e.jobList
-        let jobTx = e.allTransactions.filter { JS.truthy($0["job"]) && Engine.number($0["amount"]) > 0 }
+        let jobTx = e.allTransactions.filter { Engine.flag($0["job"]) && Engine.number($0["amount"]) > 0 }
             .sorted { Engine.text($0["date"]) > Engine.text($1["date"]) }.prefix(6)
         return VStack(spacing: 0) {
             SectionHead("Trabajos")
@@ -497,7 +497,7 @@ struct ProyeccionView: View {
             .buttonStyle(.plain).padding(.top, 2)
             VStack(alignment: .leading, spacing: 2) {
                 Text(Engine.text(pl["name"])).font(.inter(16, .semibold)).tracking(-0.3)
-                Text(Self.dlabel(Engine.text(pl["date"])) + (Engine.text(pl["kind"]) == "pay" && JS.truthy(pl["card"]) ? " · Pago de crédito" : ""))
+                Text(Self.dlabel(Engine.text(pl["date"])) + (Engine.text(pl["kind"]) == "pay" && Engine.flag(pl["card"]) ? " · Pago de crédito" : ""))
                     .font(.inter(13)).foregroundStyle(.secondary)
                 if let im {
                     Text("Del \(Self.short(im.start)) al \(Self.short(im.end)) · mínimo \(f.whole(im.withMin)) el \(Self.short(im.withDate.iso)) (sin esto: \(f.whole(im.withoutMin)))")
