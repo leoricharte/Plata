@@ -2,9 +2,11 @@ import SwiftUI
 
 struct RootView: View {
     @Environment(AppModel.self) private var model
+    @Environment(CloudModel.self) private var cloud
 
     var body: some View {
         @Bindable var model = model
+        @Bindable var cloud = cloud
         // Barra de pestañas del sistema: en iOS 26 es Liquid Glass (lupa al arrastrar); en iOS 18 a 25, la clásica.
         TabView(selection: $model.tab) {
             Tab(value: AppTab.resumen) {
@@ -37,6 +39,15 @@ struct RootView: View {
         .fullScreenCover(isPresented: $model.showNews) { NewsStoryView() }
         .fullScreenCover(isPresented: $model.showImport) { ImportFlowView() }
         .sheet(isPresented: $model.showHistory) { HistorySheet() }
+        .fullScreenCover(isPresented: Binding(get: { cloud.flow != nil }, set: { if !$0 { cloud.flow = nil } })) { CloudFlowHost().interactiveDismissDisabled() }
+        .alert("¿Cargar la copia local como la de la nube?", isPresented: $cloud.askLocalUp) {
+            Button("Enviar código") { cloud.confirmLocalUp() }
+            Button("No, seguir en modo local", role: .cancel) {}
+        } message: { Text("Los datos de este dispositivo reemplazarán tu copia en la nube y en tus otros dispositivos. Primero te enviaremos un código de verificación a tu correo.") }
+        .alert("Plata", isPresented: Binding(get: { model.errorMessage != nil }, set: { if !$0 { model.errorMessage = nil } })) {
+            Button("Entendido", role: .cancel) {}
+        } message: { Text(model.errorMessage ?? "") }
+        .modifier(CloudNoticeOverlay())
         .feedbackAlert(isPresented: $model.showFeedback, manual: model.feedbackManual)
         .tint(Brand.accent)
         .task {

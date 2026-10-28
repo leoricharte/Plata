@@ -4,6 +4,7 @@ import PlataCore
 @main
 struct PlataApp: App {
     @State private var model = AppModel()
+    @State private var cloud = CloudModel()
     @AppStorage(Prefs.themeKey) private var theme = "auto"
     @AppStorage(Prefs.langKey) private var lang = "auto"
     @State private var showSplash = true
@@ -28,10 +29,13 @@ struct PlataApp: App {
                 showSplash = false
             }
             .environment(model)
+                .environment(cloud)
+                .task { cloud.attach(model) }
                 .preferredColorScheme(Prefs.scheme(theme))
                 .environment(\.locale, Prefs.locale(lang))
                 .onChange(of: scenePhase) { _, phase in
                     if phase == .active { model.refreshToday() }
+                    cloud.scene(active: phase == .active)
                 }
         }
     }

@@ -21,6 +21,7 @@ struct ProfileView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.top, 6).padding(.bottom, 18)
 
+                CloudCard()
                 SCard {
                     ForEach(Array(identityRows(s).enumerated()), id: \.offset) { i, r in
                         SettingRow((r.0), first: i == 0) { value(r.1) }

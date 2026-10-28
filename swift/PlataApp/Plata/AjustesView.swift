@@ -129,6 +129,9 @@ struct DemoNoticeCard: View {
 /// La pantalla «Ajustes» de la web (`settingsHTML`).
 struct AjustesView: View {
     @Environment(AppModel.self) private var model
+    @Environment(CloudModel.self) private var cloud
+    @State private var askCloudLoad = false
+    @State private var askCloudWipe = false
     @Environment(\.openURL) private var openURL
     @State private var cushion = ""
     @State private var variable = ""
@@ -156,12 +159,12 @@ struct AjustesView: View {
                     .padding(.top, 12).padding(.bottom, 4)
 
                 SCard {
-                    LinkRow(symbol: "folder", title: "Cargar archivo de perfil", color: Brand.green, first: true) { importing = true }
+                    LinkRow(symbol: "folder", title: "Cargar archivo de perfil", color: Brand.green, first: true) { if cloud.isCloud { askCloudLoad = true } else { importing = true } }
                     if let exportURL {
                         ShareLink(item: exportURL) {
                             HStack(spacing: 10) {
                                 Image(systemName: "square.and.arrow.down").font(.system(size: 20)).frame(width: 26)
-                                Text("Guardar archivo de perfil").font(.inter(17))
+                                Text(cloud.isCloud ? "Guardar copia de archivo local" : "Guardar archivo de perfil").font(.inter(17))
                                 Spacer(minLength: 0)
                             }
                             .foregroundStyle(Brand.green)
@@ -267,6 +270,21 @@ struct AjustesView: View {
         } message: {
             Text("Lo que tienes ahora se sustituye. Guarda antes un archivo si quieres conservarlo.")
         }
+        .confirmationDialog("Cargar archivo de perfil", isPresented: $askCloudLoad, titleVisibility: .visible) {
+            Button(cloud.st.rev == 0 ? "Elegir archivo" : "Enviar código", role: .destructive) { cloud.askLoadFile() }
+            Button("Cancelar", role: .cancel) {}
+        } message: {
+            Text(cloud.st.rev == 0 ? "Esto reemplazará los datos de este dispositivo." : "Esto reemplazará los datos de este dispositivo y tu copia en la nube. Primero te enviaremos un código de verificación a tu correo.")
+        }
+        .confirmationDialog(wipeHome ? "¿Borrar datos y volver al inicio?" : "¿Borrar todos tus datos?", isPresented: $askCloudWipe, titleVisibility: .visible) {
+            Button("Enviar código", role: .destructive) {
+                let home = wipeHome
+                cloud.askWipeLocalToo { try? model.resetProfile(); load(force: true); if home { goHome() } }
+            }
+            Button("Cancelar", role: .cancel) {}
+        } message: {
+            Text("Estás en modo Cloud: se vaciará también tu copia en la nube y en tus otros dispositivos. Primero te enviaremos un código de verificación a tu correo. Guarda tu archivo de perfil antes si quieres conservarlos.")
+        }
         .confirmationDialog("¿Borrar todos tus datos?", isPresented: $confirmWipe, titleVisibility: .visible) {
             Button("Borrar datos", role: .destructive) { try? model.resetProfile(); load(force: true); if wipeHome { goHome() } }
             Button("Cancelar", role: .cancel) {}
@@ -298,7 +316,18 @@ struct AjustesView: View {
         .padding(.top, 4)
     }
 
-    private var status: some View {
+    @ViewBuilder private var status: some View {
+        if cloud.isCloud { CloudStatusLabel() }
+        else if cloud.gone && !cloud.isIn {
+            VStack(spacing: 2) {
+                Label("Cuenta borrada", systemImage: "exclamationmark.circle.fill").font(.inter(16, .bold)).foregroundStyle(Brand.lossText)
+                Text("Guarda tu archivo local para no perder tus datos.").font(.inter(13)).foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity)
+        } else { fileStatus }
+    }
+
+    private var fileStatus: some View {
         VStack(spacing: 0) {
             HStack(spacing: 6) {
                 Image(systemName: "checkmark.circle.fill").font(.system(size: 18))
@@ -354,7 +383,9 @@ struct AjustesView: View {
     private func refreshExport() { exportURL = try? model.exportFile() }
 
     private func wipe() {
-        if model.isDemo { try? model.exitDemo(); if wipeHome { goHome() } } else { confirmWipe = true }
+        if model.isDemo { try? model.exitDemo(); if wipeHome { goHome() } }
+        else if cloud.needsCodeToWipe { askCloudWipe = true }
+        else { confirmWipe = true }
     }
 
     private func goHome() { Welcome.mark(false); model.showWelcome = true }

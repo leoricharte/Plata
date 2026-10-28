@@ -41,6 +41,9 @@ final class AppModel {
     @ObservationIgnored private let store: ProfileStore
     @ObservationIgnored private let stash: ProfileStore   // tus datos reales mientras ves un perfil de demostración
     @ObservationIgnored private var stamper = SyncStamper()
+    /// Plata Cloud: avisa que hubo una edición (para sincronizar en unos segundos) y que se salió de un demo.
+    @ObservationIgnored var onEdited: (() -> Void)?
+    @ObservationIgnored var onDemoExit: (() -> Void)?
 
     init() {
         let dir = URL.applicationSupportDirectory.appending(path: "Plata", directoryHint: .isDirectory)
@@ -104,6 +107,7 @@ final class AppModel {
         Self.syncTrNames(engine)
         changes += 1
         do { try store.save(profile); stampSaved() } catch { errorMessage = Tr.t("No se pudo guardar en el dispositivo") + ": \(error.localizedDescription)" }
+        onEdited?()
     }
 
     /// Importa los movimientos marcados de una revisión de Nazca. Devuelve lo necesario para mostrar el resumen y deshacerla.
@@ -496,6 +500,16 @@ final class AppModel {
         changes += 1
         try store.save(profile)
         stampSaved()
+        onEdited?()
+    }
+
+    /// Un perfil que llegó de Plata Cloud reemplaza al local (no vuelve a disparar una sincronización).
+    func applyRemote(_ raw: JSONValue) {
+        var r = raw
+        r["demo"] = .bool(false)
+        guard let migrated = try? Migration.migrate(Profile(raw: r)) else { return }
+        try? install(migrated)
+        if showWelcome && profile.hasData { showWelcome = false }
     }
 
     // MARK: perfiles de demostración
@@ -514,6 +528,7 @@ final class AppModel {
             try install(try Migration.migrate(Profile.empty))
         }
         stash.delete()
+        onDemoExit?()
     }
 
     private func install(_ new: Profile) throws {

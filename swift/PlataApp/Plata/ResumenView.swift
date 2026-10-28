@@ -27,6 +27,7 @@ struct ResumenView: View {
             ScrollView {
                 VStack(spacing: 14) {
                     titleBlock(e)
+                    CloudStrip()
                     idleBanner(e)
                     if !hasData(e) { startCard }
                     KPIGrid(items: kpis(e, c, f))

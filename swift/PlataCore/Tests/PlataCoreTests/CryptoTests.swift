@@ -79,3 +79,32 @@ final class CryptoTests: XCTestCase {
         XCTAssertNil(Phrase.seed(from: w.dropLast().joined(separator: " ")))               // faltan palabras
     }
 }
+
+final class PhraseSpanishTests: XCTestCase {
+    func testSpanishListIsCleanAndComplete() {
+        XCTAssertEqual(WordlistES.words.count, 2048)
+        XCTAssertEqual(Set(WordlistES.words).count, 2048)
+        XCTAssertTrue(WordlistES.words.allSatisfy { $0.allSatisfy { $0.isASCII && $0.isLowercase && $0.isLetter } }, "sin tildes ni eñes")
+        XCTAssertEqual(Set(WordlistES.words.map { String($0.prefix(4)) }).count, 2048, "las 4 primeras letras bastan para reconocerla")
+    }
+
+    /// La misma llave se puede escribir en español o en inglés.
+    func testSameSeedInBothLanguages() {
+        for _ in 0..<50 {
+            let seed = CloudCrypto.newSeed()
+            let es = Phrase.words(for: seed, language: .es), en = Phrase.words(for: seed, language: .en)
+            XCTAssertEqual(es.count, 12)
+            XCTAssertEqual(es.map { Phrase.wordIndex($0, language: .es) }, en.map { Phrase.wordIndex($0, language: .en) })
+            XCTAssertEqual(Phrase.seed(from: es.joined(separator: " "), language: .es), seed)
+            XCTAssertTrue(Phrase.seeds(from: es.joined(separator: " ")).contains(seed))
+            XCTAssertTrue(Phrase.seeds(from: en.joined(separator: " ")).contains(seed))
+        }
+    }
+
+    func testAccentsAndPrefixesAreForgiven() {
+        XCTAssertEqual(Phrase.wordIndex("ÁBACO", language: .es), 0)
+        XCTAssertEqual(Phrase.wordIndex("abac", language: .es), 0)
+        XCTAssertEqual(Phrase.wordIndex("CAÑÓN", language: .es), Phrase.wordIndex("canon", language: .es))
+        XCTAssertGreaterThanOrEqual(Phrase.wordIndex("canon", language: .es), 0)
+    }
+}
