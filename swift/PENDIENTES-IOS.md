@@ -1,6 +1,6 @@
 # Plata iOS (SwiftUI nativo) — estado y pendientes
 
-Documento para pasarle a otra IA o a otra persona. Actualizado: 28 oct 2026. Avance estimado: **59 %**.
+Documento para pasarle a otra IA o a otra persona. Actualizado: 28 oct 2026. Avance estimado: **63 %**.
 
 ## Contexto
 
