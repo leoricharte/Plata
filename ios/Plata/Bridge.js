@@ -18,7 +18,7 @@
   /* 1. Ocultar los controles web (siguen ocupando su sitio y siguen aplicando su CSS) */
   root.setAttribute('data-native', '1');
   var st = document.createElement('style');
-  st.textContent = 'html[data-native]:not(.web) #tabbar,html[data-native]:not(.web) #gearbtn,html[data-native]:not(.web) #plusbtn{visibility:hidden!important}';
+  st.textContent = 'html[data-native]:not(.web) #tabbar,html[data-native]:not(.web) #gearbtn,html[data-native]:not(.web) #plusbtn,html[data-native]:not(.web) .plata-nbtn{visibility:hidden!important}';
   root.appendChild(st);
 
   /* 2. Estado hacia Swift */
@@ -33,13 +33,52 @@
     if (prev) e.style.setProperty('visibility', prev, pr); else e.style.removeProperty('visibility');
     return !!hit && hit !== e && !e.contains(hit);
   }
-  function box(id) {
-    var e = document.getElementById(id);
+  function boxEl(e) {
     if (!e) return { x: 0, y: 0, w: 0, h: 0, o: 0 };
     var cs = getComputedStyle(e), r = e.getBoundingClientRect();
     var o = cs.display === 'none' ? 0 : parseFloat(cs.opacity);
     if (o > 0 && covered(e, r)) o = 0;
     return { x: r1(r.left), y: r1(r.top), w: r1(r.width), h: r1(r.height), o: isNaN(o) ? 0 : r1(o) };
+  }
+  function box(id) { return boxEl(document.getElementById(id)); }
+
+  /* Botones que pasan a ser nativos: lista blanca (los banners y las filas de listas quedan fuera a propósito).
+     Cada uno se oculta en la web (visibility) y Swift dibuja su vidrio encima; al tocarlo, Swift hace click() en el original. */
+  var KINDS = [
+    ['.welcome .primary', 'prominent'], ['#sheet .primary', 'prominent'],
+    ['.welcome .wcloud', 'glass'], ['.welcome .clb', 'glass'],
+    ['.welcome .wdotbtn', 'icon'], ['.welcome .back', 'icon'], ['.welcome .wdown', 'icon'],
+    ['#sheet .xbtn', 'icon'], ['#sheet .okbtn', 'icon']
+  ];
+  var nid = 0, tracked = [];
+  /* Dentro de algo que se desplaza, el vidrio nativo iría un cuadro atrasado: ese botón se queda como web */
+  function scrolls(e) {
+    for (var p = e.parentElement; p && p !== document.body; p = p.parentElement) {
+      var oy = getComputedStyle(p).overflowY;
+      if ((oy === 'auto' || oy === 'scroll') && p.scrollHeight > p.clientHeight + 1) return true;
+    }
+    return false;
+  }
+  function buttons() {
+    var out = [], now = [];
+    for (var i = 0; i < KINDS.length && out.length < 12; i++) {
+      var list = document.querySelectorAll(KINDS[i][0]);
+      for (var j = 0; j < list.length && out.length < 12; j++) {
+        var e = list[j];
+        if (now.indexOf(e) >= 0) continue;
+        var r = e.getBoundingClientRect();
+        if (!(r.width > 1 && r.height > 1) || scrolls(e)) continue;
+        if (!e.hasAttribute('data-nid')) e.setAttribute('data-nid', String(++nid));
+        e.classList.add('plata-nbtn'); now.push(e);
+        var b = boxEl(e);
+        out.push({ id: +e.getAttribute('data-nid'), kind: KINDS[i][1], act: (e.getAttribute('data-act') || '').split(':')[0],
+          label: (e.textContent || '').replace(/\s+/g, ' ').trim() || e.getAttribute('aria-label') || '',
+          x: b.x, y: b.y, w: b.w, h: b.h, o: b.o });
+      }
+    }
+    tracked.forEach(function (e) { if (now.indexOf(e) < 0) e.classList.remove('plata-nbtn'); });
+    tracked = now;
+    return out;
   }
   function lbl(id) { var e = document.getElementById(id); return e ? (e.getAttribute('aria-label') || '') : ''; }
   var last = '', raf = 0, until = 0;
@@ -55,7 +94,7 @@
     var bar = document.getElementById('tabbar'), gd = document.querySelector('.gdot');
     var m = {
       t: 'state',
-      bar: box('tabbar'), plus: box('plusbtn'), gear: box('gearbtn'),
+      bar: box('tabbar'), plus: box('plusbtn'), gear: box('gearbtn'), btns: buttons(),
       compact: !!(bar && bar.classList.contains('compact')),
       gdot: gd ? (gd.classList.contains('gone') ? 2 : (gd.classList.contains('dirty') ? 1 : 0)) : 0,
       on: on, tab: root.getAttribute('data-tab') || '', labels: labels, plusLabel: lbl('plusbtn'), gearLabel: lbl('gearbtn'),
@@ -72,6 +111,7 @@
   } catch (e) { /* sin observador */ }
   ['transitionrun', 'transitionstart', 'transitionend', 'animationstart'].forEach(function (n) { document.addEventListener(n, function () { kick(700); }, true); });
   window.addEventListener('resize', function () { kick(700); });
+  document.addEventListener('scroll', function () { kick(400); }, true);
   window.addEventListener('orientationchange', function () { kick(700); });
   document.addEventListener('DOMContentLoaded', function () { kick(2500); });
   window.addEventListener('load', function () { kick(2500); });

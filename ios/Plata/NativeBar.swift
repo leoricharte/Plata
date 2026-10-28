@@ -5,14 +5,16 @@ import UIKit
 struct GlassBackground<S: Shape>: ViewModifier {
     let shape: S
     var interactive = false
+    var tint: Color? = nil
 
     @ViewBuilder
     func body(content: Content) -> some View {
         if #available(iOS 26.0, *) {
-            content.glassEffect(interactive ? Glass.regular.interactive() : Glass.regular, in: shape)
+            let base = tint.map { Glass.regular.tint($0) } ?? Glass.regular
+            content.glassEffect(interactive ? base.interactive() : base, in: shape)
         } else {
             content
-                .background(.ultraThinMaterial, in: shape)
+                .background(tint.map { AnyShapeStyle($0) } ?? AnyShapeStyle(Material.ultraThinMaterial), in: shape)
                 .overlay(shape.stroke(Color.primary.opacity(0.08), lineWidth: 0.5))
                 .shadow(color: .black.opacity(0.09), radius: 15, x: 0, y: 8)
         }
@@ -42,6 +44,7 @@ struct NativeBar: View {
     var body: some View {
         GlassGroup {
             ZStack(alignment: .topLeading) {
+                ForEach(state.btns) { b in nativeButton(b) }
                 // Cuando la web oculta un control (opacidad ~0) se quita del todo: el vidrio de iOS 26 no siempre respeta .opacity(0)
                 if state.bar.isUsable && state.bar.o > 0.02 { pill }
                 if state.plus.isUsable && state.plus.o > 0.02 {
@@ -52,6 +55,35 @@ struct NativeBar: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        }
+    }
+
+    // MARK: botones de la web que pasan a nativo
+
+    @ViewBuilder
+    private func nativeButton(_ b: NativeBtn) -> some View {
+        if b.box.isUsable && b.box.o > 0.02 {
+            let prominent = b.kind == "prominent"
+            Button {
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                perform(.nid(b.id))
+            } label: {
+                Group {
+                    if b.kind == "icon" {
+                        Image(systemName: b.symbol).font(.system(size: 17, weight: .semibold))
+                    } else {
+                        Text(b.label).font(.system(size: 18, weight: .semibold)).lineLimit(1).minimumScaleFactor(0.7)
+                    }
+                }
+                .frame(width: b.box.w, height: b.box.h)
+                .foregroundStyle(prominent ? Color(.systemBackground) : Color.primary)
+                .contentShape(Capsule())
+            }
+            .buttonStyle(.plain)
+            .modifier(NativeShape(circle: b.kind == "icon", tint: prominent ? Color(.label) : nil))
+            .opacity(b.box.o)
+            .accessibilityLabel(b.label.isEmpty ? b.symbol : b.label)
+            .position(b.box.center)
         }
     }
 
@@ -140,6 +172,21 @@ struct NativeBar: View {
             Image(systemName: sf).font(.system(size: 20, weight: .medium))
         } else {
             Image(asset).renderingMode(.template).resizable().scaledToFit()
+        }
+    }
+}
+
+/// Vidrio con forma de círculo (iconos) o cápsula (texto).
+struct NativeShape: ViewModifier {
+    let circle: Bool
+    var tint: Color?
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if circle {
+            content.modifier(GlassBackground(shape: Circle(), interactive: true, tint: tint))
+        } else {
+            content.modifier(GlassBackground(shape: Capsule(), interactive: true, tint: tint))
         }
     }
 }

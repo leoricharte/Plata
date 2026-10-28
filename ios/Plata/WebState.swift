@@ -26,7 +26,7 @@ enum TabKey: String, CaseIterable, Identifiable {
 
 /// Qué control de la web "toca" la barra nativa.
 enum WebAction {
-    case tab(TabKey), plus, gear
+    case tab(TabKey), plus, gear, nid(Int)
 
     /// Selectores fijos (nunca vienen de datos de la persona).
     var selector: String {
@@ -34,6 +34,7 @@ enum WebAction {
         case .tab(let k): return "#tabs [data-act=\"tab:\(k.rawValue)\"]"
         case .plus: return "#plusbtn"
         case .gear: return "#gearbtn"
+        case .nid(let n): return "[data-nid=\"\(n)\"]"
         }
     }
 }
@@ -58,12 +59,41 @@ struct Box: Equatable {
     var isUsable: Bool { w > 1 && h > 1 }
 }
 
+/// Un botón de la web que se dibuja en nativo (ver KINDS en Bridge.js).
+struct NativeBtn: Equatable, Identifiable {
+    var id = 0
+    var kind = "glass"      // prominent · glass · icon
+    var act = ""
+    var label = ""
+    var box = Box()
+
+    init(_ m: [String: Any]) {
+        func n(_ v: Any?) -> Double { (v as? NSNumber)?.doubleValue ?? 0 }
+        id = Int(n(m["id"])); kind = (m["kind"] as? String) ?? "glass"
+        act = (m["act"] as? String) ?? ""; label = (m["label"] as? String) ?? ""
+        box = Box(["x": n(m["x"]), "y": n(m["y"]), "w": n(m["w"]), "h": n(m["h"]), "o": n(m["o"])])
+    }
+
+    /// SF Symbol de los botones de solo icono, según la acción que dispara en la web.
+    var symbol: String {
+        switch act {
+        case "wback", "back", "acctback": return "chevron.left"
+        case "whome", "close": return "xmark"
+        case "wmenu": return "ellipsis"
+        case "wdown", "wnext": return "chevron.down"
+        case "wfin": return "checkmark"
+        default: return label.isEmpty ? "circle" : "chevron.right"
+        }
+    }
+}
+
 /// Lo que la web le cuenta a Swift (ver Bridge.js).
 struct WebState: Equatable {
     var bar = Box()
     var plus = Box()
     var gear = Box()
     var compact = false
+    var btns: [NativeBtn] = []
     var gdot = 0            // 0 nada · 1 cambios sin guardar (naranja) · 2 nube: falta algo (rojo)
     var on = "resumen"
     var tab = ""            // valor de data-tab en la web (resumen, cuenta, movimientos…)
@@ -77,6 +107,7 @@ struct WebState: Equatable {
         bar = Box(b["bar"]); plus = Box(b["plus"]); gear = Box(b["gear"])
         compact = (b["compact"] as? Bool) ?? false
         gdot = (b["gdot"] as? NSNumber)?.intValue ?? 0
+        btns = ((b["btns"] as? [[String: Any]]) ?? []).map(NativeBtn.init)
         on = (b["on"] as? String) ?? ""
         tab = (b["tab"] as? String) ?? ""
         labels = (b["labels"] as? [String: String]) ?? [:]
