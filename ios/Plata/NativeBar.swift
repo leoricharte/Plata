@@ -28,7 +28,7 @@ struct GlassGroup<Content: View>: View {
 
     var body: some View {
         if #available(iOS 26.0, *) {
-            GlassEffectContainer(spacing: 14) { content }
+            GlassEffectContainer(spacing: 0) { content }   // spacing 0: las piezas de vidrio no se funden entre sí
         } else {
             content
         }
