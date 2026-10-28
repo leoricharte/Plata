@@ -32,11 +32,37 @@ public struct ImportReview {
 
     public struct Statement: Equatable, Sendable { public var balance: Double; public var date: String }
 
+    /// Lo que se sabe de un estado de cuenta leído por el lector de un banco (PDF, Excel o CSV propio); un CSV genérico no lo tiene.
+    public struct Source: Equatable, Sendable {
+        public var bank: String?
+        public var label: String
+        public var card: Bool
+        public var cardInfo: Nazca.StatementResult.CardInfo
+        public var check: Nazca.StatementResult.Check?
+        /// Un resultado de comprobación por cada archivo unido (en el orden de `names`).
+        public var checks: [Nazca.StatementResult.Check?]
+        public var period: Nazca.StatementResult.Period?
+        /// El saldo (o la deuda) con que cierra el estado.
+        public var stmtEnd: Statement?
+        /// La cuenta que se crearía.
+        public var newAcc: JSONValue
+        /// La cuenta que se sugiere para fusionar, o la que eligió la persona.
+        public var mergeId: String?
+    }
+
     public static let maxFiles = 3
     public static let perPage = 20
+    /// El id provisional de la cuenta que aún no existe: se crea al importar.
+    public static let newId = "__new"
 
     public var name: String
     public var guess: String
+    public internal(set) var names: [String]
+    /// Filas repetidas entre archivos unidos que se omitieron.
+    public internal(set) var mdup = 0
+    /// Filas sin leer por archivo (mismo orden que `names`), solo cuando se unieron varios.
+    public internal(set) var unr: [Int]?
+    public internal(set) var source: Source?
     public let analysis: Nazca.Analysis
     public private(set) var extracted: [Nazca.Item]
     public private(set) var unreadable: Int
@@ -59,6 +85,7 @@ public struct ImportReview {
         let ex = Nazca.extract(analysis)
         if ex.items.isEmpty { return nil }
         self.name = String(name.prefix(80))
+        self.names = [String(name.prefix(80))]
         self.guess = String(guess.prefix(40))
         self.analysis = analysis
         self.extracted = ex.items
@@ -73,6 +100,65 @@ public struct ImportReview {
         self.account = Engine.identifier(pick["id"])
         build(engine)
     }
+
+    /// Una revisión a partir de un estado de cuenta ya leído por el lector de un banco (`impFromPdf` de la web): sugiere fusionar con una cuenta de ese banco o crea una nueva.
+    public init?(name: String, statement r: Nazca.StatementResult, engine e: Engine) {
+        if r.items.isEmpty { return nil }
+        let own = r.bank.map { Nazca.bankShort($0) } ?? r.name, last4 = r.last4
+        func bankIs(_ o: JSONValue) -> Bool {
+            if own.isEmpty { return false }
+            let nm = Engine.str(o["name"])
+            if let b = r.bank, Nazca.bankKeys(ofName: nm)?.contains(b) == true { return true }
+            return Engine.bankNorm(nm).contains(Engine.bankNorm(own))
+        }
+        let card = r.kind == "tarjeta"
+        let pool = card ? e.allCards.filter { Engine.str($0["kind"]) == "card" } : e.allAccounts
+        let hit = pool.first { bankIs($0) && !last4.isEmpty && Engine.str($0["last4"]) == last4 }
+            ?? pool.first { bankIs($0) && Engine.str($0["cur"]) == r.cur && Engine.str($0["last4"]).isEmpty }
+        let cd = (card ? r.card : nil) ?? Nazca.StatementResult.CardInfo()
+        let nueva: JSONValue
+        if card {
+            nueva = .object(["id": .string(Self.newId), "kind": .string("card"), "name": .string(own.isEmpty ? "Tarjeta" : own), "cur": .string(r.cur),
+                             "limit": .number(cd.limit ?? 0), "balance": .number(0), "apr": .number(cd.apr ?? 20), "payment": .number(cd.minPayment ?? 0),
+                             "due_day": .number(Double(cd.dueDay.map { max(1, min(31, $0)) } ?? 1)), "color": .string(""), "icon": .string(""), "last4": .string(last4)])
+        } else {
+            let apy = r.kind == "ahorro" && (r.apy ?? 0) > 0 && (r.apy ?? 0) < 100 ? Nazca.jsRound((r.apy ?? 0) * 100) / 100 : 0
+            nueva = .object(["id": .string(Self.newId), "name": .string(Nazca.bankShort(r.bank) + (r.cur == "USD" ? " Dólares" : r.cur == "CLP" ? " Pesos" : " Soles")),
+                             "type": .string(r.kind == "ahorro" ? "savings" : "checking"), "cur": .string(r.cur), "apy": .number(apy), "balance": .number(0),
+                             "color": .string(""), "icon": .string(""), "last4": .string(last4)])
+        }
+        self.name = String(name.prefix(80))
+        self.names = [String(name.prefix(80))]
+        self.guess = ""
+        self.analysis = .blank
+        self.extracted = r.items
+        self.unreadable = r.unreadable
+        let hitId = hit.map { Engine.identifier($0["id"]) }
+        self.account = hitId ?? Self.newId
+        let end = r.check?.end.map { Statement(balance: $0, date: r.period?.to ?? "") }
+        self.source = Source(bank: r.bank, label: r.label, card: card, cardInfo: cd, check: r.check, checks: [r.check], period: r.period,
+                             stmtEnd: end, newAcc: nueva, mergeId: hitId)
+        build(e)
+    }
+
+    /// La cuenta que se está revisando (la nueva, si todavía no existe) y si es una tarjeta.
+    func resolve(_ data: JSONValue) -> (acc: JSONValue, credit: Bool)? {
+        if account == Self.newId { return source.map { ($0.newAcc, $0.card) } }
+        guard let loc = ProfileEditor.locate(data, .string(account)), let a = data[loc.col]?.arrayValue?[loc.index] else { return nil }
+        return (a, loc.col == "cards")
+    }
+
+    /// La cuenta que se usa al elegir «Fusionar»: la sugerida, la que ya eligió la persona o la primera de la misma moneda.
+    public func mergeTarget(_ e: Engine) -> String? {
+        guard let s = source else { return nil }
+        let pool = s.card ? e.allCards.filter { Engine.str($0["kind"]) == "card" } : e.allAccounts
+        if pool.isEmpty { return nil }
+        if let m = s.mergeId { return m }
+        let cur = Engine.str(s.newAcc["cur"])
+        return Engine.identifier((pool.first { Engine.str($0["cur"]) == cur } ?? pool[0])["id"])
+    }
+
+    public var isStatement: Bool { source != nil }
 
     // MARK: ajustes
 
@@ -94,6 +180,7 @@ public struct ImportReview {
     }
 
     public mutating func chooseAccount(_ id: String, engine: Engine) {
+        if source != nil && id != Self.newId { source!.mergeId = id }
         account = id; flip = nil; balanceMode = nil; selection = [:]; fxMode = nil; fxRate = 0; fxAccount = ""
         build(engine)
     }
@@ -152,8 +239,8 @@ public struct ImportReview {
 
     /// Cuentas (o tarjetas, si la importada es una tarjeta) en la moneda `f`, distintas de la importada.
     public func fxPool(_ e: Engine) -> [JSONValue] {
-        guard let loc = ProfileEditor.locate(e.data, .string(account)) else { return [] }
-        let pool = loc.col == "cards" ? e.allCards.filter { Engine.str($0["kind"]) == "card" } : e.allAccounts
+        guard let cur = resolve(e.data) else { return [] }
+        let pool = cur.credit ? e.allCards.filter { Engine.str($0["kind"]) == "card" } : e.allAccounts
         return pool.filter { Engine.str($0["cur"]) == foreignCurrency && Engine.identifier($0["id"]) != account }
     }
 
@@ -165,8 +252,8 @@ public struct ImportReview {
     }
 
     public mutating func build(_ e: Engine) {
-        guard let loc = ProfileEditor.locate(e.data, .string(account)), let acc = e.data[loc.col]?.arrayValue?[loc.index] else { rows = []; return }
-        let credit = loc.col == "cards", accCur = Engine.str(acc["cur"]), accId = Engine.identifier(acc["id"]), today = e.today.iso
+        guard let cur0 = resolve(e.data) else { rows = []; return }
+        let acc = cur0.acc, credit = cur0.credit, accCur = Engine.str(acc["cur"]), accId = Engine.identifier(acc["id"]), today = e.today.iso
         primary = e.primaryCurrency; secondary = e.secondaryCurrency
         if flip == nil { flip = credit && extracted.filter { $0.amount > 0 }.count * 2 > extracted.count }
         var items = extracted.map { it -> Nazca.Item in var x = it; if flip == true { x.amount = -x.amount }; return x }
@@ -231,13 +318,80 @@ public struct ImportReview {
         }
     }
 
+    // MARK: varios archivos
+
+    static func joinKey(_ x: String) -> String { x.lowercased().split(whereSeparator: { " \t\n\r".contains($0) }).joined(separator: " ") }
+    static func compact(_ t: String) -> String { String(t.lowercased().unicodeScalars.filter { ("a"..."z").contains($0) || ("0"..."9").contains($0) }.map(Character.init)) }
+
+    /// ¿Son dos estados del mismo banco y la misma cuenta (o dos CSV del mismo origen)? Se unen en una sola revisión (`impSame`).
+    public func isSame(as b: ImportReview) -> Bool {
+        if (source != nil) != (b.source != nil) { return false }
+        if let x = source, let y = b.source {
+            if x.card != y.card || Engine.str(x.newAcc["cur"]) != Engine.str(y.newAcc["cur"]) { return false }
+            let l1 = Engine.str(x.newAcc["last4"]), l2 = Engine.str(y.newAcc["last4"])
+            if !l1.isEmpty && !l2.isEmpty && l1 != l2 { return false }
+            if x.bank != nil || y.bank != nil { return x.bank == y.bank }
+            return !Self.compact(x.label).isEmpty && Self.compact(x.label) == Self.compact(y.label)
+        }
+        return !Self.compact(guess).isEmpty && Self.compact(guess) == Self.compact(b.guess)
+    }
+
+    static func aggCheck(_ list: [Nazca.StatementResult.Check?]) -> Nazca.StatementResult.Check? {
+        let cs = list.compactMap { $0 }.filter { $0.ok != nil }
+        if cs.isEmpty { return nil }
+        let ok: Bool? = cs.count < list.count ? nil : cs.allSatisfy { $0.ok == true } ? true : cs.contains { $0.ok == false } ? false : nil
+        return .init(ok: ok, end: nil, n: cs.count)
+    }
+
+    /// Une `a` a esta revisión (`impMerge`): suma sus movimientos (sin los que ya estaban), el periodo, el saldo más reciente y los datos de la tarjeta.
+    public mutating func merge(_ a: ImportReview, engine: Engine) {
+        func key(_ it: Nazca.Item) -> String { it.date + "|" + Self.joinKey(it.desc) + "|" + String(it.amount) }
+        var have: [String: Int] = [:]
+        for it in extracted { have[key(it), default: 0] += 1 }
+        var add: [Nazca.Item] = []
+        for it in a.extracted {
+            let k = key(it)
+            if have[k, default: 0] > 0 { have[k]! -= 1; mdup += 1 } else { add.append(it) }
+        }
+        unr = (unr ?? [unreadable]) + [a.unreadable]
+        extracted += add
+        unreadable += a.unreadable
+        if var s = source, let o = a.source {
+            if let p = o.period {
+                s.period = s.period.map { .init(from: min(p.from, $0.from), to: max(p.to, $0.to)) } ?? p
+            }
+            if let e = o.stmtEnd, s.stmtEnd.map({ e.date >= $0.date }) ?? true {
+                s.stmtEnd = e
+                if o.card { s.cardInfo = Self.overlay(s.cardInfo, o.cardInfo) }
+            }
+            s.checks += o.checks.isEmpty ? [o.check] : o.checks
+            s.check = Self.aggCheck(s.checks)
+            source = s
+        }
+        names += a.names
+        mdup += a.mdup
+        selection = [:]; catPick = [:]; flip = nil; balanceMode = nil
+        build(engine)
+    }
+
+    static func overlay(_ b: Nazca.StatementResult.CardInfo, _ a: Nazca.StatementResult.CardInfo) -> Nazca.StatementResult.CardInfo {
+        var o = b
+        if a.limit != nil { o.limit = a.limit }
+        if a.apr != nil { o.apr = a.apr }
+        if a.minPayment != nil { o.minPayment = a.minPayment }
+        if a.dueDay != nil { o.dueDay = a.dueDay }
+        if a.dueDate != nil { o.dueDate = a.dueDate }
+        return o
+    }
+
     // MARK: lectura de lo calculado
 
     /// El saldo que trae el archivo, si lo trae (el de la fila más reciente).
     public func statement(credit: Bool) -> Statement? {
-        if credit { return nil }
+        let end = source?.stmtEnd.flatMap { $0.date.isEmpty ? nil : $0 }
+        if credit { return end }
         let rs = rows.filter { $0.balance != nil }
-        guard let first = rs.first, let last = rs.last else { return nil }
+        guard let first = rs.first, let last = rs.last else { return end }
         let newestFirst = first.date > last.date
         let maxD = rs.map(\.date).max()!
         let same = rs.filter { $0.date == maxD }
@@ -246,15 +400,15 @@ public struct ImportReview {
     }
 
     public func statement(_ e: Engine) -> Statement? {
-        statement(credit: ProfileEditor.isCredit(e.data, accountId: .string(account)))
+        statement(credit: resolve(e.data)?.credit ?? false)
     }
 
     public var enabled: [Row] { rows.filter(\.on) }
 
     /// Suma de lo que entra a la cuenta principal y el saldo (o deuda) resultante.
     public func projected(_ e: Engine) -> (net: Double, before: Double, after: Double, cur: String, credit: Bool)? {
-        guard let loc = ProfileEditor.locate(e.data, .string(account)), let acc = e.data[loc.col]?.arrayValue?[loc.index] else { return nil }
-        let credit = loc.col == "cards", bal = Engine.num(acc["balance"])
+        guard let cur = resolve(e.data) else { return nil }
+        let acc = cur.acc, credit = cur.credit, bal = Engine.num(acc["balance"])
         let net = Engine.round2(enabled.filter { !$0.side }.reduce(0) { $0 + $1.amount })
         return (net, bal, Engine.round2(credit ? bal - net : bal + net), Engine.str(acc["cur"]), credit)
     }
@@ -290,11 +444,14 @@ public struct ImportReview {
         return s.isEmpty ? "" : " ··" + s
     }
 
-    /// Importa los movimientos marcados (`impGoOne`). `newAccountId` se usa si hay que abrir una cuenta aparte para otra moneda.
-    public func apply(to p: inout JSONValue, now: Double, newAccountId: String) -> Applied? {
+    /// Importa los movimientos marcados (`impGoOne`). `newAccountId` se usa si hay que abrir una cuenta (la del estado de cuenta); `sideAccountId`, si además hay que abrir una cuenta aparte para otra moneda.
+    public func apply(to p: inout JSONValue, now: Double, newAccountId: String, sideAccountId: String? = nil) -> Applied? {
         let on = rows.filter(\.on)
-        guard !on.isEmpty, let loc0 = ProfileEditor.locate(p, .string(account)), let acc0 = p[loc0.col]?.arrayValue?[loc0.index] else { return nil }
-        let accId = Engine.identifier(acc0["id"]), credit = loc0.col == "cards"
+        guard !on.isEmpty, let cur0 = resolve(p) else { return nil }
+        let isNew = account == Self.newId
+        var acc0 = cur0.acc
+        if isNew { acc0["id"] = .string(newAccountId) }
+        let accId = Engine.identifier(acc0["id"]), credit = cur0.credit
         let st = statement(credit: credit)
         let main = on.filter { !$0.side }.sorted { $0.date != $1.date ? $0.date < $1.date : $0.i < $1.i }
         let side = on.filter(\.side).sorted { $0.date != $1.date ? $0.date < $1.date : $0.i < $1.i }
@@ -325,7 +482,14 @@ public struct ImportReview {
         }
 
         if !main.isEmpty {
-            let before = bal(accId)
+            // cuenta nueva: se crea al importar, no antes
+            if isNew {
+                let col = credit ? "cards" : "accounts"
+                var list = p[col]?.arrayValue ?? []
+                list.append(acc0)
+                p[col] = .array(list)
+            }
+            let before = isNew ? 0 : bal(accId)
             var ids: [Double] = []
             for r in main {
                 var note = r.desc.isEmpty ? r.cat : r.desc
@@ -335,26 +499,26 @@ public struct ImportReview {
                 if mode == .adjust { ProfileEditor.applyTo(&p, acc0["id"], Engine.round2(Migration.clampAmt(r.amount))) }
             }
             if mode == .stmt, let st { setBal(accId, Engine.round2(st.balance)) }
-            parts.append(.init(ids: ids, acc: accId, before: before, created: nil, cur2: nil))
-            dones.append(summary(accId, n: ids.count, created: false))
+            parts.append(.init(ids: ids, acc: accId, before: before, created: isNew ? accId : nil, cur2: nil))
+            dones.append(summary(accId, n: ids.count, created: isNew))
         }
         if !side.isEmpty {
-            let F = foreignCurrency
+            let F = foreignCurrency, sideId = sideAccountId ?? (isNew ? newAccountId + "-2" : newAccountId)
             var a2Id = fxAccount, created2: String?, cur2: String?
             if a2Id.isEmpty || ProfileEditor.locate(p, .string(a2Id)).flatMap({ Engine.identifier(p[$0.col]?.arrayValue?[$0.index]["id"]) == a2Id ? $0 : nil }) == nil {
                 let base = Engine.str(acc0["name"]).replacingOccurrences(of: #"\s+(Soles|Pesos|Dólares)$"#, with: "", options: .regularExpression)
                 let nm = base + " " + (F == "USD" ? "Dólares" : F)
                 let l4 = Engine.str(acc0["last4"])
                 let o: JSONValue = credit
-                    ? .object(["id": .string(newAccountId), "kind": .string("card"), "name": .string(nm), "cur": .string(F), "limit": .number(0), "balance": .number(0),
+                    ? .object(["id": .string(sideId), "kind": .string("card"), "name": .string(nm), "cur": .string(F), "limit": .number(0), "balance": .number(0),
                                "apr": acc0["apr"] ?? .number(0), "payment": .number(0), "due_day": acc0["due_day"] ?? .number(1), "color": .string(""), "icon": .string(""), "last4": .string(l4)])
-                    : .object(["id": .string(newAccountId), "name": .string(nm), "type": .string("checking"), "cur": .string(F), "apy": .number(0), "balance": .number(0),
+                    : .object(["id": .string(sideId), "name": .string(nm), "type": .string("checking"), "cur": .string(F), "apy": .number(0), "balance": .number(0),
                                "color": .string(""), "icon": .string(""), "last4": .string(l4)])
                 let col = credit ? "cards" : "accounts"
                 var list = p[col]?.arrayValue ?? []
                 list.append(o)
                 p[col] = .array(list)
-                a2Id = newAccountId; created2 = newAccountId
+                a2Id = sideId; created2 = sideId
             }
             if F != primary && F != secondary && secondary.isEmpty {
                 var s = p["settings"] ?? .object([:])

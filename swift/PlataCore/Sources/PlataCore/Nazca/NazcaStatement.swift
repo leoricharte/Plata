@@ -41,3 +41,8 @@ extension Nazca {
         }
     }
 }
+
+extension Nazca.Analysis {
+    /// Sin tabla: lo que tiene una revisión que viene de un estado de cuenta ya leído.
+    static let blank = Nazca.Analysis(delim: ",", headerRow: 0, headers: [], width: 0, cols: Nazca.Columns(), dec: ".", order: "dmy", rows: [], truncated: false)
+}
