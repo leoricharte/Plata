@@ -13,3 +13,4 @@ dist-web/
 swift/PlataCore/.build/
 swift/PlataCore/.swiftpm/
 *.xcuserstate
+!swift/**/Fixtures/*.json

@@ -1,0 +1,133 @@
+{
+ "seeds": [
+  {
+   "seedHex": "000102030405060708090a0b0c0d0e0f",
+   "phrase": "abandon amount liar amount expire adjust cage candy arch gather drum buyer",
+   "check": "QxNHhnRRBfT6Ai0PvSxA61QElP7IAVOG4kHaY2WIlAA",
+   "write": "R_0ySQduEi7xZH9rSbRskdDLFfVXXWoQIdiAvBGovXM",
+   "seedB64u": "AAECAwQFBgcICQoLDA0ODw"
+  },
+  {
+   "seedHex": "ffffffffffffffffffffffffffffffff",
+   "phrase": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong",
+   "check": "3fLH_m2dc7bNmK0HOyA1iQxvJdvriryeAcTjW6at-LQ",
+   "write": "rwxlcSy9VJudwS_8tI9QMBGc9zv1Z3g3holk8SR_K_Q",
+   "seedB64u": "_____________________w"
+  },
+  {
+   "seedHex": "00000000000000000000000000000000",
+   "phrase": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+   "check": "Dy7bg10ze7BzbYwqn_YKm8Jkuo9UxnrehH4K8zEwL4s",
+   "write": "VCjHlYEfu3bF0hmrgnC6ap2nCEsuKfInvMpUVN97UyU",
+   "seedB64u": "AAAAAAAAAAAAAAAAAAAAAA"
+  },
+  {
+   "seedHex": "7f3a91c2d4e5f60718293a4b5c6d7e8f",
+   "phrase": "left stand idle prefer garage adjust gaze chef ensure toddler garden buzz",
+   "check": "Eo5tnvxjlYiXQN-Q-7zlSUHD_hhpbt26XGU0VxVClFs",
+   "write": "xC-A46_6B4WAegfCpYCp78kHuFIygyKIr2X5gli4FNA",
+   "seedB64u": "fzqRwtTl9gcYKTpLXG1-jw"
+  }
+ ],
+ "blobs": [
+  {
+   "name": "gzip+rev",
+   "rev": 7,
+   "plain": {
+    "version": 3,
+    "settings": {
+     "currency": "USD",
+     "nick": "Ñandú ✓"
+    },
+    "accounts": [
+     {
+      "id": "bank",
+      "name": "Cuenta principal",
+      "type": "checking",
+      "cur": "USD",
+      "balance": 1234.56
+     }
+    ],
+    "transactions": [
+     {
+      "id": 1,
+      "date": "2026-10-01",
+      "amount": -41.8,
+      "category": "Comida",
+      "note": "café ☕",
+      "acc": "bank"
+     }
+    ],
+    "cats": [],
+    "budget": {}
+   },
+   "blob": "AQG_99S-WFzd6fW1TvuJMVjNRlZRrZdri5ReHVnrZA33d7wtDhyXLx5aQEgiL5IKFxbCDTfK8YBKM5gW0bJzGsSWT39X_or1vICp3eN4EgceyJBW7_4DPBTlzYyKGiJqwJlgPQkdFs8W4SK-SkBh-NeTzvOQCTwjBFKHaGD8j0EIJZB3vWsEMt2HvugTXUbSDt7CnsKnSELLc9QqyYPBFnZOHeLn7HOxuIA2VsGAMcGHyWzxYDdXwHPvtM92Uw1aG4evo8CSafCQBlqEIVOViRnTAWTg9V7G6kDrgbnRKS9yN-mCQxeL78SPfvZd1nkcqbQPp36pNbcNRl9BPm5sqnUlaEkLB4jr4oUCBxlCjarSXH10JFlYCtapjkCJr2-7kw"
+  },
+  {
+   "name": "sin gzip+rev",
+   "rev": 3,
+   "plain": {
+    "version": 3,
+    "settings": {
+     "currency": "USD",
+     "nick": "Ñandú ✓"
+    },
+    "accounts": [
+     {
+      "id": "bank",
+      "name": "Cuenta principal",
+      "type": "checking",
+      "cur": "USD",
+      "balance": 1234.56
+     }
+    ],
+    "transactions": [
+     {
+      "id": 1,
+      "date": "2026-10-01",
+      "amount": -41.8,
+      "category": "Comida",
+      "note": "café ☕",
+      "acc": "bank"
+     }
+    ],
+    "cats": [],
+    "budget": {}
+   },
+   "blob": "AQBr1PK05pQN-s3tvRizvsdz-VZgWy2Fr8Zq9obu8QzDH2nE8aW2KkcXwQPN1rXkkOpXjvIJjR2XDZ7i-HyjZdiXp5KgzFYqjwep4XeTYx4rLWfk37zs28mMpKOHNqwmT5W7ESxZkSO3_7d6Tg2uB9h1cydVMGXfKk6BsjgqT_NS6daV_v0KY_KdQ9D7gXoAmb5aKNDNPjc7dNwqSRlQOglzKMFrjv-GODayCulzGB1KLZ4LGgUn4K96NOa7FSR0_8Fhr8WWPNkF2nYjZqwm8J3eaCsxzk4ppJSs-Y5TihYbhHxed0QaBb37Y2Nkxdyzv_5b_QYTgQOvHrXEfyRxjWf7omdhAQrRRQWb2Rfn_Il1Rn0jRcKQyqZUkgu5y2XjoyZDsTSsBUQ6SVFQU1PcHCm45jUVYijz30FAf6USAzj6wlUNof92z3qWeWnv2TF6C2eLaolVu_CEKmYjesNIZSs-"
+  },
+  {
+   "name": "formato viejo (sin rev)",
+   "rev": 0,
+   "plain": {
+    "version": 3,
+    "settings": {
+     "currency": "USD",
+     "nick": "Ñandú ✓"
+    },
+    "accounts": [
+     {
+      "id": "bank",
+      "name": "Cuenta principal",
+      "type": "checking",
+      "cur": "USD",
+      "balance": 1234.56
+     }
+    ],
+    "transactions": [
+     {
+      "id": 1,
+      "date": "2026-10-01",
+      "amount": -41.8,
+      "category": "Comida",
+      "note": "café ☕",
+      "acc": "bank"
+     }
+    ],
+    "cats": [],
+    "budget": {}
+   },
+   "blob": "AQFNE3tb1JIYM1J_JI6gKNYwwsZ835nCM1laOCkyWeF2cTavP8pMXdMdOM0koHXkwgrI5-Fuqv9yVxFcqN_r70Mae6fZz21OC5j6vIXMRqV6JCyO2XjPwNutU4BLI5BkfYCcHxTyeANP7HBA_9vQHvM0ZGxxzcUypv2MSghGmt-aQJmsRb5nP7Dw9XpGWga8DyBTUPm0KF7Kds1a6OBTBVFmjY4ADdehDEwHWVzZufqbekDpNzg_as6Aa0gxC-Cid6_fkmRuNjX79K_pWzzfZ1CTmV2d3z99NHBZO7PlV4oqyNXtYlaDQhTlx_UJ6FATFL7w0dXqRLgZCNmpjHgZxyrEMQAi5ABz-Pj63EcD_MeZYQ"
+  }
+ ]
+}
