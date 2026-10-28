@@ -250,6 +250,7 @@ struct NativeSegmented: View {
         }
         .pickerStyle(.segmented)
         .labelsHidden()
+        .controlSize(.large)   // más alto, como el de la web (prueba .extraLarge si aún queda corto)
         .frame(width: b.box.w, height: b.box.h)
         .opacity(b.box.o)
         .position(b.box.center)
