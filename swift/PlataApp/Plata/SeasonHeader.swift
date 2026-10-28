@@ -175,7 +175,7 @@ struct MonthHeader: View {
             }
             .layoutPriority(1)
             .background {
-                RadialGradient(colors: [s1.opacity(0.2), .clear], center: .center, startRadius: 0, endRadius: 90)
+                EllipticalGradient(colors: [s1.opacity(0.2), .clear], center: .center, startRadiusFraction: 0, endRadiusFraction: 0.5)
                     .padding(.horizontal, -44).padding(.vertical, -14)
                     .allowsHitTesting(false)
             }
