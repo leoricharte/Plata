@@ -18,7 +18,7 @@
   /* 1. Ocultar los controles web (siguen ocupando su sitio y siguen aplicando su CSS) */
   root.setAttribute('data-native', '1');
   var st = document.createElement('style');
-  st.textContent = 'html[data-native]:not(.web) #tabbar,html[data-native]:not(.web) #gearbtn,html[data-native]:not(.web) #plusbtn,html[data-native]:not(.web) .plata-nbtn{visibility:hidden!important}html[data-native]:not(.web) #qmenu{visibility:hidden!important}html[data-native] *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}html[data-native] input,html[data-native] textarea,html[data-native] [contenteditable]{-webkit-user-select:text;user-select:text}';
+  st.textContent = 'html[data-native]:not(.web) #tabbar,html[data-native]:not(.web) #gearbtn,html[data-native]:not(.web) #plusbtn,html[data-native]:not(.web) .plata-nbtn{visibility:hidden!important}html[data-native]:not(.web) #qmenu{visibility:hidden!important}html[data-native] *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}html[data-native] body,html[data-native] button,html[data-native] input,html[data-native] textarea,html[data-native] select{font-family:-apple-system,system-ui,sans-serif!important}html[data-native] input,html[data-native] textarea,html[data-native] [contenteditable]{-webkit-user-select:text;user-select:text}';
   root.appendChild(st);
 
   /* 2. Estado hacia Swift */
