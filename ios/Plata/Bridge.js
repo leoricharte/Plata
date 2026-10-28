@@ -51,6 +51,8 @@
     ['#sheet .xbtn', 'icon'], ['#sheet .okbtn', 'icon'],
     ['.seg', 'seg'], ['[role="switch"]', 'switch'], ['input[type="range"]', 'slider']
   ];
+  /* true: el control nativo sigue visible al hacer scroll (puede ir un cuadro atrasado). false: durante el scroll se ve el de la web. */
+  var KEEP_NATIVE_WHILE_SCROLLING = true;
   var nid = 0, tracked = [], scrollingUntil = 0;
   /* Menú del «+»: la web lo abre como #qmenu (posición fija). Se informa su rectángulo final (sin la animación) y sus filas. */
   function menu() {
@@ -101,7 +103,7 @@
         var r = e.getBoundingClientRect();
         if (!(r.width > 1 && r.height > 1)) continue;
         if (r.bottom < 0 || r.top > window.innerHeight || r.right < 0 || r.left > window.innerWidth) continue;
-        if (scrolls(e) && performance.now() < scrollingUntil) continue;
+        if (!KEEP_NATIVE_WHILE_SCROLLING && scrolls(e) && performance.now() < scrollingUntil) continue;
         if (!e.hasAttribute('data-nid')) e.setAttribute('data-nid', String(++nid));
         e.classList.add('plata-nbtn'); now.push(e);
         var b = boxEl(e);
