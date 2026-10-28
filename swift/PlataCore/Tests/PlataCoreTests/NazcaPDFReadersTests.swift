@@ -110,24 +110,51 @@ final class NazcaPDFReadersTests: XCTestCase {
         }
     }
 
-    #if canImport(PDFKit)
-    /// Lo mismo, pero con los textos que arma PDFKit al abrir el PDF de verdad.
-    func testReadersOnPdfKitText() throws {
+    #if canImport(WebKit)
+    /// Lo mismo, pero abriendo el PDF de verdad con el lector de la web (pdf.js en un WKWebView): es el camino que usa la app.
+    @MainActor func testReadersOnWebBridgeText() async throws {
         var report: [String] = []
         for d in try Self.docs() {
             let name = d["name"]!.stringValue!
             guard let r = d["read"], !r.isNull else { continue }
             let doc: PdfDoc
-            do { doc = try NazcaPDF.read(NazcaPDFTests.pdfData(name), password: d["key"]?.stringValue) } catch { report.append("\(name): no abrió (\(error))"); continue }
+            do { doc = try await NazcaPDFWeb.read(NazcaPDFTests.pdfData(name), password: d["key"]?.stringValue) } catch { report.append("\(name): no abrió (\(error))"); continue }
             guard let rd = NazcaPDFBancos.detect(doc) else {
                 let flat = PDFx.flat(doc)
                 func around(_ k: String) -> String { guard let r = flat.range(of: k, options: .caseInsensitive) else { return "«\(k)»: NO está" }; let a = flat.index(r.lowerBound, offsetBy: -12, limitedBy: flat.startIndex) ?? flat.startIndex; let b = flat.index(r.upperBound, offsetBy: 12, limitedBy: flat.endIndex) ?? flat.endIndex; return "«\(flat[a..<b])»" }
                 let firsts = doc.pages.first?.items.prefix(6).map { "[\($0.str)|\(Int($0.x))|\(Int($0.y))]" }.joined() ?? ""
-                report.append("\(name): PDFKit no lo reconoce (debía \(d["reader"]!.stringValue!)) · \(doc.pages.count)p \(PDFx.items(doc).count) textos · \(firsts) · \(["Customer", "issued by", "Total Balance", "SALDO ANTERIOR", "MOVIMIENTO"].map(around).joined(separator: " "))"); continue }
+                report.append("\(name): el lector web no lo reconoce (debía \(d["reader"]!.stringValue!)) · \(doc.pages.count)p \(PDFx.items(doc).count) textos · \(firsts) · \(["Customer", "issued by", "Total Balance", "SALDO ANTERIOR", "MOVIMIENTO"].map(around).joined(separator: " "))"); continue }
             if rd.id != d["reader"]!.stringValue! { report.append("\(name): lector \(rd.id)"); continue }
             report += Self.diff(name, r, rd.read(doc))
         }
         XCTAssertTrue(report.isEmpty, "\n" + report.prefix(25).joined(separator: "\n") + (report.count > 25 ? "\n… y \(report.count - 25) más" : ""))
+    }
+
+    /// El lector web entrega exactamente lo que vio pdf.js en la web (textos y posiciones), y los mismos errores.
+    @MainActor func testWebBridgeIsIdenticalToTheWeb() async throws {
+        var report: [String] = []
+        for d in try NazcaPDFTests.golden()["docs"]!.arrayValue! {
+            let name = d["name"]!.stringValue!
+            let key = d["key"]?.stringValue
+            if let e = d["error"], !e.isNull {
+                do { _ = try await NazcaPDFWeb.read(NazcaPDFTests.pdfData(name), password: key); report.append("\(name): debía fallar con \(e.stringValue!)") }
+                catch let f as NazcaPDF.Failure { if f.rawValue != e.stringValue! { report.append("\(name): falló con \(f.rawValue), debía \(e.stringValue!)") } }
+                catch { report.append("\(name): error raro \(error)") }
+                continue
+            }
+            let want = NazcaPDFTests.jsDoc(d)
+            let got: PdfDoc
+            do { got = try await NazcaPDFWeb.read(NazcaPDFTests.pdfData(name), password: key) } catch { report.append("\(name): no abrió (\(error))"); continue }
+            if got.pages.count != want.pages.count || got.total != want.total || got.truncated != want.truncated { report.append("\(name): páginas \(got.pages.count)/\(got.total), debían \(want.pages.count)/\(want.total)"); continue }
+            var bad = 0
+            for (pi, wp) in want.pages.enumerated() {
+                let gp = got.pages[pi]
+                if gp.items.count != wp.items.count { bad += 1; continue }
+                for (k, w) in wp.items.enumerated() { let g = gp.items[k]; if g.str != w.str || abs(g.x - w.x) > 0.01 || abs(g.y - w.y) > 0.01 || abs(g.w - w.w) > 0.01 { bad += 1 } }
+            }
+            if bad > 0 { report.append("\(name): \(bad) diferencias con pdf.js de la web") }
+        }
+        XCTAssertTrue(report.isEmpty, "\n" + report.prefix(15).joined(separator: "\n"))
     }
     #endif
 }

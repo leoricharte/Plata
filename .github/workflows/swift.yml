@@ -4,7 +4,7 @@ name: Swift
 on:
   push:
     branches: [ "swift-nativo" ]
-    paths: [ "swift/**", ".github/workflows/swift.yml" ]
+    paths: [ "swift/**", "dev/vendor/pdfjs/**", "dev/app/src/core/nazca/pdf.js", ".github/workflows/swift.yml" ]
   workflow_dispatch:
 
 permissions:
@@ -25,6 +25,9 @@ jobs:
         run: |
           xcodebuild -version
           swift --version
+
+      - name: El lector de PDF de iOS es idéntico al de la web
+        run: bash swift/tools/sync-pdfjs.sh --check
 
       - name: Pruebas del núcleo (PlataCore)
         working-directory: swift/PlataCore

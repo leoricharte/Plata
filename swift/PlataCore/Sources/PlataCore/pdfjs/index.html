@@ -1,0 +1,7 @@
+<!doctype html>
+<meta charset="utf-8">
+<!-- Página interna (oculta) que lee PDF con el MISMO código de la web: pdf.js + nazca-pdf.js. Sin red: la CSP solo deja cargar scripts de este esquema
+     y no permite scripts dentro de la página. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src plata-pdf:; img-src data: blob:; font-src data: blob:; style-src 'unsafe-inline'; connect-src 'none'; worker-src blob:">
+<script src="nazca-pdf.js"></script>
+<script type="module" src="boot.js"></script>

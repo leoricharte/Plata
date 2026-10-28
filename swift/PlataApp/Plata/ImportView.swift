@@ -603,7 +603,7 @@ struct ImportFlowView: View {
     /// PDF: se abre en el dispositivo; Nazca reconoce el banco por el contenido y usa su lector (o la lectura genérica si no conoce el banco).
     @MainActor private func readPDF(_ f: Picked, key: String?) async -> Outcome {
         let name = f.name, data = f.data, given = f.doc, only = bank
-        let out = await Task.detached(priority: .userInitiated) { PDFScan.run(data: data, doc: given, name: name, key: key, only: only) }.value
+        let out = await PDFScan.run(data: data, doc: given, name: name, key: key, only: only)
         switch out {
         case .failure(let e):
             switch e {
@@ -753,9 +753,27 @@ private enum PDFOut: Sendable {
 }
 
 private enum PDFScan {
-    static func run(data: Data?, doc given: PdfDoc?, name: String, key: String?, only: String?) -> PDFOut {
-        if let given { return attempt(given, name: name, only: only) }
+    /// Primero el MISMO lector de la web (pdf.js en un WKWebView oculto): los textos y posiciones son idénticos a los que ven los lectores de banco.
+    /// Si no estuviera disponible (`unavailable`), se usa PDFKit como respaldo.
+    @MainActor static func run(data: Data?, doc given: PdfDoc?, name: String, key: String?, only: String?) async -> PDFOut {
+        if let given { return await Task.detached(priority: .userInitiated) { attempt(given, name: name, only: only) }.value }
         guard let data else { return .failure(.invalid) }
+        var web: PDFOut?
+        #if canImport(WebKit)
+        do {
+            let doc = try await NazcaPDFWeb.read(data, password: key)
+            let out = await Task.detached(priority: .userInitiated) { attempt(doc, name: name, only: only) }.value
+            if case .unknown = out { web = out } else { return out }
+        } catch let e as NazcaPDF.Failure where e != .unavailable { return .failure(e) }
+        catch { /* sin lector web: respaldo */ }
+        #endif
+        let kit = await Task.detached(priority: .userInitiated) { runKit(data: data, name: name, key: key, only: only) }.value
+        if case .unknown = kit, let web { return web }
+        return kit
+    }
+
+    /// Respaldo: PDFKit arma los textos distinto a pdf.js, así que se prueban varias extracciones.
+    private static func runKit(data: Data, name: String, key: String?, only: String?) -> PDFOut {
         // Si la lectura normal no reconoce nada, se prueba con extracciones de respaldo (PDFKit arma el texto distinto a pdf.js).
         var first: PDFOut?
         for mode in [NazcaPDF.Mode.words, .loose, .lines, .plain] {

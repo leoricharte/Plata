@@ -10,7 +10,10 @@ let package = Package(
         .library(name: "PlataCore", targets: ["PlataCore"]),
     ],
     targets: [
-        .target(name: "PlataCore"),
+        .target(
+            name: "PlataCore",
+            resources: [.copy("pdfjs")]   // pdf.js + lector de la web, para leer PDF igual que la web (ver swift/tools/sync-pdfjs.sh)
+        ),
         .testTarget(
             name: "PlataCoreTests",
             dependencies: ["PlataCore"],
