@@ -29,6 +29,10 @@ final class AppModel {
     var feedbackManual = false
     /// Hoja abierta desde el botón «+» o desde las listas (transferir, ingreso o gasto previsto).
     var activeSheet: ActiveSheet?
+    /// Cómo deshacer lo último que se aceptó en Revisión (solo mientras la pantalla está abierta).
+    var reviewUndoState: ReviewUndo?
+    /// La pestaña de Revisión que se está viendo.
+    var reviewTab = ""
     /// Set de presupuesto que se está viendo: nil = el que rige hoy, «base» o el id de un set.
     var bsel: String?
     var viewSet: JSONValue? { engine.viewSet(bsel) }
@@ -637,6 +641,7 @@ enum ActiveSheet: Identifiable, Hashable {
     case category(name: String?)
     case event(key: String)
     case budgetSets
+    case review
     /// Confirmar un pendiente. `pick`: se abrió a mano desde una tarjeta (un solo elemento, con «Cancelar»).
     case confirm(kind: String, id: String, pick: Bool)
 
@@ -654,6 +659,7 @@ enum ActiveSheet: Identifiable, Hashable {
         case .category(let n): return "category-\(n ?? "new")"
         case .event(let k): return "event-\(k)"
         case .budgetSets: return "budgetSets"
+        case .review: return "review"
         case .confirm(let k, let i, let p): return "confirm-\(k)-\(i)-\(p)"
         }
     }
@@ -661,4 +667,66 @@ enum ActiveSheet: Identifiable, Hashable {
 
 enum AppTab: Hashable, CaseIterable {
     case resumen, presupuesto, proyeccion, ahorro, cuentas
+}
+
+// MARK: - Revisión
+
+@MainActor
+private var reviewMemo: (key: String, cards: [ReviewCard])?
+
+extension AppModel {
+    /// Las tarjetas de Revisión de ahora (se recalculan solo cuando cambian los datos o las descartadas).
+    var reviewCards: [ReviewCard] {
+        let off = (engine.data["settings"]?["rv_off"]?.arrayValue ?? []).compactMap { $0.stringValue }
+        let key = "\(changes)|\(engine.allTransactions.count)|\(off.count)|\(today.days)|\(isDemo)"
+        if let m = reviewMemo, m.key == key { return m.cards }
+        let cards = engine.reviewScan(skip: off) { Brands.sub(named: $0).map { ReviewBrand(id: $0.id, key0: $0.keys.first ?? "") } }
+        reviewMemo = (key, cards)
+        return cards
+    }
+
+    var reviewOffCount: Int { (engine.data["settings"]?["rv_off"]?.arrayValue ?? []).count }
+
+    private func newShortId() -> String { String(UUID().uuidString.replacingOccurrences(of: "-", with: "").prefix(6)).lowercased() }
+
+    /// Acepta una tarjeta. Devuelve el aviso a mostrar («Transferencia registrada»…).
+    func reviewAccept(_ r: ReviewCard) -> String? {
+        var msg: String?
+        let e = engine
+        do {
+            try commit { raw in
+                let out = try ProfileEditor.reviewAccept(&raw, card: r, engine: e, now: Date().timeIntervalSince1970 * 1000, newId: { newShortId() })
+                reviewUndoState = out.undo
+                msg = out.message
+            }
+        } catch { reviewUndoState = nil; return nil }
+        return msg
+    }
+
+    func reviewDismiss(_ r: ReviewCard) {
+        reviewUndoState = nil
+        try? commit { raw in ProfileEditor.reviewDismiss(&raw, key: r.k) }
+    }
+
+    func reviewResetDismissed() { try? commit { raw in ProfileEditor.reviewReset(&raw) } }
+
+    func reviewAcceptAllLikely() {
+        let all = reviewCards
+        try? commit { raw in reviewUndoState = ProfileEditor.reviewAcceptAll(&raw, cards: all, newId: { newShortId() }) }
+    }
+
+    func reviewDoUndo() {
+        guard let u = reviewUndoState else { return }
+        reviewUndoState = nil
+        try? commit { raw in ProfileEditor.reviewUndo(&raw, u) }
+    }
+
+    /// Si ahora hay menos sugerencias que cuando se cerró el aviso, el aviso vuelve a quedar listo para las nuevas.
+    func reviewSyncBanner() {
+        let n = reviewCards.count
+        if n < Int(Engine.number(engine.data["settings"]?["rv_bn"])) { try? commit { raw in ProfileEditor.reviewBanner(&raw, count: n) } }
+    }
+
+    /// Cierra el aviso del Resumen hasta que haya más sugerencias que ahora.
+    func reviewCloseBanner() { let n = reviewCards.count; try? commit { raw in ProfileEditor.reviewBanner(&raw, count: n) } }
 }

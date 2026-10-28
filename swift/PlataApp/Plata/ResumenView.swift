@@ -30,6 +30,7 @@ struct ResumenView: View {
                     titleBlock(e)
                     CloudStrip()
                     idleBanner(e)
+                    reviewBanner(e)
                     if !hasData(e) { startCard }
                     KPIGrid(items: kpis(e, c, f))
                     nextIncomeCard(e, f)
@@ -54,7 +55,7 @@ struct ResumenView: View {
             .background(Color(.systemGroupedBackground))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { rootToolbar }
-            .task(id: model.changes) { model.syncInsightsState() }
+            .task(id: model.changes) { model.syncInsightsState(); model.reviewSyncBanner() }
             .routeDestinations()
             .sheet(isPresented: $pickingDemo) { DemoPickerSheet() }
         }
@@ -200,6 +201,33 @@ struct ResumenView: View {
         if pending { return days < 0 ? "esperado hace \(-days) \(days == -1 ? "día" : "días")" : "esperado hoy" }
         let label = Spanish.dateShort(day)
         return days > 0 ? "\(label) · en \(days) \(days == 1 ? "día" : "días")" : label
+    }
+
+    private func reviewBanner(_ e: Engine) -> some View {
+        let n = model.reviewCards.count
+        let seen = Int(Engine.number(e.data["settings"]?["rv_bn"]))
+        return Group {
+            if n > 0 && n > seen {
+                HStack(spacing: 10) {
+                    Button { model.activeSheet = .review } label: {
+                        HStack(spacing: 10) {
+                            Text("Tienes \(Spanish.plural(n, "sugerencia", "sugerencias")) por revisar")
+                                .font(.inter(14)).foregroundStyle(Brand.warnText).multilineTextAlignment(.leading)
+                            Spacer(minLength: 0)
+                            Text("Revisar").font(.inter(14, .bold)).foregroundStyle(Brand.warnText)
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    Button { model.reviewCloseBanner() } label: {
+                        Image(systemName: "xmark").font(.system(size: 12, weight: .bold)).foregroundStyle(Brand.warnText).frame(width: 26, height: 26)
+                    }
+                    .buttonStyle(.plain).accessibilityLabel("Cerrar")
+                }
+                .padding(.leading, 14).padding(.trailing, 8).padding(.vertical, 8)
+                .background(Brand.warn.opacity(0.16), in: Capsule())
+            }
+        }
     }
 
     @ViewBuilder
@@ -414,6 +442,12 @@ struct ResumenView: View {
             RowDivider()
             Button { model.tab = .cuentas } label: {
                 MoreRow(title: "Crédito y préstamos", detail: "\(Spanish.plural(e.allCards.count, "cuenta", "cuentas")) · \(f.whole(c.debt))")
+            }
+            .buttonStyle(.plain)
+            RowDivider()
+            Button { model.activeSheet = .review } label: {
+                let n = model.reviewCards.count
+                MoreRow(title: "Revisión", detail: n > 0 ? "\(n) " + Tr.t("por revisar") : Tr.t("Todo en orden"), detailColor: n > 0 ? Brand.warn : .secondary)
             }
             .buttonStyle(.plain)
         }

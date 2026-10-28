@@ -186,3 +186,92 @@ Equivale a ¦ Equivalent to
 Frecuencia ¦ Frequency
 Cada mes ¦ Every month
 Se cobra de ¦ Charged from
+Revisión ¦ Review
+Nada cambia hasta que aceptes. ¦ Nothing changes until you accept.
+Hecho ¦ Done
+Deshacer ¦ Undo
+Todo en orden ¦ All good
+Plata no encontró movimientos que parezcan mal clasificados. ¦ Plata didn't find any transactions that look misclassified.
+Transferencias ¦ Transfers
+Pagos ¦ Payments
+Recurrentes ¦ Recurring
+Repetidos ¦ Duplicates
+Montos ¦ Amounts
+Estados ¦ Statements
+Convertir ¦ Convert
+casi seguras ¦ almost certain
+Desliza ¦ Swipe
+Mostrar las descartadas ¦ Show dismissed
+¿Por qué? ¦ Why?
+No es ¦ Not this
+Sale de una cuenta y entra en otra. ¦ Leaves one account and enters another.
+Va a una cuenta tuya fuera de Plata. ¦ Goes to an account of yours outside Plata.
+Es el mismo pago, no lo cuentes doble. ¦ It's the same payment, don't count it twice.
+Coincide con el pago de una tarjeta. ¦ Matches a card payment.
+Lo anotaste y también vino del banco. ¦ You entered it and it also came from the bank.
+Mucho más alto de lo normal. ¦ Much higher than usual.
+Puede faltar un estado. ¦ A statement may be missing.
+Ingreso que se repite. ¦ Income that repeats.
+Cobro que se repite. ¦ Charge that repeats.
+Gasto que se repite. ¦ Expense that repeats.
+Es transferencia ¦ It's a transfer
+Juntar como un pago ¦ Join as one payment
+Registrar como pago ¦ Record as payment
+Borrar el mío ¦ Delete mine
+Importar un estado ¦ Import a statement
+Crear trabajo ¦ Create job
+Crear suscripción ¦ Create subscription
+Crear gasto fijo ¦ Create fixed expense
+Transferencia entre tus cuentas ¦ Transfer between your accounts
+Pago de tarjeta ¦ Card payment
+Movimiento repetido ¦ Repeated transaction
+Monto muy alto ¦ Very high amount
+Estado faltante ¦ Missing statement
+Trabajo ¦ Job
+Suscripción ¦ Subscription
+Gasto fijo ¦ Fixed expense
+Salió de una cuenta y entró a otra por casi el mismo monto. Como transferencia no cuenta como gasto ni ingreso. ¦ It left one account and entered another for almost the same amount. As a transfer it doesn't count as an expense or income.
+Una tarjeta recibió un pago y una cuenta tuvo un gasto parecido: es el mismo pago. Júntalos para que no cuente doble. ¦ A card received a payment and an account had a similar expense: it's the same payment. Join them so it isn't counted twice.
+Este gasto coincide con la cuota o el saldo de una de tus tarjetas. ¦ This expense matches the installment or balance of one of your cards.
+Uno lo anotaste a mano y el otro vino del banco, con el mismo monto y casi el mismo día. Borra el que anotaste a mano. ¦ You entered one by hand and the other came from the bank, with the same amount and almost the same day. Delete the one you entered by hand.
+Es mucho más que lo habitual en esta categoría. ¿Lo escribiste bien? ¦ It's much more than usual for this category. Did you type it right?
+Van o vienen de otra cuenta tuya que no está en Plata. Marcados como transferencia, dejan de contar como gasto o ingreso. ¦ They go to or come from another account of yours that isn't in Plata. Marked as a transfer, they stop counting as expense or income.
+Llega de la misma fuente, con ritmo regular y monto parecido. Como trabajo, Plata prevé tu próximo pago. ¦ It comes from the same source, at a regular pace and a similar amount. As a job, Plata forecasts your next payment.
+Se cobra con el mismo ritmo y monto, sumando todas tus cuentas. Como suscripción, Plata la prevé cada mes. ¦ It's charged at the same pace and amount, across all your accounts. As a subscription, Plata forecasts it every month.
+Se repite con ritmo regular. Como gasto fijo, Plata lo prevé cada vez. ¦ It repeats at a regular pace. As a fixed expense, Plata forecasts it each time.
+Puede faltar un estado, o la cuenta ya tenía saldo antes del primero que importaste. ¦ A statement may be missing, or the account already had a balance before the first one you imported.
+cada semana ¦ every week
+cada 2 semanas ¦ every 2 weeks
+cada mes ¦ every month
+cada quincena ¦ every two weeks (semi-monthly)
+casi seguro ¦ almost certain
+revisa las fechas ¦ check the dates
+Sale ¦ Out
+Entra ¦ In
+Se corregirá ¦ Will be fixed
+Se vinculará ¦ Will be linked
+Anotado a mano ¦ Entered by hand
+Del banco ¦ From the bank
+Transferencia ¦ Transfer
+Cargo ¦ Charge
+Lo editas tú ¦ You edit it
+Se reemplazará ¦ Will be replaced
+Lo normal: ¦ Usual:
+Salidas ¦ Outflows
+Entradas ¦ Inflows
+Sin movimientos: ¦ No transactions:
+Diferencia de saldo: ¦ Balance difference:
+aprox. ¦ approx.
+veces ¦ times
+movimientos ¦ transactions
+más ¦ more
+y ¦ and
+Tienes {0} por revisar ¦ You have {0} to review
+Revisar ¦ Review
+por revisar ¦ to review
+Transferencia registrada ¦ Transfer recorded
+Pago registrado ¦ Payment recorded
+Movimiento eliminado ¦ Transaction deleted
+Suscripción creada ¦ Subscription created
+Gasto fijo creado ¦ Fixed expense created
+Trabajo creado ¦ Job created
