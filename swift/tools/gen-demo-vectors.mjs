@@ -24,6 +24,7 @@ for (const id of ids) {
     const { api } = load({ today, entry: ['rebaseProfile', 'migrate', 'clone'] });
     const want = api.migrate(api.rebaseProfile(api.clone(DEMOS[id])));
     if (!want.firstHalf) want.firstHalf = '2000-01';
+    want.demo = true;
     cases.push({ id, today, want: JSON.parse(JSON.stringify(want)) });
   }
 }

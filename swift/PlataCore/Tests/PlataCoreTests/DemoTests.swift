@@ -12,8 +12,7 @@ final class DemoTests: XCTestCase {
             let data = try demos[id]!.jsonData()
             let got = try DemoProfile.load(data, today: today)
             XCTAssertTrue(got.isDemo)
-            var raw = got.raw
-            raw["demo"] = nil
+            let raw = got.raw
             let want = c["want"]!
             XCTAssertEqual(raw.objectValue?.keys.sorted(), want.objectValue?.keys.sorted(), "caso \(i) (\(id) \(today.iso)): claves")
             for (k, v) in want.objectValue! where raw[k] != v {
