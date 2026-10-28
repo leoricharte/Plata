@@ -1,6 +1,6 @@
 # Plata iOS (SwiftUI nativo) — estado y pendientes
 
-Documento para pasarle a otra IA o a otra persona. Actualizado: 28 oct 2026. Avance estimado: **~80 %** del port (**~88 %** sin contar Plata Cloud). Es una estimación: lo que más falta es revisión visual y pruebas con datos reales.
+Documento para pasarle a otra IA o a otra persona. Actualizado: 28 oct 2026. Avance estimado: **~90 %** del port. Es una estimación: lo que más falta es revisión visual y pruebas con datos reales.
 
 ## Contexto
 
@@ -22,7 +22,7 @@ Hojas: movimiento nuevo/editar, transferir, ingreso previsto, gasto previsto, pa
 
 Casi todo el contenido de la web ya está portado. Lo que queda:
 
-1. **Plata Cloud** (se deja para el final): franja en Resumen, cuenta, sincronizar, conflictos (`Merge` ya existe en el núcleo) y «Mandar archivo a Nazca para que aprenda».
+1. **Plata Cloud**: ya está escrito (entrar, frase en español/inglés, sincronizar, elegir qué conservar, aprobar dispositivos, borrar datos/cuenta, cargar archivo) y compila en CI, pero **falta probarlo contra el servidor real** (cuenta con invitación) y agregar la lista de palabras en español a la web. Queda fuera de la v1.0 «Mandar archivo a Nazca para que aprenda».
 2. **Revisión visual 1:1** contra la web, pantalla por pantalla (espaciados, tamaños, pesos, modo oscuro). Necesita ojos y capturas: nada de esto se puede comprobar desde el CI.
 3. **Probar Nazca con estados de cuenta reales** (los 16 lectores de PDF pasan las pruebas contra la web, pero solo con textos de muestra).
 4. Detalles de diseño: etiquetas curvas del anillo, logo «Estudio 22» en Ajustes, posición de la persona sin foto y letra de la insignia en el avatar.
