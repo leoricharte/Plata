@@ -405,7 +405,7 @@ struct ResumenView: View {
             }
             .buttonStyle(.plain)
             RowDivider()
-            NavigationLink(value: Route.soon("Servicios y suscripciones")) {
+            Button { model.tab = .presupuesto } label: {
                 MoreRow(title: "Servicios y suscripciones", detail: "\(f.exact(c.subsTotal))/mes")
             }
             .buttonStyle(.plain)
@@ -418,6 +418,23 @@ struct TransactionRow: View {
     let tx: JSONValue
     let engine: Engine
     let fmt: Fmt
+
+    private static let subColors = ["#B98AE6", "#6D8BEA", "#EDB03E", "#F08FB0", "#5CC8C0"]
+
+    /// La suscripción a la que pertenece un gasto (`txSub`): por el id guardado o porque el nombre coincide.
+    private func subscription() -> (String, Int)? {
+        let subs = engine.data["subs"]?.arrayValue ?? []
+        let linked = Engine.identifier(tx["sub"])
+        if !linked.isEmpty, let i = subs.firstIndex(where: { Engine.identifier($0["id"]) == linked }) {
+            return (Engine.text(subs[i]["name"]), i)
+        }
+        let note = Brands.norm(Engine.text(tx["note"])).trimmingCharacters(in: .whitespaces)
+        if note.isEmpty { return nil }
+        if let i = subs.firstIndex(where: { Brands.norm(Engine.text($0["name"])).trimmingCharacters(in: .whitespaces) == note }) {
+            return (Engine.text(subs[i]["name"]), i)
+        }
+        return nil
+    }
 
     var body: some View {
         let category = Engine.text(tx["category"])
@@ -432,11 +449,16 @@ struct TransactionRow: View {
         let note = Engine.text(tx["note"])
         let date = LocalDate(iso: Engine.text(tx["date"]))
         let many = engine.allAccounts.count + engine.allCards.count > 1
-        var sub = isTransfer ? (amount < 0 ? "Salida" : "Entrada") : shown
+        let subPick = amount < 0 && !isPay ? subscription() : nil
+        var sub = isTransfer ? (amount < 0 ? "Salida" : "Entrada") : (subPick != nil ? "Suscripción" : shown)
         if let date { sub += " · \(date.day) \(Spanish.monthsShort[date.month0])" }
         if many { sub += " · " + engine.accountName(tx["acc"]) }
         return HStack(spacing: 12) {
-            Tile(symbol: engine.catSymbol(shown), color: color)
+            if let (name, i) = subPick {
+                SubTile(name: name, fallback: Color(hex: Self.subColors[i % Self.subColors.count]))
+            } else {
+                Tile(symbol: engine.catSymbol(shown), color: color)
+            }
             VStack(alignment: .leading, spacing: 2) {
                 Text(note.isEmpty ? shown : note).font(.inter(16, .semibold)).tracking(-0.3).lineLimit(1)
                 Text(sub).font(.inter(13)).foregroundStyle(.secondary).lineLimit(1)
@@ -529,6 +551,6 @@ struct RouteDestination: View {
 
 extension View {
     func routeDestinations() -> some View {
-        navigationDestination(for: Route.self) { RouteDestination(route: $0) }
+        navigationDestination(for: Route.self) { RouteDestination(route: $0).toolbarVisibility(.hidden, for: .tabBar) }
     }
 }

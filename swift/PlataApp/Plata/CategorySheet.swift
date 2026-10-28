@@ -25,6 +25,7 @@ struct CategorySheet: View {
         ScrollView {
             VStack(spacing: 0) {
                 SheetHead(title: name == nil ? "Nueva categoría" : "Categoría", onClose: { dismiss() }, onSave: { save() })
+                StylePreview(kind: .category, name: nameText, color: color, icon: icon, iconUser: iconUser, colorUser: colorUser)
                 AmountField(symbol: f.symbol(cur).trimmingCharacters(in: .whitespaces), text: $limitText,
                             placeholder: Money.decimals(cur) > 0 ? "0.00" : "0", focus: $focus, label: "Límite mensual (opcional)")
                 SCard {

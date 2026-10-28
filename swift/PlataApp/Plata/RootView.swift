@@ -12,8 +12,8 @@ struct RootView: View {
             } label: { Label("Resumen", systemImage: "chart.pie") }
             Tab(value: AppTab.presupuesto) { NavigationStack { PresupuestoView().routeDestinations() } } label: { Label("Presupuesto", systemImage: "wallet.bifold") }
             Tab(value: AppTab.proyeccion) { NavigationStack { ProyeccionView().routeDestinations() } } label: { Label("Proyección", systemImage: "chart.line.uptrend.xyaxis") }
-            Tab(value: AppTab.ahorro) { NavigationStack { AhorroView().routeDestinations().navigationDestination(for: AcctRef.self) { AccountDetailView(id: $0.id) } } } label: { Label("Ahorro", systemImage: "leaf") }
-            Tab(value: AppTab.cuentas) { NavigationStack { CuentasView().routeDestinations().navigationDestination(for: AcctRef.self) { AccountDetailView(id: $0.id) } } } label: { Label("Cuentas", systemImage: "creditcard") }
+            Tab(value: AppTab.ahorro) { NavigationStack { AhorroView().routeDestinations().navigationDestination(for: AcctRef.self) { AccountDetailView(id: $0.id).toolbarVisibility(.hidden, for: .tabBar) } } } label: { Label("Ahorro", systemImage: "leaf") }
+            Tab(value: AppTab.cuentas) { NavigationStack { CuentasView().routeDestinations().navigationDestination(for: AcctRef.self) { AccountDetailView(id: $0.id).toolbarVisibility(.hidden, for: .tabBar) } } } label: { Label("Cuentas", systemImage: "creditcard") }
         }
         .sheet(isPresented: $model.showAddTransaction) { TransactionSheet(mode: .new) }
         .sheet(item: $model.activeSheet) { sheet in

@@ -36,6 +36,7 @@ struct AccountSheet: View {
         ScrollView {
             VStack(spacing: 0) {
                 SheetHead(title: id == nil ? "Nueva cuenta de débito" : "Cuenta de débito", onClose: { dismiss() }, onSave: { save() })
+                StylePreview(kind: .account, name: name, color: color, icon: icon, iconUser: iconUser, colorUser: colorUser)
                 AmountField(symbol: f.symbol(cur).trimmingCharacters(in: .whitespaces), text: $balance,
                             placeholder: Money.decimals(cur) > 0 ? "0.00" : "0", focus: $focus, label: "Saldo")
                 PillSegmented(items: [("checking", "Corriente"), ("savings", "Ahorros"), ("cash", "Efectivo")], selection: $type).padding(.bottom, 10)
@@ -147,6 +148,7 @@ struct DebtSheet: View {
         ScrollView {
             VStack(spacing: 0) {
                 SheetHead(title: id == nil ? "Nueva tarjeta o préstamo" : "Tarjeta o préstamo", onClose: { dismiss() }, onSave: { save() })
+                StylePreview(kind: .debt, name: name, color: color, icon: icon, iconUser: iconUser, colorUser: colorUser)
                 AmountField(symbol: f.symbol(cur).trimmingCharacters(in: .whitespaces), text: $balance,
                             placeholder: Money.decimals(cur) > 0 ? "0.00" : "0", focus: $focus, label: "Saldo adeudado (lo que debes)")
                 PillSegmented(items: [("card", "Tarjeta"), ("loan", "Préstamo")], selection: $kind).padding(.bottom, 10)

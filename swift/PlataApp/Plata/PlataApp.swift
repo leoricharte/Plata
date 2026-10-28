@@ -16,6 +16,7 @@ struct PlataApp: App {
         WindowGroup {
             ZStack {
                 RootView().id(Tr.resolve(lang))
+                if !showSplash { TourOverlay() }
                 if showSplash {
                     SplashView(opening: opening).zIndex(1)
                 }

@@ -120,7 +120,7 @@ struct ProyeccionView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { ToolbarItem(placement: .topBarTrailing) { AddMenuButton() } }
         .navigationDestination(for: Route.self) { route in
-            if case .tx(let id) = route { TransactionDetailView(id: id) }
+            if case .tx(let id) = route { TransactionDetailView(id: id).toolbarVisibility(.hidden, for: .tabBar) }
         }
         .alert("Llega en la siguiente versión", isPresented: $soon) { Button("Entendido", role: .cancel) {} }
     }

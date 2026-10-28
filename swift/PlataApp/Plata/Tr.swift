@@ -19,13 +19,17 @@ enum Tr {
     static var isEnglish: Bool { lang == "en" }
 
     static func resolve(_ p: String) -> String {
-        if p == "es" || p == "en" { return p }
+        p == "es" || p == "en" ? p : systemLang
+    }
+
+    /// El idioma del dispositivo (es o en; cualquier otro cae en inglés, como la web).
+    private static let systemLang: String = {
         for l in Locale.preferredLanguages {
             let c = String(l.prefix(2)).lowercased()
             if c == "es" || c == "en" { return c }
         }
         return "en"
-    }
+    }()
 
     /// Los nombres del usuario (apodo y nombre) que `tokenize` reemplaza por `{n}`. Lo fija `AppModel`.
     nonisolated(unsafe) static var names: [String] = []

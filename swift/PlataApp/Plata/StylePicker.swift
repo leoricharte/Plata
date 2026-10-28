@@ -105,3 +105,29 @@ struct StylePicker: View {
         .buttonStyle(.plain)
     }
 }
+
+/// La vista previa del cuadrito en los formularios (`#fPrev` de la web): 64 pt, centrada sobre el monto.
+struct StylePreview: View {
+    enum Kind { case account, debt, category }
+    let kind: Kind
+    let name: String
+    let color: String
+    let icon: String
+    let iconUser: Bool
+    let colorUser: Bool
+
+    var body: some View {
+        let col = color.isEmpty ? SwatchRow.colors[0] : color
+        let obj: JSONValue = .object(["name": .string(name), "color": .string(color), "icon": .string(icon),
+                                      "iconUser": .bool(iconUser), "colorUser": .bool(colorUser)])
+        Group {
+            if kind == .category {
+                Tile(symbol: iconSymbol(icon) ?? categorySymbol(name), color: Color(hex: col), size: 64)
+            } else {
+                AccountTile(o: obj, color: col, debt: kind == .debt, size: 64)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.bottom, 8)
+    }
+}
