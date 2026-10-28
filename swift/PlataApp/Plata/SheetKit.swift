@@ -1,4 +1,5 @@
 import SwiftUI
+import PlataCore
 
 // Las piezas de las hojas de la web (estilo Apple Pay): cabecera con ✕ y ✓ de vidrio, monto grande, tarjeta de filas con icono, chips y selector en cápsula.
 
