@@ -23,11 +23,22 @@
 
   /* 2. Estado hacia Swift */
   function r1(n) { return Math.round(n * 10) / 10; }
+  /* ¿Hay otra cosa encima del centro del control? (bienvenida, tutorial, pantallas de nube...: la web las pone encima por z-index,
+     no apaga la barra). Se hace visible un instante, sin pintar, porque la pregunta ignora lo que tiene visibility:hidden. */
+  function covered(e, r) {
+    if (!(r.width > 1 && r.height > 1)) return false;
+    var prev = e.style.getPropertyValue('visibility'), pr = e.style.getPropertyPriority('visibility'), hit = null;
+    e.style.setProperty('visibility', 'visible', 'important');
+    try { hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); } catch (x) { /* sin hit-test */ }
+    if (prev) e.style.setProperty('visibility', prev, pr); else e.style.removeProperty('visibility');
+    return !!hit && hit !== e && !e.contains(hit);
+  }
   function box(id) {
     var e = document.getElementById(id);
     if (!e) return { x: 0, y: 0, w: 0, h: 0, o: 0 };
     var cs = getComputedStyle(e), r = e.getBoundingClientRect();
     var o = cs.display === 'none' ? 0 : parseFloat(cs.opacity);
+    if (o > 0 && covered(e, r)) o = 0;
     return { x: r1(r.left), y: r1(r.top), w: r1(r.width), h: r1(r.height), o: isNaN(o) ? 0 : r1(o) };
   }
   function lbl(id) { var e = document.getElementById(id); return e ? (e.getAttribute('aria-label') || '') : ''; }
@@ -57,7 +68,7 @@
   function pump() { raf = 0; sample(); if (performance.now() < until) raf = requestAnimationFrame(pump); }
   function kick(ms) { until = Math.max(until, performance.now() + (ms || 700)); if (!raf) raf = requestAnimationFrame(pump); }
   try {
-    new MutationObserver(function () { kick(700); }).observe(root, { attributes: true, subtree: true, attributeFilter: ['class', 'style', 'data-tab', 'data-theme', 'data-cdet'] });
+    new MutationObserver(function () { kick(700); }).observe(root, { childList: true, attributes: true, subtree: true, attributeFilter: ['class', 'style', 'data-tab', 'data-theme', 'data-cdet'] });
   } catch (e) { /* sin observador */ }
   ['transitionrun', 'transitionstart', 'transitionend', 'animationstart'].forEach(function (n) { document.addEventListener(n, function () { kick(700); }, true); });
   window.addEventListener('resize', function () { kick(700); });
