@@ -89,6 +89,7 @@ struct AhorroView: View {
             let c = Calendar.current.dateComponents([.year, .month], from: d)
             return "Meta en \(Spanish.plural(mo, "mes", "meses")) · \(Spanish.monthsShort[(c.month ?? 1) - 1]) \(c.year ?? 2000)"
         }()
+        let line: ScreenInsights.Line? = model.engine.insightsEnabled ? ScreenInsights.saving(s, today: model.today, whole: { f.whole($0, $1) }) : nil
         return NavigationLink(value: AcctRef(id: Engine.identifier(s["id"]))) {
             HStack(spacing: 12) {
                 Tile(symbol: iconSymbol(Engine.text(s["icon"])) ?? "leaf.fill", color: Color(hex: color))
@@ -106,6 +107,7 @@ struct AhorroView: View {
                     }
                     Text((goal > 0 ? "\(Int(pct.rounded()))% de \(f.whole(goal, cur)) · " : "") + eta)
                         .font(.inter(13)).foregroundStyle(.secondary).lineLimit(2)
+                    if let line { InsightLineView(line: line) }
                 }
                 Spacer(minLength: 8)
                 Text(f.whole(bal, cur)).font(.inter(16, .medium)).monospacedDigit()

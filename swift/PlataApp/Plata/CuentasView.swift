@@ -247,6 +247,8 @@ struct CuentasView: View {
             if bal > 0 { parts.append("≈ \(f.exact(bal * apr / 1200, cur))/mes") }
         }
         if Engine.number(k["due_day"]) > 0 { parts.append("pago día \(Int(Engine.number(k["due_day"])))") }
+        let lines: [ScreenInsights.Line] = e.insightsEnabled
+            ? ScreenInsights.debt(k, util: util, primary: e.primaryCurrency, k: Currencies.table[e.primaryCurrency]?.k ?? 1, whole: { f.whole($0) }) : []
         return NavigationLink(value: AcctRef(id: Engine.identifier(k["id"]))) {
             HStack(spacing: 12) {
                 tile(k, index: i, debt: true, color: color)
@@ -267,6 +269,7 @@ struct CuentasView: View {
                     Text(Engine.text(k["kind"]) == "loan" ? "Préstamo" : "\(Int(util.rounded()))% usado · disponible \(f.whole(max(0, limit - bal), cur))")
                         .font(.inter(13)).foregroundStyle(.secondary).padding(.top, isCard && limit > 0 ? 0 : 2)
                     if !parts.isEmpty { Text(parts.joined(separator: " · ")).font(.inter(13)).foregroundStyle(.secondary) }
+                    ForEach(Array(lines.enumerated()), id: \.offset) { _, l in InsightLineView(line: l) }
                 }
                 Spacer(minLength: 8)
                 Text(f.whole(bal, cur)).font(.inter(16, .medium)).monospacedDigit()

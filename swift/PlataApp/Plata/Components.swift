@@ -163,3 +163,19 @@ struct CategoryDonut: View {
         }
     }
 }
+
+
+/// Una línea de aviso bajo una fila (`insLine` de la web): ámbar, rojo o verde según lo que diga.
+struct InsightLineView: View {
+    let line: ScreenInsights.Line
+    var body: some View {
+        Text(line.text).font(.inter(12, .medium)).foregroundStyle(color).padding(.top, 4).multilineTextAlignment(.leading)
+    }
+    private var color: Color {
+        switch line.kind {
+        case .warn: return Color(hex: "#B96A00")
+        case .bad: return Brand.lossText
+        case .ok: return Brand.gainText
+        }
+    }
+}
