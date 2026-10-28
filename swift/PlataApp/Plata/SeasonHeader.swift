@@ -167,8 +167,11 @@ struct MonthHeader: View {
                     .font(.inter(40, .heavy, relativeTo: .largeTitle))
                     .tracking(-1.4)
                     .foregroundStyle(LinearGradient(colors: [s1, s2], startPoint: .leading, endPoint: .trailing))
+                    .lineLimit(1)
                     .padding(.horizontal, 2).padding(.bottom, 4)
             }
+            .fixedSize(horizontal: true, vertical: false)
+            .layoutPriority(1)
             .background {
                 RadialGradient(colors: [s1.opacity(0.2), .clear], center: .center, startRadius: 0, endRadius: 90)
                     .padding(.horizontal, -44).padding(.vertical, -14)
