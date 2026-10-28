@@ -117,7 +117,7 @@ public enum ProfileEditor {
 // MARK: - Transferencias e ingresos / gastos previstos
 
 public extension ProfileEditor {
-    enum FormError: Error, Equatable { case missingName, invalidAmount, invalidDays, endBeforeStart, sameAccount }
+    enum FormError: Error, Equatable { case missingName, invalidAmount, invalidDays, endBeforeStart, sameAccount, invalidHours, missingStart }
 
     /// Transferencia entre cuentas (`xferSubmit` de la web): dos movimientos con el mismo `pair`, y una comisión opcional.
     static func addTransfer(_ p: inout JSONValue, from: String, to: String, amount: Double, received: Double, commission: Double,
@@ -177,5 +177,67 @@ public extension ProfileEditor {
         guard var list = p[collection]?.arrayValue else { return }
         list.removeAll { $0["id"] == id }
         p[collection] = .array(list)
+    }
+
+    // MARK: trabajos
+
+    static func saveJob(_ p: inout JSONValue, item: JSONValue, newId: String) throws {
+        var o = item
+        if o["id"] == nil || Engine.str(o["id"]).isEmpty { o["id"] = .string(newId) }
+        let name = Engine.str(o["name"]).trimmingCharacters(in: .whitespacesAndNewlines)
+        if name.isEmpty { throw FormError.missingName }
+        guard abs(Engine.num(o["rate"])) > 0 else { throw FormError.invalidAmount }
+        if Engine.str(o["mode"]) == "s" { o["hours"] = .number(0); o["tax"] = .number(0) } else { o["mode"] = .string("h") }
+        var freq = Engine.str(o["freq"])
+        if !["w", "b", "q", "m"].contains(freq) { freq = "b"; o["freq"] = .string(freq) }
+        if freq == "q" {
+            let a = Engine.num(o["q1"]).rounded(), b = Engine.num(o["q2"]).rounded()
+            guard a >= 1, a <= 31, b >= 1, b <= 31 else { throw FormError.invalidDays }
+            let x = Engine.qDays("q\(Int(a)),\(Int(b))")
+            o["q1"] = .number(Double(x.0)); o["q2"] = .number(Double(x.1))
+            if let d = LocalDate(iso: Engine.str(o["start"])) {
+                o["start"] = .string(Engine.qNext(d, Engine.str(Engine.jobRep("q", o)), inclusive: true).iso)
+            }
+        } else { o["q1"] = nil; o["q2"] = nil }
+        o["sim"] = .number(Engine.num(o["sim"]) != 0 ? 1 : 0)
+        o["tax"] = .number(max(0, min(90, Engine.num(o["tax"]))))
+        o["hours"] = .number(max(0, min(168, Engine.num(o["hours"]))))
+        if Engine.str(o["mode"]) != "s" && !(Engine.num(o["hours"]) > 0) { throw FormError.invalidHours }
+        if Engine.str(o["start"]).isEmpty { throw FormError.missingStart }
+        let until = Engine.str(o["until"])
+        if !until.isEmpty && until < Engine.str(o["start"]) { throw FormError.endBeforeStart }
+        o["name"] = .string(name)
+        var list = p["jobs"]?.arrayValue ?? []
+        if let i = list.firstIndex(where: { $0["id"] == o["id"] }) { list[i] = o } else { list.append(o) }
+        p["jobs"] = .array(list)
+        syncJobs(&p, newId: newId)
+    }
+
+    static func deleteJob(_ p: inout JSONValue, id: JSONValue) {
+        var list = p["jobs"]?.arrayValue ?? []
+        list.removeAll { $0["id"] == id }
+        p["jobs"] = .array(list)
+        syncJobs(&p, newId: "")
+    }
+
+    /// Cada trabajo real genera un ingreso previsto recurrente (`syncJobs` de la web).
+    static func syncJobs(_ p: inout JSONValue, newId: String) {
+        let all = p["expected_income"]?.arrayValue ?? []
+        var old: [String: JSONValue] = [:]
+        for e in all where !Engine.str(e["job"]).isEmpty { old[Engine.str(e["job"])] = e }
+        var out = all.filter { Engine.str($0["job"]).isEmpty }
+        for j in p["jobs"]?.arrayValue ?? [] {
+            if Engine.num(j["sim"]) != 0 { continue }
+            let jid = Engine.str(j["id"])
+            let rep = Engine.jobRep(Engine.str(j["freq"]), j)
+            let o = old[jid]
+            let keep = o != nil && Engine.str(o!["jstart"]) == Engine.str(j["start"]) && Engine.str(o!["date"]) > Engine.str(j["start"]) && o!["repeat"] == rep
+            let id = o?["id"] ?? .string(String(UUID().uuidString.replacingOccurrences(of: "-", with: "").prefix(6)).lowercased())
+            out.append(.object(["id": id, "job": j["id"] ?? .null, "jstart": j["start"] ?? .null, "name": j["name"] ?? .null,
+                                "amount": .number(Engine.jobNet(j)), "acc": j["acc"] ?? .null,
+                                "date": keep ? (o!["date"] ?? .null) : (j["start"] ?? .null), "repeat": rep,
+                                "until": .string(Engine.str(j["until"]))]))
+        }
+        p["expected_income"] = .array(out)
     }
 }

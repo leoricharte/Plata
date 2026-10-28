@@ -401,10 +401,11 @@ struct ProyeccionView: View {
                     row(tile: AnyView(LetterTile(letter: String(Engine.text(j["name"]).prefix(1)), color: Engine.flag(j["sim"]) ? Color(hex: "#FF9F0A") : Brand.accent)),
                         title: Engine.text(j["name"]), badge: Engine.flag(j["sim"]) ? "Simulado" : nil,
                         sub: line1 + Engine.jobRepeatLabel(j) + "\n" + Self.dlabel(Engine.text(j["start"])) + until,
-                        trailing: AnyView(Text("+" + f.whole(Engine.jobNetPay(j), cur)).font(.inter(16, .semibold)).monospacedDigit().foregroundStyle(Brand.gainText)))
+                        trailing: AnyView(Text("+" + f.whole(Engine.jobNetPay(j), cur)).font(.inter(16, .semibold)).monospacedDigit().foregroundStyle(Brand.gainText)),
+                        onTap: { model.activeSheet = .job(id: Engine.identifier(j["id"])) })
                 }
                 RowDivider()
-                addRow("Añadir un trabajo")
+                addRow("Añadir un trabajo") { model.activeSheet = .job(id: nil) }
             }
             .padding(.bottom, jobTx.isEmpty ? 0 : 14)
             if !jobTx.isEmpty {

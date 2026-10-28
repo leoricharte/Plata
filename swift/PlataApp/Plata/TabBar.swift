@@ -83,10 +83,10 @@ struct PlataTabBar: View {
                     Text("Entre tus cuentas")
                 }
                 Divider()
-                Button {} label: {
+                Button { model.activeSheet = .job(id: nil) } label: {
                     Label("Trabajo", systemImage: "banknote")
                     Text("Pago por hora, impuestos, frecuencia")
-                }.disabled(true)
+                }
             } label: {
                 Image(systemName: "plus")
                     .font(.system(size: 26, weight: .regular))

@@ -131,6 +131,15 @@ final class AppModel {
         try commit { raw in ProfileEditor.deleteExpected(&raw, collection: collection, id: id) }
     }
 
+    func saveJob(_ item: JSONValue) throws {
+        let nid = String(UUID().uuidString.replacingOccurrences(of: "-", with: "").prefix(6)).lowercased()
+        try commit { raw in try ProfileEditor.saveJob(&raw, item: item, newId: nid) }
+    }
+
+    func deleteJob(id: JSONValue) throws {
+        try commit { raw in ProfileEditor.deleteJob(&raw, id: id) }
+    }
+
     func setSetting(_ key: String, _ value: JSONValue) {
         let old = profile.raw["settings"]?[key]
         if old == value { return }
@@ -242,11 +251,13 @@ enum ActiveSheet: Identifiable, Hashable {
     case transfer
     /// `kind`: "income" o "expense"; `id`: nil para uno nuevo.
     case expected(kind: String, id: String?)
+    case job(id: String?)
 
     var id: String {
         switch self {
         case .transfer: return "transfer"
         case .expected(let kind, let id): return "expected-\(kind)-\(id ?? "new")"
+        case .job(let id): return "job-\(id ?? "new")"
         }
     }
 }

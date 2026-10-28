@@ -30,6 +30,7 @@ struct RootView: View {
             switch sheet {
             case .transfer: TransferSheet()
             case .expected(let kind, let id): ExpectedSheet(kind: kind, id: id)
+            case .job(let id): JobSheet(id: id)
             }
         }
         .tint(Brand.accent)
