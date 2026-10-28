@@ -39,8 +39,8 @@ enum WebAction {
 }
 
 enum NativeIcons {
-    /// false = Remix Icon (regla de Plata: solo Remix). true = SF Symbols en la barra nativa.
-    static let useSFSymbols = false
+    /// true = SF Symbols en la barra nativa (decisión de iOS). false = los Remix Icon de la web, extraídos a Assets.
+    static let useSFSymbols = true
 }
 
 /// Rectángulo (en px CSS = puntos) y opacidad de un control de la web.

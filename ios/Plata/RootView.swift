@@ -53,8 +53,8 @@ struct RootView: View {
             .padding(3)
             .background(.black.opacity(0.65), in: RoundedRectangle(cornerRadius: 4))
             .foregroundStyle(.white)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
-            .padding(.bottom, 2)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .padding(.top, 2)
             .allowsHitTesting(false)
     }
     #endif

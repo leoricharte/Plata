@@ -31,7 +31,7 @@ Como la barra sigue el CSS de la web (posición, opacidad, «compact»), cuando 
 
 ## Iconos
 
-Por regla del proyecto son **Remix Icon**: `ios/Plata/Assets.xcassets` los trae extraídos de la barra de la web (SVG como imagen de plantilla). Para pasar la barra nativa a **SF Symbols**, cambia `NativeIcons.useSFSymbols` a `true` en `Plata/WebState.swift`.
+La barra nativa usa **SF Symbols** (decisión para iOS). Los Remix Icon de la web quedan extraídos en `ios/Plata/Assets.xcassets` por si se quiere volver: cambia `NativeIcons.useSFSymbols` a `false` en `Plata/WebState.swift`. Dentro del contenido web siguen siendo Remix, porque el mismo HTML corre en Android y Windows.
 
 ## Pendiente antes de publicar
 
