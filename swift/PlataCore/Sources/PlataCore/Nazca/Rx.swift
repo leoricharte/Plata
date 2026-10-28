@@ -1,7 +1,7 @@
 import Foundation
 
 /// Expresión regular con la semántica de JavaScript para los patrones de Nazca:
-/// `\d` solo es 0-9 (en ICU también serían otros dígitos Unicode) y `$` es el final del texto (en ICU también antes de un salto de línea final).
+/// `\d`, `\w` y `\b` solo ven ASCII (en ICU también letras y dígitos de otros alfabetos) y `$` es el final del texto (en ICU también antes de un salto de línea final).
 struct Rx: @unchecked Sendable {
     let re: NSRegularExpression
 
@@ -16,6 +16,8 @@ struct Rx: @unchecked Sendable {
                 esc = false
                 if ch == "d" { out += inClass ? "0-9" : "[0-9]" }
                 else if ch == "w" { out += inClass ? "A-Za-z0-9_" : "[A-Za-z0-9_]" }
+                else if ch == "b" && !inClass { out += "(?:(?<=[A-Za-z0-9_])(?![A-Za-z0-9_])|(?<![A-Za-z0-9_])(?=[A-Za-z0-9_]))" }
+                else if ch == "B" && !inClass { out += "(?:(?<=[A-Za-z0-9_])(?=[A-Za-z0-9_])|(?<![A-Za-z0-9_])(?![A-Za-z0-9_]))" }
                 else { out.append("\\"); out.append(ch) }
                 continue
             }
