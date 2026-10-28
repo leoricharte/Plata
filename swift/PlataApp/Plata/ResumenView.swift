@@ -9,6 +9,7 @@ enum Route: Hashable {
     case ajustes
     case soon(String)
     case profile
+    case profileEdit
     case insights(mk: String, half: Bool)
 }
 
@@ -57,7 +58,8 @@ struct ResumenView: View {
                 case .month: MonthView()
                 case .tx(let id): TransactionDetailView(id: id)
                 case .ajustes: AjustesView()
-                case .profile: ProfileSettingsView()
+                case .profile: ProfileView()
+                case .profileEdit: ProfileSettingsView()
                 case .insights(let mk, let half): InsightsView(mk: mk, half: half)
                 case .soon(let title): ComingSoonView(title: title)
                 }

@@ -227,3 +227,41 @@ public extension Engine {
         return g > 0 ? max(0, min(100, ((1 - amount / g) * 1000).rounded() / 10)) : 0
     }
 }
+
+// El avatar del perfil: aro y insignia con la nota del mes pasado (`avatarInfo` / `gradeCounts` de la web).
+public struct AvatarInfo: Equatable, Sendable {
+    /// Lo que dice la insignia: «B», «A+», «D-» o «S*» (Diamante).
+    public var label: String
+    /// La letra de la nota (S…F) y el nivel de racha, para elegir colores.
+    public var letter: String
+    public var level: StreakLevel
+}
+
+public extension Engine {
+    /// La nota del mes anterior, si hay datos y las notas están activas; si no, nil.
+    func avatarInfo() -> AvatarInfo? {
+        guard insightsOn, scoreOn else { return nil }
+        let m = insightsModel(month: Engine.prevMonthKey(String(today.iso.prefix(7))))
+        if insightsLocked(m) != nil { return nil }
+        let l = m.letter
+        switch m.plus {
+        case .diamond: return AvatarInfo(label: "S*", letter: l, level: .diamond)
+        case .plus: return AvatarInfo(label: l + ((l == "D" || l == "F") ? "-" : "+"), letter: l, level: .plus)
+        case .none: return AvatarInfo(label: l, letter: l, level: .none)
+        }
+    }
+
+    /// Cuántos meses cerrados hay con cada nota, de S a F (para «Mostrar puntuaciones»).
+    func gradeCounts() -> [(letter: String, count: Int)] {
+        guard scoreOn else { return [] }
+        let cmk = String(today.iso.prefix(7))
+        var months = Set<String>()
+        for t in list("transactions") {
+            let k = String(Engine.str(t["date"]).prefix(7))
+            if k < cmk { months.insert(k) }
+        }
+        var cnt: [String: Int] = [:]
+        for k in months { if let s = monthScore(k) { cnt[s.letter, default: 0] += 1 } }
+        return ["S", "A", "B", "C", "D", "F"].compactMap { l in cnt[l].map { (letter: l, count: $0) } }
+    }
+}

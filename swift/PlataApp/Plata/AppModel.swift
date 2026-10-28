@@ -337,6 +337,27 @@ final class AppModel {
 
     func deleteCategory(name: String) throws { try commit { raw in ProfileEditor.deleteCategory(&raw, name: name) } }
 
+    /// Guarda la foto de perfil: la recortada (`photo`), la original reducida (`photoSrc`) y el encuadre (`photoCrop`).
+    func setPhoto(photo: String, source: String, crop: PhotoCrop) {
+        try? commit { raw in
+            var s = raw["settings"] ?? .object([:])
+            s["photo"] = .string(photo)
+            s["photoSrc"] = .string(source)
+            s["photoCrop"] = .object(["x": .number(crop.x), "y": .number(crop.y), "z": .number(crop.z)])
+            raw["settings"] = s
+        }
+    }
+
+    func removePhoto() {
+        try? commit { raw in
+            var s = raw["settings"] ?? .object([:])
+            s["photo"] = nil
+            s["photoSrc"] = nil
+            s["photoCrop"] = nil
+            raw["settings"] = s
+        }
+    }
+
     func setSetting(_ key: String, _ value: JSONValue) {
         let old = profile.raw["settings"]?[key]
         if old == value { return }

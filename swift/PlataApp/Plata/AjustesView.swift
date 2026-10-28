@@ -267,10 +267,7 @@ struct AjustesView: View {
         let name = [Engine.text(s?["first"]), Engine.text(s?["last"])].map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }.joined(separator: " ")
         return Button { model.path.append(.profile) } label: {
             HStack(spacing: 16) {
-                Image(systemName: "person.fill")
-                    .font(.system(size: 28)).foregroundStyle(.white)
-                    .frame(width: 64, height: 64)
-                    .background(LinearGradient(colors: [Color(hex: "#34D08A"), Color(hex: "#1A9D63")], startPoint: .topLeading, endPoint: .bottomTrailing), in: Circle())
+                AvatarView(size: 64)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(name.isEmpty ? "Tu perfil" : name).font(.inter(22, .bold)).tracking(-0.4).lineLimit(1)
                     Text("Preferencias de usuario, monedas y Plata Cloud").font(.inter(14)).foregroundStyle(.secondary)
@@ -378,7 +375,8 @@ struct ProfileSettingsView: View {
         let f = model.fmt
         ScrollView {
             VStack(spacing: 0) {
-                PageHead(eyebrow: "Ajustes", title: "Perfil")
+                PageHead(eyebrow: "Perfil", title: "Editar perfil")
+                PhotoRow()
                 SCard {
                     SettingRow("Nombre", first: true) { MiniField(placeholder: "", text: $first, width: 190, numeric: false) }
                     SettingRow("Apellido") { MiniField(placeholder: "", text: $last, width: 190, numeric: false) }
