@@ -127,3 +127,4 @@ Nazca todavía no lee archivos de Excel en esta versión ¦ Nazca can’t read E
 {0} fila repetida entre archivos omitida ¦ {0} repeated {0?row:rows} across files skipped
 Banco verificado ¦ Verified bank
 Nazca reconoció el banco en el archivo ¦ Nazca recognized the bank in the file
+Mostrar u ocultar ¦ Show or hide

@@ -79,7 +79,7 @@ extension Nazca {
     }
 
     /// Los bancos de los que Nazca ya sabe leer algún archivo en esta versión de la app; los demás salen como «No disponible».
-    public nonisolated(unsafe) static var ready: Set<String> = ["yape"]
+    public nonisolated(unsafe) static var ready: Set<String> = ["yape", "bcp", "interbank", "io", "bbva", "capitalone", "chime", "seen", "bofa", "applecard", "communitybank", "tjx", "milestone", "mercadopago"]
 
     /// Cómo descargar el estado de cuenta, paso a paso, por banco (`IMP_STEPS` de la web).
     public static let bankSteps: [String: [String]] = [

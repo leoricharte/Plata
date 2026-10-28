@@ -57,6 +57,8 @@ public struct ImportReview {
 
     public var name: String
     public var guess: String
+    /// Leído de un PDF de un banco que Nazca no conoce (lectura genérica): sin sello de verificado ni columnas que ajustar.
+    public var gen = false
     public internal(set) var names: [String]
     /// Filas repetidas entre archivos unidos que se omitieron.
     public internal(set) var mdup = 0
