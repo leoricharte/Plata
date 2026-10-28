@@ -122,6 +122,7 @@ struct DemoNoticeCard: View {
 /// La pantalla «Ajustes» de la web (`settingsHTML`).
 struct AjustesView: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.openURL) private var openURL
     @State private var cushion = ""
     @State private var variable = ""
     @State private var loaded = false
@@ -204,26 +205,29 @@ struct AjustesView: View {
 
                 SCard {
                     LinkRow(symbol: "gift", title: "Novedades", color: Brand.green, first: true,
-                            trailing: AnyView(BetaPill(label: "B E T A  4"))) { model.path.append(.soon("Novedades")) }
+                            trailing: AnyView(BetaPill(label: "B E T A  4"))) { model.showNews = true }
                 }
                 SCard {
-                    LinkRow(symbol: "star", title: "Danos tu opinión", color: Brand.green, first: true) { model.path.append(.soon("Danos tu opinión")) }
+                    LinkRow(symbol: "star", title: "Danos tu opinión", color: Brand.green, first: true) { model.feedbackManual = true; model.showFeedback = true }
                 }
                 SCard {
-                    LinkRow(symbol: "checkmark.shield", title: "Transparencia", color: Brand.green, first: true) { model.path.append(.soon("Transparencia")) }
+                    LinkRow(symbol: "checkmark.shield", title: "Transparencia", color: Brand.green, first: true) { openURL(Prefs.transparencyURL) }
                 }
 
                 if let message {
                     Text(message).font(.inter(14)).foregroundStyle(.secondary).padding(.bottom, 8)
                 }
 
-                VStack(spacing: 0) {
-                    Text("Estudio 22").font(.inter(18, .heavy)).tracking(-0.5).padding(.bottom, 12)
-                    Text("Diseñado por Estudio 22 en Nueva York.").font(.inter(13)).foregroundStyle(.secondary)
-                    Text("© Estudio 22 y Leonardo Richarte, 2026.").font(.inter(13)).foregroundStyle(.secondary).padding(.top, 2)
+                Button { model.path.append(.credits) } label: {
+                    VStack(spacing: 0) {
+                        Text("Estudio 22").font(.inter(18, .heavy)).tracking(-0.5).padding(.bottom, 12)
+                        Text("Diseñado por Estudio 22 en Nueva York.").font(.inter(13)).foregroundStyle(.secondary)
+                        Text("© Estudio 22 y Leonardo Richarte, 2026.").font(.inter(13)).foregroundStyle(.secondary).padding(.top, 2)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 30).padding(.bottom, 8)
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.top, 30).padding(.bottom, 8)
+                .buttonStyle(.plain)
 
                 Text("Los nombres y logos de bancos, billeteras y servicios son marcas de sus respectivos titulares. Plata los muestra solo para ayudarte a reconocer tus cuentas y suscripciones; no está afiliada, patrocinada ni respaldada por ninguna de estas entidades.")
                     .font(.inter(11.5)).foregroundStyle(.secondary).opacity(0.85)
@@ -397,6 +401,8 @@ struct ProfileSettingsView: View {
                     }
                     SettingsNote(text: "Muestra tus puntajes históricos bajo tu foto.")
                 }
+                LanguageCard(editable: true)
+                ThemeCard()
                 SCard {
                     SettingRow("Hemisferio", first: true) {
                         Picker("Hemisferio", selection: Binding(get: { hemi }, set: { model.setSetting("hemi", .string($0)) })) {
@@ -406,6 +412,7 @@ struct ProfileSettingsView: View {
                     }
                 }
                 SettingsNote(text: "Define la estación de tu aviso mensual.")
+                TutorialCard()
 
                 SCard {
                     SettingRow("Moneda principal", note: LocalizedStringKey(e.primaryCurrency), first: true) {

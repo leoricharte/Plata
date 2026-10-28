@@ -33,7 +33,18 @@ struct RootView: View {
             case .confirm(let k, let i, let p): ConfirmSheet(kind: k, id: i, pick: p)
             }
         }
+        .fullScreenCover(isPresented: $model.showNews) { NewsStoryView() }
+        .sheet(isPresented: $model.showHistory) { HistorySheet() }
+        .feedbackAlert(isPresented: $model.showFeedback, manual: model.feedbackManual)
         .tint(Brand.accent)
-        .task { model.checkPending() }
+        .task {
+            model.checkPending()
+            try? await Task.sleep(for: .milliseconds(700))
+            if Nudges.shouldShowNews(model) { model.showNews = true }
+            else if Nudges.shouldShowFeedback(model) {
+                try? await Task.sleep(for: .milliseconds(1800))
+                if model.activeSheet == nil { model.feedbackManual = false; model.showFeedback = true }
+            }
+        }
     }
 }

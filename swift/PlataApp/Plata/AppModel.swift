@@ -18,6 +18,11 @@ final class AppModel {
     /// Pantallas abiertas encima del Resumen (Movimientos, Ajustes…).
     var path: [Route] = []
     var showAddTransaction = false
+    /// Novedades (historias), «Historia de Plata» y el pedido de opinión: los presenta `RootView`.
+    var showNews = false
+    var showHistory = false
+    var showFeedback = false
+    var feedbackManual = false
     /// Hoja abierta desde el botón «+» o desde las listas (transferir, ingreso o gasto previsto).
     var activeSheet: ActiveSheet?
     /// Set de presupuesto que se está viendo: nil = el que rige hoy, «base» o el id de un set.

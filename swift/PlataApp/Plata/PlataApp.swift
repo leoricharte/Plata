@@ -4,6 +4,8 @@ import PlataCore
 @main
 struct PlataApp: App {
     @State private var model = AppModel()
+    @AppStorage(Prefs.themeKey) private var theme = "auto"
+    @AppStorage(Prefs.langKey) private var lang = "auto"
     @State private var showSplash = true
     @State private var opening = false
     @Environment(\.scenePhase) private var scenePhase
@@ -25,6 +27,8 @@ struct PlataApp: App {
                 showSplash = false
             }
             .environment(model)
+                .preferredColorScheme(Prefs.scheme(theme))
+                .environment(\.locale, Prefs.locale(lang))
                 .onChange(of: scenePhase) { _, phase in
                     if phase == .active { model.refreshToday() }
                 }

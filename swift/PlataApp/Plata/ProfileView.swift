@@ -26,12 +26,15 @@ struct ProfileView: View {
                         SettingRow(LocalizedStringKey(r.0), first: i == 0) { value(r.1) }
                     }
                 }
+                LanguageCard(editable: false)
+                ThemeCard()
                 SCard {
                     SettingRow("Moneda principal", first: true) { value(currency(e, e.primaryCurrency)) }
                     if !e.secondaryCurrency.isEmpty {
                         SettingRow("Segunda moneda") { value(currency(e, e.secondaryCurrency)) }
                     }
                 }
+                TutorialCard()
             }
             .padding(.horizontal, 20)
             .padding(.bottom, 24)

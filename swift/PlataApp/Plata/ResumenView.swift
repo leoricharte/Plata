@@ -10,6 +10,7 @@ enum Route: Hashable {
     case soon(String)
     case profile
     case profileEdit
+    case credits
     case insights(mk: String, half: Bool)
 }
 
@@ -515,6 +516,7 @@ struct RouteDestination: View {
         case .ajustes: AjustesView()
         case .profile: ProfileView()
         case .profileEdit: ProfileSettingsView()
+        case .credits: CreditsView()
         case .insights(let mk, let half): InsightsView(mk: mk, half: half)
         case .soon(let title): ComingSoonView(title: title)
         }
