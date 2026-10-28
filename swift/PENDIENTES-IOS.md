@@ -1,6 +1,6 @@
 # Plata iOS (SwiftUI nativo) — estado y pendientes
 
-Documento para pasarle a otra IA o a otra persona. Actualizado: 28 oct 2026. Avance estimado: **43 %**.
+Documento para pasarle a otra IA o a otra persona. Actualizado: 28 oct 2026. Avance estimado: **51 %**.
 
 ## Contexto
 
@@ -23,7 +23,7 @@ Hojas: movimiento nuevo/editar, transferir, ingreso previsto, gasto previsto, pa
 ### Formularios y acciones (muchos botones muestran hoy «Llega en la siguiente versión»)
 1. ~~Selector de icono + logos de bancos y suscripciones~~ (hecho; falta vista previa del cuadrito en el formulario y logo de suscripción en filas de movimientos).
 2. Categorías hechas; falta **sets de presupuesto** (`bsets`).
-3. **Posponer** un ingreso/gasto previsto o pendiente, y **confirmar** lo «Por confirmar» (confirmar, ajustar monto, adelantar).
+3. ~~Confirmar lo «Por confirmar»~~ (hecho: hoja con monto real, horas, posponer, repetición, pago de tarjeta). Falta **Adelantar a hoy** en el detalle.
 4. **Pago de crédito real** (registrar pago desde la pantalla de tarjeta) y **simular pago extra** de deuda.
 5. **Acciones de fila**: deslizar para editar/eliminar, menús de **ordenar** (cuentas, tarjetas, categorías) y filtros (anillo de deuda).
 6. Detalle de movimiento: «Posponer», extras de trabajo, pares de transferencia.
