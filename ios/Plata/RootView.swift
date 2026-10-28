@@ -98,8 +98,13 @@ struct SystemTabs: View {
     var body: some View {
         TabView(selection: Binding(get: { selection }, set: { new in
             if new == "plus" {
+                // La pestaña "+" se selecciona un instante: el WKWebView se muda a ella (no queda pantalla en blanco)
+                // y se devuelve a la pestaña anterior cuando el menú ya abrió.
+                selection = "plus"
                 model.perform(.plus)
-                selection = lastReal
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    if selection == "plus" { selection = lastReal }
+                }
             } else {
                 selection = new
                 lastReal = new
