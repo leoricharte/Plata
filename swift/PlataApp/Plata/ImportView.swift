@@ -755,7 +755,7 @@ struct ImportReviewBody: View {
         let isNew = review.account == ImportReview.newId
         let merge = review.mergeTarget(e)
         let accounts = e.allAccounts
-        let cards = src.card ? e.allCards.filter { Engine.str($0["kind"]) == "card" } : []
+        let cards = src.card ? e.allCards.filter { Engine.text($0["kind"]) == "card" } : []
         return SCard {
             Text("Cuenta").font(.inter(13)).foregroundStyle(.secondary).padding(.top, 10).padding(.bottom, 2)
             OptionRow(title: "Crear cuenta nueva", subVerbatim: Engine.text(src.newAcc["name"]) + ImportReview.l4(src.newAcc), on: isNew) {

@@ -46,6 +46,22 @@ struct Rx: @unchecked Sendable {
 
     func first(_ s: String) -> String? { groups(s)?.first }
 
+    /// Dónde empieza la primera coincidencia (en unidades UTF-16, como `index` de `exec` en JavaScript).
+    func index(_ s: String) -> Int? {
+        guard let m = re.firstMatch(in: s, range: full(s)) else { return nil }
+        return m.range.location
+    }
+
+    /// Los grupos de la primera coincidencia junto con dónde empieza (UTF-16).
+    func exec(_ s: String) -> (index: Int, groups: [String])? {
+        guard let m = re.firstMatch(in: s, range: full(s)) else { return nil }
+        let ns = s as NSString
+        return (m.range.location, (0..<m.numberOfRanges).map { i in
+            let r = m.range(at: i)
+            return r.location == NSNotFound ? "" : ns.substring(with: r)
+        })
+    }
+
     /// Todas las coincidencias, cada una con sus grupos (el 0 es todo; un grupo que no participó queda vacío).
     func all(_ s: String) -> [[String]] {
         let ns = s as NSString
@@ -88,5 +104,13 @@ let jsWhitespace: CharacterSet = {
 }()
 
 extension String {
+    /// `s.slice(from, to)` en unidades UTF-16 (índices no negativos).
+    func jsSlice(_ from: Int, _ to: Int? = nil) -> String {
+        let ns = self as NSString
+        let a = min(max(from, 0), ns.length), b = min(max(to ?? ns.length, a), ns.length)
+        return ns.substring(with: NSRange(location: a, length: b - a))
+    }
+    /// `s.length` de JavaScript.
+    var jsLength: Int { utf16.count }
     var jsTrimmed: String { trimmingCharacters(in: jsWhitespace) }
 }

@@ -92,14 +92,82 @@ enum PDFx {
     /// El texto de todas las páginas unido con espacios y con los espacios repetidos reducidos a uno.
     static func flat(_ doc: PdfDoc) -> String { squash(doc.pages.map(\.text).joined(separator: " ")) }
 
+    /// `parseFloat` de JavaScript: espacios al inicio, signo opcional y el prefijo numérico (`NaN` si no hay).
+    static func parseFloat(_ s: String) -> Double {
+        var t = Substring(s.jsTrimmed)
+        var sign = 1.0
+        if let c = t.first, c == "+" || c == "-" { if c == "-" { sign = -1 }; t = t.dropFirst() }
+        guard let v = Nazca.jsParseFloat(String(t)) else { return .nan }
+        return sign * v
+    }
+
     /// `parseFloat` seguido de `Math.round(x * 100) / 100` (los montos de los estados de cuenta).
     static func money(_ s: String, strip: String = ",") -> Double {
         var t = s
         for ch in strip { t = t.replacingOccurrences(of: String(ch), with: "") }
-        return r2(Nazca.jsParseFloat(t) ?? .nan)
+        return r2(parseFloat(t))
     }
+
+    static let commaSpace = Rx(#"[,\s]"#), commaDash = Rx(#"[,-]"#)
+    /// `r2(parseFloat(s.replace(/[,\s]/g, '')))`
+    static func numSp(_ s: String) -> Double { r2(parseFloat(commaSpace.replace(s, ""))) }
+    /// `r2(parseFloat(s.replace(/[,-]/g, '')))`
+    static func numDash(_ s: String) -> Double { r2(parseFloat(commaDash.replace(s, ""))) }
+
+    /// `a.slice(from, to)` (índices no negativos; se ajustan al largo).
+    static func slice<T>(_ a: [T], _ from: Int, _ to: Int? = nil) -> [T] {
+        let lo = min(max(from, 0), a.count), hi = min(max(to ?? a.count, lo), a.count)
+        return Array(a[lo..<hi])
+    }
+
+    /// `items.slice().sort((a, b) => a.x - b.x)` (orden estable).
+    static func stableSortedByX(_ a: [PdfItem]) -> [PdfItem] {
+        a.enumerated().sorted { $0.element.x != $1.element.x ? $0.element.x < $1.element.x : $0.offset < $1.offset }.map(\.element)
+    }
+
+    /// `items.find(i => re.test(i.str))`
+    static func find(_ items: [PdfItem], _ re: Rx) -> PdfItem? { items.first { re.test($0.str) } }
+    static func items(_ doc: PdfDoc) -> [PdfItem] { doc.pages.flatMap(\.items) }
+    static func text(_ page: PdfPage) -> String { page.text }
+    static func daysIn(_ y: Int, _ m: Int) -> Int {
+        switch m { case 2: return (y % 4 == 0 && y % 100 != 0) || y % 400 == 0 ? 29 : 28; case 4, 6, 9, 11: return 30; default: return 31 }
+    }
+    /// Días desde 1970-01-01 de una fecha civil (el día puede desbordar el mes, como en `Date.UTC`).
+    static func epochDay(_ y: Int, _ m: Int, _ d: Int) -> Int {
+        let yy = m <= 2 ? y - 1 : y
+        let era = (yy >= 0 ? yy : yy - 399) / 400
+        let yoe = yy - era * 400
+        let doy = (153 * (m + (m > 2 ? -3 : 9)) + 2) / 5
+        let doe = yoe * 365 + yoe / 4 - yoe / 100 + doy
+        return era * 146097 + doe - 719468 + (d - 1)
+    }
+    /// La fecha civil (año, mes, día) de un día desde 1970-01-01.
+    static func civil(_ z0: Int) -> (y: Int, m: Int, d: Int) {
+        let z = z0 + 719468
+        let era = (z >= 0 ? z : z - 146096) / 146097
+        let doe = z - era * 146097
+        let yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365
+        let doy = doe - (365 * yoe + yoe / 4 - yoe / 100)
+        let mp = (5 * doy + 2) / 153
+        let d = doy - (153 * mp + 2) / 5 + 1
+        let m = mp < 10 ? mp + 3 : mp - 9
+        return (yoe + era * 400 + (m <= 2 ? 1 : 0), m, d)
+    }
+    static func iso(_ y: Int, _ m: Int, _ d: Int) -> String { "\(y)-\(pad(m))-\(pad(d))" }
 
     static func upperFirst(_ s: String) -> String { s.prefix(1).uppercased() + s.dropFirst() }
     /// `s.toLowerCase().replace(/(^|\s)\S/g, c => c.toUpperCase())`
     static func titleCase(_ s: String) -> String { Rx(#"(^|\s)\S"#).replace(s.lowercased()) { $0[0].uppercased() } }
+}
+
+/// Un valor por moneda (soles y dólares), como los `{ PEN, USD }` de los lectores de la web.
+struct Cur2<T> {
+    var pen: T
+    var usd: T
+    init(_ pen: T, _ usd: T) { self.pen = pen; self.usd = usd }
+    init(both v: T) { pen = v; usd = v }
+    subscript(_ c: String) -> T {
+        get { c == "USD" ? usd : pen }
+        set { if c == "USD" { usd = newValue } else { pen = newValue } }
+    }
 }
