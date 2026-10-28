@@ -119,7 +119,11 @@ final class NazcaPDFReadersTests: XCTestCase {
             guard let r = d["read"], !r.isNull else { continue }
             let doc: PdfDoc
             do { doc = try NazcaPDF.read(NazcaPDFTests.pdfData(name), password: d["key"]?.stringValue) } catch { report.append("\(name): no abrió (\(error))"); continue }
-            guard let rd = NazcaPDFBancos.detect(doc) else { report.append("\(name): PDFKit no lo reconoce (debía \(d["reader"]!.stringValue!))"); continue }
+            guard let rd = NazcaPDFBancos.detect(doc) else {
+                let flat = PDFx.flat(doc)
+                func around(_ k: String) -> String { guard let r = flat.range(of: k, options: .caseInsensitive) else { return "«\(k)»: NO está" }; let a = flat.index(r.lowerBound, offsetBy: -12, limitedBy: flat.startIndex) ?? flat.startIndex; let b = flat.index(r.upperBound, offsetBy: 12, limitedBy: flat.endIndex) ?? flat.endIndex; return "«\(flat[a..<b])»" }
+                let firsts = doc.pages.first?.items.prefix(6).map { "[\($0.str)|\(Int($0.x))|\(Int($0.y))]" }.joined() ?? ""
+                report.append("\(name): PDFKit no lo reconoce (debía \(d["reader"]!.stringValue!)) · \(doc.pages.count)p \(PDFx.items(doc).count) textos · \(firsts) · \(["Customer", "issued by", "Total Balance", "SALDO ANTERIOR", "MOVIMIENTO"].map(around).joined(separator: " "))"); continue }
             if rd.id != d["reader"]!.stringValue! { report.append("\(name): lector \(rd.id)"); continue }
             report += Self.diff(name, r, rd.read(doc))
         }
