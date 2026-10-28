@@ -22,12 +22,15 @@ extension Nazca {
             public init() {}
         }
 
-        public var bank: String
+        /// El banco que Nazca reconoció (nil = lectura genérica, sin sello de verificado).
+        public var bank: String?
         public var kind: String
         public var label: String
         public var cur: String
         public var last4 = ""
         public var name = ""
+        /// Si el lector no pudo leerlo (hoy: `period`, no halló el periodo del estado de cuenta).
+        public var error: String?
         public var apy: Double?
         public var period: Period?
         public var items: [Item]
@@ -36,7 +39,7 @@ extension Nazca {
         public var check: Check?
         public var card: CardInfo?
 
-        public init(bank: String, kind: String, label: String, cur: String, items: [Item]) {
+        public init(bank: String?, kind: String, label: String, cur: String, items: [Item]) {
             self.bank = bank; self.kind = kind; self.label = label; self.cur = cur; self.items = items
         }
     }
