@@ -1,6 +1,6 @@
 # Plata iOS (SwiftUI nativo) — estado y pendientes
 
-Documento para pasarle a otra IA o a otra persona. Actualizado: 28 oct 2026. Avance estimado: **75 %**.
+Documento para pasarle a otra IA o a otra persona. Actualizado: 28 oct 2026. Avance estimado: **~80 %** del port (**~88 %** sin contar Plata Cloud). Es una estimación: lo que más falta es revisión visual y pruebas con datos reales.
 
 ## Contexto
 
@@ -20,41 +20,19 @@ Hojas: movimiento nuevo/editar, transferir, ingreso previsto, gasto previsto, pa
 
 ## Pendientes
 
-### Formularios y acciones (muchos botones muestran hoy «Llega en la siguiente versión»)
-1. ~~Selector de icono + logos de bancos y suscripciones~~ (hecho, incluida la vista previa del cuadrito y el logo de suscripción en las filas).
-2. Categorías hechas; falta **sets de presupuesto** (`bsets`).
-3. ~~Confirmar lo «Por confirmar»~~ (hecho: hoja con monto real, horas, posponer, repetición, pago de tarjeta). Falta **Adelantar a hoy** en el detalle.
-4. **Pago de crédito real** (registrar pago desde la pantalla de tarjeta) y **simular pago extra** de deuda.
-5. **Acciones de fila**: deslizar para editar/eliminar, menús de **ordenar** (cuentas, tarjetas, categorías) y filtros (anillo de deuda).
-6. Detalle de movimiento: «Posponer», extras de trabajo, pares de transferencia.
-7. Editar meta: historial de aportes (`log`), consejos bajo cada meta (`savingInsight`).
+Casi todo el contenido de la web ya está portado. Lo que queda:
 
-### Pantallas y bloques del Resumen
-10. **Insights**: banners, evaluación mensual F→S, «half-time», revisión, tendencias, consejos por pantalla (presupuesto, ahorro, deuda).
-11. **Franja de Plata Cloud** (sincronización) en Resumen; pantalla y flujo de Plata Cloud (cuenta, sincronizar, conflictos; `Merge` ya existe en el núcleo).
-12. **Widgets / vistas personalizables** del Resumen (`WIDGETS` de la web) si se decide portarlos.
-13. **Novedades**, **Opinión**, **Transparencia** (hoy apuntan a «soon»).
-14. **Ahorro**: resto de la web si falta algo (revisar `renderAhorro`).
+1. **Plata Cloud** (se deja para el final): franja en Resumen, cuenta, sincronizar, conflictos (`Merge` ya existe en el núcleo) y «Mandar archivo a Nazca para que aprenda».
+2. **Revisión visual 1:1** contra la web, pantalla por pantalla (espaciados, tamaños, pesos, modo oscuro). Necesita ojos y capturas: nada de esto se puede comprobar desde el CI.
+3. **Probar Nazca con estados de cuenta reales** (los 16 lectores de PDF pasan las pruebas contra la web, pero solo con textos de muestra).
+4. Detalles de diseño: etiquetas curvas del anillo, logo «Estudio 22» en Ajustes, posición de la persona sin foto y letra de la insignia en el avatar.
+5. Accesibilidad: repasar VoiceOver, Dynamic Type y contraste; iPad si se decide.
+6. Más pruebas: UI básicas y las funciones de `ProfileEditor` que aún no tienen.
+7. Publicación: capturas, ficha de App Store, política de privacidad. TestFlight ya funciona desde el Mac; `.github/workflows/testflight.yml` lo hace desde GitHub (hace falta crear 3 secretos, ver su encabezado).
 
-### Datos, importación y ajustes
-15. **Importar de Nazca**: hecho en el dispositivo — CSV, Excel de Yape y PDF (16 lectores de banco + lectura genérica, clave/DNI, «Leerlo como…», PDF protegidos en lote). Pendiente: verificar los lectores contra la web en el CI (`NazcaPDFReadersTests`) y probar con estados reales; «Mandar archivo a Nazca» depende de Plata Cloud.
-16. **Cambio de moneda principal** (flujo completo), monedas activas, tipo de cambio.
-17. Perfil: **Idioma**, **Tema** (claro/oscuro/auto), **Tutorial**, avatar/color.
-18. Cargar/guardar archivo de perfil (hay base), exportar, borrar todo, perfiles demo.
-19. Bienvenida / onboarding hecho; **tutorial guiado** (`Tour.swift`) hecho, sin el anillo de resaltado (la barra es del sistema).
-20. Notificaciones / recordatorios (si se decide).
+Hecho y ya no pendiente (antes figuraba aquí): formularios y hojas (movimiento, transferir, previstos, trabajos, simulaciones, metas, cuentas, tarjetas, suscripciones, sets de presupuesto), Confirmar/Adelantar/Posponer, pago de crédito y simular pago extra, Insights completos (banners, evaluación, avisos de presupuesto, ahorro y deuda), historial de aportes, Novedades/Historia/Créditos/Opinión/Transparencia, cambio de moneda principal, Idioma/Apariencia/Tutorial, carga y borrado de datos y perfiles de demostración, inglés (`Tr.swift`; los números siguen el formato `en-US` como en la web), onboarding, avatar y tutorial guiado.
 
-### Calidad visual y plataforma
-21. ~~**Inglés**~~ (hecho): `Tr.swift` + `Resources/tr_en.json` (generado con `swift/tools/i18n/gen_en.py` desde los diccionarios de la web + `extras_en.txt`) traducen en ejecución; `Localized.swift` reemplaza `Text/Button/Label/...` para pasar por `Tr`. `Text(verbatim:)` evita traducir. Falta: separadores de miles/decimales por idioma y personas demo en inglés (`DEMO_PACK`).
-22. Revisión visual 1:1 contra la web pantalla por pantalla (espaciados, tamaños, pesos tipográficos, colores en modo oscuro).
-23. Etiquetas curvas del anillo (la web las dibuja curvadas), logo «Estudio 22» en Ajustes.
-24. ~~Barra de pestañas oculta en pantallas empujadas~~ (hecho en Resumen, Cuentas y Proyección).
-25. Accesibilidad (VoiceOver, Dynamic Type, contraste) y soporte iPad (si aplica).
-26. Rendimiento y pruebas: más pruebas en `PlataCore` para las funciones nuevas de `ProfileEditor` (transferencia, previstos, trabajo, simulaciones, metas), pruebas de UI básicas.
-
-### Publicación
-27. (hecho: manifiesto de privacidad `PrivacyInfo.xcprivacy`, nombre localizado) Firma: `DEVELOPMENT_TEAM` en `project.yml`, Bundle ID `net.plataapp.plata`, iconos, capturas.
-28. TestFlight y App Store (cuenta Apple Developer ya iniciada), política de privacidad, ficha.
+**Importar de Nazca** (hecho, en el dispositivo): CSV, Excel de Yape y PDF con 16 lectores de banco más una lectura genérica, clave o DNI para BCP e iO, «Leerlo como…», PDF protegidos en lote y logos de banco.
 
 ## Cómo trabajar
 - Siempre abrir primero la parte equivalente en `dev/app/src/app.html` y copiar textos, orden y medidas.

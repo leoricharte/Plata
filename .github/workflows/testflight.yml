@@ -1,0 +1,109 @@
+# Sube la app nativa a TestFlight desde GitHub (sin tu Mac). Se lanza a mano: Actions → TestFlight → Run workflow.
+# Necesita 3 secretos del repositorio (Settings → Secrets and variables → Actions), de una clave de la API de App Store Connect
+# (App Store Connect → Usuarios y acceso → Integraciones → Claves de App Store Connect, con acceso de «Gestor de apps» o «Administrador»):
+#   ASC_KEY_ID      el «ID de clave»
+#   ASC_ISSUER_ID   el «ID del emisor»
+#   ASC_KEY_P8      el contenido del archivo .p8 (pégalo tal cual, con las líneas BEGIN/END)
+name: TestFlight
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: testflight
+  cancel-in-progress: false
+
+jobs:
+  upload:
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Comprobar los secretos
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          for v in ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8; do
+            if [ -z "${!v}" ]; then echo "::error::Falta el secreto $v (ver el encabezado de .github/workflows/testflight.yml)"; exit 1; fi
+          done
+
+      - name: Generar el proyecto
+        run: |
+          brew install xcodegen
+          cd swift/PlataApp && xcodegen
+
+      - name: Clave de App Store Connect
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/keys"
+          printf '%s\n' "$ASC_KEY_P8" > "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8"
+          chmod 600 "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8"
+
+      - name: Archivar
+        working-directory: swift/PlataApp
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          set -o pipefail
+          BUILD=$(date -u +%y%m%d%H%M)   # número de compilación que siempre sube
+          echo "Compilación $BUILD"
+          xcodebuild archive \
+            -project Plata.xcodeproj -scheme Plata \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/Plata.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            CURRENT_PROJECT_VERSION="$BUILD" \
+            2>&1 | tee "$RUNNER_TEMP/archive.log" | grep -E "error:|ARCHIVE (SUCCEEDED|FAILED)" || true
+          grep -q "ARCHIVE SUCCEEDED" "$RUNNER_TEMP/archive.log"
+
+      - name: Subir a TestFlight
+        working-directory: swift/PlataApp
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          set -o pipefail
+          cat > "$RUNNER_TEMP/export.plist" <<'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>8YMVGT4T6Q</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>uploadSymbols</key><true/>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+          </dict>
+          </plist>
+          PLIST
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/Plata.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/export.plist" \
+            -exportPath "$RUNNER_TEMP/export" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            2>&1 | tee "$RUNNER_TEMP/export.log" | tail -40
+
+      - name: Errores
+        if: failure()
+        run: |
+          for f in "$RUNNER_TEMP/archive.log" "$RUNNER_TEMP/export.log"; do
+            [ -f "$f" ] && grep -E "error:|Error" "$f" | sort -u | head -20 | while IFS= read -r l; do
+              m=$(printf '%s' "$l" | sed 's/%/%25/g'); echo "::error::$m"
+            done
+          done || true
