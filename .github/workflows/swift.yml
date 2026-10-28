@@ -1,0 +1,52 @@
+# Compila la app nativa (SwiftUI) y prueba el núcleo en un runner de macOS. Solo la rama swift-nativo.
+name: Swift
+
+on:
+  push:
+    branches: [ "swift-nativo" ]
+    paths: [ "swift/**", ".github/workflows/swift.yml" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swift-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Versiones
+        run: |
+          xcodebuild -version
+          swift --version
+
+      - name: Pruebas del núcleo (PlataCore)
+        working-directory: swift/PlataCore
+        run: swift test 2>&1 | tail -60
+
+      - name: Generar el proyecto
+        run: |
+          brew install xcodegen
+          cd swift/PlataApp && xcodegen
+
+      - name: Compilar la app (simulador)
+        working-directory: swift/PlataApp
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project Plata.xcodeproj -scheme Plata \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO \
+            2>&1 | tee build.log | grep -E "error:|warning: unre|BUILD (SUCCEEDED|FAILED)" || true
+          grep -q "BUILD SUCCEEDED" build.log
+
+      - name: Errores de compilación
+        if: failure()
+        working-directory: swift/PlataApp
+        run: grep -E "error:" build.log | sort -u | head -60 || true
