@@ -439,7 +439,7 @@ struct WelcomeStepView: View {
     }
 
     private var budget: some View {
-        let cats = Currencies.defaultCategories.map(\.name).filter { $0 != "Otros" }
+        let cats = Onboarding.budgetCategories
         return VStack(spacing: 0) {
             WTitle(title: "Tu presupuesto", sub: "Cuánto quieres gastar al mes en cada categoría. Opcional; puedes dejarlo en blanco y definirlo después.")
             SCard {

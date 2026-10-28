@@ -47,6 +47,9 @@ public enum Onboarding {
         return (all[level] ?? []).filter { ($0 != "imp") || importer }
     }
 
+    /// Categorías del paso de presupuesto (todas menos «Otros»).
+    public static var budgetCategories: [String] { Currencies.defaultCategories.map(\.name).filter { $0 != "Otros" } }
+
     /// Los pasos con «Omitir».
     public static let optionalSteps: Set<String> = ["name", "imp", "inc", "fixed", "budget", "subs", "debt", "goal"]
 
