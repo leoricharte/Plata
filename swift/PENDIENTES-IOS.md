@@ -21,8 +21,8 @@ Hojas: movimiento nuevo/editar, transferir, ingreso previsto, gasto previsto, pa
 ## Pendientes
 
 ### Formularios y acciones (muchos botones muestran hoy «Llega en la siguiente versión»)
-1. Selector de **icono** para cuentas y tarjetas (hoy solo se elige color).
-2. **Categorías y límites**: crear/renombrar/eliminar categoría (color, icono, límite mensual) y **sets de presupuesto** (`bsets`).
+1. ~~Selector de icono + logos de bancos y suscripciones~~ (hecho; falta vista previa del cuadrito en el formulario y logo de suscripción en filas de movimientos).
+2. Categorías hechas; falta **sets de presupuesto** (`bsets`).
 3. **Posponer** un ingreso/gasto previsto o pendiente, y **confirmar** lo «Por confirmar» (confirmar, ajustar monto, adelantar).
 4. **Pago de crédito real** (registrar pago desde la pantalla de tarjeta) y **simular pago extra** de deuda.
 5. **Acciones de fila**: deslizar para editar/eliminar, menús de **ordenar** (cuentas, tarjetas, categorías) y filtros (anillo de deuda).
@@ -47,7 +47,7 @@ Hojas: movimiento nuevo/editar, transferir, ingreso previsto, gasto previsto, pa
 ### Calidad visual y plataforma
 21. **Inglés**: extraer todos los textos a `Localizable.xcstrings`; revisar fechas, plurales y moneda.
 22. Revisión visual 1:1 contra la web pantalla por pantalla (espaciados, tamaños, pesos tipográficos, colores en modo oscuro).
-23. Etiquetas curvas del anillo (la web las dibuja curvadas), logos de bancos, logo «Estudio 22» en Ajustes.
+23. Etiquetas curvas del anillo (la web las dibuja curvadas), logo «Estudio 22» en Ajustes.
 24. Pestañas en pantallas empujadas: ocultar barra en Presupuesto/Proyección/Ahorro/Cuentas si empujan detalles (hoy solo Resumen usa `path`).
 25. Accesibilidad (VoiceOver, Dynamic Type, contraste) y soporte iPad (si aplica).
 26. Rendimiento y pruebas: más pruebas en `PlataCore` para las funciones nuevas de `ProfileEditor` (transferencia, previstos, trabajo, simulaciones, metas), pruebas de UI básicas.
