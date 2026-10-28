@@ -91,6 +91,6 @@ struct PlataTabBar: View {
             .accessibilityLabel("Añadir")
         }
         .padding(.horizontal, 20)
-        .padding(.bottom, 4)
+        .padding(.bottom, -12)   // la web la deja a ~22 pt del borde: safe area inferior (34) − 12
     }
 }
