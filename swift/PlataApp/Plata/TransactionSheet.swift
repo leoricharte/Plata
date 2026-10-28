@@ -20,6 +20,11 @@ struct TransactionSheet: View {
     @State private var date = Date()
     @State private var note = ""
     @State private var errorText: String?
+    @State private var isPay = false
+    @State private var card = ""
+    @State private var from = ""
+    @State private var autoOn = false
+    @State private var overpay: Double?
     @FocusState private var amountFocused: Bool
 
     private var editedTx: JSONValue? {
@@ -37,25 +42,27 @@ struct TransactionSheet: View {
     var body: some View {
         let e = model.engine
         let f = model.fmt
+        let accCur = e.accountCurrency(JSONValue.string(isPay ? card : account))
         ScrollView {
             VStack(spacing: 0) {
-                SheetHead(title: editedTx == nil ? "Nuevo movimiento" : "Editar movimiento", onClose: { dismiss() }, onSave: { save() })
+                SheetHead(title: editedTx == nil ? "Nuevo movimiento" : "Editar movimiento", onClose: { dismiss() }, onSave: { save(e) })
 
-                AmountField(symbol: f.symbol(e.accountCurrency(JSONValue.string(account))), text: $amountText,
-                            placeholder: Money.decimals(e.accountCurrency(JSONValue.string(account))) > 0 ? "0.00" : "0", focus: $amountFocused)
+                AmountField(symbol: f.symbol(accCur), text: $amountText,
+                            placeholder: Money.decimals(accCur) > 0 ? "0.00" : "0", focus: $amountFocused)
 
                 if !isPayLike {
-                    PillSegmented(items: [(true, "Gasto"), (false, "Ingreso")], selection: $isOut)
+                    PillSegmented(items: typeItems(e), selection: typeBinding)
                         .padding(.bottom, 4)
-                    Text(isOut ? "Dinero que sale. Cuenta en tu presupuesto." : "Dinero que entra. Suma a tus ingresos.")
+                    Text(isPay ? "Pagas lo que debes. No es un gasto." : (isOut ? "Dinero que sale. Cuenta en tu presupuesto." : "Dinero que entra. Suma a tus ingresos."))
                         .font(.inter(13)).foregroundStyle(.secondary)
                         .lineLimit(1).minimumScaleFactor(0.8)
                         .padding(.top, 8).padding(.bottom, 14).padding(.horizontal, 12)
-                    if isOut { ChipRow(items: e.categoryNames, selection: $category) }
+                    if isOut && !isPay { ChipRow(items: e.categoryNames, selection: $category) }
                 }
 
                 SCard {
-                    SRow(symbol: "creditcard", label: "Cuenta") {
+                    if isPay { payRows(e) }
+                    if !isPay { SRow(symbol: "creditcard", label: "Cuenta") {
                         Menu {
                             Picker("Cuenta", selection: $account) {
                                 Section("Débito") {
@@ -75,7 +82,7 @@ struct TransactionSheet: View {
                             Text(selectedAccountLabel(e)).foregroundStyle(.primary).lineLimit(1)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
-                    }
+                    } }
                     RowDivider()
                     SRow(symbol: "pencil", label: "Nota") {
                         TextField(editedTx == nil ? "Opcional" : "", text: $note)
@@ -117,7 +124,7 @@ struct TransactionSheet: View {
                     Text(errorText).font(.inter(14)).foregroundStyle(Brand.lossText).padding(.bottom, 10)
                 }
 
-                Button(editedTx == nil ? "Añadir" : "Guardar") { save() }
+                Button(editedTx == nil ? "Añadir" : "Guardar") { save(e) }
                     .buttonStyle(PrimaryPillStyle())
                     .padding(.bottom, 8)
             }
@@ -130,6 +137,21 @@ struct TransactionSheet: View {
         .presentationCornerRadius(38)
         .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))
         .onAppear(perform: load)
+        .confirmationDialog("Estás pagando más de lo que debes", isPresented: Binding(get: { overpay != nil }, set: { if !$0 { overpay = nil } }), titleVisibility: .visible) {
+            if let owed = overpay {
+                if owed > 0.005 { Button("Pagar solo " + f.exact(owed, e.accountCurrency(.string(card)))) { finishPay(owed) } }
+                Button(owed > 0.005 ? "Registrar el pago completo" : "Registrar de todos modos") { finishPay(parsedAmount() ?? 0) }
+            }
+            Button("Cancelar", role: .cancel) {}
+        } message: {
+            if let owed = overpay {
+                let cur = e.accountCurrency(.string(card))
+                let name = e.allCards.first(where: { Engine.text($0["id"]) == card }).map { Engine.text($0["name"]) } ?? ""
+                Text(owed > 0.005
+                     ? "En Plata debes \(f.exact(owed, cur)) en \(name) y estás pagando \(f.exact(parsedAmount() ?? 0, cur)). Si es por intereses, registra el pago completo."
+                     : "\(name) ya está en 0. ¿Seguro que quieres registrar este pago?")
+            }
+        }
         .onChange(of: isOut) { _, nowOut in
             // un ingreso no va en una tarjeta
             if !nowOut, model.engine.allCards.contains(where: { Engine.text($0["id"]) == account }), let first = model.engine.allAccounts.first {
@@ -191,6 +213,61 @@ struct TransactionSheet: View {
         return s + " · " + Engine.text(a["cur"])
     }
 
+    // MARK: pago de crédito
+
+    private func typeItems(_ e: Engine) -> [(String, LocalizedStringKey)] {
+        var items: [(String, LocalizedStringKey)] = [("out", "Gasto"), ("in", "Ingreso")]
+        if editedTx == nil && !e.allCards.isEmpty { items.append(("pay", "Pago de crédito")) }
+        return items
+    }
+
+    private var typeBinding: Binding<String> {
+        Binding(get: { isPay ? "pay" : (isOut ? "out" : "in") }, set: { t in
+            isPay = t == "pay"
+            if !isPay { isOut = t == "out" }
+            if isPay, card.isEmpty { card = Engine.text(model.engine.allCards.first?["id"]) }
+            if isPay { autoOn = false }
+        })
+    }
+
+    @ViewBuilder
+    private func payRows(_ e: Engine) -> some View {
+        let k = e.allCards.first(where: { Engine.text($0["id"]) == card })
+        let ok = Engine.number(k?["due_day"]) > 0
+        SRow(symbol: "creditcard", label: "Tarjeta o préstamo") {
+            Menu {
+                Picker("Tarjeta", selection: $card) {
+                    ForEach(Array(e.allCards.enumerated()), id: \.offset) { _, a in Text(accountLabel(a)).tag(Engine.text(a["id"])) }
+                }
+            } label: {
+                Text(k.map(accountLabel) ?? "").foregroundStyle(.primary).lineLimit(1).frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        RowDivider()
+        SRow(symbol: "creditcard", label: "Pagar desde") {
+            Menu {
+                Picker("Desde", selection: $from) {
+                    Text("Sin descontar de una cuenta").tag("")
+                    ForEach(Array(e.allAccounts.enumerated()), id: \.offset) { _, a in Text(accountLabel(a)).tag(Engine.text(a["id"])) }
+                }
+            } label: {
+                Text(from.isEmpty ? "Sin descontar de una cuenta" : (e.allAccounts.first(where: { Engine.text($0["id"]) == from }).map(accountLabel) ?? ""))
+                    .foregroundStyle(.primary).lineLimit(1).frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        RowDivider()
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Pago esperado").font(.inter(17))
+                Text(ok ? "El día \(Int(Engine.number(k?["due_day"]))) de cada mes te preguntamos cuánto pagaste." : "Disponible si la tarjeta tiene día de pago.")
+                    .font(.inter(13)).foregroundStyle(.secondary)
+            }
+            Spacer(minLength: 8)
+            Toggle("", isOn: Binding(get: { autoOn && ok }, set: { autoOn = $0 })).labelsHidden().tint(Brand.accent).disabled(!ok)
+        }
+        .padding(.vertical, 12)
+    }
+
     // MARK: acciones
 
     private func load() {
@@ -216,9 +293,25 @@ struct TransactionSheet: View {
         n == n.rounded() ? String(Int64(n)) : String(n)
     }
 
-    private func save() {
-        let text = amountText.replacingOccurrences(of: ",", with: ".").trimmingCharacters(in: .whitespaces)
-        guard let amount = Double(text), amount > 0 else { errorText = "Escribe un monto."; return }
+    private func parsedAmount() -> Double? {
+        Double(amountText.replacingOccurrences(of: ",", with: ".").trimmingCharacters(in: .whitespaces))
+    }
+
+    private func finishPay(_ amount: Double) {
+        do {
+            try model.registerCardPayment(card: card, amount: amount, from: from, date: LocalDate.today(now: date), note: note, auto: autoOn)
+            dismiss()
+        } catch { errorText = "No se pudo registrar el pago." }
+    }
+
+    private func save(_ e: Engine) {
+        guard let amount = parsedAmount(), amount > 0 else { errorText = "Escribe un monto."; return }
+        if isPay && editedTx == nil {
+            guard let k = e.allCards.first(where: { Engine.text($0["id"]) == card }) else { errorText = "Elige una tarjeta o préstamo."; return }
+            let owed = max(0, Engine.number(k["balance"]))
+            if amount <= owed + 0.005 { finishPay(amount) } else { overpay = owed }
+            return
+        }
         let day = LocalDate.today(now: date)
         do {
             if let tx = editedTx {

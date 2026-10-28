@@ -264,6 +264,27 @@ final class AppModel {
         }
     }
 
+    /// Pago de crédito hecho a mano (`submitSheet` con tipo «Pago»). `auto`: dejar activado el pago esperado.
+    func registerCardPayment(card id: String, amount: Double, from: String, date: LocalDate, note: String, auto: Bool) throws {
+        guard amount > 0 else { throw ProfileEditor.FormError.invalidAmount }
+        let e = engine
+        guard let card = e.allCards.first(where: { Engine.identifier($0["id"]) == id }) else { throw ProfileEditor.FormError.missingCard }
+        let fromJSON: JSONValue? = from.isEmpty ? nil : .string(from)
+        let fromAmt = from.isEmpty ? 0 : Engine.roundCents(e.fromUSD(e.usd(amount, Engine.text(card["cur"])), e.accountCurrency(.string(from))))
+        let left = Engine.roundCents(Engine.number(card["balance"]) - amount)
+        let trimmed = note.trimmingCharacters(in: .whitespacesAndNewlines)
+        let text = trimmed.isEmpty ? "Pago de " + Engine.text(card["name"]) + ((Engine.number(card["payment"]) > 0 && left <= 0.005) ? " · final" : "") : trimmed
+        let dueDay = Int(Engine.number(card["due_day"]))
+        let pair = String(UUID().uuidString.replacingOccurrences(of: "-", with: "").prefix(6)).lowercased()
+        let now = Date().timeIntervalSince1970 * 1000
+        try commit { raw in
+            ProfileEditor.registerPay(&raw, card: card["id"] ?? .null, amount: amount, fromAmount: fromAmt, date: date.iso, from: fromJSON, note: text, now: now, pair: pair)
+            if auto, dueDay > 0, left > 0.005 {
+                ProfileEditor.enableCardAuto(&raw, id: card["id"] ?? .null, from: from, next: Engine.dueAfter(day: dueDay, after: date.iso))
+            }
+        }
+    }
+
     /// Confirma el pago esperado de una tarjeta o préstamo. `from`: cuenta de origen ("" = sin descontar).
     func confirmCardPay(id: String, amount: Double, from: String) throws {
         guard amount > 0 else { throw ProfileEditor.FormError.invalidAmount }

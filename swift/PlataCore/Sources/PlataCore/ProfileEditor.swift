@@ -597,4 +597,13 @@ public extension ProfileEditor {
         p["cards"] = .array(list)
         return paid
     }
+
+    /// Activa el «Pago esperado» de una tarjeta: desde `next` se pregunta cuánto se pagó.
+    static func enableCardAuto(_ p: inout JSONValue, id: JSONValue, from: String, next: String) {
+        guard var list = p["cards"]?.arrayValue, let i = list.firstIndex(where: { $0["id"] == id }) else { return }
+        var card = list[i]
+        card["auto"] = .object(["from": .string(from), "next": .string(next)])
+        list[i] = card
+        p["cards"] = .array(list)
+    }
 }
