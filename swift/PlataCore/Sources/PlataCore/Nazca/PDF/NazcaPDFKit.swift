@@ -13,7 +13,11 @@ extension NazcaPDF {
     /// Abre el PDF en el dispositivo y saca el texto de cada página con su posición. `password` solo sirve para abrirlo: no se guarda ni se devuelve.
     /// A diferencia de `pdf.js`, PDFKit no entrega los textos tal como están en el archivo: aquí se arman a partir de la posición de cada letra
     /// (letras seguidas del mismo renglón forman un texto; un hueco más ancho que un espacio abre otro).
-    public static func read(_ data: Data, password: String? = nil) throws -> PdfDoc {
+    /// Cómo se arman los textos: `words` (por defecto, letra por letra), `loose` (solo parte en huecos de columna grandes),
+    /// `lines` (un texto por renglón, según PDFKit) y `plain` (el texto de PDFKit sin posiciones). Los tres últimos son respaldo.
+    public enum Mode: Sendable { case words, loose, lines, plain }
+
+    public static func read(_ data: Data, password: String? = nil, mode: Mode = .words) throws -> PdfDoc {
         let bytes = [UInt8](data.prefix(1100))
         if data.count > maxBytes { throw Failure.tooBig }
         if !hasHeader(bytes) { throw Failure.notPDF }
@@ -28,7 +32,13 @@ extension NazcaPDF {
         for n in 0..<last {
             guard let page = doc.page(at: n) else { continue }
             let box = page.bounds(for: .cropBox)
-            let items = extract(page)
+            let items: [PdfItem]
+            switch mode {
+            case .words: items = extract(page)
+            case .loose: items = extract(page, splitEm: 1.1)
+            case .lines: items = extractLines(page)
+            case .plain: items = extractPlain(page, height: Double(box.height))
+            }
             count += items.count
             if count > maxItems { throw Failure.invalid }
             pages.append(PdfPage(w: Double(box.width), h: Double(box.height), items: items))
@@ -50,7 +60,35 @@ extension NazcaPDF {
         var lastMax = 0.0
     }
 
-    static func extract(_ page: PDFKit.PDFPage) -> [PdfItem] {
+    /// Un texto por renglón tal como lo arma PDFKit (con su posición).
+    static func extractLines(_ page: PDFKit.PDFPage) -> [PdfItem] {
+        guard let sel = page.selection(for: page.bounds(for: .cropBox)) else { return [] }
+        var items: [PdfItem] = []
+        for line in sel.selectionsByLine() {
+            let t = PDFx.clean(line.string ?? "")
+            if t.isEmpty { continue }
+            let r = line.bounds(for: page)
+            if r.isNull || r.isInfinite { continue }
+            items.append(PdfItem(str: t, x: Double(r.minX), y: Double(r.minY) + descentEm * Double(r.height) / 1.15, w: Double(r.width)))
+        }
+        return items
+    }
+
+    /// Último recurso: el texto de PDFKit renglón por renglón, con posiciones inventadas de arriba hacia abajo.
+    static func extractPlain(_ page: PDFKit.PDFPage, height: Double) -> [PdfItem] {
+        guard let str = page.string else { return [] }
+        var items: [PdfItem] = []
+        var k = 0
+        for raw in str.components(separatedBy: CharacterSet.newlines) {
+            let t = PDFx.clean(raw)
+            if t.isEmpty { continue }
+            items.append(PdfItem(str: t, x: 0, y: height - Double(k) * 12, w: Double(t.count) * 5))
+            k += 1
+        }
+        return items
+    }
+
+    static func extract(_ page: PDFKit.PDFPage, splitEm: Double = NazcaPDF.splitEm) -> [PdfItem] {
         let n = page.numberOfCharacters
         guard n > 0, let str = page.string else { return [] }
         let ns = str as NSString

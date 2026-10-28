@@ -615,14 +615,14 @@ struct ImportFlowView: View {
             case .invalid, .unavailable: return .fail(Tr.t("Nazca no pudo leer ese archivo"), Tr.t("Revisa que sea el estado de cuenta que descargaste de tu banco."))
             }
         case .wrong(let b, let doc): return .wrong(b, doc)
-        case .unknown:
+        case .unknown(let diag):
             if only == "yape" {
                 return .fail(Tr.t("Este archivo no parece de Yape"), Tr.t("Yape no da estado de cuenta en PDF: descarga el reporte de movimientos en Excel y súbelo."))
             }
             if let only, let ob = Self.only[only] {
                 return .fail(Tr.t("Este archivo no parece " + ob.0), Tr.t("Por ahora Nazca lee " + ob.1 + ". Revisa que sea ese archivo."))
             }
-            return .fail(Tr.t("Nazca todavía no reconoce este archivo"), Tr.t("No encontramos movimientos con fecha y monto. Si tu banco ofrece un archivo CSV, importa ese."))
+            return .fail(Tr.t("Nazca todavía no reconoce este archivo"), Tr.t("No encontramos movimientos con fecha y monto. Si tu banco ofrece un archivo CSV, importa ese.") + (diag.isEmpty ? "" : "\n\n" + diag))
         case .noPeriod:
             return .fail(Tr.t("Nazca no pudo leer el estado de cuenta"), Tr.t("No encontramos el periodo del estado de cuenta en el archivo."))
         case .noMoves:
@@ -742,7 +742,8 @@ private enum PDFOut: Sendable {
     /// El PDF es de otro banco que el elegido.
     case wrong(String, PdfDoc)
     /// Ningún lector reconoce el archivo.
-    case unknown
+    /// Con una muestra de lo que se leyó (solo para diagnóstico).
+    case unknown(String)
     case noPeriod, noMoves, emptyOK
     case statement(Nazca.StatementResult)
     /// Un banco que Nazca no conoce, pero parece una tarjeta de crédito.
@@ -753,14 +754,29 @@ private enum PDFOut: Sendable {
 
 private enum PDFScan {
     static func run(data: Data?, doc given: PdfDoc?, name: String, key: String?, only: String?) -> PDFOut {
-        var opened = given
-        if opened == nil {
-            guard let data else { return .failure(.invalid) }
-            do { opened = try NazcaPDF.read(data, password: key) }
-            catch let e as NazcaPDF.Failure { return .failure(e) }
-            catch { return .failure(.invalid) }
+        if let given { return attempt(given, name: name, only: only) }
+        guard let data else { return .failure(.invalid) }
+        // Si la lectura normal no reconoce nada, se prueba con extracciones de respaldo (PDFKit arma el texto distinto a pdf.js).
+        var first: PDFOut?
+        for mode in [NazcaPDF.Mode.words, .loose, .lines, .plain] {
+            let doc: PdfDoc
+            do { doc = try NazcaPDF.read(data, password: key, mode: mode) }
+            catch let e as NazcaPDF.Failure { return first ?? .failure(e) }
+            catch { return first ?? .failure(.invalid) }
+            let out = attempt(doc, name: name, only: only)
+            if case .unknown = out { if first == nil { first = out }; continue }
+            return out
         }
-        guard let doc = opened else { return .failure(.invalid) }
+        return first ?? .unknown("")
+    }
+
+    private static func sample(_ doc: PdfDoc) -> String {
+        let items = doc.pages.flatMap(\.items)
+        let head = items.prefix(4).map { String($0.str.prefix(22)) }.joined(separator: " | ")
+        return "\(items.count) textos · \(head)"
+    }
+
+    private static func attempt(_ doc: PdfDoc, name: String, only: String?) -> PDFOut {
         let rd = NazcaPDFBancos.detect(doc, onlyBank: only)
         if rd == nil && only == nil {   // un banco que Nazca no conoce: lectura genérica, sin sello de verificado
             let g = NazcaPDFGen.read(doc)
@@ -778,7 +794,7 @@ private enum PDFScan {
             }
         }
         if rd == nil, let only, let o = NazcaPDFBancos.detect(doc, onlyBank: nil), o.bank != only { return .wrong(o.bank, doc) }
-        guard let rd else { return .unknown }
+        guard let rd else { return .unknown(sample(doc)) }
         guard let r = rd.read(doc), r.error == nil else { return .noPeriod }
         if r.items.isEmpty && r.check?.ok == true && r.unreadable == 0 { return .emptyOK }
         if r.items.isEmpty { return .noMoves }

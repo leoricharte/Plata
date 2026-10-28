@@ -234,7 +234,7 @@ struct AjustesView: View {
 
                 Button { model.path.append(.credits) } label: {
                     VStack(spacing: 0) {
-                        Text("Estudio 22").font(.inter(18, .heavy)).tracking(-0.5).padding(.bottom, 12)
+                        Estudio22Logo(height: 18).padding(.bottom, 12)
                         Text("Diseñado por Estudio 22 en Nueva York.").font(.inter(13)).foregroundStyle(.secondary)
                         Text("© Estudio 22 y Leonardo Richarte, 2026.").font(.inter(13)).foregroundStyle(.secondary).padding(.top, 2)
                     }
