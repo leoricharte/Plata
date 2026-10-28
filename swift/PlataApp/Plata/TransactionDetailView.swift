@@ -79,7 +79,7 @@ struct TransactionDetailView: View {
                     .padding(.top, 10)
             }
             .padding(.horizontal, 20)
-            .padding(.bottom, 110)
+            .padding(.bottom, 24)
         }
         .background(Color(.systemGroupedBackground))
         .navigationBarTitleDisplayMode(.inline)

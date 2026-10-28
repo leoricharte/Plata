@@ -92,7 +92,7 @@ struct AhorroView: View {
         return Button { model.activeSheet = .saving(id: Engine.identifier(s["id"])) } label: {
             HStack(spacing: 12) {
                 Tile(symbol: "leaf.fill", color: Color(hex: color))
-                VStack(alignment: .leading, spacing: 3) {
+                VStack(alignment: .leading, spacing: 6) {
                     Text(Engine.text(s["name"])).font(.inter(16, .semibold)).tracking(-0.3).lineLimit(1)
                     if goal > 0 {
                         GeometryReader { g in
@@ -101,6 +101,7 @@ struct AhorroView: View {
                                 Capsule().fill(Color(hex: color)).frame(width: g.size.width * pct / 100)
                             }
                         }
+                        .frame(maxWidth: .infinity)
                         .frame(height: 6)
                     }
                     Text((goal > 0 ? "\(Int(pct.rounded()))% de \(f.whole(goal, cur)) · " : "") + eta)
@@ -110,7 +111,7 @@ struct AhorroView: View {
                 Text(f.whole(bal, cur)).font(.inter(16, .medium)).monospacedDigit()
                 Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(.tertiary)
             }
-            .frame(minHeight: 64).contentShape(Rectangle())
+            .padding(.vertical, 10).frame(minHeight: 64).contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }

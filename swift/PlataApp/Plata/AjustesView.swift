@@ -231,7 +231,7 @@ struct AjustesView: View {
                     .padding(.horizontal, 18).padding(.top, 2).padding(.bottom, 6)
             }
             .padding(.horizontal, 20)
-            .padding(.bottom, 110)
+            .padding(.bottom, 24)
         }
         .background(Color(.systemGroupedBackground))
         .navigationBarTitleDisplayMode(.inline)
@@ -423,7 +423,7 @@ struct ProfileSettingsView: View {
                 SettingsNote(text: "Puedes usar hasta 2 monedas a la vez. El tipo de cambio es tuyo: edítalo cuando cambie. Cambiar de moneda llega en una próxima versión de la app.")
             }
             .padding(.horizontal, 20)
-            .padding(.bottom, 110)
+            .padding(.bottom, 24)
         }
         .background(Color(.systemGroupedBackground))
         .navigationBarTitleDisplayMode(.inline)

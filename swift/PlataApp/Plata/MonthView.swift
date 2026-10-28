@@ -217,11 +217,14 @@ struct MonthView: View {
         .frame(maxWidth: .infinity)
     }
 
+    /// El `execbtn` de la web: píldora verde de 28 pt (la zona de toque es más alta).
     private func pager(_ title: LocalizedStringKey, disabled: Bool, _ action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Text(title).font(.inter(15, .semibold)).foregroundStyle(.primary)
-                .frame(minWidth: 104, minHeight: 40)
-                .background(Color(.secondarySystemGroupedBackground), in: Capsule())
+            Text(title).font(.inter(13, .semibold)).foregroundStyle(Brand.accent)
+                .frame(minWidth: 104, minHeight: 28)
+                .background(Brand.gainBg, in: Capsule())
+                .padding(.vertical, 8)
+                .contentShape(Rectangle())
                 .opacity(disabled ? 0.35 : 1)
         }
         .buttonStyle(.plain)
