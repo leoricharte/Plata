@@ -113,3 +113,69 @@ public enum ProfileEditor {
         return Engine.str(p[loc.col]?.arrayValue?[loc.index]["cur"])
     }
 }
+
+// MARK: - Transferencias e ingresos / gastos previstos
+
+public extension ProfileEditor {
+    enum FormError: Error, Equatable { case missingName, invalidAmount, invalidDays, endBeforeStart, sameAccount }
+
+    /// Transferencia entre cuentas (`xferSubmit` de la web): dos movimientos con el mismo `pair`, y una comisión opcional.
+    static func addTransfer(_ p: inout JSONValue, from: String, to: String, amount: Double, received: Double, commission: Double,
+                            note: String, date: String, now: Double, pair: String) throws {
+        guard amount > 0, amount.isFinite else { throw FormError.invalidAmount }
+        guard from != to else { throw FormError.sameAccount }
+        guard let a = locate(p, .string(from)), let b = locate(p, .string(to)) else { throw EditError.notFound }
+        let fromId = p[a.col]?.arrayValue?[a.index]["id"] ?? .string(from)
+        let toId = p[b.col]?.arrayValue?[b.index]["id"] ?? .string(to)
+        let recv = Engine.round2(received > 0 ? received : amount)
+        let comm = Engine.round2(commission)
+        func push(_ amt: Double, _ cat: String, _ note: String, _ acc: JSONValue, pair: String?) {
+            let id = nextTxId(p, now: now)
+            var tx: [String: JSONValue] = ["id": .number(id), "date": .string(date), "amount": .number(amt), "category": .string(cat), "note": .string(note), "acc": acc]
+            if let pair { tx["pair"] = .string(pair) }
+            var list = p["transactions"]?.arrayValue ?? []
+            list.append(.object(tx))
+            p["transactions"] = .array(list)
+            applyTo(&p, acc, amt)
+        }
+        let n = note.trimmingCharacters(in: .whitespacesAndNewlines)
+        push(-amount, "Transferencia", n, fromId, pair: pair)
+        push(recv, "Transferencia", n, toId, pair: pair)
+        if comm > 0 { push(-comm, "Otros", "Comisión de transferencia", fromId, pair: nil) }
+    }
+
+    /// Guarda (crea o reemplaza por id) un ingreso o gasto previsto, normalizando la repetición como `saveForm` de la web.
+    static func saveExpected(_ p: inout JSONValue, collection: String, item: JSONValue) throws {
+        guard collection == "expected_income" || collection == "expected_expense" else { throw EditError.notFound }
+        var o = item
+        let name = Engine.str(o["name"]).trimmingCharacters(in: .whitespacesAndNewlines)
+        if name.isEmpty { throw FormError.missingName }
+        guard abs(Engine.num(o["amount"])) > 0 else { throw FormError.invalidAmount }
+        let rep = o["repeat"]
+        if rep == .string("q") {
+            let a = Engine.num(o["q1"]).rounded(), b = Engine.num(o["q2"]).rounded()
+            guard a >= 1, a <= 31, b >= 1, b <= 31 else { throw FormError.invalidDays }
+            let r = Engine.qMake(.number(a), .number(b))
+            o["repeat"] = .string(r)
+            if let d = LocalDate(iso: Engine.str(o["date"])) { o["date"] = .string(Engine.qNext(d, r, inclusive: true).iso) }
+        } else if rep == .string("m") || (rep.map { Engine.isQ($0) } ?? false) {
+            // se queda como está
+        } else {
+            o["repeat"] = .number(Double(Engine.str(rep)) ?? Engine.num(rep))
+        }
+        o["q1"] = nil; o["q2"] = nil; o["snooze"] = nil
+        if !Engine.flag(o["repeat"]) { o["until"] = .string("") }
+        let until = Engine.str(o["until"])
+        if !until.isEmpty && until < Engine.str(o["date"]) { throw FormError.endBeforeStart }
+        o["name"] = .string(name)
+        var list = p[collection]?.arrayValue ?? []
+        if let i = list.firstIndex(where: { $0["id"] == o["id"] }) { list[i] = o } else { list.append(o) }
+        p[collection] = .array(list)
+    }
+
+    static func deleteExpected(_ p: inout JSONValue, collection: String, id: JSONValue) {
+        guard var list = p[collection]?.arrayValue else { return }
+        list.removeAll { $0["id"] == id }
+        p[collection] = .array(list)
+    }
+}

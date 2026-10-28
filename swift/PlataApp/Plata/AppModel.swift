@@ -18,6 +18,8 @@ final class AppModel {
     /// Pantallas abiertas encima del Resumen (Movimientos, Ajustes…).
     var path: [Route] = []
     var showAddTransaction = false
+    /// Hoja abierta desde el botón «+» o desde las listas (transferir, ingreso o gasto previsto).
+    var activeSheet: ActiveSheet?
     /// Última vez que se guardó en el dispositivo (la web lo muestra bajo «Guardado»).
     private(set) var lastSaved: Date? = {
         let t = UserDefaults.standard.double(forKey: "plata.lastSaved")
@@ -111,6 +113,22 @@ final class AppModel {
                 raw[key] = .array(list)
             }
         }
+    }
+
+    func addTransfer(from: String, to: String, amount: Double, received: Double, commission: Double, note: String, date: LocalDate) throws {
+        let pair = String(UUID().uuidString.replacingOccurrences(of: "-", with: "").prefix(6)).lowercased()
+        try commit { raw in
+            try ProfileEditor.addTransfer(&raw, from: from, to: to, amount: amount, received: received, commission: commission, note: note,
+                                          date: date.iso, now: Date().timeIntervalSince1970 * 1000, pair: pair)
+        }
+    }
+
+    func saveExpected(collection: String, item: JSONValue) throws {
+        try commit { raw in try ProfileEditor.saveExpected(&raw, collection: collection, item: item) }
+    }
+
+    func deleteExpected(collection: String, id: JSONValue) throws {
+        try commit { raw in ProfileEditor.deleteExpected(&raw, collection: collection, id: id) }
     }
 
     func setSetting(_ key: String, _ value: JSONValue) {
@@ -218,6 +236,20 @@ struct DemoPerson: Identifiable {
     ]
 }
 
+
+/// Las hojas que se abren encima de todo.
+enum ActiveSheet: Identifiable, Hashable {
+    case transfer
+    /// `kind`: "income" o "expense"; `id`: nil para uno nuevo.
+    case expected(kind: String, id: String?)
+
+    var id: String {
+        switch self {
+        case .transfer: return "transfer"
+        case .expected(let kind, let id): return "expected-\(kind)-\(id ?? "new")"
+        }
+    }
+}
 
 enum AppTab: Hashable, CaseIterable {
     case resumen, presupuesto, proyeccion, cuentas

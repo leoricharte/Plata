@@ -26,6 +26,12 @@ struct RootView: View {
         }
         .animation(.easeOut(duration: 0.2), value: model.path.isEmpty)
         .sheet(isPresented: $model.showAddTransaction) { TransactionSheet(mode: .new) }
+        .sheet(item: $model.activeSheet) { sheet in
+            switch sheet {
+            case .transfer: TransferSheet()
+            case .expected(let kind, let id): ExpectedSheet(kind: kind, id: id)
+            }
+        }
         .tint(Brand.accent)
     }
 }

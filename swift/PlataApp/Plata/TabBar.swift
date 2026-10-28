@@ -16,6 +16,7 @@ struct GlassCapsule: ViewModifier {
 
 /// La barra de abajo de la web: una píldora con las 4 pestañas a la izquierda y el botón redondo «+» a la derecha.
 struct PlataTabBar: View {
+    @Environment(AppModel.self) private var model
     @Binding var tab: AppTab
     /// En las pantallas abiertas encima del Resumen la web esconde las pestañas y deja solo el botón «+».
     var showTabs = true
@@ -69,18 +70,18 @@ struct PlataTabBar: View {
                     Label("Movimiento", systemImage: "plus.circle")
                     Text("Registra algo que ya pasó")
                 }
-                Button {} label: {
+                Button { model.activeSheet = .expected(kind: "income", id: nil) } label: {
                     Label("Ingreso previsto", systemImage: "building.columns")
                     Text("Sueldo, proyecto, pago esperado")
-                }.disabled(true)
-                Button {} label: {
+                }
+                Button { model.activeSheet = .expected(kind: "expense", id: nil) } label: {
                     Label("Gasto previsto", systemImage: "creditcard")
                     Text("Alquiler, recibo, compra futura")
-                }.disabled(true)
-                Button {} label: {
+                }
+                Button { model.activeSheet = .transfer } label: {
                     Label("Transferir", systemImage: "arrow.left.arrow.right")
                     Text("Entre tus cuentas")
-                }.disabled(true)
+                }
                 Divider()
                 Button {} label: {
                     Label("Trabajo", systemImage: "banknote")

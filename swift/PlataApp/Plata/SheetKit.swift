@@ -46,11 +46,12 @@ struct AmountField: View {
     @Binding var text: String
     var placeholder = "0"
     var focus: FocusState<Bool>.Binding
+    var label: LocalizedStringKey = "Monto"
     static let font = Font.custom("Inter", fixedSize: 52).weight(.bold)
 
     var body: some View {
         VStack(spacing: 0) {
-            Text("Monto").font(.inter(17)).foregroundStyle(.secondary)
+            Text(label).font(.inter(17)).foregroundStyle(.secondary)
             HStack(alignment: .center, spacing: 4) {
                 Text(symbol).font(AmountField.font).tracking(-2)
                 TextField(placeholder, text: $text)
@@ -206,5 +207,73 @@ struct StatusBadge: View {
         Text(text).font(.inter(size, .semibold)).foregroundStyle(fg)
             .padding(.horizontal, 8).padding(.vertical, 2)
             .background(bg, in: Capsule())
+    }
+}
+
+/// Fila de formulario con un campo de texto o número (`.srow` + `.sinput`).
+struct FieldRow: View {
+    let symbol: String
+    let label: LocalizedStringKey
+    let placeholder: LocalizedStringKey
+    @Binding var text: String
+    var numeric = false
+    var prefix: String? = nil
+    var body: some View {
+        SRow(symbol: symbol, label: label) {
+            HStack(spacing: 6) {
+                if let prefix { Text(prefix).font(.inter(17, .medium)) }
+                TextField(placeholder, text: $text)
+                    .keyboardType(numeric ? .decimalPad : .default)
+            }
+        }
+    }
+}
+
+/// Fila de fecha: el texto como en la web y el selector nativo invisible encima.
+struct DateRow: View {
+    let symbol: String
+    let label: LocalizedStringKey
+    @Binding var date: Date
+    var maxToday = false
+
+    static func text(_ d: Date) -> String {
+        let c = Calendar.current.dateComponents([.year, .month, .day], from: d)
+        return "\(c.day ?? 1) \(Spanish.monthsShort[(c.month ?? 1) - 1]) \(c.year ?? 2000)"
+    }
+
+    var body: some View {
+        SRow(symbol: symbol, label: label) {
+            Text(DateRow.text(date)).frame(maxWidth: .infinity, alignment: .leading)
+                .overlay {
+                    Group {
+                        if maxToday { DatePicker("", selection: $date, in: ...Date(), displayedComponents: .date) }
+                        else { DatePicker("", selection: $date, displayedComponents: .date) }
+                    }
+                    .labelsHidden().colorMultiply(.clear).frame(maxWidth: .infinity, alignment: .leading)
+                }
+        }
+    }
+}
+
+/// Fecha opcional («Termina el (opcional)»): «Sin fecha» hasta que se elige una.
+struct OptionalDateRow: View {
+    let symbol: String
+    let label: LocalizedStringKey
+    @Binding var date: Date?
+
+    var body: some View {
+        SRow(symbol: symbol, label: label) {
+            HStack {
+                Text(date.map(DateRow.text) ?? "Sin fecha").foregroundStyle(date == nil ? .secondary : .primary)
+                    .overlay {
+                        DatePicker("", selection: Binding(get: { date ?? Date() }, set: { date = $0 }), displayedComponents: .date)
+                            .labelsHidden().colorMultiply(.clear).frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                Spacer(minLength: 0)
+                if date != nil {
+                    Button { date = nil } label: { Image(systemName: "xmark.circle.fill").foregroundStyle(.tertiary) }.buttonStyle(.plain)
+                }
+            }
+        }
     }
 }

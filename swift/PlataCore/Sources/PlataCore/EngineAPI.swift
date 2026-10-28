@@ -115,3 +115,13 @@ public extension Engine {
     /// ¿Es un pago de crédito previsto? (tiene `card`)
     func paymentCard(_ e: JSONValue) -> JSONValue? { payOf(e) }
 }
+
+public extension Engine {
+    /// Convierte un monto entre dos monedas con el cambio de la app (redondeado a centavos).
+    func convert(_ n: Double, from: String, to: String) -> Double { Engine.round2(fromUSD(usd(n, from), to)) }
+}
+
+public extension Engine {
+    static func isRepeatQuincenal(_ r: JSONValue) -> Bool { isQ(r) }
+    static func quincenalDays(_ r: JSONValue) -> (Int, Int) { qDays(r.stringValue ?? "") }
+}
