@@ -46,24 +46,22 @@ struct AmountField: View {
     @Binding var text: String
     var placeholder = "0"
     var focus: FocusState<Bool>.Binding
+    static let font = Font.custom("Inter", fixedSize: 52).weight(.bold)
 
     var body: some View {
         VStack(spacing: 0) {
             Text("Monto").font(.inter(17)).foregroundStyle(.secondary)
-            HStack(alignment: .firstTextBaseline, spacing: 4) {
-                Text(symbol).font(.inter(52, .bold, relativeTo: .largeTitle)).tracking(-2)
+            HStack(alignment: .center, spacing: 4) {
+                Text(symbol).font(AmountField.font).tracking(-2)
                 TextField(placeholder, text: $text)
                     .keyboardType(.decimalPad)
-                    .font(.inter(52, .bold, relativeTo: .largeTitle)).tracking(-2)
+                    .font(AmountField.font).tracking(-2)
                     .multilineTextAlignment(.center)
                     .focused(focus)
                     .fixedSize(horizontal: true, vertical: false)
                     .frame(minWidth: 60)
-                    .monospacedDigit()
-                Image(systemName: "pencil").font(.system(size: 18)).opacity(0.34).alignmentGuide(.firstTextBaseline) { $0[.bottom] - 8 }
+                Image(systemName: "pencil").font(.system(size: 18)).opacity(0.34).padding(.leading, 6)
             }
-            .lineLimit(1)
-            .minimumScaleFactor(0.5)
             .contentShape(Rectangle())
             .onTapGesture { focus.wrappedValue = true }
         }
@@ -139,6 +137,7 @@ struct ChipRow: View {
             }
             .padding(.vertical, 2)
         }
+        .scrollClipDisabled()
         .padding(.bottom, 12)
     }
 }

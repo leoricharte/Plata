@@ -56,23 +56,25 @@ struct TransactionSheet: View {
 
                 SCard {
                     SRow(symbol: "creditcard", label: "Cuenta") {
-                        Picker("Cuenta", selection: $account) {
-                            Section("Débito") {
-                                ForEach(Array(e.allAccounts.enumerated()), id: \.offset) { _, a in
-                                    Text(accountLabel(a)).tag(Engine.text(a["id"]))
+                        Menu {
+                            Picker("Cuenta", selection: $account) {
+                                Section("Débito") {
+                                    ForEach(Array(e.allAccounts.enumerated()), id: \.offset) { _, a in
+                                        Text(accountLabel(a)).tag(Engine.text(a["id"]))
+                                    }
                                 }
-                            }
-                            if (isOut || isPayLike) && !e.allCards.isEmpty {
-                                Section("Crédito") {
-                                    ForEach(Array(e.allCards.enumerated()), id: \.offset) { _, k in
-                                        Text(accountLabel(k)).tag(Engine.text(k["id"]))
+                                if (isOut || isPayLike) && !e.allCards.isEmpty {
+                                    Section("Crédito") {
+                                        ForEach(Array(e.allCards.enumerated()), id: \.offset) { _, k in
+                                            Text(accountLabel(k)).tag(Engine.text(k["id"]))
+                                        }
                                     }
                                 }
                             }
+                        } label: {
+                            Text(selectedAccountLabel(e)).foregroundStyle(.primary).lineLimit(1)
+                                .frame(maxWidth: .infinity, alignment: .leading)
                         }
-                        .labelsHidden()
-                        .tint(.primary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     RowDivider()
                     SRow(symbol: "pencil", label: "Nota") {
@@ -100,10 +102,14 @@ struct TransactionSheet: View {
                     }
                     RowDivider()
                     SRow(symbol: "calendar", label: "Fecha") {
-                        HStack {
-                            DatePicker("Fecha", selection: $date, in: ...Date(), displayedComponents: .date).labelsHidden()
-                            Spacer(minLength: 0)
-                        }
+                        Text(Self.dateText(date))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .overlay {
+                                DatePicker("Fecha", selection: $date, in: ...Date(), displayedComponents: .date)
+                                    .labelsHidden()
+                                    .colorMultiply(.clear)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
                     }
                 }
 
@@ -166,6 +172,16 @@ struct TransactionSheet: View {
     private func pick(_ s: Suggestion) {
         note = s.name
         if isOut, s.out, model.engine.categoryNames.contains(s.category) { category = s.category }
+    }
+
+    private func selectedAccountLabel(_ e: Engine) -> String {
+        for a in e.allAccounts + e.allCards where Engine.text(a["id"]) == account { return accountLabel(a) }
+        return ""
+    }
+
+    private static func dateText(_ d: Date) -> String {
+        let c = Calendar.current.dateComponents([.year, .month, .day], from: d)
+        return "\(c.day ?? 1) \(Spanish.monthsShort[(c.month ?? 1) - 1]) \(c.year ?? 2000)"
     }
 
     private func accountLabel(_ a: JSONValue) -> String {
