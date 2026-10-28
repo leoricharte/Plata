@@ -84,3 +84,12 @@ public extension Engine {
         return today.days - day.days
     }
 }
+
+public extension Engine {
+    /// Límites por categoría de un set de presupuesto (nil = presupuesto base).
+    func budgetLimits(_ set: JSONValue?) -> [String: Double] {
+        budOf(set).mapValues { Engine.num($0) }
+    }
+    var budgetSetList: [JSONValue] { list("budgetSets") }
+    var subscriptionList: [JSONValue] { list("subs") }
+}

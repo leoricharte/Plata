@@ -8,7 +8,7 @@ struct RootView: View {
         ZStack {
             switch model.tab {
             case .resumen: ResumenView()
-            case .presupuesto: NavigationStack { ComingSoonView(title: "Presupuesto") }
+            case .presupuesto: NavigationStack { PresupuestoView() }
             case .proyeccion: NavigationStack { ComingSoonView(title: "Proyección") }
             case .cuentas: NavigationStack { ComingSoonView(title: "Cuentas") }
             }
