@@ -261,10 +261,10 @@ struct GlassIcon: View {
 struct PrimaryPillStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.inter(16, .semibold))
+            .font(.inter(18, .semibold))
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
-            .frame(height: 48)
+            .frame(height: 54)
             .background(Color(hex: "#111111"), in: Capsule())
             .opacity(configuration.isPressed ? 0.8 : 1)
     }

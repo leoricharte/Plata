@@ -5,6 +5,7 @@ import PlataCore
 enum Route: Hashable {
     case movimientos
     case month
+    case tx(String)
     case ajustes
     case soon(String)
 }
@@ -50,6 +51,7 @@ struct ResumenView: View {
                 switch route {
                 case .movimientos: MovimientosView()
                 case .month: MonthView()
+                case .tx(let id): TransactionDetailView(id: id)
                 case .ajustes: AjustesView()
                 case .soon(let title): ComingSoonView(title: title)
                 }
@@ -326,7 +328,8 @@ struct ResumenView: View {
                 .padding(.top, 14).padding(.bottom, 12)
                 ForEach(Array(rows.prefix(5).enumerated()), id: \.offset) { _, tx in
                     RowDivider()
-                    TransactionRow(tx: tx, engine: e, fmt: f)
+                    NavigationLink(value: Route.tx(Engine.identifier(tx["id"]))) { TransactionRow(tx: tx, engine: e, fmt: f) }
+                        .buttonStyle(.plain)
                 }
             }
             RowDivider()

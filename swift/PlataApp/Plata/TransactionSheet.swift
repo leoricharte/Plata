@@ -1,7 +1,7 @@
 import SwiftUI
 import PlataCore
 
-/// Hoja para añadir o editar un movimiento.
+/// Hoja para añadir o editar un movimiento, con el diseño de la web (`sheetHTML` / `txEditHTML`).
 struct TransactionSheet: View {
     enum Mode {
         case new
@@ -20,7 +20,6 @@ struct TransactionSheet: View {
     @State private var date = Date()
     @State private var note = ""
     @State private var errorText: String?
-    @State private var confirmDelete = false
     @FocusState private var amountFocused: Bool
 
     private var editedTx: JSONValue? {
@@ -38,77 +37,142 @@ struct TransactionSheet: View {
     var body: some View {
         let e = model.engine
         let f = model.fmt
-        NavigationStack {
-            Form {
+        ScrollView {
+            VStack(spacing: 0) {
+                SheetHead(title: editedTx == nil ? "Nuevo movimiento" : "Editar movimiento", onClose: { dismiss() }, onSave: { save() })
+
+                AmountField(symbol: f.symbol(e.accountCurrency(JSONValue.string(account))), text: $amountText,
+                            placeholder: Money.decimals(e.accountCurrency(JSONValue.string(account))) > 0 ? "0.00" : "0", focus: $amountFocused)
+
                 if !isPayLike {
-                    Section {
-                        Picker("Tipo", selection: $isOut) {
-                            Text("Gasto").tag(true)
-                            Text("Ingreso").tag(false)
-                        }
-                        .pickerStyle(.segmented)
-                        .listRowBackground(Color.clear)
-                        .listRowInsets(EdgeInsets())
-                    }
+                    PillSegmented(items: [(true, "Gasto"), (false, "Ingreso")], selection: $isOut)
+                        .padding(.bottom, 4)
+                    Text(isOut ? "Dinero que sale. Cuenta en tu presupuesto." : "Dinero que entra. Suma a tus ingresos.")
+                        .font(.inter(13)).foregroundStyle(.secondary)
+                        .lineLimit(1).minimumScaleFactor(0.8)
+                        .padding(.top, 8).padding(.bottom, 14).padding(.horizontal, 12)
+                    if isOut { ChipRow(items: e.categoryNames, selection: $category) }
                 }
-                Section("Monto") {
-                    HStack(spacing: 6) {
-                        Text(f.symbol(e.accountCurrency(JSONValue.string(account)))).font(.title2).foregroundStyle(.secondary)
-                        TextField("0", text: $amountText)
-                            .keyboardType(.decimalPad)
-                            .font(.title2.weight(.semibold))
-                            .focused($amountFocused)
-                    }
-                }
-                Section {
-                    if !isPayLike && isOut {
-                        Picker("Categoría", selection: $category) {
-                            ForEach(e.categoryNames, id: \.self) { Text($0).tag($0) }
-                        }
-                    }
-                    Picker("Cuenta", selection: $account) {
-                        ForEach(Array(e.allAccounts.enumerated()), id: \.offset) { _, a in
-                            Text(Engine.text(a["name"])).tag(Engine.text(a["id"]))
-                        }
-                        if isOut || isPayLike {
-                            ForEach(Array(e.allCards.enumerated()), id: \.offset) { _, k in
-                                Text(Engine.text(k["name"])).tag(Engine.text(k["id"]))
+
+                SCard {
+                    SRow(symbol: "creditcard", label: "Cuenta") {
+                        Picker("Cuenta", selection: $account) {
+                            Section("Débito") {
+                                ForEach(Array(e.allAccounts.enumerated()), id: \.offset) { _, a in
+                                    Text(accountLabel(a)).tag(Engine.text(a["id"]))
+                                }
+                            }
+                            if (isOut || isPayLike) && !e.allCards.isEmpty {
+                                Section("Crédito") {
+                                    ForEach(Array(e.allCards.enumerated()), id: \.offset) { _, k in
+                                        Text(accountLabel(k)).tag(Engine.text(k["id"]))
+                                    }
+                                }
                             }
                         }
+                        .labelsHidden()
+                        .tint(.primary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                    DatePicker("Fecha", selection: $date, in: ...Date(), displayedComponents: .date)
-                    TextField("Nota", text: $note)
+                    RowDivider()
+                    SRow(symbol: "pencil", label: "Nota") {
+                        TextField(editedTx == nil ? "Opcional" : "", text: $note)
+                    }
+                    if editedTx == nil {
+                        let list = suggestions(e)
+                        if !list.isEmpty {
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 8) {
+                                    ForEach(list, id: \.name) { s in
+                                        Button { pick(s) } label: {
+                                            Text(s.name).font(.inter(14, .medium)).foregroundStyle(.primary)
+                                                .lineLimit(1)
+                                                .padding(.horizontal, 12).padding(.vertical, 6)
+                                                .background(Color(light: "#E5E5EA", dark: "#2C2C2E"), in: Capsule())
+                                        }
+                                        .buttonStyle(.plain)
+                                    }
+                                }
+                                .padding(.leading, 40)
+                            }
+                            .padding(.bottom, 4)
+                        }
+                    }
+                    RowDivider()
+                    SRow(symbol: "calendar", label: "Fecha") {
+                        HStack {
+                            DatePicker("Fecha", selection: $date, in: ...Date(), displayedComponents: .date).labelsHidden()
+                            Spacer(minLength: 0)
+                        }
+                    }
                 }
+
                 if let errorText {
-                    Section { Text(errorText).foregroundStyle(Brand.loss) }
+                    Text(errorText).font(.inter(14)).foregroundStyle(Brand.lossText).padding(.bottom, 10)
                 }
-                if editedTx != nil {
-                    Section {
-                        Button("Eliminar movimiento", role: .destructive) { confirmDelete = true }
-                    }
-                }
+
+                Button(editedTx == nil ? "Añadir" : "Guardar") { save() }
+                    .buttonStyle(PrimaryPillStyle())
+                    .padding(.bottom, 8)
             }
-            .navigationTitle(editedTx == nil ? "Nuevo movimiento" : "Editar movimiento")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button("Cancelar") { dismiss() } }
-                ToolbarItem(placement: .confirmationAction) { Button("Guardar") { save() } }
-            }
-            .confirmationDialog("¿Eliminar este movimiento?", isPresented: $confirmDelete, titleVisibility: .visible) {
-                Button("Eliminar", role: .destructive) { remove() }
-                Button("Cancelar", role: .cancel) {}
-            } message: {
-                Text("El saldo de la cuenta se corrige.")
-            }
-            .onAppear(perform: load)
-            .onChange(of: isOut) { _, nowOut in
-                // un ingreso no va en una tarjeta
-                if !nowOut, model.engine.allCards.contains(where: { Engine.text($0["id"]) == account }), let first = model.engine.allAccounts.first {
-                    account = Engine.text(first["id"])
-                }
+            .padding(.horizontal, 16)
+            .padding(.top, 16)
+        }
+        .scrollDismissesKeyboard(.interactively)
+        .presentationDetents([.large])
+        .presentationDragIndicator(.visible)
+        .presentationCornerRadius(38)
+        .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))
+        .onAppear(perform: load)
+        .onChange(of: isOut) { _, nowOut in
+            // un ingreso no va en una tarjeta
+            if !nowOut, model.engine.allCards.contains(where: { Engine.text($0["id"]) == account }), let first = model.engine.allAccounts.first {
+                account = Engine.text(first["id"])
             }
         }
-        .presentationDetents([.large])
+    }
+
+    // MARK: sugerencias de nota (lo que ya escribiste antes)
+
+    private struct Suggestion {
+        let name: String
+        var count: Int
+        let category: String
+        let out: Bool
+    }
+
+    private func suggestions(_ e: Engine) -> [Suggestion] {
+        var order: [String] = []
+        var map: [String: Suggestion] = [:]
+        for t in e.allTransactions.reversed() {
+            let n = Engine.text(t["note"]).trimmingCharacters(in: .whitespacesAndNewlines)
+            if n.isEmpty || n.count > 40 || n.hasPrefix("Pago de ") { continue }
+            let k = n.lowercased()
+            if var s = map[k] { s.count += 1; map[k] = s }
+            else { map[k] = Suggestion(name: n, count: 1, category: Engine.text(t["category"]), out: Engine.number(t["amount"]) < 0); order.append(k) }
+        }
+        let q = note.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let filtered = order.compactMap { map[$0] }.filter { q.isEmpty || ($0.name.lowercased().contains(q) && $0.name.lowercased() != q) }
+        let ranked = filtered.enumerated().sorted { a, b in
+            let ap = !q.isEmpty && a.element.name.lowercased().hasPrefix(q) ? 1 : 0
+            let bp = !q.isEmpty && b.element.name.lowercased().hasPrefix(q) ? 1 : 0
+            if ap != bp { return ap > bp }
+            if a.element.count != b.element.count { return a.element.count > b.element.count }
+            return a.offset < b.offset
+        }
+        return Array(ranked.prefix(4).map { $0.element })
+    }
+
+    private func pick(_ s: Suggestion) {
+        note = s.name
+        if isOut, s.out, model.engine.categoryNames.contains(s.category) { category = s.category }
+    }
+
+    private func accountLabel(_ a: JSONValue) -> String {
+        var s = Engine.text(a["name"])
+        let l4 = Engine.text(a["last4"])
+        if !l4.isEmpty { s += " · ● " + l4 }
+        return s + " · " + Engine.text(a["cur"])
     }
 
     // MARK: acciones
@@ -155,10 +219,5 @@ struct TransactionSheet: View {
         } catch {
             errorText = "No se pudo guardar el movimiento."
         }
-    }
-
-    private func remove() {
-        if let tx = editedTx { try? model.deleteTransaction(id: tx["id"] ?? .null) }
-        dismiss()
     }
 }

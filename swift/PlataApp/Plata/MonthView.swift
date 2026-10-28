@@ -56,10 +56,7 @@ struct MonthView: View {
                 .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 26, style: .continuous))
                 .rowStyle(top: 0, bottom: 14)
 
-                Picker("Filtro", selection: $filter) {
-                    ForEach(filters(e)) { item in Text(label(item, e)).tag(item) }
-                }
-                .pickerStyle(.segmented)
+                PillSegmented(items: filters(e).map { ($0, label($0, e)) }, selection: $filter)
                 .rowStyle(top: 0, bottom: 2)
             }
 
@@ -70,7 +67,7 @@ struct MonthView: View {
                         .listRowBackground(Color(.secondarySystemGroupedBackground))
                 }
                 ForEach(Array(slice.enumerated()), id: \.offset) { _, tx in
-                    Button { editing = MovimientosView.TxRef(id: Engine.identifier(tx["id"]), tx: tx) } label: {
+                    Button { model.path.append(.tx(Engine.identifier(tx["id"]))) } label: {
                         TransactionRow(tx: tx, engine: e, fmt: f)
                     }
                     .buttonStyle(.plain)

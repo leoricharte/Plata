@@ -44,10 +44,7 @@ struct MovimientosView: View {
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
 
-                Picker("Filtro", selection: $filter) {
-                    ForEach(Filter.allCases) { Text($0.title).tag($0) }
-                }
-                .pickerStyle(.segmented)
+                PillSegmented(items: Filter.allCases.map { ($0, $0.title) }, selection: $filter)
                 .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 2, trailing: 0))
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
@@ -75,7 +72,7 @@ struct MovimientosView: View {
                         .listRowBackground(Color(.secondarySystemGroupedBackground))
                 }
                 ForEach(Array(rows.enumerated()), id: \.offset) { _, tx in
-                    Button { editing = TxRef(id: Engine.identifier(tx["id"]), tx: tx) } label: {
+                    Button { model.path.append(.tx(Engine.identifier(tx["id"]))) } label: {
                         TransactionRow(tx: tx, engine: e, fmt: f)
                     }
                     .buttonStyle(.plain)
