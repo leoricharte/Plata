@@ -12,7 +12,8 @@ struct PresupuestoView: View {
         let e = model.engine
         let f = model.fmt
         let c = e.calc()
-        let set = e.activeSet()
+        let set = model.viewSet
+        let act = e.activeSet()
         let limits = e.budgetLimits(set)
         let bt = e.categoryNames.reduce(0.0) { $0 + (limits[$1] ?? 0) }
         let left = bt - c.expV
@@ -21,8 +22,8 @@ struct PresupuestoView: View {
             VStack(spacing: 0) {
                 PageHead(eyebrow: bt > 0 ? LocalizedStringKey("Quedan \(dl) \(dl == 1 ? "día" : "días") del mes") : "Planifica tu mes", title: "Presupuesto")
 
-                setCard(set)
-                ringCard(e, c, f, bt, left, dl)
+                setCard(set, active: set == act)
+                ringCard(e, c, f, bt, left, dl, preview: set != act)
 
                 SectionHead("Límites por categoría")
                 ListCard {
@@ -49,22 +50,24 @@ struct PresupuestoView: View {
 
     // MARK: piezas
 
-    private func setCard(_ set: JSONValue?) -> some View {
+    private func setCard(_ set: JSONValue?, active: Bool) -> some View {
         let name = set.map { Engine.text($0["name"]) } ?? "Presupuesto base"
         var sub = "Se usa cuando no hay otro set activo"
         if let set, let a = LocalDate(iso: Engine.text(set["from"])), let b = LocalDate(iso: Engine.text(set["to"])) {
             sub = "Del \(a.day) \(Spanish.monthsShort[a.month0]) al \(b.day) \(Spanish.monthsShort[b.month0])"
         }
-        return Button { soon = true } label: {
+        return Button { model.activeSheet = .budgetSets } label: {
             HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 0) {
                     Text("Set de presupuesto").font(.inter(12)).foregroundStyle(.secondary)
                     HStack(spacing: 4) {
                         Text(name).font(.inter(17, .semibold)).lineLimit(1)
-                        Text("Activo").font(.inter(13, .semibold)).foregroundStyle(Brand.gainTextStrong)
-                            .padding(.horizontal, 10).padding(.vertical, 4)
-                            .background(Brand.gainBg, in: Capsule())
-                            .padding(.leading, 4)
+                        if active {
+                            Text("Activo").font(.inter(13, .semibold)).foregroundStyle(Brand.gainTextStrong)
+                                .padding(.horizontal, 10).padding(.vertical, 4)
+                                .background(Brand.gainBg, in: Capsule())
+                                .padding(.leading, 4)
+                        }
                     }
                     Text(sub).font(.inter(13)).foregroundStyle(.secondary)
                 }
@@ -79,13 +82,16 @@ struct PresupuestoView: View {
         .buttonStyle(.plain)
     }
 
-    private func ringCard(_ e: Engine, _ c: CalcResult, _ f: Fmt, _ bt: Double, _ left: Double, _ dl: Int) -> some View {
+    private func ringCard(_ e: Engine, _ c: CalcResult, _ f: Fmt, _ bt: Double, _ left: Double, _ dl: Int, preview: Bool = false) -> some View {
         let items = c.cats.map { RingChart<AnyView>.Item(value: $0.v, color: Color(hex: $0.color)) }
         return VStack(spacing: 0) {
             RingChart(items: items) {
                 AnyView(
                     VStack(spacing: 0) {
-                        if bt > 0 {
+                        if preview {
+                            Text("Límite del set").font(.inter(13)).foregroundStyle(.secondary)
+                            Text(f.whole(bt)).font(.inter(30, .bold)).tracking(-0.9).lineLimit(1).minimumScaleFactor(0.5)
+                        } else if bt > 0 {
                             Text(left >= 0 ? "Quedan" : "Te pasaste").font(.inter(13)).foregroundStyle(.secondary)
                             Text(f.whole(abs(left))).font(.inter(30, .bold)).tracking(-0.9)
                                 .foregroundStyle(left >= 0 ? Color.primary : Brand.lossText).lineLimit(1).minimumScaleFactor(0.5)

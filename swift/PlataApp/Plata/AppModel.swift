@@ -20,6 +20,9 @@ final class AppModel {
     var showAddTransaction = false
     /// Hoja abierta desde el botón «+» o desde las listas (transferir, ingreso o gasto previsto).
     var activeSheet: ActiveSheet?
+    /// Set de presupuesto que se está viendo: nil = el que rige hoy, «base» o el id de un set.
+    var bsel: String?
+    var viewSet: JSONValue? { engine.viewSet(bsel) }
     /// Última vez que se guardó en el dispositivo (la web lo muestra bajo «Guardado»).
     private(set) var lastSaved: Date? = {
         let t = UserDefaults.standard.double(forKey: "plata.lastSaved")
@@ -206,8 +209,18 @@ final class AppModel {
     func deleteAccountCascade(id: JSONValue) throws { try commit { raw in try ProfileEditor.deleteAccountCascade(&raw, id: id) } }
 
     func saveCategory(original: String?, name: String, color: String, icon: String, limitUSD: Double) throws {
-        let setId = engine.activeSet()?["id"]
+        let setId = viewSet?["id"]
         try commit { raw in try ProfileEditor.saveCategory(&raw, original: original, name: name, color: color, icon: icon, limitUSD: limitUSD, setId: setId) }
+    }
+
+    func saveBudgetSet(id: String, isNew: Bool, name: String, from: String, to: String, cur: String, source: String?) throws {
+        try commit { raw in try ProfileEditor.saveBudgetSet(&raw, id: id, isNew: isNew, name: name, from: from, to: to, cur: cur, sourceSetId: source) }
+        if isNew { bsel = id }
+    }
+
+    func deleteBudgetSet(id: String) {
+        try? commit { raw in ProfileEditor.deleteBudgetSet(&raw, id: id) }
+        if bsel == id { bsel = nil }
     }
 
     func deleteCategory(name: String) throws { try commit { raw in ProfileEditor.deleteCategory(&raw, name: name) } }
@@ -332,6 +345,7 @@ enum ActiveSheet: Identifiable, Hashable {
     case sub(id: String?)
     case category(name: String?)
     case event(key: String)
+    case budgetSets
 
     var id: String {
         switch self {
@@ -346,6 +360,7 @@ enum ActiveSheet: Identifiable, Hashable {
         case .sub(let id): return "sub-\(id ?? "new")"
         case .category(let n): return "category-\(n ?? "new")"
         case .event(let k): return "event-\(k)"
+        case .budgetSets: return "budgetSets"
         }
     }
 }

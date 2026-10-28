@@ -117,7 +117,7 @@ public enum ProfileEditor {
 // MARK: - Transferencias e ingresos / gastos previstos
 
 public extension ProfileEditor {
-    enum FormError: Error, Equatable { case missingName, invalidAmount, invalidDays, endBeforeStart, sameAccount, invalidHours, missingStart, missingCard, invalidDueDay, negativeInterest, overLimit, lastAccount, reservedName, duplicateCategory }
+    enum FormError: Error, Equatable { case missingName, invalidAmount, invalidDays, endBeforeStart, sameAccount, invalidHours, missingStart, missingCard, invalidDueDay, negativeInterest, overLimit, lastAccount, reservedName, duplicateCategory, setOverlap(String) }
 
     /// Transferencia entre cuentas (`xferSubmit` de la web): dos movimientos con el mismo `pair`, y una comisión opcional.
     static func addTransfer(_ p: inout JSONValue, from: String, to: String, amount: Double, received: Double, commission: Double,
@@ -484,6 +484,33 @@ public extension ProfileEditor {
         var sets = p["budgetSets"]?.arrayValue ?? []
         for i in sets.indices { sets[i]["budget"] = fix(sets[i]["budget"]) }
         if p["budgetSets"] != nil { p["budgetSets"] = .array(sets) }
+    }
+
+    // MARK: sets de presupuesto
+
+    /// Crea o edita un set de presupuesto (`bsSave` de la web). Uno nuevo empieza con una copia de los límites de `sourceSetId` (nil = base).
+    static func saveBudgetSet(_ p: inout JSONValue, id: String, isNew: Bool, name: String, from: String, to: String, cur: String, sourceSetId: String?) throws {
+        let nm = String(name.replacingOccurrences(of: "<", with: "").replacingOccurrences(of: ">", with: "")
+            .trimmingCharacters(in: .whitespacesAndNewlines).prefix(40))
+        if nm.isEmpty { throw FormError.missingName }
+        if to < from { throw FormError.endBeforeStart }
+        var sets = p["budgetSets"]?.arrayValue ?? []
+        if let clash = sets.first(where: { Engine.str($0["id"]) != id && Engine.str($0["from"]) <= to && Engine.str($0["to"]) >= from }) {
+            throw FormError.setOverlap(Engine.str(clash["name"]))
+        }
+        if isNew {
+            let src = sourceSetId.flatMap { sid in sets.first { Engine.str($0["id"]) == sid }?["budget"] } ?? p["budget"] ?? .object([:])
+            sets.append(.object(["id": .string(id), "name": .string(nm), "from": .string(from), "to": .string(to), "budget": src, "cur": .string(cur)]))
+        } else if let i = sets.firstIndex(where: { Engine.str($0["id"]) == id }) {
+            sets[i]["name"] = .string(nm); sets[i]["from"] = .string(from); sets[i]["to"] = .string(to); sets[i]["cur"] = .string(cur)
+        }
+        p["budgetSets"] = .array(sets)
+    }
+
+    static func deleteBudgetSet(_ p: inout JSONValue, id: String) {
+        var sets = p["budgetSets"]?.arrayValue ?? []
+        sets.removeAll { Engine.str($0["id"]) == id }
+        p["budgetSets"] = .array(sets)
     }
 
     private static func setBudget(_ p: inout JSONValue, key: String, value: Double?, setId: JSONValue?) {

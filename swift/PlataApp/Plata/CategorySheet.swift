@@ -61,7 +61,7 @@ struct CategorySheet: View {
             color = e.categoryColor(name)
             let cat = (e.data["cats"]?.arrayValue ?? []).first { Engine.text($0["name"]) == name }
             icon = Engine.text(cat?["icon"])
-            let lim = e.budgetLimits(e.activeSet())[name] ?? 0
+            let lim = e.budgetLimits(model.viewSet)[name] ?? 0
             let shown = lim > 0 ? e.fromUSD(lim, e.primaryCurrency) : 0
             limitText = shown == 0 ? "" : (shown == shown.rounded() ? String(Int64(shown)) : String(Engine.roundCents(shown)))
         } else { focus = true }

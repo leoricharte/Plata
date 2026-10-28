@@ -133,3 +133,13 @@ public extension Engine {
 public extension Engine {
     static var cardColorsForApp: [String] { cardColors }
 }
+
+
+public extension Engine {
+    /// El set que se está viendo: «base» (nil), uno elegido por id, o el que rige hoy (`viewSet` de la web).
+    func viewSet(_ selection: String?) -> JSONValue? {
+        if selection == "base" { return nil }
+        if let selection, let s = list("budgetSets").first(where: { Engine.str($0["id"]) == selection }) { return s }
+        return activeSet()
+    }
+}
