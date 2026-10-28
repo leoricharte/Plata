@@ -128,6 +128,7 @@ struct AjustesView: View {
     @State private var loaded = false
     @State private var exportURL: URL?
     @State private var importing = false
+    @State private var wipeHome = false
     @State private var pendingImport: Data?
     @State private var confirmWipe = false
     @State private var showDemos = false
@@ -199,8 +200,8 @@ struct AjustesView: View {
 
                 SCard {
                     LinkRow(symbol: "slider.horizontal.3", title: "Cargar perfil de demostración", color: Brand.green, first: true) { showDemos = true }
-                    LinkRow(symbol: nil, title: "Borrar datos", color: Brand.lossText) { wipe() }
-                    LinkRow(symbol: nil, title: "Borrar datos y regresar a pantalla inicial", color: Brand.lossText) { wipe() }
+                    LinkRow(symbol: nil, title: "Borrar datos", color: Brand.lossText) { wipeHome = false; wipe() }
+                    LinkRow(symbol: nil, title: "Borrar datos y regresar a pantalla inicial", color: Brand.lossText) { wipeHome = true; wipe() }
                 }
 
                 SCard {
@@ -257,7 +258,7 @@ struct AjustesView: View {
             Text("Lo que tienes ahora se sustituye. Guarda antes un archivo si quieres conservarlo.")
         }
         .confirmationDialog("¿Borrar todos tus datos?", isPresented: $confirmWipe, titleVisibility: .visible) {
-            Button("Borrar datos", role: .destructive) { try? model.resetProfile(); load(force: true) }
+            Button("Borrar datos", role: .destructive) { try? model.resetProfile(); load(force: true); if wipeHome { goHome() } }
             Button("Cancelar", role: .cancel) {}
         } message: {
             Text("Esta acción no se puede deshacer. Guarda tu archivo de perfil antes si quieres conservarlos.")
@@ -343,8 +344,10 @@ struct AjustesView: View {
     private func refreshExport() { exportURL = try? model.exportFile() }
 
     private func wipe() {
-        if model.isDemo { try? model.exitDemo() } else { confirmWipe = true }
+        if model.isDemo { try? model.exitDemo(); if wipeHome { goHome() } } else { confirmWipe = true }
     }
+
+    private func goHome() { Welcome.mark(false); model.showWelcome = true }
 
     private func applyImport() {
         guard let data = pendingImport else { return }
@@ -392,6 +395,9 @@ struct ProfileSettingsView: View {
                         .labelsHidden().tint(.primary)
                     }
                 }
+                Text(Spanish.genderExample(gender, nick: nick.isEmpty ? first : nick))
+                    .font(.inter(13)).italic().foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 10).padding(.bottom, 6)
                 if score {
                     SCard {
                         SettingRow("Mostrar puntuaciones", first: true) {

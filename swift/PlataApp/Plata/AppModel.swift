@@ -20,6 +20,8 @@ final class AppModel {
     var showAddTransaction = false
     /// Novedades (historias), «Historia de Plata» y el pedido de opinión: los presenta `RootView`.
     var showNews = false
+    /// La bienvenida (se muestra hasta que la termines, o si no hay datos y nunca la viste).
+    var showWelcome = false
     var showHistory = false
     var showFeedback = false
     var feedbackManual = false
@@ -54,6 +56,7 @@ final class AppModel {
         self.profile = p
         self.today = t
         self.engine = Engine(profile: p, today: t)
+        self.showWelcome = !Welcome.seen && !p.hasData && !p.isDemo
     }
 
     var isDemo: Bool { profile.isDemo }

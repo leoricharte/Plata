@@ -60,6 +60,14 @@ extension Font {
 // MARK: - Textos en español (como la web)
 
 enum Spanish {
+    /// «Ejemplo: «Estás listo, Ana. Bienvenido.»» (`genderExampleL`, en español).
+    static func genderExample(_ g: String, nick: String) -> String {
+        let n = nick.trimmingCharacters(in: .whitespaces)
+        let a = ["m": "Estás listo", "f": "Estás lista"][g] ?? "Todo listo"
+        let b = ["m": "Bienvenido", "f": "Bienvenida"][g] ?? "Te damos la bienvenida"
+        return "Ejemplo: «\(a)\(n.isEmpty ? "" : ", " + n). \(b).»"
+    }
+
     static let monthsFull = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
     static let monthsShort = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"]
     static let weekdaysFull = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"]

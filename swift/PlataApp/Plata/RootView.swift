@@ -33,6 +33,7 @@ struct RootView: View {
             case .confirm(let k, let i, let p): ConfirmSheet(kind: k, id: i, pick: p)
             }
         }
+        .fullScreenCover(isPresented: $model.showWelcome) { WelcomeView().interactiveDismissDisabled() }
         .fullScreenCover(isPresented: $model.showNews) { NewsStoryView() }
         .sheet(isPresented: $model.showHistory) { HistorySheet() }
         .feedbackAlert(isPresented: $model.showFeedback, manual: model.feedbackManual)
