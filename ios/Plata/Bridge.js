@@ -47,7 +47,7 @@
       bar: box('tabbar'), plus: box('plusbtn'), gear: box('gearbtn'),
       compact: !!(bar && bar.classList.contains('compact')),
       gdot: gd ? (gd.classList.contains('gone') ? 2 : (gd.classList.contains('dirty') ? 1 : 0)) : 0,
-      on: on, labels: labels, plusLabel: lbl('plusbtn'), gearLabel: lbl('gearbtn'),
+      on: on, tab: root.getAttribute('data-tab') || '', labels: labels, plusLabel: lbl('plusbtn'), gearLabel: lbl('gearbtn'),
       theme: root.getAttribute('data-theme') || ''
     };
     var s = JSON.stringify(m);

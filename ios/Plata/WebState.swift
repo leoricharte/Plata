@@ -66,6 +66,7 @@ struct WebState: Equatable {
     var compact = false
     var gdot = 0            // 0 nada · 1 cambios sin guardar (naranja) · 2 nube: falta algo (rojo)
     var on = "resumen"
+    var tab = ""            // valor de data-tab en la web (resumen, cuenta, movimientos…)
     var labels: [String: String] = [:]
     var plusLabel = ""
     var gearLabel = ""
@@ -77,6 +78,7 @@ struct WebState: Equatable {
         compact = (b["compact"] as? Bool) ?? false
         gdot = (b["gdot"] as? NSNumber)?.intValue ?? 0
         on = (b["on"] as? String) ?? ""
+        tab = (b["tab"] as? String) ?? ""
         labels = (b["labels"] as? [String: String]) ?? [:]
         plusLabel = (b["plusLabel"] as? String) ?? ""
         gearLabel = (b["gearLabel"] as? String) ?? ""
