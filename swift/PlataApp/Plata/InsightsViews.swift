@@ -104,6 +104,8 @@ struct InsightsBanner: View {
     }
 }
 
+private struct CatChange { let name: String; let now: Double; let before: Double }
+
 /// El informe de Insights: nota, comparativa con el mes anterior, categorías, ritmo, lo más grande y lo comprometido.
 struct InsightsView: View {
     @Environment(AppModel.self) private var model
@@ -197,11 +199,18 @@ struct InsightsView: View {
         let closed = !m.isCur && !isHalf
         var why: [(Character, String)] = []
         if let ps = m.ps {
-            why.append((ps <= 0 ? "▲" : "▼", (closed ? "Gastaste " : "Gastas ") + "\(Int((abs(ps) * 100).rounded()))% " + (ps <= 0 ? "menos" : "más") + " que en \(pm)" + (closed ? "" : " a esta altura")))
+            let verb: String = closed ? "Gastaste " : "Gastas "
+            let amount: String = "\(Int((abs(ps) * 100).rounded()))% "
+            let dirWord: String = ps <= 0 ? "menos" : "más"
+            let tail: String = closed ? "" : " a esta altura"
+            why.append((ps <= 0 ? "▲" : "▼", verb + amount + dirWord + " que en " + pm + tail))
         }
         if let rc = m.rateC {
             let ahead = m.rateP != nil && rc >= (m.rateP ?? 0)
-            why.append((ahead ? "▲" : "▼", (closed ? "Ahorraste el " : "Estás ahorrando el ") + "\(Int((rc * 100).rounded()))% de tus ingresos" + (m.rateP.map { " (antes \(Int(($0 * 100).rounded()))%)" } ?? "")))
+            let lead: String = closed ? "Ahorraste el " : "Estás ahorrando el "
+            var line: String = lead + "\(Int((rc * 100).rounded()))% de tus ingresos"
+            if let rp = m.rateP { line += " (antes \(Int((rp * 100).rounded()))%)" }
+            why.append((ahead ? "▲" : "▼", line))
         }
         if m.limCount > 0 { why.append((m.within == m.limCount ? "▲" : "▼", "\(m.within) de \(m.limCount) categorías dentro de su límite")) }
         if m.contrib { why.append(("▲", "Aportaste a tus metas este mes (+5 de bonus)")) }
@@ -278,10 +287,14 @@ struct InsightsView: View {
 
     @ViewBuilder
     private func changedCategories(_ e: Engine, _ f: Fmt, _ m: InsightsModel, _ isHalf: Bool) -> some View {
-        let rows = e.categoryNames.map { k -> (String, Double, Double) in (k, m.cur.cat[k] ?? 0, m.prev.cat[k] ?? 0) }
-            .filter { $0.1 > 0 || $0.2 > 0 }
-            .sorted { abs($0.1 - $0.2) > abs($1.1 - $1.2) }
-            .prefix(3)
+        var all: [CatChange] = []
+        for k in e.categoryNames {
+            let a: Double = m.cur.cat[k] ?? 0
+            let b: Double = m.prev.cat[k] ?? 0
+            if a > 0 || b > 0 { all.append(CatChange(name: k, now: a, before: b)) }
+        }
+        all.sort { (x: CatChange, y: CatChange) -> Bool in abs(x.now - x.before) > abs(y.now - y.before) }
+        let rows = Array(all.prefix(3))
         if !isHalf, m.prev.n > 0, !rows.isEmpty {
             VStack(alignment: .leading, spacing: 8) {
                 SectionHead("Categorías que más cambiaron")
@@ -289,13 +302,13 @@ struct InsightsView: View {
                     ForEach(Array(rows.enumerated()), id: \.offset) { i, r in
                         if i > 0 { RowDivider() }
                         HStack(spacing: 12) {
-                            Tile(symbol: e.catSymbol(r.0), color: Color(hex: e.categoryColor(r.0)))
+                            Tile(symbol: e.catSymbol(r.name), color: Color(hex: e.categoryColor(r.name)))
                             VStack(alignment: .leading, spacing: 2) {
-                                Text(r.0).font(.inter(16, .semibold)).tracking(-0.3)
-                                Text("\(f.whole(r.2)) → \(f.whole(r.1))").font(.inter(13)).foregroundStyle(.secondary)
+                                Text(r.name).font(.inter(16, .semibold)).tracking(-0.3)
+                                Text("\(f.whole(r.before)) → \(f.whole(r.now))").font(.inter(13)).foregroundStyle(.secondary)
                             }
                             Spacer(minLength: 8)
-                            if r.2 > 0 { chip((r.1 - r.2) / r.2, upIsBad: true) } else { Text("nuevo").font(.inter(15, .semibold)).foregroundStyle(.secondary) }
+                            if r.before > 0 { chip((r.now - r.before) / r.before, upIsBad: true) } else { Text("nuevo").font(.inter(15, .semibold)).foregroundStyle(.secondary) }
                         }
                         .padding(.vertical, 10)
                     }
