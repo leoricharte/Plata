@@ -49,4 +49,9 @@ jobs:
       - name: Errores de compilación
         if: failure()
         working-directory: swift/PlataApp
-        run: grep -E "error:" build.log | sort -u | head -60 || true
+        run: |
+          # cada error sale como anotación del job (se puede leer con la API de GitHub)
+          grep -E "error:" build.log | sort -u | head -40 | while IFS= read -r l; do
+            m=$(printf '%s' "$l" | sed 's/%/%25/g')
+            echo "::error::$m"
+          done || true
