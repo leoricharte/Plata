@@ -485,7 +485,7 @@ final class CloudModel {
         let t0 = Date()
         linkTask = Task { [weak self] in
             var c: String?, nn: String?, apub: String?
-            func back(_ msg: String) { f.err = msg; f.step = .email; f.linkCode = "" }
+            @MainActor func back(_ msg: String) { f.err = msg; f.step = .email; f.linkCode = "" }
             while !Task.isCancelled {
                 try? await Task.sleep(for: .seconds(2))
                 guard let self, !Task.isCancelled, f.step == .linkwait else { return }
