@@ -1,6 +1,6 @@
 # Plata iOS (SwiftUI nativo) — estado y pendientes
 
-Documento para pasarle a otra IA o a otra persona. Actualizado: 28 oct 2026. Avance estimado: **68 %**.
+Documento para pasarle a otra IA o a otra persona. Actualizado: 28 oct 2026. Avance estimado: **75 %**.
 
 ## Contexto
 
@@ -37,7 +37,7 @@ Hojas: movimiento nuevo/editar, transferir, ingreso previsto, gasto previsto, pa
 14. **Ahorro**: resto de la web si falta algo (revisar `renderAhorro`).
 
 ### Datos, importación y ajustes
-15. **Importar de Nazca** (flujo por banco: BCP, Interbank, etc.) y otros importadores.
+15. **Importar de Nazca**: hecho en el dispositivo — CSV, Excel de Yape y PDF (16 lectores de banco + lectura genérica, clave/DNI, «Leerlo como…», PDF protegidos en lote). Pendiente: verificar los lectores contra la web en el CI (`NazcaPDFReadersTests`) y probar con estados reales; «Mandar archivo a Nazca» depende de Plata Cloud.
 16. **Cambio de moneda principal** (flujo completo), monedas activas, tipo de cambio.
 17. Perfil: **Idioma**, **Tema** (claro/oscuro/auto), **Tutorial**, avatar/color.
 18. Cargar/guardar archivo de perfil (hay base), exportar, borrar todo, perfiles demo.
