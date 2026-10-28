@@ -19,6 +19,19 @@ Versión nativa de Plata para Apple (iPhone, iPad, Mac y Apple Watch). Convive c
 | `Engine.swift` + `Currencies.swift` | Resumen del mes, eventos futuros, proyección, impacto de simulaciones, pendientes y simulador de deuda. | `calc`, `genEvents`, `projection`, `dailySeries`, `simImpact`, `pendingItems`, `payoff` |
 | `SessionStore.swift` | Semilla y token en el **Llavero**; estado y base en disco; `ProfileStore` para el perfil. | `localStorage` |
 
+## La app (`PlataApp/`)
+
+SwiftUI nativo sobre `PlataCore`, con las convenciones de iOS (TabView, NavigationStack, listas, hojas, Swift Charts). El diseño no copia la web: sigue el sistema, y en iOS 26+ el vidrio y las barras salen solos.
+
+```
+brew install xcodegen          # una vez
+cd swift/PlataApp && xcodegen && open Plata.xcodeproj
+```
+
+En Xcode: target **Plata** → Signing & Capabilities → tu Team. Piso iOS 18, solo iPhone por ahora.
+
+Hecho: Resumen, Movimientos (buscar, filtrar, editar, borrar), hoja de movimiento, Ajustes (nombre, colchón, gasto variable, tipo de cambio, exportar/importar archivo de perfil).
+
 ## Compatibilidad (lo importante)
 
 - **Archivo de perfil:** es el mismo JSON de la web (`dev/docs/DATOS.md`). Un archivo exportado en la web se importa en Swift y al revés. Los campos desconocidos se conservan.
@@ -41,7 +54,7 @@ cd swift/PlataCore && swift test
 1. Compilar y pasar las pruebas en la Mac (este código se escribió sin compilador).
 2. `migrate()` completo: el saneado de textos, colores e iconos de la web (`safeProfile`).
 3. Motor de cálculo: hecho (`Engine`), probado contra 70 perfiles. Falta el motor de puntaje e insights (`monthScore`, `insightsModel`).
-4. Pantallas SwiftUI: Resumen, Movimientos, Ajustes; después Presupuesto, Proyección y Deuda.
+4. Pantallas SwiftUI: hechas Resumen, Movimientos y Ajustes. Faltan Presupuesto, Proyección, Deuda y Ahorro; confirmar ingresos/gastos previstos y pagos; cambio de moneda; transferencias y pagos de tarjeta.
 5. Inicio de sesión en la nube (pantallas) y aprobación desde otro dispositivo (`/link/*`).
 6. Importación de CSV/PDF del banco (Nazca) y las 6 lenguas.
 
