@@ -1,6 +1,6 @@
 # Plata iOS (SwiftUI nativo) — estado y pendientes
 
-Documento para pasarle a otra IA o a otra persona. Actualizado: 28 oct 2026. Avance estimado: **51 %**.
+Documento para pasarle a otra IA o a otra persona. Actualizado: 28 oct 2026. Avance estimado: **53 %**.
 
 ## Contexto
 
@@ -60,3 +60,7 @@ Hojas: movimiento nuevo/editar, transferir, ingreso previsto, gasto previsto, pa
 - Siempre abrir primero la parte equivalente en `dev/app/src/app.html` y copiar textos, orden y medidas.
 - Lógica de negocio en `PlataCore` (con pruebas), no en las vistas.
 - Después de cada cambio: push a `swift-nativo` y mirar el resultado del workflow `Swift` en GitHub Actions.
+
+## Avatar del perfil (hecho, sin revisar en pantalla)
+
+`Avatar.swift` (aro + insignia con recorte, laurel, héroe del perfil), `ProfilePhoto.swift` (selector de foto y editor de recorte), `ProfileView.swift` (Perfil en modo lectura; «Editar» abre el formulario). Falta revisar a ojo contra la web: posición de la persona sin foto, tamaño de la letra de la insignia y laurel. No incluye Idioma/Apariencia/Tutorial del Perfil ni el widget de bento.
