@@ -47,6 +47,15 @@ public enum Onboarding {
         return (all[level] ?? []).filter { ($0 != "imp") || importer }
     }
 
+    /// `normCustom`: hasta 3 caracteres (letras, números o símbolos de moneda) que no sean una moneda conocida.
+    public static func normCustom(_ raw: String) -> String {
+        let up = raw.trimmingCharacters(in: .whitespacesAndNewlines).uppercased().filter { !$0.isWhitespace }
+        let s = String(up.prefix(3))
+        let ok = CharacterSet.letters.union(.decimalDigits).union(CharacterSet(charactersIn: "$€£¥₿₽₩₹₫₺₴"))
+        guard !s.isEmpty, s.unicodeScalars.allSatisfy({ ok.contains($0) }), Currencies.table[s] == nil else { return "" }
+        return s
+    }
+
     /// Categorías del paso de presupuesto (todas menos «Otros»).
     public static var budgetCategories: [String] { Currencies.defaultCategories.map(\.name).filter { $0 != "Otros" } }
 
@@ -407,4 +416,9 @@ public enum Onboarding {
         "America/Atikokan": "CAD",
         "America/Pangnirtung": "CAD"
     ]
+}
+
+public extension Currencies {
+    static func name(_ code: String) -> String? { table[code]?.name }
+    static var all: [String] { Array(table.keys) }
 }

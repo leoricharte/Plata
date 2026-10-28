@@ -371,7 +371,14 @@ struct ProfileSettingsView: View {
     @State private var last = ""
     @State private var nick = ""
     @State private var fxText = ""
+    @State private var customText = ""
     @State private var loaded = false
+    @State private var pendingCur: PendingCurrency?
+    @State private var manualRate = ""
+    @State private var askingRate = false
+    @State private var notice: String?
+
+    struct PendingCurrency { var primary: String; var secondary: String; var plan: CurrencyChange.Plan }
 
     var body: some View {
         let e = model.engine
@@ -421,17 +428,32 @@ struct ProfileSettingsView: View {
                 TutorialCard()
 
                 SCard {
-                    SettingRow("Moneda principal", note: LocalizedStringKey(e.primaryCurrency), first: true) {
-                        Text("\(f.symbol(e.primaryCurrency).trimmingCharacters(in: .whitespaces)) \(e.primaryCurrency)").font(.inter(17)).foregroundStyle(.secondary)
+                    SettingRow("Moneda principal", note: LocalizedStringKey(currencyName(e.primaryCurrency)), first: true) {
+                        Picker("Moneda principal", selection: Binding(get: { e.primaryCurrency }, set: { chooseCurrencies($0, $0 == e.secondaryCurrency ? e.primaryCurrency : e.secondaryCurrency) })) {
+                            ForEach(profileCurrencyOrder(e), id: \.self) { Text("\($0) (\(f.symbol($0).trimmingCharacters(in: .whitespaces)))").tag($0) }
+                        }
+                        .labelsHidden().tint(.primary)
                     }
-                    SettingRow("Segunda moneda", note: e.secondaryCurrency.isEmpty ? "Opcional" : LocalizedStringKey(e.secondaryCurrency)) {
-                        Text(e.secondaryCurrency.isEmpty ? "Ninguna" : "\(f.symbol(e.secondaryCurrency).trimmingCharacters(in: .whitespaces)) \(e.secondaryCurrency)").font(.inter(17)).foregroundStyle(.secondary)
+                    SettingRow("Segunda moneda", note: e.secondaryCurrency.isEmpty ? "Opcional" : LocalizedStringKey(currencyName(e.secondaryCurrency))) {
+                        Picker("Segunda moneda", selection: Binding(get: { e.secondaryCurrency }, set: { chooseCurrencies(e.primaryCurrency, $0) })) {
+                            Text("Ninguna").tag("")
+                            ForEach(profileCurrencyOrder(e).filter { $0 != e.primaryCurrency }, id: \.self) { Text("\($0) (\(f.symbol($0).trimmingCharacters(in: .whitespaces)))").tag($0) }
+                            Section("Otras monedas") {
+                                ForEach(otherCurrencyCodes.filter { $0 != e.primaryCurrency }, id: \.self) { Text("\($0) (\(f.symbol($0).trimmingCharacters(in: .whitespaces)))").tag($0) }
+                            }
+                        }
+                        .labelsHidden().tint(.primary)
                     }
                     if !e.secondaryCurrency.isEmpty {
                         SettingRow(LocalizedStringKey("1 \(e.primaryCurrency) en \(e.secondaryCurrency)")) { MiniField(placeholder: "", text: $fxText) }
                     }
+                    SettingRow("Moneda personalizada", note: "Hasta 3 caracteres, p. ej. ARS") {
+                        MiniField(placeholder: "", text: $customText, width: 78, numeric: false)
+                            .textInputAutocapitalization(.characters)
+                            .onSubmit { applyCustom() }
+                    }
                 }
-                SettingsNote(text: "Puedes usar hasta 2 monedas a la vez. El tipo de cambio es tuyo: edítalo cuando cambie. Cambiar de moneda llega en una próxima versión de la app.")
+                SettingsNote(text: "Puedes usar hasta 2 monedas a la vez. El tipo de cambio es tuyo: edítalo cuando cambie.")
             }
             .padding(.horizontal, 20)
             .padding(.bottom, 24)
@@ -440,12 +462,72 @@ struct ProfileSettingsView: View {
         .navigationBarTitleDisplayMode(.inline)
         .scrollDismissesKeyboard(.interactively)
         .onAppear(perform: load)
-        .onDisappear(perform: commit)
+        .onDisappear { applyCustom(); commit() }
+        .confirmationDialog("Cambiar de moneda", isPresented: Binding(get: { pendingCur != nil && !askingRate }, set: { if !$0 && !askingRate { pendingCur = nil } }), titleVisibility: .visible) {
+            if let p = pendingCur {
+                Button("Mantener los montos") { finishCurrencies(.keep) }
+                Button(p.plan.assigned > 0 ? "Convertir al tipo asignado (1 \(p.plan.lost.joined(separator: ", ")) = \(plain(p.plan.assigned)) \(p.primary))" : "Convertir al tipo asignado") { finishCurrencies(.assigned) }
+                if p.plan.single { Button("Usar otro tipo de cambio") { manualRate = plain(p.plan.assigned); askingRate = true } }
+                Button("Cancelar", role: .cancel) { pendingCur = nil }
+            }
+        } message: {
+            if let p = pendingCur { Text("\(p.plan.lost.joined(separator: ", ")) → \(p.primary)\n¿Qué hacemos con los montos?") }
+        }
+        .alert("Tipo de cambio", isPresented: $askingRate) {
+            TextField("0.00", text: $manualRate).keyboardType(.decimalPad)
+            Button("Convertir") {
+                let r = Double(manualRate.replacingOccurrences(of: ",", with: ".")) ?? 0
+                if r > 0 { finishCurrencies(.manual(r)) } else { notice = "Escribe un tipo de cambio válido" }
+                askingRate = false
+            }
+            Button("Cancelar", role: .cancel) { askingRate = false; pendingCur = nil }
+        } message: {
+            if let p = pendingCur { Text("1 \(p.plan.lost.joined(separator: ", ")) = ? \(p.primary)") }
+        }
+        .alert("Moneda", isPresented: Binding(get: { notice != nil }, set: { if !$0 { notice = nil } })) {
+            Button("Entendido", role: .cancel) {}
+        } message: { Text(notice ?? "") }
+    }
+
+    private func plain(_ v: Double) -> String { v == v.rounded() ? String(Int64(v)) : String(v) }
+
+    private func currencyName(_ c: String) -> String { c == model.engine.customCurrency ? "Personalizada" : (Currencies.name(c) ?? "") }
+
+    private var otherCurrencyCodes: [String] { Currencies.all.filter { !wCurGrid.contains($0) && $0 != model.engine.customCurrency }.sorted() }
+
+    private func profileCurrencyOrder(_ e: Engine) -> [String] {
+        wCurGrid + (e.customCurrency.isEmpty ? [] : [e.customCurrency]) + [e.primaryCurrency, e.secondaryCurrency].filter { !$0.isEmpty && !wCurGrid.contains($0) && $0 != e.customCurrency }
+    }
+
+    /// `applyCurrencies`: si algo queda en una moneda que ya no se usa, se pregunta qué hacer con los montos.
+    private func chooseCurrencies(_ p: String, _ sRaw: String) {
+        let sec = sRaw == p ? "" : sRaw
+        if p == model.engine.primaryCurrency && sec == model.engine.secondaryCurrency { return }
+        let plan = model.currencyPlan(primary: p, secondary: sec)
+        if plan.needsAsk { pendingCur = PendingCurrency(primary: p, secondary: sec, plan: plan) }
+        else { model.applyCurrencies(primary: p, secondary: sec, mode: .keep); refreshFx() }
+    }
+
+    private func finishCurrencies(_ mode: CurrencyChange.Mode) {
+        guard let p = pendingCur else { return }
+        model.applyCurrencies(primary: p.primary, secondary: p.secondary, mode: mode)
+        pendingCur = nil
+        refreshFx()
+    }
+
+    private func refreshFx() {
+        let fx = Engine.number(model.engine.data["settings"]?["fx"])
+        fxText = fx == 0 ? "" : plain(fx)
+    }
+
+    private func applyCustom() {
+        if let msg = model.setCustomCurrency(customText) { notice = msg; customText = model.engine.customCurrency }
     }
 
     private func load() {
         if loaded { return }
         loaded = true
+        customText = model.engine.customCurrency
         let s = model.engine.data["settings"]
         first = Engine.text(s?["first"]); last = Engine.text(s?["last"]); nick = Engine.text(s?["nick"])
         let fx = Engine.number(s?["fx"])

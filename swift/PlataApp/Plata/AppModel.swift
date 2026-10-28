@@ -403,6 +403,45 @@ final class AppModel {
         }
     }
 
+    // MARK: monedas
+
+    func currencyPlan(primary: String, secondary: String) -> CurrencyChange.Plan {
+        CurrencyChange.plan(profile.raw, primary: primary, secondary: secondary)
+    }
+
+    func applyCurrencies(primary: String, secondary: String, mode: CurrencyChange.Mode) {
+        try? commit { raw in CurrencyChange.apply(&raw, primary: primary, secondary: secondary, mode: mode) }
+    }
+
+    /// `setCustomCur`: devuelve un aviso si no se pudo.
+    func setCustomCurrency(_ text: String) -> String? {
+        let c = Onboarding.normCustom(text)
+        if !text.trimmingCharacters(in: .whitespaces).isEmpty && c.isEmpty { return "Código no válido" }
+        let old = Engine.text(engine.data["settings"]?["customCur"])
+        if c == old { return nil }
+        let items = ["accounts", "cards", "subs", "savings"].flatMap { engine.data[$0]?.arrayValue ?? [] }
+        if c.isEmpty, !old.isEmpty, [engine.primaryCurrency, engine.secondaryCurrency].contains(old) || items.contains(where: { Engine.text($0["cur"]) == old }) {
+            return "Esa moneda está en uso"
+        }
+        try? commit { raw in
+            if !old.isEmpty, !c.isEmpty {
+                for key in ["accounts", "cards", "subs", "savings"] {
+                    var list = raw[key]?.arrayValue ?? []
+                    for i in list.indices where Engine.text(list[i]["cur"]) == old { list[i]["cur"] = .string(c) }
+                    raw[key] = .array(list)
+                }
+            }
+            var s = raw["settings"] ?? .object([:])
+            if !old.isEmpty, !c.isEmpty {
+                if Engine.text(s["currency"]) == old { s["currency"] = .string(c) }
+                if Engine.text(s["currency2"]) == old { s["currency2"] = .string(c) }
+            }
+            s["customCur"] = .string(c)
+            raw["settings"] = s
+        }
+        return nil
+    }
+
     func setSetting(_ key: String, _ value: JSONValue) {
         let old = profile.raw["settings"]?[key]
         if old == value { return }

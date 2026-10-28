@@ -244,7 +244,7 @@ struct WelcomeStepView: View {
     private static func plain(_ v: Double) -> String { v == v.rounded() ? String(Int64(v)) : String(v) }
 
     private func setCustom(_ raw: String) {
-        let c = String(raw.uppercased().filter { !$0.isWhitespace }.prefix(3))
+        let c = Onboarding.normCustom(raw)
         let old = w.custom
         if c == old { return }
         let i = w.cur.firstIndex(of: old)
