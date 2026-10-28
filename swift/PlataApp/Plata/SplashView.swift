@@ -1,19 +1,5 @@
 import SwiftUI
 
-/// Un rectángulo con un círculo hueco en el centro: al crecer el círculo, la pantalla verde se abre y deja ver la app.
-private struct CircleHole: Shape {
-    var radius: CGFloat
-    var animatableData: CGFloat {
-        get { radius }
-        set { radius = newValue }
-    }
-    func path(in rect: CGRect) -> Path {
-        var p = Path(rect)
-        p.addEllipse(in: CGRect(x: rect.midX - radius, y: rect.midY - radius, width: radius * 2, height: radius * 2))
-        return p
-    }
-}
-
 /// Pantalla de inicio: el mismo verde y logo blanco de la pantalla de arranque del sistema, y luego se abre en círculo.
 struct SplashView: View {
     var opening: Bool
@@ -41,7 +27,17 @@ struct SplashView: View {
                 .opacity(opening ? 0 : 1)
             }
             .frame(width: geo.size.width, height: geo.size.height)
-            .mask(CircleHole(radius: opening ? far : 0).fill(style: FillStyle(eoFill: true)))
+            .mask {
+                // un rectángulo con un círculo hueco en el centro que crece y deja ver la app
+                Rectangle()
+                    .overlay {
+                        Circle()
+                            .frame(width: opening ? far * 2 : 0, height: opening ? far * 2 : 0)
+                            .blendMode(.destinationOut)
+                    }
+                    .compositingGroup()
+                    .animation(.easeInOut(duration: 0.75), value: opening)
+            }
         }
         .ignoresSafeArea()
         .allowsHitTesting(!opening)

@@ -1,6 +1,6 @@
 # Plata iOS (SwiftUI nativo) — estado y pendientes
 
-Documento para pasarle a otra IA o a otra persona. Actualizado: 28 oct 2026.
+Documento para pasarle a otra IA o a otra persona. Actualizado: 28 oct 2026. Avance estimado: **43 %**.
 
 ## Contexto
 
@@ -16,20 +16,18 @@ Documento para pasarle a otra IA o a otra persona. Actualizado: 28 oct 2026.
 ## Ya hecho
 
 Resumen (KPIs, próximos ingresos/gastos, mes, presupuesto, categorías, cuentas, «Más»), Movimientos, detalle de movimiento (editar/eliminar), Mes (nota, filtro, paginación), Presupuesto (anillo, límites, servicios), Proyección (calendario, gráfica, ingresos/gastos previstos, trabajos, simulaciones), Ahorro (anillo, metas, aportar), Cuentas (débito, crédito, intereses), Ajustes y Perfil, splash verde, barra del sistema.
-Hojas: movimiento nuevo/editar, transferir, ingreso previsto, gasto previsto, pago de crédito previsto, trabajo, simular gasto/pago (activar, ejecutar), meta de ahorro, aportar.
+Hojas: movimiento nuevo/editar, transferir, ingreso previsto, gasto previsto, pago de crédito previsto, trabajo, simular gasto/pago (activar, ejecutar), meta de ahorro, aportar, cuenta de débito, tarjeta o préstamo y suscripción (con aviso de datos ligados, ocultar o eliminar todo). Ahorro es pestaña propia. Splash verde con apertura en círculo. Barra de pestañas nativa (Liquid Glass en iOS 26) y «+» en la barra superior.
 
 ## Pendientes
 
 ### Formularios y acciones (muchos botones muestran hoy «Llega en la siguiente versión»)
-1. **Cuenta de débito**: crear/editar/eliminar (nombre, últimos 4, tipo corriente/ahorros/efectivo, rendimiento, moneda, saldo, color, icono) y ocultar.
-2. **Tarjeta o préstamo**: crear/editar/eliminar (tipo, límite, interés anual, pago mensual, día de pago, saldo adeudado, color, icono).
-3. **Servicios y suscripciones**: crear/editar/eliminar (nombre, día de cobro, cuenta, moneda, monto).
-4. **Categorías y límites**: crear/renombrar/eliminar categoría (color, icono, límite mensual) y **sets de presupuesto** (`bsets`).
-5. **Posponer** un ingreso/gasto previsto o pendiente, y **confirmar** lo «Por confirmar» (confirmar, ajustar monto, adelantar).
-6. **Pago de crédito real** (registrar pago desde la pantalla de tarjeta) y **simular pago extra** de deuda.
-7. **Acciones de fila**: deslizar para editar/eliminar, menús de **ordenar** (cuentas, tarjetas, categorías) y filtros (anillo de deuda).
-8. Detalle de movimiento: «Posponer», extras de trabajo, pares de transferencia.
-9. Editar meta: historial de aportes (`log`), consejos bajo cada meta (`savingInsight`).
+1. Selector de **icono** para cuentas y tarjetas (hoy solo se elige color).
+2. **Categorías y límites**: crear/renombrar/eliminar categoría (color, icono, límite mensual) y **sets de presupuesto** (`bsets`).
+3. **Posponer** un ingreso/gasto previsto o pendiente, y **confirmar** lo «Por confirmar» (confirmar, ajustar monto, adelantar).
+4. **Pago de crédito real** (registrar pago desde la pantalla de tarjeta) y **simular pago extra** de deuda.
+5. **Acciones de fila**: deslizar para editar/eliminar, menús de **ordenar** (cuentas, tarjetas, categorías) y filtros (anillo de deuda).
+6. Detalle de movimiento: «Posponer», extras de trabajo, pares de transferencia.
+7. Editar meta: historial de aportes (`log`), consejos bajo cada meta (`savingInsight`).
 
 ### Pantallas y bloques del Resumen
 10. **Insights**: banners, evaluación mensual F→S, «half-time», revisión, tendencias, consejos por pantalla (presupuesto, ahorro, deuda).
