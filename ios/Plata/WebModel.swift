@@ -28,7 +28,7 @@ final class WebModel: NSObject, ObservableObject {
             ucc.addUserScript(WKUserScript(source: js, injectionTime: .atDocumentStart, forMainFrameOnly: true))
         }
 
-        webView = WKWebView(frame: .zero, configuration: cfg)
+        webView = PlataWebView(frame: .zero, configuration: cfg)
         super.init()
 
         webView.configuration.userContentController.add(WeakHandler(self), name: "plata")
@@ -204,5 +204,21 @@ extension WebModel: WKUIDelegate {
             UIApplication.shared.open(url)
         }
         return nil
+    }
+}
+
+
+/// WKWebView cuya área segura es la del dispositivo (hora, isla, indicador de inicio).
+/// Con la barra de pestañas del sistema, UIKit le sumaría la altura de la barra; la web ya reserva ese espacio por su cuenta
+/// y, si el valor cambiara, todo el diseño (env(safe-area-inset-*)) se movería.
+final class PlataWebView: WKWebView {
+    override var safeAreaInsets: UIEdgeInsets {
+        guard NativeFlags.systemTabBar, let w = window else { return super.safeAreaInsets }
+        return w.safeAreaInsets
+    }
+
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        safeAreaInsetsDidChange()
     }
 }

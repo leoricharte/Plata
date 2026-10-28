@@ -55,8 +55,8 @@ struct NativeBar: View {
             ZStack(alignment: .topLeading) {
                 ForEach(state.btns) { b in nativeButton(b) }
                 // Cuando la web oculta un control (opacidad ~0) se quita del todo: el vidrio de iOS 26 no siempre respeta .opacity(0)
-                if state.bar.isUsable && state.bar.o > 0.02 { pill }
-                if state.plus.isUsable && state.plus.o > 0.02 {
+                if !NativeFlags.systemTabBar && state.bar.isUsable && state.bar.o > 0.02 { pill }
+                if !NativeFlags.systemTabBar && state.plus.isUsable && state.plus.o > 0.02 {
                     roundButton(state.plus, asset: "btn-plus", sf: "plus", label: state.plusLabel, action: .plus)
                 }
                 if state.gear.isUsable && state.gear.o > 0.02 {

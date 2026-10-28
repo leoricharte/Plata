@@ -29,6 +29,10 @@ En Xcode: target **Plata** → Signing & Capabilities → elige tu Team. Si tu A
 
 Como la barra sigue el CSS de la web (posición, opacidad, «compact»), cuando cambias la lógica de cuándo se muestra la barra en `app.html`, la barra nativa lo sigue sin tocar Swift. Los nombres de las pestañas salen de la web, así que respetan los 6 idiomas.
 
+## Barra de pestañas
+
+Es la **barra real del sistema** (`TabView`, en `RootView.swift`): en iOS 26 trae el vidrio flotante y la lupa al mantener y arrastrar entre pestañas. Su contenido es la misma web: la pestaña activa le presta su vista al `WKWebView`. El «+» es la pestaña de rol búsqueda (botón de vidrio aparte en iOS 26). Si diera problemas, `NativeFlags.systemTabBar = false` (en `WebState.swift`) vuelve a la cápsula propia.
+
 ## Iconos
 
 La barra nativa usa **SF Symbols** (decisión para iOS). Los Remix Icon de la web quedan extraídos en `ios/Plata/Assets.xcassets` por si se quiere volver: cambia `NativeIcons.useSFSymbols` a `false` en `Plata/WebState.swift`. Dentro del contenido web siguen siendo Remix, porque el mismo HTML corre en Android y Windows.

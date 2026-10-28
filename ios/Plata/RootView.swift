@@ -17,7 +17,11 @@ struct RootView: View {
         GeometryReader { geo in
             ZStack(alignment: .topLeading) {
                 Color(.systemGroupedBackground).ignoresSafeArea()
-                WebViewHost(webView: model.webView).ignoresSafeArea()
+                if NativeFlags.systemTabBar {
+                    SystemTabs(model: model)
+                } else {
+                    WebViewHost(webView: model.webView).ignoresSafeArea()
+                }
                 NativeBar(state: model.state, perform: model.perform, setValue: model.setValue).ignoresSafeArea()
                 topEdge(height: geo.safeAreaInsets.top)
                 #if DEBUG
@@ -64,4 +68,78 @@ struct WebViewHost: UIViewRepresentable {
     let webView: WKWebView
     func makeUIView(context: Context) -> WKWebView { webView }
     func updateUIView(_ uiView: WKWebView, context: Context) {}
+}
+
+/// La barra de pestañas real de iOS (en iOS 26: Liquid Glass flotante con la lupa al mantener y arrastrar).
+/// El contenido de cada pestaña es la misma web: la pestaña activa le "presta" su vista al WKWebView.
+/// Tocar una pestaña manda la acción a la web; la pestaña marcada sigue la de la web. El «+» es la pestaña de rol búsqueda
+/// (en iOS 26 sale como botón de vidrio aparte): al tocarlo se dispara el «+» de la web y la selección vuelve a la pestaña anterior.
+struct SystemTabs: View {
+    @ObservedObject var model: WebModel
+    @State private var selection = "resumen"
+    @State private var lastReal = "resumen"
+
+    private func title(_ key: TabKey) -> String {
+        model.state.labels[key.rawValue] ?? key.rawValue.capitalized
+    }
+
+    private func slot(_ id: String) -> some View {
+        WebSlot(webView: model.webView, active: selection == id)
+            .ignoresSafeArea()
+            .toolbarVisibility(model.state.bar.o > 0.5 ? .visible : .hidden, for: .tabBar)
+    }
+
+    var body: some View {
+        TabView(selection: Binding(get: { selection }, set: { new in
+            if new == "plus" {
+                model.perform(.plus)
+                selection = lastReal
+            } else {
+                selection = new
+                lastReal = new
+                if let k = TabKey(rawValue: new) { model.perform(.tab(k)) }
+            }
+        })) {
+            Tab(title(.resumen), systemImage: TabKey.resumen.sfLine, value: "resumen") { slot("resumen") }
+            Tab(title(.presupuesto), systemImage: TabKey.presupuesto.sfLine, value: "presupuesto") { slot("presupuesto") }
+            Tab(title(.proyeccion), systemImage: TabKey.proyeccion.sfLine, value: "proyeccion") { slot("proyeccion") }
+            Tab(title(.deuda), systemImage: TabKey.deuda.sfLine, value: "deuda") { slot("deuda") }
+            Tab("", systemImage: "plus", value: "plus", role: .search) { slot("plus") }
+        }
+        .onChange(of: model.state.on) { _, new in
+            if TabKey(rawValue: new) != nil, new != selection {
+                selection = new
+                lastReal = new
+            }
+        }
+    }
+}
+
+/// Vista vacía que aloja al WKWebView mientras su pestaña está activa.
+struct WebSlot: UIViewRepresentable {
+    let webView: WKWebView
+    let active: Bool
+
+    func makeUIView(context: Context) -> UIView {
+        let v = UIView()
+        v.backgroundColor = .clear
+        return v
+    }
+
+    func updateUIView(_ v: UIView, context: Context) {
+        if active {
+            guard webView.superview !== v else { return }
+            webView.removeFromSuperview()
+            webView.translatesAutoresizingMaskIntoConstraints = false
+            v.addSubview(webView)
+            NSLayoutConstraint.activate([
+                webView.leadingAnchor.constraint(equalTo: v.leadingAnchor),
+                webView.trailingAnchor.constraint(equalTo: v.trailingAnchor),
+                webView.topAnchor.constraint(equalTo: v.topAnchor),
+                webView.bottomAnchor.constraint(equalTo: v.bottomAnchor),
+            ])
+        } else if webView.superview === v {
+            webView.removeFromSuperview()
+        }
+    }
 }

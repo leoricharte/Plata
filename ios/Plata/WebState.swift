@@ -39,6 +39,11 @@ enum WebAction {
     }
 }
 
+enum NativeFlags {
+    /// true = barra de pestañas real del sistema (vidrio, lupa al mantener y arrastrar). false = la cápsula propia de antes.
+    static let systemTabBar = true
+}
+
 enum NativeIcons {
     /// true = SF Symbols en la barra nativa (decisión de iOS). false = los Remix Icon de la web, extraídos a Assets.
     static let useSFSymbols = true
