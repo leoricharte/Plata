@@ -6,10 +6,12 @@
 //
 //   node swift/tools/gen-nazca.mjs
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, copyFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
+const require = createRequire(import.meta.url);
 const src = readFileSync(join(root, 'dev/app/src/core/nazca/csv.js'), 'utf8')
   .replace('return { decode,', 'return { CATALOG, ROLES, STOP, CUR_RE, decode,');
 const mod = { exports: {} };
@@ -77,5 +79,25 @@ const existing = [{ acc: 'a', date: '2026-10-03', amount: -23.4, note: 'Uber' },
 const dups = N.markDuplicates(fileItems, existing, 'a');
 const dupsMix = N.markDuplicates(fileItems, existing, 'otra');
 
-writeFileSync(join(fx, 'nazca_csv.json'), JSON.stringify({ files: fileCases, amounts: amountCases, dates: dateCases, norms: normCases, curs: curCases, roles: roleCases, cats: catSets, descs, categories: catCases, merchants, fp: { items: fileItems, prints: fp, existing, dups, dupsMix } }));
+// ---- 4. Excel (.xlsx) y Yape ----
+const X = require(join(root, 'dev/app/src/core/nazca/xlsx.js')), Y = require(join(root, 'dev/app/src/core/nazca/bancos/yape-movimientos.js'));
+mkdirSync(join(fx, 'xlsx'), { recursive: true });
+const xlsxDir = join(root, 'dev/tests/xlsx');
+const xlsxCases = [];
+for (const name of readdirSync(xlsxDir).filter((f) => f.endsWith('.xlsx')).sort()) {
+  copyFileSync(join(xlsxDir, name), join(fx, 'xlsx', name));
+  const rows = await X.read(readFileSync(join(xlsxDir, name)));
+  xlsxCases.push({ name, rows, detect: Y.detect(rows), yape: Y.read(rows) });
+}
+const yapeMoney = [['Tipo de Transacción', 'Origen', 'Destino', 'Monto', 'Mensaje', 'Fecha de operación'],
+  ['PAGASTE', 'Yo', 'Tambo+ Miraflores', 'S/ 16.08', 'Compra Nº 12345678', '20/10/2026 13:10:26'],
+  ['TE PAGÓ', 'Sara Ron*', 'Yo', '1,250.50', '', '21/10/2026'],
+  ['te yapeó', 'Juan P*', 'Yo', '10,5', 'gracias: N° ABCD-1234 listo', '5/1/2026 09:00'],
+  ['OTRO', 'x', 'y', '5', '', '01/01/2026'], ['PAGASTE', 'Yo', 'Cero', '0.00', '', '02/01/2026'], ['PAGASTE', 'Yo', 'Sin fecha', '5', '', 'mañana'], ['', '', '', '', '', ''],
+  ['Recargaste', 'Yo', '', '20', 'x'.repeat(120), '31/02/2026']];
+const yapeSynth = { rows: yapeMoney, detect: Y.detect(yapeMoney), yape: Y.read(yapeMoney) };
+const yapeNo = [Y.detect([['a', 'b'], ['1', '2']]), Y.detect([])];
+
 console.log('Listo:', fileCases.length, 'archivos,', amountCases.length, 'montos,', dateCases.length, 'fechas,', catCases.length, 'categorías.');
+
+writeFileSync(join(fx, 'nazca_csv.json'), JSON.stringify({ files: fileCases, amounts: amountCases, dates: dateCases, norms: normCases, curs: curCases, roles: roleCases, cats: catSets, descs, categories: catCases, merchants, fp: { items: fileItems, prints: fp, existing, dups, dupsMix }, xlsx: xlsxCases, yapeSynth, yapeNo }));

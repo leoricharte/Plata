@@ -14,7 +14,9 @@ struct Rx: @unchecked Sendable {
         for ch in p {
             if esc {
                 esc = false
-                if ch == "d" { out += inClass ? "0-9" : "[0-9]" } else { out.append("\\"); out.append(ch) }
+                if ch == "d" { out += inClass ? "0-9" : "[0-9]" }
+                else if ch == "w" { out += inClass ? "A-Za-z0-9_" : "[A-Za-z0-9_]" }
+                else { out.append("\\"); out.append(ch) }
                 continue
             }
             if ch == "\\" { esc = true; continue }
@@ -41,6 +43,34 @@ struct Rx: @unchecked Sendable {
     }
 
     func first(_ s: String) -> String? { groups(s)?.first }
+
+    /// Todas las coincidencias, cada una con sus grupos (el 0 es todo; un grupo que no participó queda vacío).
+    func all(_ s: String) -> [[String]] {
+        let ns = s as NSString
+        return re.matches(in: s, range: full(s)).map { m in
+            (0..<m.numberOfRanges).map { i in
+                let r = m.range(at: i)
+                return r.location == NSNotFound ? "" : ns.substring(with: r)
+            }
+        }
+    }
+
+    /// Reemplaza cada coincidencia por lo que devuelva `f` (recibe los grupos).
+    func replace(_ s: String, _ f: ([String]) -> String) -> String {
+        let ns = s as NSString
+        var out = "", last = 0
+        for m in re.matches(in: s, range: full(s)) {
+            out += ns.substring(with: NSRange(location: last, length: m.range.location - last))
+            let g = (0..<m.numberOfRanges).map { i -> String in
+                let r = m.range(at: i)
+                return r.location == NSNotFound ? "" : ns.substring(with: r)
+            }
+            out += f(g)
+            last = m.range.location + m.range.length
+        }
+        out += ns.substring(from: last)
+        return out
+    }
 
     /// Reemplaza todas las coincidencias por un texto fijo (sin referencias a grupos).
     func replace(_ s: String, _ with: String) -> String {
