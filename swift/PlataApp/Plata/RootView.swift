@@ -28,6 +28,7 @@ struct RootView: View {
             case .debt(let id): DebtSheet(id: id)
             case .sub(let id): SubSheet(id: id)
             case .category(let n): CategorySheet(name: n)
+            case .event(let k): EventSheet(key: k)
             }
         }
         .tint(Brand.accent)

@@ -6,6 +6,7 @@ struct CuentasView: View {
     @Environment(AppModel.self) private var model
     @State private var soon = false
     @State private var showInterest = false
+    @State private var showExtra = false
 
     private static let colors = ["#B98AE6", "#6D8BEA", "#EDB03E", "#F08FB0", "#5CC8C0"]
     private static let icons: [String: String] = [
@@ -65,6 +66,7 @@ struct CuentasView: View {
         .background(Color(.systemGroupedBackground))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { ToolbarItem(placement: .topBarTrailing) { AddMenuButton() } }
+        .sheet(isPresented: $showExtra) { ExtraPaySheet() }
         .alert("Llega en la siguiente versión", isPresented: $soon) { Button("Entendido", role: .cancel) {} }
     }
 
@@ -307,7 +309,7 @@ struct CuentasView: View {
                     }
                     .padding(.top, 4).padding(.bottom, 8)
                 }
-                linkRow("Simular pago extra", symbol: "slider.horizontal.3") { soon = true }
+                linkRow("Simular pago extra", symbol: "slider.horizontal.3") { showExtra = true }
             }
             .padding(.top, 10)
         }

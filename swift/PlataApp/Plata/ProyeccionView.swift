@@ -532,6 +532,13 @@ struct ProyeccionView: View {
         LocalDate(iso: iso).map { "\($0.day) \(Spanish.monthsShort[$0.month0])" } ?? iso
     }
 
+    private func openEvent(_ ev: TimelineEntry, _ key: String) {
+        if ev.type == "sim" {
+            let id = ev.srcId
+            model.activeSheet = ev.form == "job" ? .job(id: id) : .planned(id: id)
+        } else { model.activeSheet = .event(key: key) }
+    }
+
     private func timelineCard(_ p: ProjectionResult, _ f: Fmt) -> some View {
         card {
             if p.timeline.isEmpty {
@@ -563,7 +570,7 @@ struct ProyeccionView: View {
                                 .overlay(Circle().strokeBorder(Color(.secondarySystemGroupedBackground), lineWidth: 3).padding(-3))
                                 .offset(x: -7, y: i == p.timeline.count - 1 ? 0 : -9)
                         }
-                        .onTapGesture { if ev.key != nil { soon = true } }
+                        .onTapGesture { if let k = ev.key { openEvent(ev, k) } }
                     }
                 }
                 .overlay(alignment: .leading) { Rectangle().fill(Color(light: "#E5E5EA", dark: "#2C2C2E")).frame(width: 2) }

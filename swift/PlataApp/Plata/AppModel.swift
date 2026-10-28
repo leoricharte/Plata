@@ -127,6 +127,10 @@ final class AppModel {
         try commit { raw in try ProfileEditor.saveExpected(&raw, collection: collection, item: item) }
     }
 
+    func setEventOverride(key: String, entry: JSONValue?) {
+        try? commit { raw in ProfileEditor.setEventOverride(&raw, key: key, entry: entry) }
+    }
+
     func deleteExpected(collection: String, id: JSONValue) throws {
         try commit { raw in ProfileEditor.deleteExpected(&raw, collection: collection, id: id) }
     }
@@ -327,6 +331,7 @@ enum ActiveSheet: Identifiable, Hashable {
     case debt(id: String?)
     case sub(id: String?)
     case category(name: String?)
+    case event(key: String)
 
     var id: String {
         switch self {
@@ -340,6 +345,7 @@ enum ActiveSheet: Identifiable, Hashable {
         case .debt(let id): return "debt-\(id ?? "new")"
         case .sub(let id): return "sub-\(id ?? "new")"
         case .category(let n): return "category-\(n ?? "new")"
+        case .event(let k): return "event-\(k)"
         }
     }
 }

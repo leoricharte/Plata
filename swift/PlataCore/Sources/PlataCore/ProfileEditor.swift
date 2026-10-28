@@ -173,6 +173,13 @@ public extension ProfileEditor {
         p[collection] = .array(list)
     }
 
+    /// Cambia solo un evento de la serie (`ovr`): monto/fecha nuevos u omitirlo. `nil` lo restaura.
+    static func setEventOverride(_ p: inout JSONValue, key: String, entry: JSONValue?) {
+        var ovr = p["ovr"]?.objectValue ?? [:]
+        if let entry { ovr[key] = entry } else { ovr.removeValue(forKey: key) }
+        p["ovr"] = .object(ovr)
+    }
+
     static func deleteExpected(_ p: inout JSONValue, collection: String, id: JSONValue) {
         guard var list = p[collection]?.arrayValue else { return }
         list.removeAll { $0["id"] == id }

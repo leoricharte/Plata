@@ -65,6 +65,10 @@ public struct TimelineEntry: Equatable, Sendable {
     public var edited: Bool
     public var skipped: Bool
     public var after: Double
+    public var form: String? = nil
+    public var srcId: String? = nil
+    public var cur: String? = nil
+    public var a0: Double = 0
 }
 
 public struct ProjectionResult: Sendable {
@@ -589,7 +593,7 @@ public struct Engine {
             if !e.skipped { cum += e.amt }
             let days = Double(e.date.days - today.days)
             timeline.append(TimelineEntry(name: e.name, date: Engine.dayLabel(e.date), amt: e.amt, type: e.type, key: e.key, edited: e.edited, skipped: e.skipped,
-                                          after: c.balance + cum - (V * days) / 7))
+                                          after: c.balance + cum - (V * days) / 7, form: e.form, srcId: e.srcId, cur: e.cur, a0: e.a0))
         }
         var minV = series[0].v
         for p in series where p.v < minV { minV = p.v }
