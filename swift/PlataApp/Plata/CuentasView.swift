@@ -197,7 +197,7 @@ struct CuentasView: View {
                 if i > 0 { RowDivider() }
                 let cur = Engine.text(a["cur"])
                 let sub = debitSub(a, f)
-                Button { model.activeSheet = .account(id: Engine.identifier(a["id"])) } label: {
+                NavigationLink(value: AcctRef(id: Engine.identifier(a["id"]))) {
                     HStack(spacing: 12) {
                         tile(a, index: i, debt: false, color: nil)
                         VStack(alignment: .leading, spacing: 2) {
@@ -247,7 +247,7 @@ struct CuentasView: View {
             if bal > 0 { parts.append("≈ \(f.exact(bal * apr / 1200, cur))/mes") }
         }
         if Engine.number(k["due_day"]) > 0 { parts.append("pago día \(Int(Engine.number(k["due_day"])))") }
-        return Button { model.activeSheet = .debt(id: Engine.identifier(k["id"])) } label: {
+        return NavigationLink(value: AcctRef(id: Engine.identifier(k["id"]))) {
             HStack(spacing: 12) {
                 tile(k, index: i, debt: true, color: color)
                 VStack(alignment: .leading, spacing: 0) {
@@ -279,26 +279,32 @@ struct CuentasView: View {
 
     // MARK: anillo de deuda
 
-    private func debtCard(_ e: Engine, _ f: Fmt, _ c: CalcResult, _ cards: [JSONValue], _ calc: [String: CardCalc]) -> some View {
+    private func debtCard(_ e: Engine, _ f: Fmt, _ c: CalcResult, _ allCards: [JSONValue], _ calc: [String: CardCalc]) -> some View {
+        let rkRaw = Engine.text(e.data["settings"]?["ring_kind"])
+        let rk = rkRaw == "card" || rkRaw == "loan" ? rkRaw : "all"
+        let cards = allCards.filter { rk == "all" || Engine.text($0["kind"]) == rk }
         let ccs = cards.compactMap { calc[Engine.identifier($0["id"])] }
         let total = ccs.reduce(0.0) { $0 + $1.ub }
         let interest = ccs.reduce(0.0) { $0 + $1.interest }
         let items = ccs.filter { $0.ub > 0 }.map { RingChart<AnyView>.Item(value: $0.ub, color: Color(hex: $0.color)) }
-        let base = e.payoff(extra: 0, kind: nil)
+        let base = e.payoff(extra: 0, kind: rk == "all" ? nil : rk)
         let title: String
         if total <= 0 { title = "Sin deuda" }
         else if base.months > 0 && base.ok {
             let d = LocalDate(year: model.today.year, month0: model.today.month0 + base.months, day: 1)
             title = "Libre de deuda en \(Spanish.monthsShort[d.month0].capitalized) \(d.year)"
         } else { title = "Tu plan actual no liquida la deuda" }
+        let heading = rk == "card" ? "DEUDA EN TARJETAS" : (rk == "loan" ? "DEUDA EN PRÉSTAMOS" : "DEUDA TOTAL")
         return card {
+          ZStack(alignment: .topTrailing) {
+            VStack(alignment: .leading, spacing: 0) {
             if items.isEmpty {
                 Text("Sin deuda registrada").font(.inter(15)).foregroundStyle(.secondary).frame(maxWidth: .infinity).padding(.vertical, 18)
             } else {
                 RingChart(items: items, radius: 126, lineWidth: 30, gap: 6, box: 300) {
                     AnyView(
                         VStack(spacing: 0) {
-                            Text("DEUDA TOTAL · \(cards.count) \(cards.count == 1 ? "CUENTA" : "CUENTAS")").font(.inter(11, .medium)).tracking(1.6).foregroundStyle(.secondary)
+                            Text("\(heading) · \(cards.count) \(cards.count == 1 ? "CUENTA" : "CUENTAS")").font(.inter(11, .medium)).tracking(1.6).foregroundStyle(.secondary)
                             Text(f.whole(total)).font(.inter(46, .bold)).tracking(-1.6).lineLimit(1).minimumScaleFactor(0.5)
                             Text(f.exact(interest)).font(.inter(22, .semibold)).foregroundStyle(Brand.warnText)
                             Text("INTERESES ESTIMADOS AL MES").font(.inter(11, .medium)).tracking(1.6).foregroundStyle(.secondary).multilineTextAlignment(.center)
@@ -328,7 +334,28 @@ struct CuentasView: View {
                 linkRow("Simular pago extra", symbol: "slider.horizontal.3") { showExtra = true }
             }
             .padding(.top, 10)
+            }
+            ringFilter(rk)
+              .padding(.top, -4).padding(.trailing, -4)
+          }
         }
+    }
+
+    /// El filtro del anillo de deuda (`sortmenu:ring`): todo, solo tarjetas o solo préstamos.
+    private func ringFilter(_ rk: String) -> some View {
+        Menu {
+            Picker("Mostrar", selection: Binding(get: { rk }, set: { model.setSetting("ring_kind", .string($0)) })) {
+                Text("Tarjetas y préstamos").tag("all")
+                Text("Solo tarjetas").tag("card")
+                Text("Solo préstamos").tag("loan")
+            }
+        } label: {
+            Image(systemName: "line.3.horizontal.decrease").font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(rk != "all" ? Color.white : Color.secondary)
+                .frame(width: 30, height: 30)
+                .background(rk != "all" ? AnyShapeStyle(Brand.accent) : AnyShapeStyle(Color(.tertiarySystemFill)), in: Circle())
+        }
+        .accessibilityLabel("Filtrar")
     }
 
     private func linkRow(_ title: LocalizedStringKey, symbol: String, _ action: @escaping () -> Void) -> some View {

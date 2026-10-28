@@ -89,7 +89,7 @@ struct AhorroView: View {
             let c = Calendar.current.dateComponents([.year, .month], from: d)
             return "Meta en \(Spanish.plural(mo, "mes", "meses")) · \(Spanish.monthsShort[(c.month ?? 1) - 1]) \(c.year ?? 2000)"
         }()
-        return Button { model.activeSheet = .saving(id: Engine.identifier(s["id"])) } label: {
+        return NavigationLink(value: AcctRef(id: Engine.identifier(s["id"]))) {
             HStack(spacing: 12) {
                 Tile(symbol: iconSymbol(Engine.text(s["icon"])) ?? "leaf.fill", color: Color(hex: color))
                 VStack(alignment: .leading, spacing: 6) {

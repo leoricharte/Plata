@@ -52,18 +52,7 @@ struct ResumenView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { rootToolbar }
             .task(id: model.changes) { model.syncInsightsState() }
-            .navigationDestination(for: Route.self) { route in
-                switch route {
-                case .movimientos: MovimientosView()
-                case .month: MonthView()
-                case .tx(let id): TransactionDetailView(id: id)
-                case .ajustes: AjustesView()
-                case .profile: ProfileView()
-                case .profileEdit: ProfileSettingsView()
-                case .insights(let mk, let half): InsightsView(mk: mk, half: half)
-                case .soon(let title): ComingSoonView(title: title)
-                }
-            }
+            .routeDestinations()
             .sheet(isPresented: $pickingDemo) { DemoPickerSheet() }
         }
     }
@@ -512,5 +501,28 @@ struct DemoPickerSheet: View {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancelar") { dismiss() } }
             }
         }
+    }
+}
+
+/// Las pantallas a las que lleva cada `Route` (también las usan las pestañas que empujan un movimiento).
+struct RouteDestination: View {
+    let route: Route
+    var body: some View {
+        switch route {
+        case .movimientos: MovimientosView()
+        case .month: MonthView()
+        case .tx(let id): TransactionDetailView(id: id)
+        case .ajustes: AjustesView()
+        case .profile: ProfileView()
+        case .profileEdit: ProfileSettingsView()
+        case .insights(let mk, let half): InsightsView(mk: mk, half: half)
+        case .soon(let title): ComingSoonView(title: title)
+        }
+    }
+}
+
+extension View {
+    func routeDestinations() -> some View {
+        navigationDestination(for: Route.self) { RouteDestination(route: $0) }
     }
 }

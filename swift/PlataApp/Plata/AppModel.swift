@@ -95,6 +95,17 @@ final class AppModel {
         }
     }
 
+    func postponeTransaction(id: JSONValue, date: LocalDate) throws {
+        let nid = String(UUID().uuidString.replacingOccurrences(of: "-", with: "").prefix(6)).lowercased()
+        let cats = engine.categoryNames
+        try commit { raw in try ProfileEditor.postponeTransaction(&raw, id: id, date: date.iso, newId: nid, categories: cats) }
+    }
+
+    func toggleCardAuto(id: JSONValue) {
+        let t = today.iso
+        try? commit { raw in ProfileEditor.toggleCardAuto(&raw, id: id, today: t) }
+    }
+
     func deleteTransaction(id: JSONValue) throws {
         try commit { raw in try ProfileEditor.deleteTransaction(&raw, id: id) }
     }

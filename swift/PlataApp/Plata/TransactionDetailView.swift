@@ -8,6 +8,7 @@ struct TransactionDetailView: View {
     let id: String
     @State private var editing: JSONValue?
     @State private var confirmDelete = false
+    @State private var postponing: JSONValue?
 
     var body: some View {
         let e = model.engine
@@ -61,6 +62,12 @@ struct TransactionDetailView: View {
                         statsRow(first: false, ("Previsto", f.exact(est, cur), nil),
                                  ("Diferencia", (diff >= 0 ? "+" : "−") + f.exact(abs(diff), cur), diff >= 0 ? Brand.gainText : Brand.lossText))
                     }
+                    if Engine.flag(tx["job"]), Engine.number(tx["hrs"]) > 0 {
+                        let hrs = Engine.number(tx["hrs"]), rate = Engine.number(tx["rate"])
+                        statsRow(first: false, ("Horas trabajadas", Engine.hoursText(hrs), nil), ("Monto pagado", f.exact(amount, cur), nil))
+                        statsRow(first: false, ("Bruto (\(f.exact(rate, cur))/h)", f.exact(rate * hrs, cur), nil),
+                                 ("Impuestos descontados", Engine.taxText(amount: amount, rate: rate, hours: hrs), nil))
+                    }
                     if let pair {
                         statsRow(first: false, (Engine.number(pair["amount"]) < 0 ? "Salió de" : "Entró a", e.accountName(pair["acc"]), nil), nil)
                     }
@@ -71,6 +78,11 @@ struct TransactionDetailView: View {
 
                 if !isTransfer {
                     Button("Editar") { editing = tx }
+                        .buttonStyle(SecondaryPillStyle())
+                        .padding(.top, 10)
+                }
+                if !isTransfer && !isPay {
+                    Button("Posponer") { postponing = tx }
                         .buttonStyle(SecondaryPillStyle())
                         .padding(.top, 10)
                 }
@@ -93,6 +105,9 @@ struct TransactionDetailView: View {
         }
         .sheet(item: Binding(get: { editing.map { Wrapper(tx: $0) } }, set: { editing = $0?.tx })) { w in
             TransactionSheet(mode: .edit(w.tx))
+        }
+        .sheet(item: Binding(get: { postponing.map { Wrapper(tx: $0) } }, set: { postponing = $0?.tx })) { w in
+            PostponeSheet(tx: w.tx) {}
         }
         .confirmationDialog("¿Eliminar este movimiento?", isPresented: $confirmDelete, titleVisibility: .visible) {
             Button("Eliminar", role: .destructive) {

@@ -606,4 +606,44 @@ public extension ProfileEditor {
         list[i] = card
         p["cards"] = .array(list)
     }
+
+    /// «Posponer»: el movimiento sale de la lista (y se corrige el saldo) y pasa a ingresos o gastos previstos en `date`.
+    static func postponeTransaction(_ p: inout JSONValue, id: JSONValue, date: String, newId: String, categories: [String]) throws {
+        guard let i = txIndex(p, id), let t = p["transactions"]?.arrayValue?[i] else { throw EditError.notFound }
+        let amt = Engine.num(t["amount"])
+        let note = Engine.str(t["note"]), cat = Engine.str(t["category"])
+        let name = note.isEmpty ? cat : note
+        try deleteTransaction(&p, id: id)
+        var item: [String: JSONValue] = ["id": .string(newId), "name": .string(name), "amount": .number(abs(amt)), "acc": t["acc"] ?? .null,
+                                         "date": .string(date), "repeat": .number(0)]
+        let coll: String
+        if amt < 0 { coll = "expected_expense"; item["cat"] = .string(categories.contains(cat) ? cat : "Otros") } else { coll = "expected_income" }
+        var list = p[coll]?.arrayValue ?? []
+        list.append(.object(item))
+        p[coll] = .array(list)
+    }
+
+    /// Enciende o apaga el «Pago esperado» de una tarjeta (`apcard`): sin día de pago no se puede encender. Devuelve si quedó encendido.
+    @discardableResult
+    static func toggleCardAuto(_ p: inout JSONValue, id: JSONValue, today: String) -> Bool? {
+        guard var list = p["cards"]?.arrayValue, let i = list.firstIndex(where: { $0["id"] == id }) else { return nil }
+        var card = list[i]
+        var result: Bool?
+        if Engine.flag(card["auto"]) {
+            card["auto"] = nil
+            result = false
+        } else if Engine.num(card["due_day"]) > 0 {
+            let cur = Engine.str(card["cur"])
+            let accounts = p["accounts"]?.arrayValue ?? []
+            let fromAcc = accounts.first(where: { Engine.str($0["cur"]) == cur }) ?? accounts.first
+            let from = fromAcc?["id"].map { Engine.idStr($0) } ?? ""
+            card["auto"] = .object(["from": .string(from), "next": .string(Engine.dueAfter(day: Int(Engine.num(card["due_day"])), after: today))])
+            result = true
+        } else {
+            return nil
+        }
+        list[i] = card
+        p["cards"] = .array(list)
+        return result
+    }
 }

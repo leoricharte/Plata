@@ -265,3 +265,52 @@ public extension Engine {
         return ["S", "A", "B", "C", "D", "F"].compactMap { l in cnt[l].map { (letter: l, count: $0) } }
     }
 }
+
+public extension Engine {
+    /// «80 hrs» / «37.5 hrs» (`fmtHrs`).
+    static func hoursText(_ h: Double) -> String {
+        let r = (h * 100).rounded() / 100
+        return (r == r.rounded() ? String(Int(r)) : String(r)) + " hrs"
+    }
+
+    /// «20%» (`taxPct` mostrado).
+    static func taxText(amount: Double, rate: Double, hours: Double) -> String {
+        let v = taxPercent(amount: amount, rate: rate, hours: hours)
+        return (v == v.rounded() ? String(Int(v)) : String(v)) + "%"
+    }
+}
+
+public struct InterestStats: Equatable, Sendable {
+    /// Intereses cobrados este año.
+    public var year: Double
+    /// ¿Hay algún abono de intereses?
+    public var hasAny: Bool
+    /// Rendimiento real de los últimos 12 meses (solo con 3 o más abonos).
+    public var real: Double?
+}
+
+public extension Engine {
+    /// «5» / «4.5»: un número sin ceros de más (como lo escribe JavaScript).
+    static func plainNumber(_ v: Double) -> String { v == v.rounded() && abs(v) < 1e15 ? String(Int64(v)) : String(v) }
+
+    private static let interestRegex = try! NSRegularExpression(pattern: "\\binterest\\b|\\binter[eé]s(es)?\\b|\\brendimientos?\\b", options: [.caseInsensitive])
+
+    /// Intereses de una cuenta (`intStats`): abonos cuya nota dice interés / interest / rendimiento.
+    func interestStats(accountId: String, accountType: String, balance: Double) -> InterestStats? {
+        let first = Engine.str(list("accounts").first?["id"])
+        let mine = list("transactions").filter { t in
+            let a = Engine.str(t["acc"]).isEmpty ? first : Engine.str(t["acc"])
+            guard a == accountId, Engine.num(t["amount"]) > 0 else { return false }
+            let note = Engine.str(t["note"])
+            return Engine.interestRegex.firstMatch(in: note, range: NSRange(note.startIndex..., in: note)) != nil
+        }
+        if mine.isEmpty && accountType != "savings" { return nil }
+        let ys = String(today.iso.prefix(4))
+        let year = Engine.round2(mine.filter { String(Engine.str($0["date"]).prefix(4)) == ys }.reduce(0.0) { $0 + Engine.num($1["amount"]) })
+        let from = LocalDate(year: today.year - 1, month0: today.month0, day: min(today.day, LocalDate.daysInMonth(year: today.year - 1, month0: today.month0))).iso
+        let l12 = mine.filter { Engine.str($0["date"]) >= from }
+        let v12 = Engine.round2(l12.reduce(0.0) { $0 + Engine.num($1["amount"]) })
+        let real: Double? = (balance > 0 && l12.count >= 3) ? (v12 / balance * 1000).rounded() / 10 : nil
+        return InterestStats(year: year, hasAny: !mine.isEmpty, real: real)
+    }
+}

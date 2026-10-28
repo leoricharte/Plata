@@ -11,6 +11,8 @@ struct TransactionSheet: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
     let mode: Mode
+    /// Cuenta o tarjeta con la que se abre un movimiento nuevo (desde su detalle).
+    var presetAccount: String? = nil
 
     @State private var loaded = false
     @State private var isOut = true
@@ -284,7 +286,7 @@ struct TransactionSheet: View {
             note = Engine.text(tx["note"])
         } else {
             category = e.categoryNames.first ?? "Otros"
-            account = Engine.text(e.allAccounts.first?["id"])
+            account = presetAccount ?? Engine.text(e.allAccounts.first?["id"])
             amountFocused = true
         }
     }
