@@ -15,6 +15,9 @@ final class AppModel {
     var errorMessage: String?
     /// La pestaña abierta (para que los enlaces del Resumen puedan cambiarla).
     var tab: AppTab = .resumen
+    /// Pantallas abiertas encima del Resumen (Movimientos, Ajustes…).
+    var path: [Route] = []
+    var showAddTransaction = false
 
     @ObservationIgnored private let store: ProfileStore
     @ObservationIgnored private let stash: ProfileStore   // tus datos reales mientras ves un perfil de demostración
@@ -190,6 +193,6 @@ struct DemoPerson: Identifiable {
 }
 
 
-enum AppTab: Hashable {
+enum AppTab: Hashable, CaseIterable {
     case resumen, presupuesto, proyeccion, cuentas
 }

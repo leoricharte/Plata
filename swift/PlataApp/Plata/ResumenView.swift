@@ -10,15 +10,14 @@ enum Route: Hashable {
 
 struct ResumenView: View {
     @Environment(AppModel.self) private var model
-    @State private var adding = false
-    @State private var path: [Route] = []
     @State private var pickingDemo = false
 
     var body: some View {
         let e = model.engine
         let c = e.calc()
         let f = model.fmt
-        NavigationStack(path: $path) {
+        @Bindable var nav = model
+        NavigationStack(path: $nav.path) {
             ScrollView {
                 VStack(spacing: 14) {
                     topBar
@@ -50,7 +49,6 @@ struct ResumenView: View {
                 case .soon(let title): ComingSoonView(title: title)
                 }
             }
-            .sheet(isPresented: $adding) { TransactionSheet(mode: .new) }
             .sheet(isPresented: $pickingDemo) { DemoPickerSheet() }
         }
     }
@@ -66,9 +64,6 @@ struct ResumenView: View {
                 .accessibilityLabel("Plata")
             BetaPill()
             Spacer(minLength: 8)
-            Button { adding = true } label: { GlassIcon(symbol: "plus") }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Añadir movimiento")
             NavigationLink(value: Route.ajustes) { GlassIcon(symbol: "gearshape") }
                 .buttonStyle(.plain)
                 .accessibilityLabel("Ajustes")
@@ -109,8 +104,8 @@ struct ResumenView: View {
             Text("Tu app... no tiene (casi) nada. Pero no te me abrumes, empieza en la pestaña Cuentas: ajusta tu saldo y añade tus tarjetas, añade movimientos o carga tu archivo de perfil.")
                 .font(.inter(15)).foregroundStyle(.secondary)
                 .padding(.bottom, 4)
-            startRow("plus.circle.fill", "Añadir un movimiento") { adding = true }
-            startRow("folder.fill", "Cargar mi archivo de perfil") { path.append(.ajustes) }
+            startRow("plus.circle.fill", "Añadir un movimiento") { model.showAddTransaction = true }
+            startRow("folder.fill", "Cargar mi archivo de perfil") { model.path.append(.ajustes) }
             startRow("info.circle.fill", "Ver con datos de ejemplo") { pickingDemo = true }
         }
     }
@@ -161,9 +156,9 @@ struct ResumenView: View {
             .init(id: "balance", title: "Balance actual", value: f.whole(balance), detail: Spanish.plural(accounts.count, "cuenta", "cuentas"),
                   action: { model.tab = .cuentas }),
             .init(id: "income", title: "Ingresos del mes", value: f.whole(c.income), detail: Spanish.plural(c.incomeCount, "ingreso", "ingresos"),
-                  action: { path.append(.movimientos) }),
+                  action: { model.path.append(.movimientos) }),
             .init(id: "saved", title: "Ahorro total", value: f.whole(c.saved), detail: Spanish.plural(goals, "meta", "metas"), link: "Ver ahorro",
-                  action: { path.append(.soon("Ahorro")) }),
+                  action: { model.path.append(.soon("Ahorro")) }),
             .init(id: "debt", title: "Deuda total", value: f.whole(debt), detail: Spanish.plural(cards.count, "cuenta", "cuentas"), link: "Ver deuda",
                   action: { model.tab = .cuentas }),
         ]
