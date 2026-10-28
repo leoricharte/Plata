@@ -94,6 +94,19 @@ struct ExpectedSheet: View {
                 }
 
                 if let errorText { Text(errorText).font(.inter(14)).foregroundStyle(Brand.lossText).padding(.bottom, 10) }
+                if let id, let original {
+                    Button(isCardPay ? "Confirmar pago" : (isIncome ? "Confirmar ingreso" : "Confirmar gasto")) {
+                        model.activeSheet = .confirm(kind: isIncome ? "in" : "out", id: id, pick: true)
+                    }
+                    .buttonStyle(PrimaryPillStyle()).padding(.bottom, 8)
+                    if Engine.text(original["date"]) > model.today.iso {
+                        Button("Adelantar a hoy") {
+                            model.moveExpectedToToday(collection: collection, id: original["id"] ?? .null)
+                            dismiss()
+                        }
+                        .buttonStyle(SecondaryPillStyle()).padding(.bottom, 8)
+                    }
+                }
                 Button("Guardar") { save() }.buttonStyle(PrimaryPillStyle()).padding(.bottom, 8)
                 if id != nil {
                     Button("Eliminar") { confirmDelete = true }

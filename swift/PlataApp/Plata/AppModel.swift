@@ -246,6 +246,11 @@ final class AppModel {
         }
     }
 
+    /// «Adelantar a hoy»: un ingreso o gasto previsto pasa a hoy y se vuelve a preguntar.
+    func moveExpectedToToday(collection: String, id: JSONValue) {
+        try? commit { raw in ProfileEditor.finishExpected(&raw, collection: collection, id: id, next: today.iso) }
+    }
+
     /// «Aún no llegó / se cobró / pagué»: pregunta mañana.
     func snoozePending(kind: String, id: String) {
         let e = engine
