@@ -1,0 +1,17 @@
+{
+ "link": {
+  "apub": "BMsumS9mw-MqtUnE_RY97Zlk6wekmb4We2CkX1jUf04WsABZR35lz0pFxQWxI72Lps3Bj8zRRPG0DE5uJXyoWAw",
+  "npub": "BCXXBKb9K7TWER9hkY563-G1-UfdsHFKD1Kx1APm6HJHWMWXC1sJtw7wlfkl-N7rXG4_qocfpAn9cNvjVK8DEe8",
+  "aPriv": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgLKFkjHSZcdJ0XWROmbX_B2kfEt1CLrpxm1ngL444mnihRANCAATLLpkvZsPjKrVJxP0WPe2ZZOsHpJm-FntgpF9Y1H9OFrAAWUd-Zc9KRcUFsSO9i6bNwY_M0UTxtAxObiV8qFgM",
+  "nPriv": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg1c8pdkWt09HLK1HLS7b9ZlFQ74RgsL1vih3-GFcDFkWhRANCAAQl1wSm_Su01hEfYZGOet_htflH3bBxSg9SsdQD5uhyR1jFlwtbCbcO8JX5Jfje61xuP6qHH6QJ_XDb41SvAxHv",
+  "seed": "a1b2c3d4e5f60718293a4b5c6d7e8f90",
+  "iv": "p5wmtwDXvEv1BG7k",
+  "ct": "8ksFE6BTi2dgNTjMH7e4PZSkIVTHfrjgqmiJ4WRo8VU",
+  "na": "_Kx2Ty8gTPEyzC17Tbr9Iw",
+  "nn": "-Gsqk2W465t7on5iPEqREQ",
+  "commit": "EtCmzTXU0rYDsGGKcvgxiJI9FInMVjZyarQP2X6hVtQ",
+  "verifyOk": true,
+  "verifyBad": false,
+  "code": "633064"
+ }
+}

@@ -90,4 +90,62 @@ public struct CloudAPI: Sendable {
     public func deleteSync(token: String, writeKey: String) async throws -> CloudResponse {
         try await call("/sync", method: "DELETE", token: token, writeKey: writeKey)
     }
+
+    // MARK: lista de espera y cuenta
+
+    /// Lista de espera (sin sesión). `website` vacío es el señuelo anti-robots que espera el servidor.
+    public func waitlist(email: String, lang: String, platform: String) async throws -> CloudResponse {
+        try await call("/waitlist", method: "POST", body: .object(["email": .string(email), "src": .string("app"), "lang": .string(lang), "plat": .string(platform), "website": .string("")]))
+    }
+
+    /// Manda un código por correo para una acción delicada: `kind` nil = reemplazar la copia; "delete" = borrar la cuenta.
+    public func syncConfirm(kind: String? = nil, lang: String, token: String, writeKey: String?) async throws -> CloudResponse {
+        var b: [String: JSONValue] = ["lang": .string(lang)]
+        if let kind { b["kind"] = .string(kind) }
+        return try await call("/sync/confirm", method: "POST", body: .object(b), token: token, writeKey: writeKey)
+    }
+
+    /// Comprueba el código antes de reemplazar la copia.
+    public func syncCheck(code: String, token: String, writeKey: String?) async throws -> CloudResponse {
+        try await call("/sync/check", method: "POST", body: .object(["code": .string(code)]), token: token, writeKey: writeKey)
+    }
+
+    /// Reemplaza la copia de la nube por completo (`replace`), con el código recibido por correo.
+    public func replaceSync(base: Int, next: Int, blob: String, device: String, code: String?, token: String, writeKey: String) async throws -> CloudResponse {
+        var b: [String: JSONValue] = ["base": .number(Double(base)), "next": .number(Double(next)), "blob": .string(blob), "v": .number(2), "dev": .string(device), "demo": .bool(false), "replace": .bool(true)]
+        if let code { b["code"] = .string(code) }
+        return try await call("/sync", method: "PUT", body: .object(b), token: token, writeKey: writeKey)
+    }
+
+    /// Cierra las demás sesiones; devuelve un `token` nuevo para este dispositivo.
+    public func logoutAll(device: String, token: String, writeKey: String?) async throws -> CloudResponse {
+        try await call("/auth/logout-all", method: "POST", body: .object(["dev": .string(device)]), token: token, writeKey: writeKey)
+    }
+
+    public func deleteAccount(code: String, token: String, writeKey: String?) async throws -> CloudResponse {
+        try await call("/account", method: "DELETE", body: .object(["code": .string(code)]), token: token, writeKey: writeKey)
+    }
+
+    // MARK: aprobar dispositivos
+
+    /// El dispositivo NUEVO pide entrar. `st` posibles al sondear: p (pendiente) · c (comprometido) · n (aleatorio del nuevo enviado) · r (código listo) · a (aprobado) · d (rechazado) · x (nadie puede aprobar).
+    public func linkStart(email: String, pub: String, rid: String, platform: String, tz: String, lang: String) async throws -> CloudResponse {
+        try await call("/link/start", method: "POST", body: .object(["email": .string(email), "pub": .string(pub), "rid": .string(rid), "plat": .string(platform), "tz": .string(tz), "lang": .string(lang)]))
+    }
+
+    public func linkPoll(email: String, rid: String, nonce: String? = nil) async throws -> CloudResponse {
+        var b: [String: JSONValue] = ["email": .string(email), "rid": .string(rid)]
+        if let nonce { b["step"] = .string("nonce"); b["nn"] = .string(nonce) }
+        return try await call("/link/poll", method: "POST", body: .object(b))
+    }
+
+    /// El dispositivo ACTIVO: ¿hay alguien pidiendo entrar?
+    public func linkPending(token: String, writeKey: String?) async throws -> CloudResponse {
+        try await call("/link/pending", token: token, writeKey: writeKey)
+    }
+
+    /// El dispositivo ACTIVO responde: `commit`, `reveal` o `answer`.
+    public func linkStep(_ body: [String: JSONValue], token: String, writeKey: String?) async throws -> CloudResponse {
+        try await call("/link/step", method: "POST", body: .object(body), token: token, writeKey: writeKey)
+    }
 }
