@@ -455,13 +455,13 @@ struct ProyeccionView: View {
                         title: Engine.text(x["name"]), badge: pend.contains(Engine.identifier(x["id"])) ? "Por confirmar" : nil,
                         sub: Self.dlabel(Engine.text(x["date"])) + " · " + Engine.repeatLabel(x["repeat"]) + untilText(x) + " · " + (isCard ? "Pago de crédito" : cat),
                         trailing: AnyView(Text("−" + f.whole(Engine.number(x["amount"]), cur)).font(.inter(16, .semibold)).monospacedDigit()),
-                        onTap: isCard ? nil : { model.activeSheet = .expected(kind: "expense", id: Engine.identifier(x["id"])) })
+                        onTap: { model.activeSheet = .expected(kind: isCard ? "cardpay" : "expense", id: Engine.identifier(x["id"])) })
                 }
                 RowDivider()
                 addRow("Añadir gasto previsto") { model.activeSheet = .expected(kind: "expense", id: nil) }
                 if !e.allCards.isEmpty {
                     RowDivider()
-                    addRow("Añadir pago de crédito previsto")
+                    addRow("Añadir pago de crédito previsto") { model.activeSheet = .expected(kind: "cardpay", id: nil) }
                 }
             }
             .padding(.bottom, 14)
@@ -478,7 +478,7 @@ struct ProyeccionView: View {
                     simRow(e, f, pl)
                 }
                 if !planned.isEmpty { RowDivider() }
-                addRow("Simular un gasto")
+                addRow("Simular un gasto") { model.activeSheet = .planned(id: nil) }
             }
             Text("Los activados cambian la gráfica y muestran su impacto entre dos fechas.")
                 .font(.inter(13)).foregroundStyle(.secondary)
@@ -490,7 +490,7 @@ struct ProyeccionView: View {
         let on = pl["on"] != .bool(false)
         let im = on ? e.simImpact(pl) : nil
         return HStack(alignment: .top, spacing: 12) {
-            Button { soon = true } label: {
+            Button { model.setPlannedOn(id: pl["id"] ?? .null, on: !on) } label: {
                 Image(systemName: "checkmark").font(.system(size: 13, weight: .bold)).foregroundStyle(.white)
                     .frame(width: 26, height: 26)
                     .background(on ? Color(hex: "#1A9D63") : Color.clear, in: Circle())
@@ -514,7 +514,7 @@ struct ProyeccionView: View {
                     }
                     .padding(.top, 4)
                 }
-                Button { soon = true } label: {
+                Button { do { try model.executePlanned(pl) } catch { soon = true } } label: {
                     Text("Ejecutar").font(.inter(13, .semibold)).foregroundStyle(Brand.accent)
                         .padding(.horizontal, 12).frame(height: 28)
                         .background(Brand.gainBg, in: Capsule())
@@ -527,7 +527,7 @@ struct ProyeccionView: View {
         }
         .padding(.vertical, 12)
         .contentShape(Rectangle())
-        .onTapGesture { soon = true }
+        .onTapGesture { model.activeSheet = .planned(id: Engine.identifier(pl["id"])) }
     }
 
     private static func short(_ iso: String) -> String {

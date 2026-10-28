@@ -140,6 +140,48 @@ final class AppModel {
         try commit { raw in ProfileEditor.deleteJob(&raw, id: id) }
     }
 
+    func savePlanned(_ item: JSONValue) throws {
+        try commit { raw in try ProfileEditor.savePlanned(&raw, item: item) }
+    }
+
+    func deletePlanned(id: JSONValue) throws {
+        try commit { raw in ProfileEditor.deletePlanned(&raw, id: id) }
+    }
+
+    func setPlannedOn(id: JSONValue, on: Bool) {
+        try? commit { raw in ProfileEditor.setPlannedOn(&raw, id: id, on: on) }
+    }
+
+    /// Ejecuta un gasto o pago simulado hoy. `amount` en USD, como se guarda.
+    func executePlanned(_ pl: JSONValue) throws {
+        let e = engine
+        let usd = abs(Engine.number(pl["amount"]))
+        let now = Date().timeIntervalSince1970 * 1000
+        let day = LocalDate.today(now: Date()).iso
+        if Engine.text(pl["kind"]) == "pay", let card = e.allCards.first(where: { $0["id"] == pl["card"] }) {
+            let cardCur = Engine.text(card["cur"])
+            let amtC = Engine.roundCents(e.fromUSD(usd, cardCur))
+            guard amtC > 0 else { throw ProfileEditor.FormError.invalidAmount }
+            let fromId = pl["acc"]
+            let fromCur = e.accountCurrency(fromId)
+            let fromAmt = Engine.roundCents(e.fromUSD(usd, fromCur))
+            let pair = String(UUID().uuidString.replacingOccurrences(of: "-", with: "").prefix(6)).lowercased()
+            try commit { raw in
+                ProfileEditor.registerPay(&raw, card: card["id"] ?? .null, amount: amtC, fromAmount: fromAmt, date: day, from: fromId,
+                                          note: "Pago de " + Engine.text(card["name"]), now: now, pair: pair)
+                ProfileEditor.deletePlanned(&raw, id: pl["id"] ?? .null)
+            }
+        } else {
+            let acc = Engine.text(pl["acc"])
+            let amt = Engine.roundCents(e.fromUSD(usd, e.accountCurrency(pl["acc"])))
+            let cat = e.categoryNames.contains(Engine.text(pl["cat"])) ? Engine.text(pl["cat"]) : "Otros"
+            let note = Engine.text(pl["name"]).replacingOccurrences(of: "\\s*\\(simulado\\)", with: "", options: [.regularExpression, .caseInsensitive])
+            try commit { raw in
+                try ProfileEditor.execPlannedExpense(&raw, id: pl["id"] ?? .null, amount: amt, account: acc, category: cat, note: note, date: day, now: now)
+            }
+        }
+    }
+
     func setSetting(_ key: String, _ value: JSONValue) {
         let old = profile.raw["settings"]?[key]
         if old == value { return }
@@ -252,12 +294,14 @@ enum ActiveSheet: Identifiable, Hashable {
     /// `kind`: "income" o "expense"; `id`: nil para uno nuevo.
     case expected(kind: String, id: String?)
     case job(id: String?)
+    case planned(id: String?)
 
     var id: String {
         switch self {
         case .transfer: return "transfer"
         case .expected(let kind, let id): return "expected-\(kind)-\(id ?? "new")"
         case .job(let id): return "job-\(id ?? "new")"
+        case .planned(let id): return "planned-\(id ?? "new")"
         }
     }
 }

@@ -125,3 +125,7 @@ public extension Engine {
     static func isRepeatQuincenal(_ r: JSONValue) -> Bool { isQ(r) }
     static func quincenalDays(_ r: JSONValue) -> (Int, Int) { qDays(r.stringValue ?? "") }
 }
+
+public extension Engine {
+    static func roundCents(_ n: Double) -> Double { round2(n) }
+}

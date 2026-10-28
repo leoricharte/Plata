@@ -24,7 +24,9 @@ struct ExpectedSheet: View {
     @FocusState private var amountFocused: Bool
 
     private var isIncome: Bool { kind == "income" }
+    private var isCardPay: Bool { kind == "cardpay" }
     private var collection: String { isIncome ? "expected_income" : "expected_expense" }
+    @State private var card = ""
 
     var body: some View {
         let e = model.engine
@@ -32,22 +34,32 @@ struct ExpectedSheet: View {
         let cur = e.accountCurrency(.string(account))
         ScrollView {
             VStack(spacing: 0) {
-                SheetHead(title: LocalizedStringKey(isIncome ? "Ingreso previsto" : "Gasto previsto"), onClose: { dismiss() }, onSave: { save() })
+                SheetHead(title: LocalizedStringKey(isIncome ? "Ingreso previsto" : (isCardPay ? "Pago de crédito previsto" : "Gasto previsto")), onClose: { dismiss() }, onSave: { save() })
                 AmountField(symbol: f.symbol(cur).trimmingCharacters(in: .whitespaces), text: $amountText,
-                            placeholder: Money.decimals(cur) > 0 ? "0.00" : "0", focus: $amountFocused, label: "Monto previsto")
+                            placeholder: Money.decimals(cur) > 0 ? "0.00" : "0", focus: $amountFocused, label: isCardPay ? "Pago previsto" : "Monto previsto")
                 PillSegmented(items: [("0", "Una vez"), ("7", "Semanal"), ("14", "14 días"), ("q", "Quincenal"), ("m", "Mensual")], selection: $repeatKey)
                     .padding(.bottom, 10)
 
                 SCard {
-                    FieldRow(symbol: "pencil", label: "Nombre", placeholder: "Nombre", text: $name)
+                    FieldRow(symbol: "pencil", label: isCardPay ? "Nombre (opcional)" : "Nombre", placeholder: "Nombre", text: $name)
                     RowDivider()
-                    SRow(symbol: "creditcard", label: LocalizedStringKey(isIncome ? "Cuenta" : "Cuenta o tarjeta")) {
+                    if isCardPay {
+                        SRow(symbol: "creditcard", label: "Tarjeta o préstamo") {
+                            Menu {
+                                Picker("", selection: $card) { ForEach(Array(e.allCards.enumerated()), id: \.offset) { _, a in Text(label(a)).tag(Engine.text(a["id"])) } }
+                            } label: {
+                                Text(e.allCards.first(where: { Engine.text($0["id"]) == card }).map(label) ?? "").foregroundStyle(.primary).lineLimit(1).frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                        }
+                        RowDivider()
+                    }
+                    SRow(symbol: "creditcard", label: LocalizedStringKey(isIncome ? "Cuenta" : (isCardPay ? "Pagar desde" : "Cuenta o tarjeta"))) {
                         Menu {
                             Picker("", selection: $account) {
                                 Section("Débito") {
                                     ForEach(Array(e.allAccounts.enumerated()), id: \.offset) { _, a in Text(label(a)).tag(Engine.text(a["id"])) }
                                 }
-                                if !isIncome && !e.allCards.isEmpty {
+                                if !isIncome && !isCardPay && !e.allCards.isEmpty {
                                     Section("Crédito") {
                                         ForEach(Array(e.allCards.enumerated()), id: \.offset) { _, a in Text(label(a)).tag(Engine.text(a["id"])) }
                                     }
@@ -57,7 +69,7 @@ struct ExpectedSheet: View {
                             Text(selectedLabel(e)).foregroundStyle(.primary).lineLimit(1).frame(maxWidth: .infinity, alignment: .leading)
                         }
                     }
-                    if !isIncome {
+                    if !isIncome && !isCardPay {
                         RowDivider()
                         SRow(symbol: "square.grid.2x2", label: "Categoría") {
                             Menu {
@@ -96,7 +108,7 @@ struct ExpectedSheet: View {
         .presentationCornerRadius(38)
         .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))
         .onAppear(perform: load)
-        .confirmationDialog("¿Eliminar este \(isIncome ? "ingreso" : "gasto") previsto?", isPresented: $confirmDelete, titleVisibility: .visible) {
+        .confirmationDialog(isCardPay ? "¿Eliminar este pago previsto?" : "¿Eliminar este \(isIncome ? "ingreso" : "gasto") previsto?", isPresented: $confirmDelete, titleVisibility: .visible) {
             Button("Eliminar", role: .destructive) {
                 if let original { try? model.deleteExpected(collection: collection, id: original["id"] ?? .null) }
                 dismiss()
@@ -130,6 +142,7 @@ struct ExpectedSheet: View {
             let a = Engine.number(o["amount"])
             amountText = a == a.rounded() ? String(Int64(a)) : String(a)
             account = Engine.text(o["acc"])
+            card = Engine.text(o["card"])
             category = e.categoryNames.contains(Engine.text(o["cat"])) ? Engine.text(o["cat"]) : "Otros"
             if let d = LocalDate(iso: Engine.text(o["date"])) { date = d.date() }
             if let u = LocalDate(iso: Engine.text(o["until"])) { until = u.date() }
@@ -145,6 +158,7 @@ struct ExpectedSheet: View {
             }
         } else {
             account = Engine.text(e.allAccounts.first?["id"])
+            card = Engine.text(e.allCards.first?["id"])
             category = "Otros"
             amountFocused = true
         }
@@ -165,8 +179,13 @@ struct ExpectedSheet: View {
         o["repeat"] = .string(repeatKey)
         o["until"] = .string(until.map(isoOf) ?? "")
         if repeatKey == "q" { o["q1"] = .number(num(q1)); o["q2"] = .number(num(q2)) }
-        if !isIncome { o["cat"] = .string(category) }
-        _ = e
+        if !isIncome && !isCardPay { o["cat"] = .string(category) }
+        if isCardPay {
+            guard let pc = e.allCards.first(where: { Engine.text($0["id"]) == card }) else { errorText = "Elige una tarjeta o préstamo."; return }
+            o["card"] = .string(card)
+            o["cat"] = .string("Otros")
+            if name.trimmingCharacters(in: .whitespaces).isEmpty { o["name"] = .string("Pago de " + Engine.text(pc["name"])) }
+        }
         do {
             try model.saveExpected(collection: collection, item: o)
             dismiss()

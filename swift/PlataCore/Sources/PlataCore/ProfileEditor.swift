@@ -117,7 +117,7 @@ public enum ProfileEditor {
 // MARK: - Transferencias e ingresos / gastos previstos
 
 public extension ProfileEditor {
-    enum FormError: Error, Equatable { case missingName, invalidAmount, invalidDays, endBeforeStart, sameAccount, invalidHours, missingStart }
+    enum FormError: Error, Equatable { case missingName, invalidAmount, invalidDays, endBeforeStart, sameAccount, invalidHours, missingStart, missingCard }
 
     /// Transferencia entre cuentas (`xferSubmit` de la web): dos movimientos con el mismo `pair`, y una comisión opcional.
     static func addTransfer(_ p: inout JSONValue, from: String, to: String, amount: Double, received: Double, commission: Double,
@@ -239,5 +239,59 @@ public extension ProfileEditor {
                                 "until": .string(Engine.str(j["until"]))]))
         }
         p["expected_income"] = .array(out)
+    }
+
+    // MARK: gastos simulados y pagos de crédito
+
+    /// Guarda un gasto simulado (`planned`); el monto ya viene en USD como lo guarda la web.
+    static func savePlanned(_ p: inout JSONValue, item: JSONValue) throws {
+        var o = item
+        if Engine.str(o["kind"]) == "pay" {
+            guard (p["cards"]?.arrayValue ?? []).contains(where: { $0["id"] == o["card"] }) else { throw FormError.missingCard }
+        } else { o["card"] = nil }
+        let name = Engine.str(o["name"]).trimmingCharacters(in: .whitespacesAndNewlines)
+        if name.isEmpty { throw FormError.missingName }
+        guard abs(Engine.num(o["amount"])) > 0 else { throw FormError.invalidAmount }
+        o["name"] = .string(name)
+        var list = p["planned"]?.arrayValue ?? []
+        if let i = list.firstIndex(where: { $0["id"] == o["id"] }) { list[i] = o } else { list.append(o) }
+        p["planned"] = .array(list)
+    }
+
+    static func deletePlanned(_ p: inout JSONValue, id: JSONValue) {
+        var list = p["planned"]?.arrayValue ?? []
+        list.removeAll { $0["id"] == id }
+        p["planned"] = .array(list)
+    }
+
+    static func setPlannedOn(_ p: inout JSONValue, id: JSONValue, on: Bool) {
+        var list = p["planned"]?.arrayValue ?? []
+        for i in list.indices where list[i]["id"] == id { list[i]["on"] = .bool(on) }
+        p["planned"] = .array(list)
+    }
+
+    /// Pago a una tarjeta o préstamo (`registerPay`): sube el saldo de la tarjeta y, si hay cuenta de origen, la descuenta.
+    static func registerPay(_ p: inout JSONValue, card: JSONValue, amount: Double, fromAmount: Double, date: String,
+                            from: JSONValue?, note: String, now: Double, pair: String) {
+        func push(_ amt: Double, _ note: String, _ acc: JSONValue, pair: String?) {
+            let id = nextTxId(p, now: now)
+            var tx: [String: JSONValue] = ["id": .number(id), "date": .string(date), "amount": .number(amt), "category": .string(Engine.payCategory), "note": .string(note), "acc": acc]
+            if let pair { tx["pair"] = .string(pair) }
+            var list = p["transactions"]?.arrayValue ?? []
+            list.append(.object(tx))
+            p["transactions"] = .array(list)
+            applyTo(&p, acc, amt)
+        }
+        let hasFrom = from.map { f in (p["accounts"]?.arrayValue ?? []).contains(where: { $0["id"] == f }) } ?? false
+        push(amount, note, card, pair: hasFrom ? pair : nil)
+        if hasFrom, let from { push(-fromAmount, "Pago a " + Engine.str(((p["cards"]?.arrayValue ?? []).first { $0["id"] == card })?["name"]), from, pair: pair) }
+    }
+
+    /// Ejecuta un gasto simulado hoy: lo registra como movimiento real y lo quita de la lista.
+    static func execPlannedExpense(_ p: inout JSONValue, id: JSONValue, amount: Double, account: String, category: String, note: String,
+                                   date: String, now: Double) throws {
+        guard amount > 0 else { throw FormError.invalidAmount }
+        _ = try addTransaction(&p, date: date, amount: -amount, category: category, note: note, account: account, now: now)
+        deletePlanned(&p, id: id)
     }
 }
