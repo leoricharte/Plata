@@ -4,6 +4,7 @@ import PlataCore
 /// El detalle de un movimiento (`renderTx` de la web): cuadrito, nombre, categoría, monto grande y sus datos.
 struct TransactionDetailView: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.dismiss) private var dismiss
     let id: String
     @State private var editing: JSONValue?
     @State private var confirmDelete = false
@@ -14,7 +15,7 @@ struct TransactionDetailView: View {
         if let tx = e.allTransactions.first(where: { Engine.identifier($0["id"]) == id }) {
             content(tx, e, f)
         } else {
-            Color.clear.onAppear { if !model.path.isEmpty { model.path.removeLast() } }
+            Color.clear.onAppear { dismiss() }
         }
     }
 
@@ -96,7 +97,7 @@ struct TransactionDetailView: View {
         .confirmationDialog("¿Eliminar este movimiento?", isPresented: $confirmDelete, titleVisibility: .visible) {
             Button("Eliminar", role: .destructive) {
                 try? model.deleteTransaction(id: tx["id"] ?? .null)
-                if !model.path.isEmpty { model.path.removeLast() }
+                dismiss()
             }
             Button("Cancelar", role: .cancel) {}
         } message: {

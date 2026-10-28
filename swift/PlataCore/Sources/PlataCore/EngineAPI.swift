@@ -93,3 +93,25 @@ public extension Engine {
     var budgetSetList: [JSONValue] { list("budgetSets") }
     var subscriptionList: [JSONValue] { list("subs") }
 }
+
+public extension Engine {
+    /// Monto de un movimiento en dólares (la moneda interna del motor).
+    func transactionUSD(_ t: JSONValue) -> Double { txUSD(t) }
+    static func jobNetPay(_ j: JSONValue) -> Double { jobNet(j) }
+    var jobList: [JSONValue] { list("jobs") }
+    var plannedList: [JSONValue] { list("planned") }
+    var expectedExpenseList: [JSONValue] { list("expected_expense") }
+
+    /// «cada mes», «cada semana»… (como `repLabel` de la web).
+    static func repeatLabel(_ r: JSONValue?) -> String {
+        guard let r else { return "una vez" }
+        if isQ(r) { let d = qDays(r.stringValue ?? ""); return "los días \(d.0) y \(d.1) de cada mes" }
+        if r == .string("m") { return "cada mes" }
+        let n = num(r)
+        return n == 7 ? "cada semana" : (n == 14 ? "cada 2 semanas" : "una vez")
+    }
+    static func jobRepeatLabel(_ j: JSONValue) -> String { repeatLabel(jobRep(str(j["freq"]), j)) }
+
+    /// ¿Es un pago de crédito previsto? (tiene `card`)
+    func paymentCard(_ e: JSONValue) -> JSONValue? { payOf(e) }
+}

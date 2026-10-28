@@ -195,3 +195,16 @@ struct SecondaryPillStyle: ButtonStyle {
             .opacity(configuration.isPressed ? 0.75 : 1)
     }
 }
+
+/// Etiqueta pequeña de la web (`.badge`): «Por confirmar», «Activo», «Simulado»…
+struct StatusBadge: View {
+    let text: LocalizedStringKey
+    var fg: Color = Brand.warnText
+    var bg: Color = Color(light: "#FFF1D6", dark: "#3A2A10")
+    var size: CGFloat = 12
+    var body: some View {
+        Text(text).font(.inter(size, .semibold)).foregroundStyle(fg)
+            .padding(.horizontal, 8).padding(.vertical, 2)
+            .background(bg, in: Capsule())
+    }
+}
