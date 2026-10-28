@@ -3,6 +3,13 @@ import WebKit
 
 @main
 struct PlataApp: App {
+    init() {
+        // Texto de los selectores segmentados nativos un poco más grande (el de sistema es de 13 pt)
+        let seg = UISegmentedControl.appearance()
+        seg.setTitleTextAttributes([.font: UIFont.systemFont(ofSize: 16, weight: .medium)], for: .normal)
+        seg.setTitleTextAttributes([.font: UIFont.systemFont(ofSize: 16, weight: .semibold)], for: .selected)
+    }
+
     var body: some Scene {
         WindowGroup { RootView() }
     }
