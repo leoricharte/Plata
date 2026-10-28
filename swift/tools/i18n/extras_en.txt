@@ -121,3 +121,9 @@ Importa o quita uno y usa «Cargar más». ¦ Import or remove one and use “Lo
 Nazca todavía no lee PDF en esta versión ¦ Nazca can’t read PDFs in this version yet
 Por ahora puedes importar el CSV de tu banco. ¦ For now you can import your bank’s CSV.
 Nazca todavía no lee archivos de Excel en esta versión ¦ Nazca can’t read Excel files in this version yet
+
+# --- Importar: estados de cuenta y varios archivos
+{0} archivo unido ¦ {0} {0?file:files} merged
+{0} fila repetida entre archivos omitida ¦ {0} repeated {0?row:rows} across files skipped
+Banco verificado ¦ Verified bank
+Nazca reconoció el banco en el archivo ¦ Nazca recognized the bank in the file

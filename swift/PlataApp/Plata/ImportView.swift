@@ -27,7 +27,9 @@ struct ImportFlowView: View {
         case .how: return ("Importar archivo", "Cómo funciona")
         case .busy: return ("Datos de banco", "Leyendo…")
         case .done: return ("Listo", "Importado")
-        case .review: return (reviews.indices.contains(idx) && !reviews[idx].guess.isEmpty ? reviews[idx].guess : "Archivo CSV", "Revisar")
+        case .review:
+            let label = reviews.indices.contains(idx) ? reviews[idx].source?.label ?? "" : ""
+            return (label.isEmpty ? "Archivo CSV" : label, "Revisar")
         }
     }
 
@@ -59,7 +61,7 @@ struct ImportFlowView: View {
         .tint(Brand.accent)
     }
 
-    private static let types: [UTType] = [.commaSeparatedText, .tabSeparatedText, .plainText, .text, UTType(filenameExtension: "csv"), UTType(filenameExtension: "tsv")].compactMap { $0 }
+    private static let types: [UTType] = [.commaSeparatedText, .tabSeparatedText, .plainText, .text, UTType(filenameExtension: "csv"), UTType(filenameExtension: "tsv"), UTType(filenameExtension: "xlsx")].compactMap { $0 }
 
     // MARK: pantallas
 
@@ -281,6 +283,7 @@ struct ImportFlowView: View {
     }
 
     private enum Outcome { case review(ImportReview), fail(String, String), empty }
+    private struct Parsed: Sendable { var analysis: Nazca.Analysis; var items: [Nazca.Item]; var unreadable: Int }
 
     @MainActor private func ingest(_ files: [Picked], adding: Bool) async {
         await Task.yield()
@@ -293,7 +296,10 @@ struct ImportFlowView: View {
             let outcome = await read(f)
             switch outcome {
             case .review(let r):
-                if list.count >= ImportReview.maxFiles { over.append(String(f.name.prefix(60))) } else { list.append(r); last = list.count - 1; seen.insert(sig) }
+                if let j = list.firstIndex(where: { $0.isSame(as: r) }) {
+                    list[j].merge(r, engine: model.engine); last = j; seen.insert(sig)
+                } else if list.count >= ImportReview.maxFiles { over.append(String(f.name.prefix(60))) }
+                else { list.append(r); last = list.count - 1; seen.insert(sig) }
             case .fail(let t, let m): fails.append((String(f.name.prefix(60)), t, m))
             case .empty: empty.append(String(f.name.prefix(60)))
             }
@@ -326,23 +332,55 @@ struct ImportFlowView: View {
     }
 
     @MainActor private func read(_ f: Picked) async -> Outcome {
+        let isXlsx = f.name.lowercased().hasSuffix(".xlsx")
         guard let data = f.data else {
-            return .fail(Tr.t("El archivo es muy grande"), Tr.t("El máximo es 5 MB. Descarga un periodo más corto desde tu banca por internet."))
+            return isXlsx ? .fail(Tr.t("El archivo es muy grande"), Tr.t("El máximo es 5 MB."))
+                : .fail(Tr.t("El archivo es muy grande"), Tr.t("El máximo es 5 MB. Descarga un periodo más corto desde tu banca por internet."))
         }
         let head = String(data: data.prefix(5), encoding: .isoLatin1) ?? ""
         if head == "%PDF-" || f.name.lowercased().hasSuffix(".pdf") {
             return .fail(Tr.t("Nazca todavía no lee PDF en esta versión"), Tr.t("Por ahora puedes importar el CSV de tu banco."))
         }
-        if head.hasPrefix("PK") || f.name.lowercased().hasSuffix(".xlsx") {
-            return .fail(Tr.t("Nazca todavía no lee archivos de Excel en esta versión"), Tr.t("Por ahora puedes importar el CSV de tu banco."))
-        }
-        let parsed: Nazca.Analysis? = await Task.detached(priority: .userInitiated) { try? Nazca.analyze(Nazca.decode(data)) }.value
-        guard let a = parsed else {
+        if head.hasPrefix("PK") || isXlsx { return await readExcel(f, data) }
+        let parsed: Parsed? = await Task.detached(priority: .userInitiated) {
+            guard let a = try? Nazca.analyze(Nazca.decode(data)) else { return nil }
+            let x = Nazca.extract(a)
+            return Parsed(analysis: a, items: x.items, unreadable: x.skipped.unreadable)
+        }.value
+        guard let parsed else {
             return .fail(Tr.t("Nazca no pudo leer ese archivo"), Tr.t("Revisa que sea el archivo CSV que descargaste de tu banca por internet."))
+        }
+        // un CSV con columnas propias de un banco que Nazca conoce se revisa igual que su estado de cuenta
+        let a = parsed.analysis
+        if let sig = Nazca.detectCsv(a.headers), !parsed.items.isEmpty {
+            let items = parsed.items.enumerated().map { i, it in Nazca.Item(line: i + 1, date: it.date, desc: it.desc, amount: sig.flip ? -it.amount : it.amount, cur: it.cur) }
+            var res = Nazca.StatementResult(bank: sig.bank, kind: sig.kind, label: sig.label, cur: sig.cur, items: items)
+            res.unreadable = parsed.unreadable
+            if let r = ImportReview(name: f.name, statement: res, engine: model.engine) { return .review(r) }
         }
         guard let r = ImportReview(name: f.name, analysis: a, engine: model.engine, preferredAccount: nil, guess: Self.nameGuess(f.name)) else {
             return .empty
         }
+        return .review(r)
+    }
+
+    /// Excel (.xlsx): hoy el reporte de movimientos de Yape. Se abre en el dispositivo y se revisa igual que un estado de cuenta.
+    @MainActor private func readExcel(_ f: Picked, _ data: Data) async -> Outcome {
+        let rows: [[String]]? = await Task.detached(priority: .userInitiated) { try? NazcaXLSX.read(data) }.value
+        guard let rows else {
+            return .fail(Tr.t("Nazca no pudo leer ese archivo"), Tr.t("Revisa que sea el reporte de movimientos en Excel que descargaste."))
+        }
+        guard NazcaYape.detect(rows) else {
+            return .fail(Tr.t("Nazca todavía no reconoce este archivo"),
+                         Tr.t("Por ahora Nazca lee el reporte de movimientos en Excel que descargas desde Yape. Revisa que sea ese archivo."))
+        }
+        guard let res = NazcaYape.read(rows) else {
+            return .fail(Tr.t("Nazca no pudo leer el reporte"), Tr.t("No encontramos las columnas del reporte de movimientos de Yape."))
+        }
+        if res.items.isEmpty {
+            return .fail(Tr.t("Nazca no encontró movimientos"), Tr.t("No hallamos movimientos en el archivo. Revisa que sea el reporte de movimientos de Yape."))
+        }
+        guard let r = ImportReview(name: f.name, statement: res, engine: model.engine) else { return .empty }
         return .review(r)
     }
 
@@ -454,10 +492,10 @@ struct ImportReviewBody: View {
             profileCard(e)
             footNote
             summary
-            accountCard(e)
+            if let src = review.source { statementAccountCard(e, src) } else { accountCard(e) }
             if !review.foreignCurrency.isEmpty { fxCard(e, f) }
             balanceCard(e, f, proj, credit)
-            columnsCard
+            if !review.isStatement { columnsCard }
             listSection(f)
             if review.analysis.truncated {
                 Text("El archivo tiene más de 5000 filas: se leyeron las primeras 5000.")
@@ -481,22 +519,79 @@ struct ImportReviewBody: View {
             guard let a = dates.first.flatMap({ LocalDate(iso: $0) }), let b = dates.last.flatMap({ LocalDate(iso: $0) }) else { return "" }
             return Tr.t("Del " + Spanish.dateShort(a) + " al " + Spanish.dateShort(b))
         }()
+        let src = review.source
+        let bank = src?.bank
+        let title: String = bank.map { Nazca.bankShort($0) } ?? ((src?.label).flatMap { $0.isEmpty ? nil : $0 } ?? (review.guess.isEmpty ? Tr.t("Archivo CSV") : review.guess))
+        let ci = src?.cardInfo
+        let due = ci?.dueDate.flatMap { LocalDate(iso: $0) }
         return SCard {
             HStack(spacing: 14) {
-                Image(systemName: "doc.text").font(.system(size: 34)).foregroundStyle(Color.primary.opacity(0.46)).frame(width: 52, height: 52)
+                Image(systemName: bank != nil ? "building.columns" : "doc.text").font(.system(size: 30)).foregroundStyle(Color.primary.opacity(0.46)).frame(width: 52, height: 52)
                 VStack(alignment: .leading, spacing: 5) {
-                    Text(verbatim: review.guess.isEmpty ? Tr.t("Archivo CSV") : review.guess).font(.inter(19, .bold))
-                    HStack(spacing: 14) {
+                    HStack(spacing: 6) {
+                        Text(verbatim: title).font(.inter(19, .bold))
+                        if bank != nil {
+                            Image(systemName: "checkmark.seal.fill").font(.system(size: 18)).foregroundStyle(Brand.accent)
+                                .accessibilityLabel("Banco verificado")
+                        }
+                    }
+                    VStack(alignment: .leading, spacing: 3) {
                         Label { Text(verbatim: Tr.t(Spanish.plural(review.rows.count, "movimiento", "movimientos"))) } icon: { Image(systemName: "arrow.left.arrow.right") }
                         if !span.isEmpty { Label { Text(verbatim: span) } icon: { Image(systemName: "calendar") } }
+                        if let due {
+                            Label { Text("Pagar antes del") + Text(verbatim: " " + Spanish.dateShort(due)) } icon: { Image(systemName: "calendar.badge.clock") }
+                        }
+                        if let apr = ci?.apr {
+                            Label { Text(verbatim: Self.num(apr) + " %") + Text(" de tasa anual") } icon: { Image(systemName: "percent") }
+                        }
                     }
                     .font(.inter(14.5)).foregroundStyle(.secondary).labelStyle(.titleAndIcon)
-                    Text(verbatim: review.name).font(.inter(12.5)).foregroundStyle(.tertiary).lineLimit(1).truncationMode(.middle)
+                    Text(verbatim: review.names.count > 1 ? review.names.joined(separator: " · ") : review.name)
+                        .font(.inter(12.5)).foregroundStyle(.tertiary).lineLimit(2).truncationMode(.middle)
                 }
                 Spacer(minLength: 0)
             }
             .padding(.vertical, 12)
+            if let ck = src?.check, let ok = ck.ok { checkView(ck, ok) }
         }
+    }
+
+    private static func num(_ x: Double) -> String { x == x.rounded() ? String(Int(x)) : String(x) }
+
+    /// «Cuadra con tu estado de cuenta»: Nazca comprobó que los movimientos suman los totales y el saldo final del banco.
+    private func checkView(_ ck: Nazca.StatementResult.Check, _ ok: Bool) -> some View {
+        let many = ck.n > 1
+        let flagged = flaggedNames
+        return HStack(alignment: .top, spacing: 12) {
+            Image(systemName: ok ? "checkmark.shield" : "exclamationmark.triangle").font(.system(size: 22))
+                .foregroundStyle(ok ? Brand.gainText : Brand.warnText).frame(width: 28)
+            VStack(alignment: .leading, spacing: 2) {
+                if ok {
+                    Text(many ? "Cuadran los estados de cuenta" : "Cuadra con tu estado de cuenta").font(.inter(16, .semibold))
+                    Text(many ? "Nazca comprobó que los movimientos de cada estado suman sus totales y su saldo final."
+                         : "Nazca comprobó que los movimientos suman los totales y el saldo final de tu banco.").font(.inter(14)).foregroundStyle(.secondary)
+                } else {
+                    Text(many ? "No cuadra alguno de los estados de cuenta" : "No cuadra con tu estado de cuenta").font(.inter(16, .semibold))
+                    Text(many ? "Nazca leyó los movimientos, pero en algún estado no suman los totales de tu banco. Revisa cada uno antes de importar."
+                         : "Nazca leyó los movimientos, pero no suman los totales de tu banco. Revisa la lista antes de importar.").font(.inter(14)).foregroundStyle(.secondary)
+                    if !flagged.bad.isEmpty { (Text("No cuadra:") + Text(verbatim: " " + flagged.bad)).font(.inter(14)).foregroundStyle(.secondary).padding(.top, 4) }
+                    if !flagged.unread.isEmpty { (Text("Con filas sin leer:") + Text(verbatim: " " + flagged.unread)).font(.inter(14)).foregroundStyle(.secondary) }
+                }
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(12)
+        .background((ok ? Brand.accent : Brand.warn).opacity(0.12), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .padding(.bottom, 12)
+    }
+
+    /// Con varios archivos unidos, nombra cuáles no cuadran y cuáles tuvieron filas sin leer.
+    private var flaggedNames: (bad: String, unread: String) {
+        guard review.names.count > 1, let src = review.source else { return ("", "") }
+        func pick(_ f: (Int) -> Bool) -> String { review.names.indices.filter(f).map { review.names[$0] }.joined(separator: ", ") }
+        let bad = src.checks.count == review.names.count ? pick { src.checks[$0]?.ok == false } : ""
+        let unr = review.unr.flatMap { $0.count == review.names.count ? $0 : nil }.map { u in pick { u[$0] > 0 } } ?? ""
+        return (bad, unr)
     }
 
     private var footNote: some View {
@@ -522,6 +617,8 @@ struct ImportReviewBody: View {
         chip(review.count(.cur) + review.count(.fxc) + review.count(.fxs), "de otra moneda", "de otra moneda")
         chip(review.count(.future), "con fecha futura", "con fecha futura")
         chip(review.unreadable, "fila no se pudo leer", "filas no se pudieron leer")
+        chip(review.names.count > 1 ? review.names.count : 0, "archivo unido", "archivos unidos")
+        chip(review.mdup, "fila repetida entre archivos omitida", "filas repetidas entre archivos omitidas")
         return out
     }
 
@@ -568,12 +665,49 @@ struct ImportReviewBody: View {
         }
     }
 
+    /// Para un estado de cuenta: crear la cuenta nueva o fusionar con una que ya existe.
+    private func statementAccountCard(_ e: Engine, _ src: ImportReview.Source) -> some View {
+        let isNew = review.account == ImportReview.newId
+        let merge = review.mergeTarget(e)
+        let accounts = e.allAccounts
+        let cards = src.card ? e.allCards.filter { Engine.str($0["kind"]) == "card" } : []
+        return SCard {
+            Text("Cuenta").font(.inter(13)).foregroundStyle(.secondary).padding(.top, 10).padding(.bottom, 2)
+            OptionRow(title: "Crear cuenta nueva", subVerbatim: Engine.text(src.newAcc["name"]) + ImportReview.l4(src.newAcc), on: isNew) {
+                review.chooseAccount(ImportReview.newId, engine: model.engine)
+            }
+            if let merge {
+                RowDivider()
+                OptionRow(title: "Fusionar con otra cuenta", sub: "Suma estos movimientos a una que ya tienes.", on: !isNew) {
+                    review.chooseAccount(merge, engine: model.engine)
+                }
+                if !isNew {
+                    Picker("Cuenta", selection: Binding(get: { review.account }, set: { review.chooseAccount($0, engine: model.engine) })) {
+                        Section("Débito") {
+                            ForEach(Array(accounts.enumerated()), id: \.offset) { _, o in
+                                Text(verbatim: Engine.text(o["name"]) + ImportReview.l4(o) + " · " + Engine.text(o["cur"])).tag(Engine.identifier(o["id"]))
+                            }
+                        }
+                        if !cards.isEmpty {
+                            Section("Crédito") {
+                                ForEach(Array(cards.enumerated()), id: \.offset) { _, o in
+                                    Text(verbatim: Engine.text(o["name"]) + ImportReview.l4(o) + " · " + Engine.text(o["cur"])).tag(Engine.identifier(o["id"]))
+                                }
+                            }
+                        }
+                    }
+                    .pickerStyle(.menu).labelsHidden().frame(maxWidth: .infinity, alignment: .leading).padding(.leading, 34).padding(.bottom, 8)
+                }
+            }
+        }
+    }
+
     // MARK: otra moneda
 
     private func fxCard(_ e: Engine, _ f: Fmt) -> some View {
         let F = review.foreignCurrency
         let n = review.rows.filter { $0.cur == F }.count
-        let accCur = e.accountCurrency(.string(review.account))
+        let accCur = review.accountCurrency(e)
         let splitOk = ImportReview.splitAllowed(F, e)
         let pool = review.fxPool(e)
         let mode = review.fxMode ?? .skip

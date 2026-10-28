@@ -160,6 +160,9 @@ public struct ImportReview {
 
     public var isStatement: Bool { source != nil }
 
+    /// La moneda de la cuenta que se está revisando.
+    public func accountCurrency(_ e: Engine) -> String { resolve(e.data).map { Engine.str($0.acc["cur"]) } ?? e.primaryCurrency }
+
     // MARK: ajustes
 
     /// Cambia qué columna es cada cosa y vuelve a leer el archivo (reinicia selección, categorías elegidas, signos y saldo).
