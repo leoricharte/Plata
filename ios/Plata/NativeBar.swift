@@ -168,6 +168,7 @@ struct NativeBar: View {
         .foregroundStyle(Color.primary)
         .modifier(GlassBackground(shape: Circle(), interactive: true))
         .overlay(alignment: .topTrailing) { badge(dot) }
+        .zIndex(1)
         .opacity(b.o)
         .allowsHitTesting(b.o > 0.5)
         .accessibilityLabel(label)
@@ -178,7 +179,7 @@ struct NativeBar: View {
     private func badge(_ kind: Int) -> some View {
         if kind > 0 {
             Circle()
-                .fill(kind == 2 ? Color(red: 0.843, green: 0.0, blue: 0.082) : Color(red: 1.0, green: 0.584, blue: 0.0))
+                .fill(kind == 2 ? Color(red: 0.843, green: 0.0, blue: 0.082) : kind == 3 ? Color(red: 0.133, green: 0.71, blue: 0.451) : Color(red: 1.0, green: 0.584, blue: 0.0))
                 .frame(width: 12, height: 12)
                 .overlay(Circle().stroke(Color(.systemBackground), lineWidth: 2))
                 .offset(x: -1, y: 1)

@@ -18,7 +18,7 @@
   /* 1. Ocultar los controles web (siguen ocupando su sitio y siguen aplicando su CSS) */
   root.setAttribute('data-native', '1');
   var st = document.createElement('style');
-  st.textContent = 'html[data-native]:not(.web) #tabbar,html[data-native]:not(.web) #gearbtn,html[data-native]:not(.web) #plusbtn,html[data-native]:not(.web) .plata-nbtn{visibility:hidden!important}html[data-native]:not(.web) #qmenu{visibility:hidden!important}html[data-native] *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}html[data-native] body,html[data-native] button,html[data-native] input,html[data-native] textarea,html[data-native] select{font-family:-apple-system,system-ui,sans-serif!important}html[data-native] input,html[data-native] textarea,html[data-native] [contenteditable]{-webkit-user-select:text;user-select:text}';
+  st.textContent = 'html[data-native]:not(.web) #tabbar,html[data-native]:not(.web) #gearbtn,html[data-native]:not(.web) #plusbtn,html[data-native]:not(.web) .plata-nbtn{visibility:hidden!important}html[data-native]:not(.web) #qmenu{visibility:hidden!important}html[data-native] .gdot{visibility:hidden!important}html[data-native] *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}html[data-native] body,html[data-native] button,html[data-native] input,html[data-native] textarea,html[data-native] select{font-family:-apple-system,system-ui,sans-serif!important}html[data-native] input,html[data-native] textarea,html[data-native] [contenteditable]{-webkit-user-select:text;user-select:text}';
   root.appendChild(st);
 
   /* 2. Estado hacia Swift */
@@ -136,7 +136,7 @@
       t: 'state',
       bar: box('tabbar'), plus: box('plusbtn'), gear: box('gearbtn'), btns: buttons(), menu: menu(),
       compact: !!(bar && bar.classList.contains('compact')),
-      gdot: gd ? (gd.classList.contains('gone') ? 2 : (gd.classList.contains('dirty') ? 1 : 0)) : 0,
+      gdot: gd ? (gd.classList.contains('gone') ? 2 : (gd.classList.contains('demo') ? 3 : (gd.classList.contains('dirty') ? 1 : 0))) : 0,
       on: on, tab: root.getAttribute('data-tab') || '', labels: labels, plusLabel: lbl('plusbtn'), gearLabel: lbl('gearbtn'),
       theme: root.getAttribute('data-theme') || ''
     };
