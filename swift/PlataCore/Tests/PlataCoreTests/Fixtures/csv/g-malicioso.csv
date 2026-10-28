@@ -1,0 +1,7 @@
+Fecha,Descripción,Monto
+01/10/2026,"<img src=x onerror=alert(1)>",-10.00
+02/10/2026,=HYPERLINK("http://x.example"),-5.00
+03/10/2026,"""><script>alert(2)</script>",-1.00
+31/12/2099,FECHA FUTURA,-3.00
+xx/yy/zzzz,FILA ROTA,abc
+04/10/2026,MONTO CERO,0.00

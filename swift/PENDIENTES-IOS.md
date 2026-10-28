@@ -1,12 +1,12 @@
 # Plata iOS (SwiftUI nativo) — estado y pendientes
 
-Documento para pasarle a otra IA o a otra persona. Actualizado: 28 oct 2026. Avance estimado: **63 %**.
+Documento para pasarle a otra IA o a otra persona. Actualizado: 28 oct 2026. Avance estimado: **68 %**.
 
 ## Contexto
 
 - Repo `leoricharte/Plata`, rama **`swift-nativo`**. App en `swift/PlataApp` (target `Plata`), núcleo en `swift/PlataCore` (Swift Package).
 - La web `dev/app/src/app.html` es la **base y la referencia**: la app nativa debe ser un port casi 1:1 (textos, orden, tamaños, espaciados, colores, «personalidad»). Solo los iconos pasan a SF Symbols.
-- Idiomas objetivo: **español e inglés** únicamente (hoy todo está en español, escrito a mano en el código).
+- Idiomas objetivo: **español e inglés** únicamente. El código está en español; el inglés se traduce en ejecución con `Tr.swift` (ver punto 21).
 - El perfil es un JSON sin esquema (v3). `PlataCore` lo maneja con `JSONValue` y replica el motor de la web (calc, projection, simImpact, payoff, genEvents, etc.), verificado contra la web. `AppModel` (`@Observable`) hace `commit {}` (sella con `SyncStamper` y guarda).
 - Piso iOS 18. En iOS 26+ se usa Liquid Glass; la barra de pestañas es la **nativa del sistema** (`TabView` con `Tab`). El «+» está en la barra de herramientas superior (`AddMenuButton`).
 - Proyecto con **XcodeGen**: al añadir archivos nuevos, correr `cd swift/PlataApp && xcodegen`. Setup de una Mac nueva: `bash swift/tools/setup-mac.sh`.
@@ -21,7 +21,7 @@ Hojas: movimiento nuevo/editar, transferir, ingreso previsto, gasto previsto, pa
 ## Pendientes
 
 ### Formularios y acciones (muchos botones muestran hoy «Llega en la siguiente versión»)
-1. ~~Selector de icono + logos de bancos y suscripciones~~ (hecho; falta vista previa del cuadrito en el formulario y logo de suscripción en filas de movimientos).
+1. ~~Selector de icono + logos de bancos y suscripciones~~ (hecho, incluida la vista previa del cuadrito y el logo de suscripción en las filas).
 2. Categorías hechas; falta **sets de presupuesto** (`bsets`).
 3. ~~Confirmar lo «Por confirmar»~~ (hecho: hoja con monto real, horas, posponer, repetición, pago de tarjeta). Falta **Adelantar a hoy** en el detalle.
 4. **Pago de crédito real** (registrar pago desde la pantalla de tarjeta) y **simular pago extra** de deuda.
@@ -41,19 +41,19 @@ Hojas: movimiento nuevo/editar, transferir, ingreso previsto, gasto previsto, pa
 16. **Cambio de moneda principal** (flujo completo), monedas activas, tipo de cambio.
 17. Perfil: **Idioma**, **Tema** (claro/oscuro/auto), **Tutorial**, avatar/color.
 18. Cargar/guardar archivo de perfil (hay base), exportar, borrar todo, perfiles demo.
-19. Bienvenida / onboarding (`showWelcome`, niveles de tutorial).
+19. Bienvenida / onboarding hecho; **tutorial guiado** (`Tour.swift`) hecho, sin el anillo de resaltado (la barra es del sistema).
 20. Notificaciones / recordatorios (si se decide).
 
 ### Calidad visual y plataforma
-21. **Inglés**: extraer todos los textos a `Localizable.xcstrings`; revisar fechas, plurales y moneda.
+21. ~~**Inglés**~~ (hecho): `Tr.swift` + `Resources/tr_en.json` (generado con `swift/tools/i18n/gen_en.py` desde los diccionarios de la web + `extras_en.txt`) traducen en ejecución; `Localized.swift` reemplaza `Text/Button/Label/...` para pasar por `Tr`. `Text(verbatim:)` evita traducir. Falta: separadores de miles/decimales por idioma y personas demo en inglés (`DEMO_PACK`).
 22. Revisión visual 1:1 contra la web pantalla por pantalla (espaciados, tamaños, pesos tipográficos, colores en modo oscuro).
 23. Etiquetas curvas del anillo (la web las dibuja curvadas), logo «Estudio 22» en Ajustes.
-24. Pestañas en pantallas empujadas: ocultar barra en Presupuesto/Proyección/Ahorro/Cuentas si empujan detalles (hoy solo Resumen usa `path`).
+24. ~~Barra de pestañas oculta en pantallas empujadas~~ (hecho en Resumen, Cuentas y Proyección).
 25. Accesibilidad (VoiceOver, Dynamic Type, contraste) y soporte iPad (si aplica).
 26. Rendimiento y pruebas: más pruebas en `PlataCore` para las funciones nuevas de `ProfileEditor` (transferencia, previstos, trabajo, simulaciones, metas), pruebas de UI básicas.
 
 ### Publicación
-27. Firma: `DEVELOPMENT_TEAM` en `project.yml`, Bundle ID `net.plataapp.plata`, iconos, capturas.
+27. (hecho: manifiesto de privacidad `PrivacyInfo.xcprivacy`, nombre localizado) Firma: `DEVELOPMENT_TEAM` en `project.yml`, Bundle ID `net.plataapp.plata`, iconos, capturas.
 28. TestFlight y App Store (cuenta Apple Developer ya iniciada), política de privacidad, ficha.
 
 ## Cómo trabajar

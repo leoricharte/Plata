@@ -1,0 +1,60 @@
+import Foundation
+
+/// Expresión regular con la semántica de JavaScript para los patrones de Nazca:
+/// `\d` solo es 0-9 (en ICU también serían otros dígitos Unicode) y `$` es el final del texto (en ICU también antes de un salto de línea final).
+struct Rx: @unchecked Sendable {
+    let re: NSRegularExpression
+
+    init(_ pattern: String, ci: Bool = false) {
+        re = try! NSRegularExpression(pattern: Rx.translate(pattern), options: ci ? [.caseInsensitive] : [])
+    }
+
+    static func translate(_ p: String) -> String {
+        var out = "", inClass = false, esc = false
+        for ch in p {
+            if esc {
+                esc = false
+                if ch == "d" { out += inClass ? "0-9" : "[0-9]" } else { out.append("\\"); out.append(ch) }
+                continue
+            }
+            if ch == "\\" { esc = true; continue }
+            if inClass { if ch == "]" { inClass = false }; out.append(ch); continue }
+            if ch == "[" { inClass = true; out.append(ch); continue }
+            if ch == "$" { out += "\\z"; continue }
+            out.append(ch)
+        }
+        return out
+    }
+
+    private func full(_ s: String) -> NSRange { NSRange(location: 0, length: (s as NSString).length) }
+
+    func test(_ s: String) -> Bool { re.firstMatch(in: s, range: full(s)) != nil }
+
+    /// Los grupos de la primera coincidencia (el 0 es todo); un grupo que no participó queda vacío. `nil` si no hay coincidencia.
+    func groups(_ s: String) -> [String]? {
+        guard let m = re.firstMatch(in: s, range: full(s)) else { return nil }
+        let ns = s as NSString
+        return (0..<m.numberOfRanges).map { i in
+            let r = m.range(at: i)
+            return r.location == NSNotFound ? "" : ns.substring(with: r)
+        }
+    }
+
+    func first(_ s: String) -> String? { groups(s)?.first }
+
+    /// Reemplaza todas las coincidencias por un texto fijo (sin referencias a grupos).
+    func replace(_ s: String, _ with: String) -> String {
+        re.stringByReplacingMatches(in: s, range: full(s), withTemplate: NSRegularExpression.escapedTemplate(for: with))
+    }
+}
+
+/// `String.prototype.trim` de JavaScript (no quita U+0085, sí quita U+FEFF).
+let jsWhitespace: CharacterSet = {
+    var c = CharacterSet(charactersIn: "\u{09}\u{0A}\u{0B}\u{0C}\u{0D}\u{20}\u{A0}\u{1680}\u{2028}\u{2029}\u{202F}\u{205F}\u{3000}\u{FEFF}")
+    c.insert(charactersIn: "\u{2000}"..."\u{200A}")
+    return c
+}()
+
+extension String {
+    var jsTrimmed: String { trimmingCharacters(in: jsWhitespace) }
+}

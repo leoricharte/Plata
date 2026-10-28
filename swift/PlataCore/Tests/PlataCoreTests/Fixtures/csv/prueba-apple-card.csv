@@ -1,0 +1,7 @@
+Transaction Date,Clearing Date,Description,Merchant,Category,Type,Amount (USD),Purchased By
+03/02/2026,03/03/2026,TIENDA EJEMPLO 1 CALLE DEMO CIUDAD NY USA,Tienda Ejemplo,Shopping,Purchase,15.29,Persona de Prueba
+03/05/2026,03/06/2026,CAFE DEMO 2 CALLE DEMO CIUDAD NY USA,Cafe Demo,Restaurants,Purchase,7.54,Persona de Prueba
+03/10/2026,03/10/2026,Apple Cash payment,Apple Cash,Payment,Payment,-5.00,Persona de Prueba
+03/12/2026,03/13/2026,APPLE.COM/BILL ONE APPLE PARK WAY CUPERTINO CA USA,Apple,Services,Purchase,6.99,Persona de Prueba
+03/18/2026,03/19/2026,DEVOLUCION TIENDA EJEMPLO,Tienda Ejemplo,Shopping,Credit,-4.00,Persona de Prueba
+03/20/2026,03/20/2026,ACH Deposit Internet transfer from account ending in 0000,Bank,Payment,Payment,-100.00,Persona de Prueba
