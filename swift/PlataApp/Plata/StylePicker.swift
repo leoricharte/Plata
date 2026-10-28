@@ -34,6 +34,7 @@ struct StylePicker: View {
     @Binding var iconUser: Bool
     @Binding var colorUser: Bool
     var debt = false
+    @State private var hexText = ""
 
     private var custom: Binding<Color> {
         Binding(get: { Color(hex: color.isEmpty ? "#22B573" : color) },
@@ -44,22 +45,29 @@ struct StylePicker: View {
         SCard {
             VStack(alignment: .leading, spacing: 10) {
                 Text("Color").font(.inter(13)).foregroundStyle(.secondary)
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 12) {
-                        ForEach(SwatchRow.colors, id: \.self) { c in
-                            Button { color = c; colorUser = true } label: {
-                                Circle().fill(Color(hex: c)).frame(width: 32, height: 32)
-                                    .overlay(Circle().strokeBorder(Color.primary, lineWidth: color.uppercased() == c ? 3 : 0).padding(-4))
-                            }
-                            .buttonStyle(.plain).accessibilityLabel("Color")
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 40), spacing: 10)], alignment: .leading, spacing: 10) {
+                    ForEach(SwatchRow.colors, id: \.self) { c in
+                        Button { color = c; colorUser = true; hexText = c } label: {
+                            Circle().fill(Color(hex: c)).frame(width: 32, height: 32)
+                                .overlay(Circle().strokeBorder(Color.primary, lineWidth: color.uppercased() == c ? 3 : 0).padding(-4))
+                                .frame(width: 40, height: 40)
                         }
-                        ColorPicker("Color personalizado", selection: custom, supportsOpacity: false)
-                            .labelsHidden()
-                            .overlay(Circle().strokeBorder(Color.primary, lineWidth: !SwatchRow.colors.contains(color.uppercased()) && !color.isEmpty ? 3 : 0).padding(-4).allowsHitTesting(false))
+                        .buttonStyle(.plain).accessibilityLabel("Color")
                     }
-                    .padding(.horizontal, 6).padding(.vertical, 8)
                 }
-                .scrollClipDisabled()
+                HStack(spacing: 10) {
+                    ColorPicker("Espectro", selection: custom, supportsOpacity: false)
+                        .font(.inter(15)).fixedSize()
+                    Spacer(minLength: 0)
+                    TextField("#RRGGBB", text: $hexText)
+                        .font(.inter(15)).monospaced().textInputAutocapitalization(.characters).autocorrectionDisabled()
+                        .multilineTextAlignment(.trailing).frame(width: 96)
+                        .onChange(of: hexText) { _, v in
+                            var h = v.trimmingCharacters(in: .whitespaces).uppercased()
+                            if !h.hasPrefix("#") { h = "#" + h }
+                            if h.range(of: "^#[0-9A-F]{6}$", options: .regularExpression) != nil { color = h; colorUser = true }
+                        }
+                }
             }
             .padding(.horizontal, 16).padding(.vertical, 12)
             RowDivider()
@@ -82,6 +90,8 @@ struct StylePicker: View {
             .padding(.horizontal, 16).padding(.vertical, 12)
         }
         .padding(.bottom, 8)
+        .onAppear { hexText = color.uppercased() }
+        .onChange(of: color) { _, v in if v.uppercased() != hexText.uppercased() { hexText = v.uppercased() } }
     }
 
     private func cell<C: View>(on: Bool, action: @escaping () -> Void, @ViewBuilder content: () -> C) -> some View {

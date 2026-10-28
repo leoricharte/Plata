@@ -51,12 +51,12 @@ struct CuentasView: View {
                     .font(.inter(13)).foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 8).padding(.bottom, 16)
 
-                sectionHead("Cuentas de débito")
+                sectionHead("Cuentas de débito", pf: "acct")
                 debitList(e, f)
 
                 if !cards.isEmpty { debtCard(e, f, c, cards, calcByID) }
 
-                sectionHead("Tarjetas y préstamos")
+                sectionHead("Tarjetas y préstamos", pf: "card")
                 creditList(e, f, cards, calcByID)
             }
             .padding(.horizontal, 16)
@@ -89,16 +89,32 @@ struct CuentasView: View {
     }
 
     /// Título de sección con el botón de ordenar a la derecha (`sechead` + `sortbtn`).
-    private func sectionHead(_ title: LocalizedStringKey) -> some View {
-        HStack {
+    private func sectionHead(_ title: LocalizedStringKey, pf: String) -> some View {
+        let s = model.engine.data["settings"]
+        let mode = Engine.text(s?["\(pf)_sort"]).isEmpty ? "name" : Engine.text(s?["\(pf)_sort"])
+        let desc = Engine.text(s?["\(pf)_dir"]) == "desc"
+        let hide = Engine.flag(s?["\(pf)_hide"])
+        let on = mode != "name" || desc || hide
+        return HStack {
             Text(title).font(.inter(22, .bold, relativeTo: .title2)).tracking(-0.4)
             Spacer(minLength: 8)
-            Button { soon = true } label: {
-                Image(systemName: "line.3.horizontal.decrease").font(.system(size: 14, weight: .semibold)).foregroundStyle(.secondary)
+            Menu {
+                Picker("Ordenar por", selection: Binding(get: { mode }, set: { model.setSetting("\(pf)_sort", .string($0)) })) {
+                    Text("Nombre").tag("name")
+                    Text("Monto").tag("amount")
+                    if pf == "card" { Text("Fecha de pago").tag("due") }
+                }
+                Picker("Orden", selection: Binding(get: { desc }, set: { model.setSetting("\(pf)_dir", .string($0 ? "desc" : "asc")) })) {
+                    Text("Ascendente").tag(false)
+                    Text("Descendente").tag(true)
+                }
+                Toggle("Ocultar sin uso", isOn: Binding(get: { hide }, set: { model.setSetting("\(pf)_hide", .bool($0)) }))
+            } label: {
+                Image(systemName: "line.3.horizontal.decrease").font(.system(size: 14, weight: .semibold)).foregroundStyle(on ? Color.white : Color.secondary)
                     .frame(width: 30, height: 30)
-                    .background(Color(.tertiarySystemFill), in: Circle())
+                    .background(on ? AnyShapeStyle(Brand.accent) : AnyShapeStyle(Color(.tertiarySystemFill)), in: Circle())
             }
-            .buttonStyle(.plain).accessibilityLabel("Ordenar")
+            .accessibilityLabel("Ordenar")
         }
         .padding(.horizontal, 4).padding(.top, 6).padding(.bottom, 12)
     }
