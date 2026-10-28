@@ -66,11 +66,16 @@ struct NativeBtn: Equatable, Identifiable {
     var act = ""
     var label = ""
     var box = Box()
+    var chk = false          // interruptores: aria-checked
+    var dis = false
+    var val = 0.0, lo = 0.0, hi = 1.0   // sliders
 
     init(_ m: [String: Any]) {
         func n(_ v: Any?) -> Double { (v as? NSNumber)?.doubleValue ?? 0 }
         id = Int(n(m["id"])); kind = (m["kind"] as? String) ?? "glass"
         act = (m["act"] as? String) ?? ""; label = (m["label"] as? String) ?? ""
+        chk = (m["chk"] as? Bool) ?? false; dis = (m["dis"] as? Bool) ?? false
+        val = n(m["val"]); lo = n(m["min"]); hi = n(m["max"])
         box = Box(["x": n(m["x"]), "y": n(m["y"]), "w": n(m["w"]), "h": n(m["h"]), "o": n(m["o"])])
     }
 
@@ -87,6 +92,50 @@ struct NativeBtn: Equatable, Identifiable {
     }
 }
 
+/// Una fila del menú del «+».
+struct MenuItem: Equatable, Identifiable {
+    var id = 0
+    var sep = false
+    var act = ""
+    var title = ""
+    var sub = ""
+
+    init(_ m: [String: Any], index: Int) {
+        sep = (m["sep"] as? Bool) ?? false
+        id = sep ? -(index + 1) : ((m["id"] as? NSNumber)?.intValue ?? index)
+        act = (m["act"] as? String) ?? ""
+        title = (m["title"] as? String) ?? ""
+        sub = (m["sub"] as? String) ?? ""
+    }
+
+    var symbol: String {
+        switch act {
+        case "add": return "plus.circle"
+        case "new:income": return "building.columns"
+        case "new:expense": return "creditcard"
+        case "xfer": return "arrow.left.arrow.right"
+        case "new:job": return "banknote"
+        default: return "circle"
+        }
+    }
+}
+
+/// El menú del «+» abierto en la web (#qmenu).
+struct NativeMenu: Equatable {
+    var box = Box()
+    var vh = 0.0
+    var up = false
+    var items: [MenuItem] = []
+
+    init(_ m: [String: Any]) {
+        func n(_ v: Any?) -> Double { (v as? NSNumber)?.doubleValue ?? 0 }
+        box = Box(["x": n(m["x"]), "y": n(m["y"]), "w": n(m["w"]), "h": n(m["h"]), "o": 1.0])
+        vh = n(m["vh"])
+        up = (m["up"] as? Bool) ?? false
+        items = ((m["items"] as? [[String: Any]]) ?? []).enumerated().map { MenuItem($0.element, index: $0.offset) }
+    }
+}
+
 /// Lo que la web le cuenta a Swift (ver Bridge.js).
 struct WebState: Equatable {
     var bar = Box()
@@ -94,6 +143,7 @@ struct WebState: Equatable {
     var gear = Box()
     var compact = false
     var btns: [NativeBtn] = []
+    var menu: NativeMenu? = nil
     var gdot = 0            // 0 nada · 1 cambios sin guardar (naranja) · 2 nube: falta algo (rojo)
     var on = "resumen"
     var tab = ""            // valor de data-tab en la web (resumen, cuenta, movimientos…)
@@ -108,6 +158,7 @@ struct WebState: Equatable {
         compact = (b["compact"] as? Bool) ?? false
         gdot = (b["gdot"] as? NSNumber)?.intValue ?? 0
         btns = ((b["btns"] as? [[String: Any]]) ?? []).map(NativeBtn.init)
+        menu = (b["menu"] as? [String: Any]).map { NativeMenu($0) }
         on = (b["on"] as? String) ?? ""
         tab = (b["tab"] as? String) ?? ""
         labels = (b["labels"] as? [String: String]) ?? [:]

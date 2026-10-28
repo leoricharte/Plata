@@ -39,6 +39,7 @@ final class WebModel: NSObject, ObservableObject {
         webView.scrollView.backgroundColor = .clear
         webView.scrollView.contentInsetAdjustmentBehavior = .never
         webView.scrollView.bounces = false
+        webView.scrollView.pinchGestureRecognizer?.isEnabled = false   // sin zoom con pellizco: es una app, no una página
         #if DEBUG
         webView.isInspectable = true   // Safari → Develop → tu iPhone
         #endif
@@ -56,6 +57,12 @@ final class WebModel: NSObject, ObservableObject {
     func perform(_ action: WebAction) {
         let js = "window.__plataGo&&window.__plataGo('\(action.selector)')"
         webView.evaluateJavaScript(js, completionHandler: nil)
+    }
+
+    /// Valor de un slider nativo → input original de la web.
+    func setValue(_ id: Int, _ value: Double) {
+        guard value.isFinite else { return }
+        webView.evaluateJavaScript("window.__plataSet&&window.__plataSet(\(id),\(value))", completionHandler: nil)
     }
 
     fileprivate func handle(_ body: [String: Any]) {

@@ -18,7 +18,7 @@ struct RootView: View {
             ZStack(alignment: .topLeading) {
                 Color(.systemGroupedBackground).ignoresSafeArea()
                 WebViewHost(webView: model.webView).ignoresSafeArea()
-                NativeBar(state: model.state, perform: model.perform).ignoresSafeArea()
+                NativeBar(state: model.state, perform: model.perform, setValue: model.setValue).ignoresSafeArea()
                 topEdge(height: geo.safeAreaInsets.top)
                 #if DEBUG
                 hud

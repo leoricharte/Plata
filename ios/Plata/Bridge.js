@@ -18,7 +18,7 @@
   /* 1. Ocultar los controles web (siguen ocupando su sitio y siguen aplicando su CSS) */
   root.setAttribute('data-native', '1');
   var st = document.createElement('style');
-  st.textContent = 'html[data-native]:not(.web) #tabbar,html[data-native]:not(.web) #gearbtn,html[data-native]:not(.web) #plusbtn,html[data-native]:not(.web) .plata-nbtn{visibility:hidden!important}';
+  st.textContent = 'html[data-native]:not(.web) #tabbar,html[data-native]:not(.web) #gearbtn,html[data-native]:not(.web) #plusbtn,html[data-native]:not(.web) .plata-nbtn{visibility:hidden!important}html[data-native]:not(.web) #qmenu{visibility:hidden!important}html[data-native] *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}html[data-native] input,html[data-native] textarea,html[data-native] [contenteditable]{-webkit-user-select:text;user-select:text}';
   root.appendChild(st);
 
   /* 2. Estado hacia Swift */
@@ -48,9 +48,26 @@
     ['.welcome .primary', 'prominent'], ['#sheet .primary', 'prominent'],
     ['.welcome .wcloud', 'glass'], ['.welcome .clb', 'glass'],
     ['.welcome .wdotbtn', 'icon'], ['.welcome .back', 'icon'], ['.welcome .wdown', 'icon'],
-    ['#sheet .xbtn', 'icon'], ['#sheet .okbtn', 'icon']
+    ['#sheet .xbtn', 'icon'], ['#sheet .okbtn', 'icon'],
+    ['[role="switch"]', 'switch'], ['input[type="range"]', 'slider']
   ];
-  var nid = 0, tracked = [];
+  var nid = 0, tracked = [], scrollingUntil = 0;
+  /* Menú del «+»: la web lo abre como #qmenu (posición fija). Se informa su rectángulo final (sin la animación) y sus filas. */
+  function menu() {
+    var m = document.getElementById('qmenu');
+    if (!m || m.classList.contains('out')) return null;
+    var w = m.offsetWidth, h = m.offsetHeight, x = parseFloat(m.style.left) || 0, y;
+    if (m.style.top) y = parseFloat(m.style.top) || 0; else y = window.innerHeight - (parseFloat(m.style.bottom) || 0) - h;
+    var items = [], ch = m.children;
+    for (var i = 0; i < ch.length; i++) {
+      var c = ch[i];
+      if (c.classList.contains('qsep')) { items.push({ sep: true }); continue; }
+      if (!c.hasAttribute('data-nid')) c.setAttribute('data-nid', String(++nid));
+      var b = c.querySelector('b'), em = c.querySelector('em');
+      items.push({ id: +c.getAttribute('data-nid'), act: c.getAttribute('data-act') || '', title: b ? b.textContent : '', sub: em ? em.textContent : '' });
+    }
+    return { x: r1(x), y: r1(y), w: r1(w), h: r1(h), vh: window.innerHeight, up: m.classList.contains('up'), items: items };
+  }
   /* Dentro de algo que se desplaza, el vidrio nativo iría un cuadro atrasado: ese botón se queda como web */
   function scrolls(e) {
     for (var p = e.parentElement; p && p !== document.body; p = p.parentElement) {
@@ -67,12 +84,16 @@
         var e = list[j];
         if (now.indexOf(e) >= 0) continue;
         var r = e.getBoundingClientRect();
-        if (!(r.width > 1 && r.height > 1) || scrolls(e)) continue;
+        if (!(r.width > 1 && r.height > 1)) continue;
+        if (r.bottom < 0 || r.top > window.innerHeight || r.right < 0 || r.left > window.innerWidth) continue;
+        if (scrolls(e) && performance.now() < scrollingUntil) continue;
         if (!e.hasAttribute('data-nid')) e.setAttribute('data-nid', String(++nid));
         e.classList.add('plata-nbtn'); now.push(e);
         var b = boxEl(e);
         out.push({ id: +e.getAttribute('data-nid'), kind: KINDS[i][1], act: (e.getAttribute('data-act') || '').split(':')[0],
           label: (e.textContent || '').replace(/\s+/g, ' ').trim() || e.getAttribute('aria-label') || '',
+          chk: e.getAttribute('aria-checked') === 'true', dis: e.classList.contains('dis') || e.disabled === true,
+          val: e.type === 'range' ? (parseFloat(e.value) || 0) : 0, min: e.type === 'range' ? (parseFloat(e.min) || 0) : 0, max: e.type === 'range' ? (parseFloat(e.max) || 1) : 1,
           x: b.x, y: b.y, w: b.w, h: b.h, o: b.o });
       }
     }
@@ -94,7 +115,7 @@
     var bar = document.getElementById('tabbar'), gd = document.querySelector('.gdot');
     var m = {
       t: 'state',
-      bar: box('tabbar'), plus: box('plusbtn'), gear: box('gearbtn'), btns: buttons(),
+      bar: box('tabbar'), plus: box('plusbtn'), gear: box('gearbtn'), btns: buttons(), menu: menu(),
       compact: !!(bar && bar.classList.contains('compact')),
       gdot: gd ? (gd.classList.contains('gone') ? 2 : (gd.classList.contains('dirty') ? 1 : 0)) : 0,
       on: on, tab: root.getAttribute('data-tab') || '', labels: labels, plusLabel: lbl('plusbtn'), gearLabel: lbl('gearbtn'),
@@ -111,13 +132,26 @@
   } catch (e) { /* sin observador */ }
   ['transitionrun', 'transitionstart', 'transitionend', 'animationstart'].forEach(function (n) { document.addEventListener(n, function () { kick(700); }, true); });
   window.addEventListener('resize', function () { kick(700); });
-  document.addEventListener('scroll', function () { kick(400); }, true);
+  document.addEventListener('scroll', function () { scrollingUntil = performance.now() + 180; kick(500); }, true);
   window.addEventListener('orientationchange', function () { kick(700); });
   document.addEventListener('DOMContentLoaded', function () { kick(2500); });
   window.addEventListener('load', function () { kick(2500); });
 
   /* 3. Swift toca un control de la web (el selector lo escribe Swift, nunca viene de datos del usuario) */
-  window.__plataGo = function (sel) { var e = document.querySelector(sel); if (e && e.click) e.click(); };
+  window.__plataGo = function (sel) {
+    var e = document.querySelector(sel);
+    if (!e) return;
+    if (e.classList && e.classList.contains('switch')) {
+      ['pointerdown', 'pointerup'].forEach(function (n) { e.dispatchEvent(new PointerEvent(n, { bubbles: true, cancelable: true, pointerType: 'touch', isPrimary: true })); });
+    } else if (e.click) e.click();
+  };
+  /* Slider nativo: pone el valor en el input original y avisa como si lo hubieran arrastrado */
+  window.__plataSet = function (n, v) {
+    var e = document.querySelector('[data-nid="' + n + '"]');
+    if (!e) return;
+    e.value = String(v);
+    e.dispatchEvent(new Event('input', { bubbles: true }));
+  };
 
   /* 4. Respaldo nativo de los datos locales */
   var S = Storage.prototype, si = S.setItem, ri = S.removeItem, ci = S.clear, timer = 0;
