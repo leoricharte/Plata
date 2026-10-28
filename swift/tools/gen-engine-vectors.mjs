@@ -95,6 +95,45 @@ for (let n = 0; n < 70; n++) {
 writeFileSync(out, JSON.stringify({ cases }));
 console.log('Listo:', cases.length, 'casos del motor →', out.replace(root + '/', ''));
 
+// ---------- casos de migración (archivos raros: lo que la web deja o descarta) ----------
+{
+  const base = () => ({ version: 3, settings: { currency: 'USD' }, accounts: [{ id: 'bank', name: 'Cuenta', cur: 'USD', balance: 10 }], transactions: [], cards: [] });
+  const mk = (f) => { const o = base(); f(o); return o; };
+  const raws = [
+    base(),
+    mk((o) => { o.accounts = []; o.settings = { currency: 'PEN', nick: 'A<b>"x"`', first: 'N'.repeat(130) }; }),
+    mk((o) => { o.accounts[0].id = 'a b/c<d>"e'; o.accounts[0].color = 'rojo'; o.accounts[0].icon = 'Bad Icon!'; o.accounts[0].last4 = 'ab12-3456789'; o.accounts[0].balance = 5e12; o.cards = [{ name: 'T', cur: 'EUR', balance: -5e12, limit: 100, apr: 10, color: '#abc' }]; }),
+    mk((o) => { o.settings = { currency: 'ZZZ', currency2: 'ZZZ', customCur: ' ab c d ' }; o.subs = [{ name: 'S', amount: 5, cur: 'PEN' }]; }),
+    mk((o) => { o.settings = { currency: 'XQ', customCur: 'xq', currency2: 'USD' }; o.savings = [{ name: 'M', cur: 'USD', balance: 3, goal: 9, log: [{ date: '2026-01-01', amount: 1e11 }] }]; }),
+    mk((o) => { o.settings = { currency: 'USD', currency2: 'EUR', fx: 0.9, demo_today: '2026-01-01', cushion: 2e10 }; o.cards = [{ id: 'c1', name: 'C', cur: 'GBP', balance: 5 }]; }),
+    mk((o) => { o.expected_income = [{ name: 'Sueldo', amount: 100, next: '2026-11-01', every_days: 14, job: 'j1', jstart: '2026-10-01', extra: 'se pierde' }, { id: 7, name: 'X', amount: 5, date: '2026-12-01', repeat: null }, { id: 'ñ<>', name: 'N', amount: 5, acc: 'nada', date: '2026-12-02', repeat: 'm', until: '2027-01-01', snooze: '2026-11-05', mod: 5 }]; o.expected_expense = [{ name: 'Renta', amount: -300, date: '2026-11-03' }, { id: 'e2', amount: '-45', date: '2026-11-04', repeat: 7, card: 'c1', cat: 'Comida', until: '' }]; }),
+    mk((o) => { o.budgetSets = [{ id: 1, name: 'x'.repeat(50), from: '2026-01-01', to: '2026-02-01', budget: { 'Co<m>ida': 100, Ocio: 5e11 }, mod: 3 }, { id: 'b', from: 'x', to: '2026-02-01' }, null, { from: '2026-01-01', to: '2026-02-01' }, { id: 'c', name: '', from: '2026-03-01', to: '2026-04-01', cur: 5 }]; o.budget = { 'A"B': 5, Comida: 9e11 }; }),
+    mk((o) => { o.tomb = [{ c: 'cards', id: 5, t: 10 }, { c: 'cards', id: 'a b', t: '20' }, { c: '', id: 1, t: 5 }, { c: 'x', id: null, t: 5 }, { c: 'x', id: 1, t: 0 }, null]; o.fmod = { 'we ird': 5, cats: 3 }; o.ovr = { 'rec:0:2026-11-01': { amt: 5 }, 'ba d': { skip: true } }; o.firstHalf = 5; }),
+    mk((o) => { o.halfSnaps = { '2026-09': { letter: 'B', score: '7' }, '2026-08': { letter: '' }, '2026-07': { letter: 'C<' } }; o.halfSnap = { mk: '2026-09', letter: 'Z', score: 1 }; o.jobs = [{ id: 'j1', name: 'J', sim: true }, { name: 'sin id' }, null]; }),
+    mk((o) => { o.transactions = [{ amount: -5, category: 'Comida', acc: 'bank', date: '2026-10-01' }, { id: 0, amount: 50, category: 'Ingreso', acc: 'c9', date: '2026-10-02' }, { id: 'x1', amount: 7, category: 'Ingreso', acc: 'bank', date: '2026-10-03' }]; o.cards = [{ id: 'c9', name: 'T', cur: 'USD', balance: 0 }]; o.cats = [{ name: 'Comida', color: '#123' }, { name: 'Extra', color: 5, icon: 'AB c' }]; }),
+    mk((o) => { o.analysis = { v: 1, id: 'abcdef12', at: '2026-10-01' }; o.transactions = [{ id: 1, amount: -1, category: 'Otros', acc: 'bank', date: '2026-10-01' }]; o.jobs = [{ id: 'j' }]; o.demo = true; o.extra = 'se pierde'; o.subHist = { '2026-10': 5 }; }),
+    mk((o) => { o.settings.an = { at: '2026-05-05' }; o.history = [{ month: '2026-09', income: 1e10, expense: 5 }]; o.recurring = [{ name: 'R', amount: 1e10, day: 3 }]; }),
+    mk((o) => { o.meta = { analysis: { id: '0123abcd', at: 'mal' } }; o.accounts[0].an = 'zzzz'; }),
+    mk((o) => { o.accounts = [{ name: 'X', an: 'deadbeef', cur: 'PEN' }]; o.settings = { currency: 'USD' }; }),
+    mk((o) => { o.planned = [{ name: 'P', date: '2026-11-01', amount: -5 }, { id: 'q', on: null, name: 'Q', date: '2026-11-02', amount: 4 }, { id: 'r', on: false }]; }),
+  ];
+  const mig = [];
+  for (const raw of raws) {
+    const { api } = load({ today: '2026-10-28', entry: ['migrate', 'clone'] });
+    let want = null, err = null;
+    try { want = JSON.parse(JSON.stringify(api.migrate(api.clone(raw)))); } catch (e) { err = String(e.message || e); }
+    mig.push({ raw, migrated: want, error: err });
+  }
+  // errores
+  for (const raw of [{ version: 3 }, [], null]) {
+    const { api } = load({ today: '2026-10-28', entry: ['migrate', 'clone'] });
+    let err = null; try { api.migrate(api.clone(raw)); } catch (e) { err = String(e.message || e); }
+    mig.push({ raw, migrated: null, error: err });
+  }
+  writeFileSync(join(dirname(out), 'migrate.json'), JSON.stringify({ cases: mig }));
+  console.log('Migración:', mig.length, 'casos →', 'Fixtures/migrate.json');
+}
+
 // ---------- tabla de monedas (Sources/PlataCore/Currencies.swift) ----------
 {
   const { api } = load({ today: '2026-10-28', entry: ['CURRENCIES', 'DEF_CATS'] });
