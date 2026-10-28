@@ -32,7 +32,12 @@ struct SavingSheet: View {
                 AmountField(symbol: f.symbol(cur).trimmingCharacters(in: .whitespaces), text: $goalText,
                             placeholder: Money.decimals(cur) > 0 ? "0.00" : "0", focus: $goalFocused, label: "Meta")
                 if curs.count > 1 {
-                    PillSegmented(items: curs.map { ($0, ($0)) }, selection: $cur).padding(.bottom, 10)
+                    CurrencyPills(curs: curs, cur: $cur, hasMoney: num(goalText) + num(balanceText) + num(monthlyText) > 0) { factor, new in
+                        guard factor != 1 else { return }
+                        goalText = clean(CurrencyChange.scaled(num(goalText), factor: factor, cur: new))
+                        balanceText = clean(CurrencyChange.scaled(num(balanceText), factor: factor, cur: new))
+                        monthlyText = clean(CurrencyChange.scaled(num(monthlyText), factor: factor, cur: new))
+                    }.padding(.bottom, 10)
                 }
                 SCard {
                     FieldRow(symbol: "pencil", label: "Nombre", placeholder: "Nombre", text: $name)
@@ -51,7 +56,7 @@ struct SavingSheet: View {
             .padding(.horizontal, 16).padding(.top, 16)
         }
         .scrollDismissesKeyboard(.interactively)
-        .presentationDetents([.large])
+        .fitSheet()
         .presentationDragIndicator(.visible)
         .presentationCornerRadius(38)
         .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))
@@ -155,7 +160,7 @@ struct ContribSheet: View {
             .padding(.horizontal, 16).padding(.top, 16)
         }
         .scrollDismissesKeyboard(.interactively)
-        .presentationDetents([.large])
+        .fitSheet()
         .presentationDragIndicator(.visible)
         .presentationCornerRadius(38)
         .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))

@@ -12,6 +12,7 @@ enum Route: Hashable {
     case profileEdit
     case credits
     case insights(mk: String, half: Bool)
+    case sub(String)
 }
 
 struct ResumenView: View {
@@ -40,9 +41,9 @@ struct ResumenView: View {
                     budgetCard(c, f)
                     expensesCard(c, f)
                     categoriesCard(c, f)
-                    SectionHead("Cuentas")
+                    SectionHead("Cuentas", gap: 0)
                     accountsList(e, c, f)
-                    SectionHead("Más")
+                    SectionHead("Más", gap: 0)
                     moreList(e, c, f)
                     if hasData(e) { InsightsBanner(bottom: true) }
                 }
@@ -80,6 +81,7 @@ struct ResumenView: View {
             Image("PlataLogo").resizable().scaledToFit().frame(width: 96).accessibilityLabel("Plata")
             BetaPill()
         }
+        .fixedSize()
     }
 
     private func titleBlock(_ e: Engine) -> some View {
@@ -176,10 +178,22 @@ struct ResumenView: View {
                     Text("+" + f.whole(next.amount, cur)).font(.inter(16, .semibold)).monospacedDigit().foregroundStyle(Brand.gainText)
                 }
                 .padding(.top, 2)
+                if pending { confirmButton("Confirmar ingreso") { model.activeSheet = .confirm(kind: "in", id: next.id, pick: true) } }
             }
             .contentShape(Rectangle())
             .onTapGesture { if pending { model.activeSheet = .confirm(kind: "in", id: next.id, pick: true) } }
         }
+    }
+
+    /// El botón negro de las tarjetas «por confirmar» (`.primary` de 48 pt de la web).
+    private func confirmButton(_ title: String, _ action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title).font(.inter(16, .semibold)).foregroundStyle(.white)
+                .frame(maxWidth: .infinity).frame(height: 48)
+                .background(Color(hex: "#111111"), in: Capsule())
+        }
+        .buttonStyle(.plain)
+        .padding(.top, 12)
     }
 
     private func whenText(day: LocalDate, days: Int, pending: Bool) -> String {
@@ -224,6 +238,7 @@ struct ResumenView: View {
                     Text("−" + f.whole(Engine.number(x["amount"]), cur)).font(.inter(16, .semibold)).monospacedDigit()
                 }
                 .padding(.top, 2)
+                if due { confirmButton("Confirmar gasto") { model.activeSheet = .confirm(kind: "out", id: Engine.identifier(x["id"]), pick: true) } }
             }
             .contentShape(Rectangle())
             .onTapGesture { if due { model.activeSheet = .confirm(kind: "out", id: Engine.identifier(x["id"]), pick: true) } }
@@ -253,6 +268,7 @@ struct ResumenView: View {
                     Spacer(minLength: 0)
                 }
                 .padding(.top, 2)
+                confirmButton("Confirmar pago") { model.activeSheet = .confirm(kind: "pay", id: item.id, pick: true) }
             }
             .contentShape(Rectangle())
             .onTapGesture { model.activeSheet = .confirm(kind: "pay", id: item.id, pick: true) }
@@ -273,8 +289,8 @@ struct ResumenView: View {
                         let dd = ev.date.days - model.today.days
                         let accId = sub?["acc"]
                         let accName: String = accId.map { e.accountName($0) } ?? ""
-                        HStack(spacing: 12) {
-                            LetterTile(letter: String(ev.name.prefix(1)), color: Color(hex: colors[(idx ?? 0) % colors.count]))
+                        let row = HStack(spacing: 12) {
+                            SubTile(name: ev.name, fallback: Color(hex: colors[(idx ?? 0) % colors.count]))
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(ev.name).font(.inter(17, .semibold)).tracking(-0.3).lineLimit(1)
                                 Text((dd <= 0 ? "hoy" : "\(Spanish.dateShort(ev.date)) · en \(Spanish.plural(dd, "día", "días"))") + (accName.isEmpty ? "" : " · " + accName))
@@ -285,6 +301,9 @@ struct ResumenView: View {
                         }
                         .padding(.top, i == 0 ? 2 : 10)
                         .padding(.bottom, i == events.count - 1 ? 0 : 10)
+                        if let sid = ev.srcId, sub != nil {
+                            NavigationLink(value: Route.sub(sid)) { row.contentShape(Rectangle()) }.buttonStyle(.plain)
+                        } else { row }
                     }
                 }
             }
@@ -546,6 +565,7 @@ struct RouteDestination: View {
         case .profileEdit: ProfileSettingsView()
         case .credits: CreditsView()
         case .insights(let mk, let half): InsightsView(mk: mk, half: half)
+        case .sub(let id): SubDetailView(id: id)
         case .soon(let title): ComingSoonView(title: title)
         }
     }

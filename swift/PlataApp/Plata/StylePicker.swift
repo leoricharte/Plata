@@ -44,8 +44,19 @@ struct StylePicker: View {
     var body: some View {
         SCard {
             VStack(alignment: .leading, spacing: 10) {
-                Text("Color").font(.inter(13)).foregroundStyle(.secondary)
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 40), spacing: 10)], alignment: .leading, spacing: 10) {
+                HStack(spacing: 10) {
+                    Text("Color").font(.inter(13)).foregroundStyle(.secondary)
+                    Spacer(minLength: 0)
+                    // vista previa viva: se ve el cambio sin subir a mirar el cuadrito de arriba
+                    RoundedRectangle(cornerRadius: 11, style: .continuous).fill(Color(hex: color.isEmpty ? SwatchRow.colors[0] : color))
+                        .frame(width: 38, height: 38)
+                        .overlay {
+                            if let s = iconSymbol(icon) { Image(systemName: s).font(.system(size: 18, weight: .semibold)).foregroundStyle(.white) }
+                        }
+                        .animation(.easeOut(duration: 0.15), value: color)
+                        .accessibilityHidden(true)
+                }
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 6), alignment: .center, spacing: 10) {
                     ForEach(SwatchRow.colors, id: \.self) { c in
                         Button { color = c; colorUser = true; hexText = c } label: {
                             Circle().fill(Color(hex: c)).frame(width: 32, height: 32)

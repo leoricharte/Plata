@@ -74,7 +74,7 @@ private struct ConfirmBody: View {
             .padding(.horizontal, 16).padding(.top, 16)
         }
         .scrollDismissesKeyboard(.interactively)
-        .presentationDetents([.large]).presentationDragIndicator(.visible).presentationCornerRadius(38)
+        .fitSheet().presentationDragIndicator(.visible).presentationCornerRadius(38)
         .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))
         .onAppear { load(e) }
         .confirmationDialog("Estás pagando más de lo que debes", isPresented: Binding(get: { overpay != nil }, set: { if !$0 { overpay = nil } }), titleVisibility: .visible) {

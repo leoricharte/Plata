@@ -183,7 +183,9 @@ struct ListCard<Content: View>: View {
 /// Título de sección grande ("Cuentas", "Más").
 struct SectionHead: View {
     let title: String
-    init(_ title: String) { self.title = title }
+    /// Espacio hasta la tarjeta de abajo (`.sechead` de la web: 12 pt). 0 donde el contenedor ya separa.
+    let gap: CGFloat
+    init(_ title: String, gap: CGFloat = 12) { self.title = title; self.gap = gap }
 
     var body: some View {
         Text(title)
@@ -192,6 +194,7 @@ struct SectionHead: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 4)
             .padding(.top, 6)
+            .padding(.bottom, gap)
     }
 }
 
@@ -235,6 +238,8 @@ struct BetaPill: View {
         Text(label)
             .font(.inter(11, .bold))
             .foregroundStyle(.white)
+            .lineLimit(1)
+            .fixedSize()
             .padding(.horizontal, 10)
             .frame(height: 20)
             .background(Color(hex: "#1C1C1E"), in: Capsule())

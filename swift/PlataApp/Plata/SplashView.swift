@@ -11,8 +11,8 @@ struct SplashView: View {
                 Brand.accent
                 Image("SplashLogo")
                     .accessibilityLabel("Plata")
-                    .scaleEffect(opening ? 0.8 : 1)
-                    .opacity(opening ? 0 : 1)
+                    // el logo no se apaga: se queda hasta que el círculo que se abre lo "come", como en la pantalla de arranque
+                    .scaleEffect(opening ? 1.06 : 1)
                 VStack(spacing: 10) {
                     Spacer()
                     Text("Beta 4").font(.inter(13, .medium)).tracking(0.5)
@@ -25,6 +25,7 @@ struct SplashView: View {
                 .foregroundStyle(.white.opacity(0.75))
                 .padding(.bottom, 18 + geo.safeAreaInsets.bottom)
                 .opacity(opening ? 0 : 1)
+                .animation(.easeOut(duration: 0.25), value: opening)
             }
             .frame(width: geo.size.width, height: geo.size.height)
             .mask {

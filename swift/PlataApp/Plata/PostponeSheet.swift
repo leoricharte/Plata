@@ -46,7 +46,7 @@ struct PostponeSheet: View {
             }
             .padding(.horizontal, 16).padding(.top, 16)
         }
-        .presentationDetents([.large]).presentationDragIndicator(.visible).presentationCornerRadius(38)
+        .fitSheet().presentationDragIndicator(.visible).presentationCornerRadius(38)
         .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))
     }
 

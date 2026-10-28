@@ -19,7 +19,7 @@ public enum CurrencyChange {
     private static let collections: [(key: String, kind: String)] = [("accounts", "account"), ("cards", "debt"), ("subs", "sub"), ("savings", "saving")]
     private static let moneyFields: [String: [String]] = ["account": ["balance"], "saving": ["goal", "balance", "monthly"], "debt": ["balance", "limit", "payment"], "sub": ["amount"]]
 
-    private static func settings(_ p: JSONValue) -> (primary: String, secondary: String, fx: Double) {
+    fileprivate static func settings(_ p: JSONValue) -> (primary: String, secondary: String, fx: Double) {
         let s = p["settings"]
         let c1 = s?["currency"]?.stringValue ?? "USD"
         let pr = Currencies.table[c1] != nil || c1 == (s?["customCur"]?.stringValue ?? "~") ? c1 : "USD"
@@ -38,7 +38,7 @@ public enum CurrencyChange {
         return r > 0 ? r : 1
     }
 
-    private static func toPrecision4(_ v: Double) -> Double { Double(String(format: "%.4g", v)) ?? v }
+    fileprivate static func toPrecision4(_ v: Double) -> Double { Double(String(format: "%.4g", v)) ?? v }
 
     private static func lostItems(_ p: JSONValue, keep: [String]) -> [String] {
         var out: [String] = []
@@ -58,7 +58,7 @@ public enum CurrencyChange {
         return Plan(lost: lost, assigned: asg)
     }
 
-    private static func rnd(_ x: Double, _ cur: String) -> Double {
+    fileprivate static func rnd(_ x: Double, _ cur: String) -> Double {
         Currencies.table[cur]?.dec == 0 ? JS.round(x) : JS.round(x * 100) / 100
     }
 
@@ -75,7 +75,7 @@ public enum CurrencyChange {
     }
 
     /// Lo que se mide en la moneda de una cuenta o tarjeta: movimientos, previstos, simulados y trabajos que la usan.
-    private static func scaleLinked(_ p: inout JSONValue, id: String, f: Double, cur: String) {
+    fileprivate static func scaleLinked(_ p: inout JSONValue, id: String, f: Double, cur: String) {
         guard f > 0, f != 1 else { return }
         var ids = Set<String>()
         func sc(_ key: String, _ fields: [String]) {
@@ -138,5 +138,28 @@ public enum CurrencyChange {
             p[x.key] = .array(list)
             if x.kind == "account" || x.kind == "debt", !id.isEmpty { scaleLinked(&p, id: id, f: x.factor, cur: primary) }
         }
+    }
+}
+
+/// El cambio de moneda dentro de un formulario de cuenta, tarjeta, meta o suscripción (`fseg cur` + `askCurChange` de la web).
+public extension CurrencyChange {
+    /// ¿Hay que preguntar qué hacer con los montos? Solo si se cambia entre la moneda principal y la segunda y hay montos que convertir
+    /// (o, en una cuenta o tarjeta que ya existe, movimientos que dependen de ella).
+    static func asksOnFormSwitch(_ p: JSONValue, from: String, to: String, hasMoney: Bool, linked: Bool) -> Bool {
+        let st = settings(p)
+        guard from != to, !st.secondary.isEmpty else { return false }
+        let own = [st.primary, st.secondary]
+        return own.contains(from) && own.contains(to) && (hasMoney || linked)
+    }
+
+    /// `Number(curRateBetween(from, to).toPrecision(4))`: unidades de `to` por 1 de `from`, con el tipo de cambio del perfil.
+    static func assignedRate(_ p: JSONValue, from: String, to: String) -> Double { toPrecision4(rate(p, from: from, to: to)) }
+
+    /// `rndCur(x * factor, cur)`: un monto convertido, sin decimales en las monedas que no los usan.
+    static func scaled(_ x: Double, factor: Double, cur: String) -> Double { x == 0 ? 0 : rnd(x * factor, cur) }
+
+    /// Convierte lo que depende de una cuenta o tarjeta (movimientos, previstos, simulados, trabajos) al guardar su cambio de moneda.
+    static func scaleLinked(_ p: inout JSONValue, id: String, factor: Double, cur: String) {
+        scaleLinked(&p, id: id, f: factor, cur: cur)
     }
 }

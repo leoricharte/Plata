@@ -48,3 +48,42 @@ final class CurrencyChangeTests: XCTestCase {
         XCTAssertEqual(Onboarding.normCustom("!?"), "")
     }
 }
+
+final class FormCurrencySwitchTests: XCTestCase {
+    private func base() -> JSONValue {
+        var p = Profile.empty.raw
+        p["settings"] = .object(["currency": .string("PEN"), "currency2": .string("USD"), "fx": .number(0.27)])
+        p["accounts"] = .array([.object(["id": .string("a"), "name": .string("Soles"), "cur": .string("PEN"), "balance": .number(100)])])
+        p["transactions"] = .array([.object(["id": .number(1), "acc": .string("a"), "amount": .number(-30), "date": .string("2026-10-01"), "category": .string("Comida")])])
+        return p
+    }
+
+    func testAsksOnlyBetweenTheProfilesTwoCurrenciesWithAmounts() {
+        let p = base()
+        XCTAssertTrue(CurrencyChange.asksOnFormSwitch(p, from: "PEN", to: "USD", hasMoney: true, linked: false))
+        XCTAssertTrue(CurrencyChange.asksOnFormSwitch(p, from: "PEN", to: "USD", hasMoney: false, linked: true))
+        XCTAssertFalse(CurrencyChange.asksOnFormSwitch(p, from: "PEN", to: "USD", hasMoney: false, linked: false))   // nada que convertir
+        XCTAssertFalse(CurrencyChange.asksOnFormSwitch(p, from: "PEN", to: "PEN", hasMoney: true, linked: false))
+        XCTAssertFalse(CurrencyChange.asksOnFormSwitch(p, from: "PEN", to: "EUR", hasMoney: true, linked: false))    // EUR no es una de las dos
+        var one = p; one["settings"] = .object(["currency": .string("PEN")])
+        XCTAssertFalse(CurrencyChange.asksOnFormSwitch(one, from: "PEN", to: "USD", hasMoney: true, linked: false))   // sin segunda moneda
+    }
+
+    func testAssignedRateUsesTheProfileFxBothWays() {
+        let p = base()
+        XCTAssertEqual(CurrencyChange.assignedRate(p, from: "PEN", to: "USD"), 0.27)
+        XCTAssertEqual(CurrencyChange.assignedRate(p, from: "USD", to: "PEN"), 3.704)   // 1 / 0.27 con 4 cifras
+    }
+
+    func testScaledRoundsToTheCurrencysDecimals() {
+        XCTAssertEqual(CurrencyChange.scaled(30, factor: 0.27, cur: "USD"), 8.1)
+        XCTAssertEqual(CurrencyChange.scaled(0, factor: 3, cur: "USD"), 0)
+        XCTAssertEqual(CurrencyChange.scaled(100, factor: 0.333, cur: "CLP"), 33)   // CLP no usa decimales
+    }
+
+    func testScaleLinkedConvertsTheAccountsMovements() {
+        var p = base()
+        CurrencyChange.scaleLinked(&p, id: "a", factor: 0.27, cur: "USD")
+        XCTAssertEqual(p["transactions"]!.arrayValue![0]["amount"]!.doubleValue!, -8.1)
+    }
+}

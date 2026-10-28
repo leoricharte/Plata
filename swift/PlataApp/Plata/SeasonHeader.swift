@@ -171,7 +171,7 @@ struct MonthHeader: View {
                     .foregroundStyle(LinearGradient(colors: [s1, s2], startPoint: .leading, endPoint: .trailing))
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
-                    .padding(.horizontal, 2).padding(.bottom, 4)
+                    .padding(.leading, 2).padding(.trailing, 2 + 1.4).padding(.bottom, 4)   // el tracking negativo deja la tinta 0.7 pt a la derecha del centro
             }
             .layoutPriority(1)
             .background {

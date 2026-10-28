@@ -90,7 +90,7 @@ struct TransactionDetailView: View {
                     .buttonStyle(SecondaryPillStyle(destructive: true))
                     .padding(.top, 10)
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, 16)
             .padding(.bottom, 24)
         }
         .background(Color(.systemGroupedBackground))

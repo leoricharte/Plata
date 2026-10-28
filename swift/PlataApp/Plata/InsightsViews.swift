@@ -263,7 +263,7 @@ struct InsightsView: View {
         let vs = m.hasPrev ? "vs. \(pm)" + (m.est ? " (aprox.)" : "") : "sin mes anterior"
         let netC = m.cur.inc - m.cur.exp, netP = m.prev.inc - m.prev.exp
         return VStack(alignment: .leading, spacing: 8) {
-            SectionHead(closed ? ("Cierre vs. \(pm)") : ("Este mes vs. \(pm)"))
+            SectionHead(closed ? ("Cierre vs. \(pm)") : ("Este mes vs. \(pm)"), gap: 0)
             ListCard {
                 statRow("Gastado", f.whole(m.cur.exp), sub: vs) { chip(pct(m.cur.exp, m.prev.exp), upIsBad: true) }
                 if !isHalf {
@@ -301,7 +301,7 @@ struct InsightsView: View {
         let rows = topChanges(e, m)
         if !isHalf, m.prev.n > 0, !rows.isEmpty {
             VStack(alignment: .leading, spacing: 8) {
-                SectionHead("Categorías que más cambiaron")
+                SectionHead("Categorías que más cambiaron", gap: 0)
                 ListCard {
                     ForEach(Array(rows.enumerated()), id: \.offset) { i, r in
                         if i > 0 { RowDivider() }
@@ -327,7 +327,7 @@ struct InsightsView: View {
         let proj = m.day > 0 ? fixed + (m.cur.expV - fixed) / Double(m.day) * Double(m.dim) : 0
         let over = c.budgetTotal > 0 && proj > c.budgetTotal
         return VStack(alignment: .leading, spacing: 8) {
-            SectionHead("Ritmo de gasto")
+            SectionHead("Ritmo de gasto", gap: 0)
             Card {
                 (Text("Al ritmo actual cerrarías el mes gastando ") + Text(f.whole(proj)).bold().foregroundColor(.primary) + Text("."))
                     .font(.inter(15)).foregroundStyle(.secondary)
@@ -354,7 +354,7 @@ struct InsightsView: View {
             .min { e.amountUSD($0) < e.amountUSD($1) }
         if !isHalf, let big {
             VStack(alignment: .leading, spacing: 8) {
-                SectionHead("Tu gasto más grande")
+                SectionHead("Tu gasto más grande", gap: 0)
                 ListCard {
                     NavigationLink(value: Route.tx(Engine.identifier(big["id"]))) { TransactionRow(tx: big, engine: e, fmt: f) }.buttonStyle(.plain)
                 }
@@ -367,7 +367,7 @@ struct InsightsView: View {
         let c = e.calc()
         if !isHalf, c.subsTotal > 0 {
             VStack(alignment: .leading, spacing: 8) {
-                SectionHead("Ya comprometido")
+                SectionHead("Ya comprometido", gap: 0)
                 Card {
                     let pctText = m.cur.inc > 0 ? ", el " + "\(Int((c.subsTotal / m.cur.inc * 100).rounded()))%" + " de lo que has ingresado este mes" : ""
                     Text("Tus servicios y suscripciones suman \(f.whole(c.subsTotal)) al mes\(pctText).")

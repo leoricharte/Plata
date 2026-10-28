@@ -26,6 +26,7 @@ struct AccountSheet: View {
     @State private var errorText: String?
     @State private var askDelete = false
     @State private var askLinked = false
+    @State private var linkF = 1.0
     @FocusState private var focus: Bool
 
     var body: some View {
@@ -40,7 +41,13 @@ struct AccountSheet: View {
                 AmountField(symbol: f.symbol(cur).trimmingCharacters(in: .whitespaces), text: $balance,
                             placeholder: Money.decimals(cur) > 0 ? "0.00" : "0", focus: $focus, label: "Saldo")
                 PillSegmented(items: [("checking", "Corriente"), ("savings", "Ahorros"), ("cash", "Efectivo")], selection: $type).padding(.bottom, 10)
-                if curs.count > 1 { PillSegmented(items: curs.map { ($0, ($0)) }, selection: $cur).padding(.bottom, 10) }
+                if curs.count > 1 {
+                    CurrencyPills(curs: curs, cur: $cur, hasMoney: num(balance) > 0, linked: (info?.transactions ?? 0) > 0) { factor, new in
+                        guard factor != 1 else { return }
+                        linkF *= factor
+                        balance = clean(CurrencyChange.scaled(num(balance), factor: factor, cur: new))
+                    }.padding(.bottom, 10)
+                }
                 SCard {
                     FieldRow(symbol: "pencil", label: "Nombre", placeholder: "Nombre", text: $name)
                     if type != "cash" {
@@ -62,7 +69,7 @@ struct AccountSheet: View {
             .padding(.horizontal, 16).padding(.top, 16)
         }
         .scrollDismissesKeyboard(.interactively)
-        .presentationDetents([.large]).presentationDragIndicator(.visible).presentationCornerRadius(38)
+        .fitSheet().presentationDragIndicator(.visible).presentationCornerRadius(38)
         .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))
         .onAppear(perform: load)
         .confirmationDialog("¿Eliminar esto?", isPresented: $askDelete, titleVisibility: .visible) {
@@ -108,7 +115,7 @@ struct AccountSheet: View {
         var o: JSONValue = original ?? .object(["id": .string(newId()), "icon": .string("")])
         o["name"] = .string(name); o["last4"] = .string(last4); o["type"] = .string(type)
         o["apy"] = .number(num(apy)); o["cur"] = .string(cur); o["balance"] = .number(num(balance)); o["color"] = .string(color); o["icon"] = .string(icon); o["iconUser"] = .bool(iconUser); o["colorUser"] = .bool(colorUser)
-        do { try model.saveAccount(o); dismiss() }
+        do { try model.saveAccount(o, linkFactor: original.map { Engine.text($0["cur"]) == cur ? 1 : linkF } ?? 1); dismiss() }
         catch ProfileEditor.FormError.missingName { errorText = "Escribe un nombre." }
         catch { errorText = "No se pudo guardar." }
     }
@@ -138,6 +145,7 @@ struct DebtSheet: View {
     @State private var errorText: String?
     @State private var askDelete = false
     @State private var askLinked = false
+    @State private var linkF = 1.0
     @FocusState private var focus: Bool
 
     var body: some View {
@@ -152,7 +160,15 @@ struct DebtSheet: View {
                 AmountField(symbol: f.symbol(cur).trimmingCharacters(in: .whitespaces), text: $balance,
                             placeholder: Money.decimals(cur) > 0 ? "0.00" : "0", focus: $focus, label: "Saldo adeudado (lo que debes)")
                 PillSegmented(items: [("card", "Tarjeta"), ("loan", "Préstamo")], selection: $kind).padding(.bottom, 10)
-                if curs.count > 1 { PillSegmented(items: curs.map { ($0, ($0)) }, selection: $cur).padding(.bottom, 10) }
+                if curs.count > 1 {
+                    CurrencyPills(curs: curs, cur: $cur, hasMoney: num(balance) + num(limit) + num(payment) > 0, linked: original != nil) { factor, new in
+                        guard factor != 1 else { return }
+                        linkF *= factor
+                        balance = clean(CurrencyChange.scaled(num(balance), factor: factor, cur: new))
+                        limit = clean(CurrencyChange.scaled(num(limit), factor: factor, cur: new))
+                        payment = clean(CurrencyChange.scaled(num(payment), factor: factor, cur: new))
+                    }.padding(.bottom, 10)
+                }
                 SCard {
                     FieldRow(symbol: "pencil", label: "Nombre", placeholder: "Nombre", text: $name)
                     RowDivider()
@@ -180,7 +196,7 @@ struct DebtSheet: View {
             .padding(.horizontal, 16).padding(.top, 16)
         }
         .scrollDismissesKeyboard(.interactively)
-        .presentationDetents([.large]).presentationDragIndicator(.visible).presentationCornerRadius(38)
+        .fitSheet().presentationDragIndicator(.visible).presentationCornerRadius(38)
         .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))
         .onAppear(perform: load)
         .confirmationDialog("¿Eliminar esto?", isPresented: $askDelete, titleVisibility: .visible) {
@@ -225,7 +241,7 @@ struct DebtSheet: View {
         o["kind"] = .string(kind); o["name"] = .string(name); o["last4"] = .string(last4)
         o["limit"] = .number(num(limit)); o["apr"] = .number(num(apr)); o["payment"] = .number(num(payment))
         o["due_day"] = .number(num(dueDay)); o["cur"] = .string(cur); o["balance"] = .number(num(balance)); o["color"] = .string(color); o["icon"] = .string(icon); o["iconUser"] = .bool(iconUser); o["colorUser"] = .bool(colorUser)
-        do { try model.saveDebt(o); dismiss() }
+        do { try model.saveDebt(o, linkFactor: original.map { Engine.text($0["cur"]) == cur ? 1 : linkF } ?? 1); dismiss() }
         catch ProfileEditor.FormError.missingName { errorText = "Escribe un nombre." }
         catch ProfileEditor.FormError.invalidDueDay { errorText = "El día de pago va del 1 al 31." }
         catch ProfileEditor.FormError.negativeInterest { errorText = "El interés no puede ser negativo." }
@@ -260,7 +276,11 @@ struct SubSheet: View {
                 SheetHead(title: id == nil ? "Nuevo servicio o suscripción" : "Servicio o suscripción", onClose: { dismiss() }, onSave: { save() })
                 AmountField(symbol: f.symbol(cur).trimmingCharacters(in: .whitespaces), text: $amount,
                             placeholder: Money.decimals(cur) > 0 ? "0.00" : "0", focus: $focus, label: "Por mes")
-                if curs.count > 1 { PillSegmented(items: curs.map { ($0, ($0)) }, selection: $cur).padding(.bottom, 10) }
+                if curs.count > 1 {
+                    CurrencyPills(curs: curs, cur: $cur, hasMoney: num(amount) > 0) { factor, new in
+                        if factor != 1 { amount = clean(CurrencyChange.scaled(num(amount), factor: factor, cur: new)) }
+                    }.padding(.bottom, 10)
+                }
                 SCard {
                     FieldRow(symbol: "pencil", label: "Nombre", placeholder: "Nombre", text: $name)
                     RowDivider()
@@ -293,7 +313,7 @@ struct SubSheet: View {
             .padding(.horizontal, 16).padding(.top, 16)
         }
         .scrollDismissesKeyboard(.interactively)
-        .presentationDetents([.large]).presentationDragIndicator(.visible).presentationCornerRadius(38)
+        .fitSheet().presentationDragIndicator(.visible).presentationCornerRadius(38)
         .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))
         .onAppear(perform: load)
         .confirmationDialog("¿Eliminar esto?", isPresented: $askDelete, titleVisibility: .visible) {

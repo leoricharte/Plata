@@ -40,7 +40,7 @@ struct AccountDetailView: View {
                 }
                 if kind == .saving { savingTail(o, e, f, cur) } else { movements(o, e, f) }
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, 16)
             .padding(.bottom, 24)
         }
         .background(Color(.systemGroupedBackground))

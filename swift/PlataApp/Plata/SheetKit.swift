@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 import PlataCore
 
 // Las piezas de las hojas de la web (estilo Apple Pay): cabecera con ✕ y ✓ de vidrio, monto grande, tarjeta de filas con icono, chips y selector en cápsula.
@@ -290,7 +291,7 @@ func profileCurrencies(_ e: Engine, including extra: String = "") -> [String] {
 /// Elegir el color de una cuenta o tarjeta (`SWATCH` de la web).
 struct SwatchRow: View {
     @Binding var color: String
-    static let colors = ["#B98AE6", "#6D8BEA", "#5CC8C0", "#22B573", "#EDB03E", "#FF9F0A", "#F08FB0", "#FF453A", "#8E8E93", "#1C1C1E"]
+    static let colors = ["#B98AE6", "#6D8BEA", "#5CC8C0", "#22B573", "#EDB03E", "#FF9F0A", "#F08FB0", "#FF453A", "#8E8E93", "#1C1C1E", "#5E5CE6", "#A2845E"]
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 12) {
@@ -306,4 +307,82 @@ struct SwatchRow: View {
         }
         .scrollClipDisabled()
     }
+}
+
+
+/// Hace que la hoja mida lo que mide su contenido (como las hojas de la web), en vez de abrirse siempre a pantalla casi completa.
+/// Si el contenido no cabe en ~86 % de la pantalla, la hoja se abre grande y se desplaza. Va justo después del `ScrollView`.
+private struct FitSheet: ViewModifier {
+    @State private var fit: CGFloat = 0
+
+    private var detents: Set<PresentationDetent> {
+        let screen = UIScreen.main.bounds.height
+        let want = fit + 44   // el espacio de abajo (indicador de inicio)
+        if fit <= 0 || want > screen * 0.86 { return [.large] }
+        return [.height(max(want, 300))]
+    }
+
+    func body(content: Content) -> some View {
+        content
+            .onScrollGeometryChange(for: CGFloat.self) { $0.contentSize.height } action: { _, h in fit = h }
+            .presentationDetents(detents)
+    }
+}
+
+extension View {
+    func fitSheet() -> some View { modifier(FitSheet()) }
+}
+
+/// Selector de moneda de los formularios con la pregunta de la web (`askCurChange`): al pasar entre la moneda principal
+/// y la segunda, si hay montos, pregunta si se mantienen, se convierten al tipo asignado o a otro tipo de cambio.
+/// `onSwitch(factor, nuevaMoneda)` se llama ya con la moneda cambiada; `factor` es 1 si se mantienen los montos.
+struct CurrencyPills: View {
+    @Environment(AppModel.self) private var model
+    let curs: [String]
+    @Binding var cur: String
+    var hasMoney: Bool
+    var linked: Bool = false
+    var onSwitch: (Double, String) -> Void = { _, _ in }
+
+    @State private var pending: String?
+    @State private var ask = false
+    @State private var askRate = false
+    @State private var rateText = ""
+
+    var body: some View {
+        let from = cur
+        let to = pending ?? cur
+        let assigned = CurrencyChange.assignedRate(model.engine.data, from: from, to: to)
+        PillSegmented(items: curs.map { ($0, $0) }, selection: Binding(
+            get: { cur },
+            set: { new in
+                guard new != cur else { return }
+                if CurrencyChange.asksOnFormSwitch(model.engine.data, from: cur, to: new, hasMoney: hasMoney, linked: linked) {
+                    pending = new; ask = true
+                } else { cur = new; onSwitch(1, new) }
+            }))
+        .confirmationDialog("Cambiar de moneda", isPresented: $ask, titleVisibility: .visible) {
+            Button("Mantener los montos") { apply(1) }
+            Button(Tr.f("Convertir al tipo asignado (1 {0} = {1} {2})", from, Self.text(assigned), to)) { apply(assigned) }
+            Button("Usar otro tipo de cambio") { rateText = Self.text(assigned); askRate = true }
+            Button("Cancelar", role: .cancel) { pending = nil }
+        } message: { Text(Tr.f("Pasas de {0} a {1}. ¿Qué hacemos con los montos?", from, to)) }
+        .alert("Tipo de cambio", isPresented: $askRate) {
+            TextField("0", text: $rateText).keyboardType(.decimalPad)
+            Button("Convertir") {
+                let r = Double(rateText.replacingOccurrences(of: ",", with: ".").trimmingCharacters(in: .whitespaces)) ?? 0
+                apply(r > 0 ? r : 1)
+            }
+            Button("Volver", role: .cancel) { pending = nil }
+        } message: { Text(Tr.f("1 {0} = ? {1}", from, to)) }
+    }
+
+    private func apply(_ factor: Double) {
+        guard let new = pending else { return }
+        pending = nil
+        cur = new
+        onSwitch(factor, new)
+    }
+
+    private static func text(_ r: Double) -> String { r == r.rounded() ? String(Int64(r)) : String(r) }
 }

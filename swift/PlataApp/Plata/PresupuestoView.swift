@@ -177,7 +177,7 @@ struct PresupuestoView: View {
             Text("\(f.exact(c.subsTotal * 12)) al año").font(.inter(15)).foregroundStyle(.secondary).padding(.bottom, 4)
             ForEach(Array(subs.enumerated()), id: \.offset) { i, s in
                 RowDivider()
-                Button { model.activeSheet = .sub(id: Engine.identifier(s["id"])) } label: {
+                NavigationLink(value: Route.sub(Engine.identifier(s["id"]))) {
                     HStack(spacing: 12) {
                         SubTile(name: Engine.text(s["name"]), fallback: Color(hex: Self.subColors[i % Self.subColors.count]))
                         VStack(alignment: .leading, spacing: 2) {

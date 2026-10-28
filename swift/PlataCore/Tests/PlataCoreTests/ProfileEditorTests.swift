@@ -71,3 +71,39 @@ final class ProfileEditorTests: XCTestCase {
         XCTAssertEqual(bal(p, "accounts", 1), -10)
     }
 }
+
+final class SubscriptionAdvanceTests: XCTestCase {
+    private func base() -> JSONValue {
+        var p = Profile.empty.raw
+        p["accounts"] = .array([.object(["id": .string("bank"), "name": .string("Cuenta"), "type": .string("checking"), "cur": .string("USD"), "balance": .number(100)])])
+        p["subs"] = .array([.object(["id": .string("s1"), "name": .string("Netflix"), "amount": .number(15), "cur": .string("USD"), "day": .number(12), "acc": .string("bank")])])
+        p["transactions"] = .array([.object(["id": .number(1), "date": .string("2026-09-12"), "amount": .number(-15), "category": .string("Suscripciones"), "note": .string("Netflix"), "acc": .string("bank")])])
+        return p
+    }
+
+    func testAdvanceRecordsTodayAndSkipsTheNextCharge() throws {
+        var p = base()
+        let next = try ProfileEditor.advanceSubscription(&p, id: .string("s1"), account: .string("bank"), amount: 15, today: "2026-10-28", now: 1_790_000_000_000, jitter: 1)
+        XCTAssertEqual(next, "2026-11-12")
+        let txs = p["transactions"]!.arrayValue!
+        XCTAssertEqual(txs.count, 2)
+        XCTAssertEqual(txs[1]["amount"], .number(-15))
+        XCTAssertEqual(txs[1]["category"], .string("Suscripciones"))   // la del cobro anterior
+        XCTAssertEqual(txs[1]["sub"], .string("s1"))
+        XCTAssertEqual(p["accounts"]!.arrayValue![0]["balance"]!.doubleValue!, 85)
+        XCTAssertEqual(p["ovr"]!["sub:s1:2026-11-12"], .object(["skip": .bool(true)]))
+    }
+
+    func testAdvanceTwiceSkipsTheNextOneToo() throws {
+        var p = base()
+        try ProfileEditor.advanceSubscription(&p, id: .string("s1"), account: .string("bank"), amount: 15, today: "2026-10-28", now: 1_790_000_000_000, jitter: 1)
+        let next = try ProfileEditor.advanceSubscription(&p, id: .string("s1"), account: .string("bank"), amount: 15, today: "2026-10-28", now: 1_790_000_000_000, jitter: 2)
+        XCTAssertEqual(next, "2026-12-12")
+    }
+
+    func testUnknownSubscriptionAndBadAmountAreRefused() {
+        var p = base()
+        XCTAssertThrowsError(try ProfileEditor.advanceSubscription(&p, id: .string("nada"), account: .string("bank"), amount: 15, today: "2026-10-28", now: 1))
+        XCTAssertThrowsError(try ProfileEditor.advanceSubscription(&p, id: .string("s1"), account: .string("bank"), amount: 0, today: "2026-10-28", now: 1))
+    }
+}

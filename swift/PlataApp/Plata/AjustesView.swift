@@ -248,7 +248,7 @@ struct AjustesView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 18).padding(.top, 2).padding(.bottom, 6)
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, 16)
             .padding(.bottom, 24)
         }
         .background(Color(.systemGroupedBackground))
@@ -496,7 +496,7 @@ struct ProfileSettingsView: View {
                 }
                 SettingsNote(text: "Puedes usar hasta 2 monedas a la vez. El tipo de cambio es tuyo: edítalo cuando cambie.")
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, 16)
             .padding(.bottom, 24)
         }
         .background(Color(.systemGroupedBackground))

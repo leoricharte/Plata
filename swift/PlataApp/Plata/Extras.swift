@@ -130,7 +130,7 @@ struct HistorySheet: View {
                         .padding(.vertical, 14)
                     }
                 }
-                .padding(.horizontal, 20).padding(.bottom, 24)
+                .padding(.horizontal, 16).padding(.bottom, 24)
             }
         }
         .background(Color(.systemGroupedBackground))
@@ -389,7 +389,7 @@ struct CreditsView: View {
                 Button { model.showHistory = true } label: {
                     VStack(spacing: 2) {
                         Text("Plata · Beta 4")
-                        Text("Compilación 463")
+                        Text("Compilación 464")
                         Text("Móvil")
                     }
                     .font(.inter(13)).foregroundStyle(.secondary)
@@ -397,7 +397,7 @@ struct CreditsView: View {
                 }
                 .buttonStyle(.plain)
             }
-            .padding(.horizontal, 20).padding(.bottom, 24)
+            .padding(.horizontal, 16).padding(.bottom, 24)
         }
         .background(Color(.systemGroupedBackground))
         .navigationBarTitleDisplayMode(.inline)

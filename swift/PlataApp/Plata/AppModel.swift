@@ -369,8 +369,37 @@ final class AppModel {
         try commit { raw in try ProfileEditor.contribute(&raw, savingId: savingId, amount: amount, date: day) }
     }
 
-    func saveAccount(_ item: JSONValue) throws { try commit { raw in try ProfileEditor.saveAccount(&raw, item: item) } }
-    func saveDebt(_ item: JSONValue) throws { try commit { raw in try ProfileEditor.saveDebt(&raw, item: item) } }
+    /// `linkFactor`: por cuánto se convirtieron los montos al cambiar de moneda en el formulario (1 = no se convirtieron):
+    /// lo que depende de la cuenta (movimientos, previstos, simulados, trabajos) se convierte igual.
+    func saveAccount(_ item: JSONValue, linkFactor: Double = 1) throws {
+        try commit { raw in
+            try ProfileEditor.saveAccount(&raw, item: item)
+            if linkFactor > 0, linkFactor != 1 { CurrencyChange.scaleLinked(&raw, id: Engine.identifier(item["id"]), factor: linkFactor, cur: Engine.text(item["cur"])) }
+        }
+    }
+    func saveDebt(_ item: JSONValue, linkFactor: Double = 1) throws {
+        try commit { raw in
+            try ProfileEditor.saveDebt(&raw, item: item)
+            if linkFactor > 0, linkFactor != 1 { CurrencyChange.scaleLinked(&raw, id: Engine.identifier(item["id"]), factor: linkFactor, cur: Engine.text(item["cur"])) }
+        }
+    }
+
+    /// «Adelantar cobro»: registra hoy el cobro de la suscripción y salta el próximo de la serie.
+    func advanceSubscription(id: String) throws {
+        let e = engine
+        guard let sb = e.subscriptionList.first(where: { Engine.identifier($0["id"]) == id }) else { throw ProfileEditor.EditError.notFound }
+        let cur = Engine.text(sb["cur"])
+        let own = Engine.flag(sb["acc"]) ? (e.allAccounts + e.allCards).first(where: { $0["id"] == sb["acc"] }) : nil
+        guard let acc = own ?? e.allAccounts.first(where: { Engine.text($0["cur"]) == cur }) ?? e.allAccounts.first else { throw ProfileEditor.EditError.notFound }
+        let accCur = Engine.text(acc["cur"])
+        let amount = Engine.number(sb["amount"])
+        let amt = accCur == cur ? amount : Engine.roundCents(e.fromUSD(e.usd(amount, cur), accCur))
+        let now = Date().timeIntervalSince1970 * 1000
+        let day = today.iso
+        try commit { raw in
+            try ProfileEditor.advanceSubscription(&raw, id: sb["id"] ?? .null, account: acc["id"] ?? .null, amount: amt, today: day, now: now)
+        }
+    }
     func saveSub(_ item: JSONValue) throws { try commit { raw in try ProfileEditor.saveSub(&raw, item: item) } }
     func deleteSub(id: JSONValue) throws { try commit { raw in ProfileEditor.deleteSub(&raw, id: id) } }
     func deleteAccountCascade(id: JSONValue) throws { try commit { raw in try ProfileEditor.deleteAccountCascade(&raw, id: id) } }

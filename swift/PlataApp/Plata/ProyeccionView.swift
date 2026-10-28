@@ -327,6 +327,7 @@ struct ProyeccionView: View {
             trailing
             Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(.tertiary)
         }
+        .padding(.vertical, 10)
         .frame(minHeight: 64)
         .contentShape(Rectangle())
         .onTapGesture { if let onTap { onTap() } else { soon = true } }
@@ -546,36 +547,50 @@ struct ProyeccionView: View {
             } else {
                 VStack(alignment: .leading, spacing: 0) {
                     ForEach(Array(p.timeline.enumerated()), id: \.offset) { i, ev in
-                        HStack(spacing: 10) {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(ev.name).font(.inter(16, .semibold)).tracking(-0.3).strikethrough(ev.skipped)
-                                HStack(spacing: 6) {
-                                    Text(ev.date).font(.inter(13)).foregroundStyle(.secondary)
-                                    if ev.skipped { StatusBadge(text: "Omitido", fg: .secondary, bg: Color(light: "#E5E5EA", dark: "#2C2C2E"), size: 11) }
-                                    else if ev.edited { StatusBadge(text: "Editado", fg: Brand.gainText, bg: Brand.gainBg, size: 11) }
+                        let last = i == p.timeline.count - 1
+                        VStack(spacing: 0) {
+                            HStack(spacing: 10) {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(ev.name).font(.inter(16, .semibold)).tracking(-0.3).strikethrough(ev.skipped)
+                                    HStack(spacing: 6) {
+                                        Text(ev.date).font(.inter(13)).foregroundStyle(.secondary)
+                                        if ev.skipped { StatusBadge(text: "Omitido", fg: .secondary, bg: Color(light: "#E5E5EA", dark: "#2C2C2E"), size: 11) }
+                                        else if ev.edited { StatusBadge(text: "Editado", fg: Brand.gainText, bg: Brand.gainBg, size: 11) }
+                                    }
                                 }
+                                Spacer(minLength: 8)
+                                VStack(alignment: .trailing, spacing: 0) {
+                                    Text((ev.amt > 0 ? "+" : "") + f.whole(ev.amt)).font(.inter(16, .semibold)).monospacedDigit().foregroundStyle(ev.amt > 0 ? Brand.gainText : Color.primary)
+                                    Text(ev.skipped ? "—" : f.whole(ev.after)).font(.inter(13)).foregroundStyle(.secondary)
+                                }
+                                if ev.key != nil { Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(.tertiary) }
+                                else { Color.clear.frame(width: 12) }
                             }
-                            Spacer(minLength: 8)
-                            VStack(alignment: .trailing, spacing: 0) {
-                                Text((ev.amt > 0 ? "+" : "") + f.whole(ev.amt)).font(.inter(16, .semibold)).monospacedDigit().foregroundStyle(ev.amt > 0 ? Brand.gainText : Color.primary)
-                                Text(ev.skipped ? "—" : f.whole(ev.after)).font(.inter(13)).foregroundStyle(.secondary)
-                            }
-                            if ev.key != nil { Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(.tertiary) }
-                            else { Color.clear.frame(width: 12) }
+                            .padding(.leading, 20)
+                            .contentShape(Rectangle())
+                            .opacity(ev.skipped ? 0.5 : 1)
+                            .overlay(alignment: .leading) { TimelineDot(color: Color(hex: Self.tlDot[ev.type] ?? "#8E8E93")) }
+                            .onTapGesture { if let k = ev.key { openEvent(ev, k) } }
+                            if !last { Color.clear.frame(height: 18) }
                         }
-                        .padding(.leading, 18).padding(.bottom, i == p.timeline.count - 1 ? 0 : 18)
-                        .opacity(ev.skipped ? 0.5 : 1)
-                        .overlay(alignment: .leading) {
-                            Circle().fill(Color(hex: Self.tlDot[ev.type] ?? "#8E8E93")).frame(width: 12, height: 12)
-                                .overlay(Circle().strokeBorder(Color(.secondarySystemGroupedBackground), lineWidth: 3).padding(-3))
-                                .offset(x: -7, y: i == p.timeline.count - 1 ? 0 : -9)
-                        }
-                        .onTapGesture { if let k = ev.key { openEvent(ev, k) } }
+                        // la línea de la izquierda cruza toda la fila (también el hueco de abajo), como el `border-left` de `.tl`
+                        .background(alignment: .leading) { Rectangle().fill(Color(light: "#E5E5EA", dark: "#3A3A3C")).frame(width: 2) }
                     }
                 }
-                .overlay(alignment: .leading) { Rectangle().fill(Color(light: "#E5E5EA", dark: "#2C2C2E")).frame(width: 2) }
                 .padding(.leading, 6).padding(.top, 14)
             }
         }
+    }
+}
+
+/// El punto de la línea de tiempo: 12 pt centrado sobre la línea de 2 pt, con un aro del color de la tarjeta (`.tl .dot` de la web).
+struct TimelineDot: View {
+    let color: Color
+    var body: some View {
+        Circle().fill(color).frame(width: 12, height: 12)
+            .padding(3)
+            .background(Color(.secondarySystemGroupedBackground), in: Circle())
+            .offset(x: -8)   // el centro del punto (6 + 3) queda sobre el centro de la línea (x = 1)
+            .accessibilityHidden(true)
     }
 }

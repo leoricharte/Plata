@@ -151,3 +151,38 @@ Sincronizado hace un momento ¦ Synced just now
 Sincronizado hace {0} min ¦ Synced {0} min ago
 Sincronizado hace {0} h ¦ Synced {0} h ago
 Sincronizado hace {0} d ¦ Synced {0} d ago
+Cambiar de moneda ¦ Change currency
+Mantener los montos ¦ Keep the amounts
+Convertir al tipo asignado (1 {0} = {1} {2}) ¦ Convert at the assigned rate (1 {0} = {1} {2})
+Usar otro tipo de cambio ¦ Use another exchange rate
+Pasas de {0} a {1}. ¿Qué hacemos con los montos? ¦ You're switching from {0} to {1}. What should we do with the amounts?
+Tipo de cambio ¦ Exchange rate
+1 {0} = ? {1} ¦ 1 {0} = ? {1}
+Convertir ¦ Convert
+Volver ¦ Back
+Aún no hay cobros de esta suscripción en tus movimientos. ¦ There are no charges for this subscription in your transactions yet.
+No se pudo adelantar el cobro. ¦ Couldn't advance the charge.
+Adelantar cobro ¦ Advance charge
+Historial ¦ History
+Desde ¦ Since
+Cobros ¦ Charges
+Quiebres ¦ Breaks
+Primer cobro en Plata ¦ First charge in Plata
+Sin datos ¦ No data
+Puede faltar un estado de cuenta ¦ A statement may be missing
+Mes sin cobro ¦ Month without a charge
+Quiebre ¦ Break
+sin cobro ¦ without a charge
+Subió de ¦ Went up from
+Bajó de ¦ Went down from
+Cambió de cuenta ¦ Changed account
+Cobro fuera de fecha ¦ Charge off schedule
+Cobró el día {0} · esperado el {1} ¦ Charged on day {0} · expected on {1}
+Último cobro ¦ Last charge
+¿Se canceló? ¦ Was it canceled?
+Sin cobros desde {0} ¦ No charges since {0}
+Por año ¦ Per year
+Equivale a ¦ Equivalent to
+Frecuencia ¦ Frequency
+Cada mes ¦ Every month
+Se cobra de ¦ Charged from

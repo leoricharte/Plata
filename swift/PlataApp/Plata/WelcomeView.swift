@@ -130,7 +130,7 @@ struct WelcomeView: View {
             Image("PlataLogo").resizable().scaledToFit().frame(width: 210).accessibilityLabel("Plata")
             Text("Finanzas simples. Tu plata a tu modo.").font(.inter(17)).foregroundStyle(.secondary).multilineTextAlignment(.center).padding(.top, 16)
             Spacer()
-            Text("Beta 4 · 463").font(.inter(13, .medium)).foregroundStyle(.secondary).padding(.bottom, 12)
+            Text("Beta 4 · 464").font(.inter(13, .medium)).foregroundStyle(.secondary).padding(.bottom, 12)
             HStack(spacing: 10) {
                 Button("Empezar") { w = WelcomeAnswers(); w.cur = Onboarding.guessCurrencies(timeZone: TimeZone.current.identifier, region: Locale.current.region?.identifier ?? ""); go(.level) }
                     .buttonStyle(PrimaryPillStyle())

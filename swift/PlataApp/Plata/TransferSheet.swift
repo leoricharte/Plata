@@ -64,7 +64,7 @@ struct TransferSheet: View {
             .padding(.horizontal, 16).padding(.top, 16)
         }
         .scrollDismissesKeyboard(.interactively)
-        .presentationDetents([.large])
+        .fitSheet()
         .presentationDragIndicator(.visible)
         .presentationCornerRadius(38)
         .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))

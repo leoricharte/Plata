@@ -37,7 +37,7 @@ struct ProfileView: View {
                 }
                 TutorialCard()
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, 16)
             .padding(.bottom, 24)
         }
         .background(Color(.systemGroupedBackground))
