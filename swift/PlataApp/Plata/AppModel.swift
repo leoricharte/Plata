@@ -1,0 +1,121 @@
+import Foundation
+import Observation
+import PlataCore
+
+/// El estado de la app: el perfil (migrado y sellado), el motor de cálculo y los cambios que hacen las pantallas.
+/// Todo lo que cambia el perfil pasa por `commit`: aplica el cambio, sella las ediciones para la nube y guarda en disco.
+@MainActor
+@Observable
+final class AppModel {
+    private(set) var profile: Profile
+    private(set) var today: LocalDate
+    private(set) var engine: Engine
+    /// Cambios hechos en esta sesión (para refrescar vistas derivadas, como el archivo de exportación).
+    private(set) var changes = 0
+    var errorMessage: String?
+
+    @ObservationIgnored private let store: ProfileStore
+    @ObservationIgnored private var stamper = SyncStamper()
+
+    init() {
+        let dir = URL.applicationSupportDirectory.appending(path: "Plata", directoryHint: .isDirectory)
+        let store = ProfileStore(directory: dir)
+        let loaded = store.load() ?? Profile.empty
+        var p = (try? Migration.migrate(loaded)) ?? ((try? Migration.migrate(Profile.empty)) ?? Profile.empty)
+        let stamper = SyncStamper()
+        var raw = p.raw
+        stamper.stamp(&raw, now: Date().timeIntervalSince1970 * 1000)   // primera pasada: solo toma la foto
+        p = Profile(raw: raw)
+        let t = LocalDate.today()
+        self.store = store
+        self.stamper = stamper
+        self.profile = p
+        self.today = t
+        self.engine = Engine(profile: p, today: t)
+    }
+
+    var fmt: Fmt { Fmt(currency: engine.primaryCurrency, custom: engine.customCurrency) }
+
+    func refreshToday() {
+        let t = LocalDate.today()
+        guard t != today else { return }
+        today = t
+        engine = Engine(profile: profile, today: t)
+    }
+
+    // MARK: cambios
+
+    private func commit(_ change: (inout JSONValue) throws -> Void) throws {
+        var raw = profile.raw
+        try change(&raw)
+        stamper.stamp(&raw, now: Date().timeIntervalSince1970 * 1000)
+        profile = Profile(raw: raw)
+        engine = Engine(profile: profile, today: today)
+        changes += 1
+        do { try store.save(profile) } catch { errorMessage = "No se pudo guardar en el dispositivo: \(error.localizedDescription)" }
+    }
+
+    func addTransaction(date: LocalDate, amount: Double, category: String, note: String, account: String) throws {
+        try commit { raw in
+            _ = try ProfileEditor.addTransaction(&raw, date: date.iso, amount: amount, category: category, note: note, account: account,
+                                             now: Date().timeIntervalSince1970 * 1000)
+        }
+    }
+
+    func updateTransaction(id: JSONValue, amount: Double, isOut: Bool, category: String, account: String, date: LocalDate, note: String) throws {
+        try commit { raw in
+            try ProfileEditor.updateTransaction(&raw, id: id, amount: amount, isOut: isOut, category: category, account: account, date: date.iso, note: note)
+        }
+    }
+
+    func deleteTransaction(id: JSONValue) throws {
+        try commit { raw in try ProfileEditor.deleteTransaction(&raw, id: id) }
+    }
+
+    func setSetting(_ key: String, _ value: JSONValue) {
+        try? commit { raw in
+            var s = raw["settings"] ?? .object([:])
+            s[key] = value
+            raw["settings"] = s
+        }
+    }
+
+    // MARK: archivo de perfil
+
+    /// Reemplaza todo por el contenido de un archivo de perfil (el mismo formato que exporta la web).
+    func importProfile(_ data: Data) throws {
+        let incoming = try Profile(jsonData: data)
+        let migrated = try Migration.migrate(incoming)
+        stamper = SyncStamper()                       // perfil nuevo: se vuelve a tomar la foto, como en la web
+        var raw = migrated.raw
+        stamper.stamp(&raw, now: Date().timeIntervalSince1970 * 1000)
+        profile = Profile(raw: raw)
+        engine = Engine(profile: profile, today: today)
+        changes += 1
+        try store.save(profile)
+    }
+
+    func resetProfile() throws {
+        try importProfile(Profile.empty.jsonData())
+    }
+
+    /// Escribe el perfil en un archivo temporal para compartirlo (nombre `plata-AAAA-MM-DD_HH-mm.json`).
+    func exportFile() throws -> URL {
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent(ProfileStore.exportFileName())
+        try profile.jsonData().write(to: url, options: .atomic)
+        return url
+    }
+}
+
+/// Montos con la moneda principal (y la propia, si la hay), como `fmt` / `fmt2` de la web.
+struct Fmt {
+    let currency: String
+    let custom: String
+
+    func whole(_ n: Double) -> String { Money.whole(n, currency, custom: custom) }
+    func exact(_ n: Double) -> String { Money.exact(n, currency, custom: custom) }
+    func whole(_ n: Double, _ cur: String) -> String { Money.whole(n, cur, custom: custom) }
+    func exact(_ n: Double, _ cur: String) -> String { Money.exact(n, cur, custom: custom) }
+    func signed(_ n: Double, _ cur: String) -> String { Money.signed(n, cur, custom: custom) }
+    func symbol(_ cur: String) -> String { Money.symbol(cur, custom: custom) }
+}

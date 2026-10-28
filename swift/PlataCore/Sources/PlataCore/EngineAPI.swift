@@ -18,6 +18,10 @@ public extension LocalDate {
 public extension Engine {
     static func number(_ v: JSONValue?) -> Double { num(v) }
     static func text(_ v: JSONValue?) -> String { str(v) }
+    /// Identificador como texto (los de movimientos son números; los de cuentas, texto).
+    static func identifier(_ v: JSONValue?) -> String { idStr(v) }
+    /// ¿Es verdadero en JavaScript? (para banderas como `hid`)
+    static func flag(_ v: JSONValue?) -> Bool { JS.truthy(v) }
 
     var insightsEnabled: Bool { insightsOn }
     var scoreEnabled: Bool { scoreOn }
@@ -36,6 +40,7 @@ public extension Engine {
     var allAccounts: [JSONValue] { list("accounts") }
     var allCards: [JSONValue] { list("cards") }
     var allTransactions: [JSONValue] { list("transactions") }
+    var allIncomeItems: [JSONValue] { list("expected_income") }
 
     /// Suma de montos de una lista en moneda principal.
     func totalUSD(_ items: [JSONValue], amount: String = "balance") -> Double {
