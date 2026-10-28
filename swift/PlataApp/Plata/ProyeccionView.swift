@@ -117,10 +117,11 @@ struct ProyeccionView: View {
             }
             .padding(.horizontal, 16)
             .padding(.top, 8)
-            .padding(.bottom, 110)
+            .padding(.bottom, 24)
         }
         .background(Color(.systemGroupedBackground))
-        .toolbar(.hidden, for: .navigationBar)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar { ToolbarItem(placement: .topBarTrailing) { AddMenuButton() } }
         .navigationDestination(for: Route.self) { route in
             if case .tx(let id) = route { TransactionDetailView(id: id) }
         }

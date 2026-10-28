@@ -23,7 +23,6 @@ struct ResumenView: View {
         NavigationStack(path: $nav.path) {
             ScrollView {
                 VStack(spacing: 14) {
-                    topBar
                     titleBlock(e)
                     idleBanner(e)
                     if !hasData(e) { startCard }
@@ -46,7 +45,8 @@ struct ResumenView: View {
                 .padding(.bottom, 24)
             }
             .background(Color(.systemGroupedBackground))
-            .toolbar(.hidden, for: .navigationBar)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { rootToolbar }
             .navigationDestination(for: Route.self) { route in
                 switch route {
                 case .movimientos: MovimientosView()
@@ -63,20 +63,25 @@ struct ResumenView: View {
 
     // MARK: encabezado
 
-    private var topBar: some View {
-        HStack(spacing: 8) {
-            Image("PlataLogo")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 112)
-                .accessibilityLabel("Plata")
-            BetaPill()
-            Spacer(minLength: 8)
-            NavigationLink(value: Route.ajustes) { GlassIcon(symbol: "gearshape") }
-                .buttonStyle(.plain)
+    @ToolbarContentBuilder
+    private var rootToolbar: some ToolbarContent {
+        if #available(iOS 26, *) {
+            ToolbarItem(placement: .topBarLeading) { brand }.sharedBackgroundVisibility(.hidden)
+        } else {
+            ToolbarItem(placement: .topBarLeading) { brand }
+        }
+        ToolbarItem(placement: .topBarTrailing) {
+            NavigationLink(value: Route.ajustes) { Image(systemName: "gearshape") }
                 .accessibilityLabel("Ajustes")
         }
-        .padding(.horizontal, 4)
+        ToolbarItem(placement: .topBarTrailing) { AddMenuButton() }
+    }
+
+    private var brand: some View {
+        HStack(spacing: 8) {
+            Image("PlataLogo").resizable().scaledToFit().frame(width: 96).accessibilityLabel("Plata")
+            BetaPill()
+        }
     }
 
     private func titleBlock(_ e: Engine) -> some View {
