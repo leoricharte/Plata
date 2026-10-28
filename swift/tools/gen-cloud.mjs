@@ -18,7 +18,10 @@ const hex = (u) => Buffer.from(u).toString('hex');
 const unhex = (h) => new Uint8Array(Buffer.from(h, 'hex'));
 
 const seeds = ['a1b2c3d4e5f60718293a4b5c6d7e8f90'];
-const fx = { link: {} };
+const fx = { link: {}, phrases: [] };
+for (const h of ['a1b2c3d4e5f60718293a4b5c6d7e8f90', '00000000000000000000000000000000', 'ffffffffffffffffffffffffffffffff', '0123456789abcdeffedcba9876543210']) {
+  const sd = unhex(h); fx.phrases.push({ seed: h, es: (await PCC.toPhrase(sd, 'es')).join(' '), en: (await PCC.toPhrase(sd, 'en')).join(' ') });
+}
 // aprobación de dispositivos
 const EC = { name: 'ECDH', namedCurve: 'P-256' };
 const kpA = await S.generateKey(EC, true, ['deriveKey']), kpN = await S.generateKey(EC, true, ['deriveKey']);

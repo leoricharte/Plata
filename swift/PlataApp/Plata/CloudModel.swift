@@ -93,8 +93,8 @@ final class CloudModel {
 
     static let cooldown: Double = 60
 
-    /// «iPhone · móvil» / «iPad · móvil»: el nombre que el servidor y el otro dispositivo muestran.
-    static var device: String { (UIDevice.current.userInterfaceIdiom == .pad ? "iPad" : "iPhone") + " · móvil" }
+    /// «iPhone · app» / «iPad · app»: el nombre que el servidor y el otro dispositivo muestran. «app» distingue la app nativa de la web abierta en Safari («iPhone · móvil»).
+    static var device: String { (UIDevice.current.userInterfaceIdiom == .pad ? "iPad" : "iPhone") + " · app" }
 
     init() {
         let dir = URL.applicationSupportDirectory.appending(path: "Plata/cloud", directoryHint: .isDirectory)

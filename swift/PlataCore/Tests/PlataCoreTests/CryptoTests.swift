@@ -108,3 +108,15 @@ final class PhraseSpanishTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(Phrase.wordIndex("canon", language: .es), 0)
     }
 }
+
+extension PhraseSpanishTests {
+    /// Las frases en español e inglés que arma la web para estas semillas.
+    func testPhrasesMatchWeb() throws {
+        for p in try fixture("cloud")["phrases"]!.arrayValue! {
+            let seed = hexData(p["seed"]!.stringValue!)
+            XCTAssertEqual(Phrase.words(for: seed, language: .es).joined(separator: " "), p["es"]!.stringValue!)
+            XCTAssertEqual(Phrase.words(for: seed, language: .en).joined(separator: " "), p["en"]!.stringValue!)
+            XCTAssertEqual(Phrase.seed(from: p["es"]!.stringValue!, language: .es), seed)
+        }
+    }
+}
