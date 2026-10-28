@@ -12,6 +12,7 @@ struct RootView: View {
             }
             Tab("Presupuesto", systemImage: "wallet.bifold", value: AppTab.presupuesto) { NavigationStack { PresupuestoView() } }
             Tab("Proyección", systemImage: "chart.line.uptrend.xyaxis", value: AppTab.proyeccion) { NavigationStack { ProyeccionView() } }
+            Tab("Ahorro", systemImage: "leaf", value: AppTab.ahorro) { NavigationStack { AhorroView() } }
             Tab("Cuentas", systemImage: "creditcard", value: AppTab.cuentas) { NavigationStack { CuentasView() } }
         }
         .sheet(isPresented: $model.showAddTransaction) { TransactionSheet(mode: .new) }
@@ -21,6 +22,8 @@ struct RootView: View {
             case .expected(let kind, let id): ExpectedSheet(kind: kind, id: id)
             case .job(let id): JobSheet(id: id)
             case .planned(let id): PlannedSheet(id: id)
+            case .saving(let id): SavingSheet(id: id)
+            case .contrib: ContribSheet()
             }
         }
         .tint(Brand.accent)

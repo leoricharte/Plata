@@ -85,7 +85,6 @@ struct ProyeccionView: View {
     @State private var includeVariable = true
     @State private var calMonth = 0
     @State private var calSel: String?
-    @State private var tab = "proyeccion"
     @State private var soon = false
 
     private static let dot: [String: String] = ["in": "#22B573", "out": "#8E8E93", "sub": "#F08FB0", "card": "#B98AE6", "rec": "#6D8BEA", "sim": "#FF9F0A", "exp": "#FF6B5E"]
@@ -104,8 +103,6 @@ struct ProyeccionView: View {
         ScrollView {
             VStack(spacing: 0) {
                 PageHead(eyebrow: hor == 13 ? "Próximos 3 meses" : (hor == 26 ? "Próximos 6 meses" : "Próximos 12 meses"), title: "Proyección")
-                PillSegmented(items: [("proyeccion", "Proyección"), ("ahorro", "Ahorro")], selection: Binding(get: { tab }, set: { if $0 == "ahorro" { soon = true } else { tab = $0 } }))
-                    .padding(.bottom, 14)
                 calendarCard(e, f)
                 projectionCard(e, f, p)
                 incomeSection(e, f)

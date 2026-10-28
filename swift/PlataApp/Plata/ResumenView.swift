@@ -151,7 +151,7 @@ struct ResumenView: View {
             .init(id: "income", title: "Ingresos del mes", value: f.whole(c.income), detail: Spanish.plural(c.incomeCount, "ingreso", "ingresos"),
                   action: { model.path.append(.month) }),
             .init(id: "saved", title: "Ahorro total", value: f.whole(c.saved), detail: Spanish.plural(goals, "meta", "metas"), link: "Ver ahorro",
-                  action: { model.path.append(.soon("Ahorro")) }),
+                  action: { model.tab = .ahorro }),
             .init(id: "debt", title: "Deuda total", value: f.whole(debt), detail: Spanish.plural(cards.count, "cuenta", "cuentas"), link: "Ver deuda",
                   action: { model.tab = .cuentas }),
         ]

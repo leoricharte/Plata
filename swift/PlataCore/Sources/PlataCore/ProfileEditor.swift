@@ -294,4 +294,35 @@ public extension ProfileEditor {
         _ = try addTransaction(&p, date: date, amount: -amount, category: category, note: note, account: account, now: now)
         deletePlanned(&p, id: id)
     }
+
+    // MARK: metas de ahorro
+
+    static func saveSaving(_ p: inout JSONValue, item: JSONValue) throws {
+        var o = item
+        let name = Engine.str(o["name"]).trimmingCharacters(in: .whitespacesAndNewlines)
+        if name.isEmpty { throw FormError.missingName }
+        guard abs(Engine.num(o["goal"])) > 0 else { throw FormError.invalidAmount }
+        o["name"] = .string(name)
+        var list = p["savings"]?.arrayValue ?? []
+        if let i = list.firstIndex(where: { $0["id"] == o["id"] }) { list[i] = o } else { list.append(o) }
+        p["savings"] = .array(list)
+    }
+
+    static func deleteSaving(_ p: inout JSONValue, id: JSONValue) {
+        var list = p["savings"]?.arrayValue ?? []
+        list.removeAll { $0["id"] == id }
+        p["savings"] = .array(list)
+    }
+
+    /// Aporte a una meta: es una forma de contar parte de tu dinero, el saldo de las cuentas no cambia.
+    static func contribute(_ p: inout JSONValue, savingId: JSONValue, amount: Double, date: String) throws {
+        guard amount.isFinite, abs(amount) > 0 else { throw FormError.invalidAmount }
+        var list = p["savings"]?.arrayValue ?? []
+        guard let i = list.firstIndex(where: { $0["id"] == savingId }) else { throw EditError.notFound }
+        list[i]["balance"] = .number(Engine.round2(Engine.num(list[i]["balance"]) + amount))
+        var log = list[i]["log"]?.arrayValue ?? []
+        log.append(.object(["date": .string(date), "amount": .number(amount)]))
+        list[i]["log"] = .array(log)
+        p["savings"] = .array(list)
+    }
 }

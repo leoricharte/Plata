@@ -182,6 +182,19 @@ final class AppModel {
         }
     }
 
+    func saveSaving(_ item: JSONValue) throws {
+        try commit { raw in try ProfileEditor.saveSaving(&raw, item: item) }
+    }
+
+    func deleteSaving(id: JSONValue) throws {
+        try commit { raw in ProfileEditor.deleteSaving(&raw, id: id) }
+    }
+
+    func contribute(savingId: JSONValue, amount: Double) throws {
+        let day = LocalDate.today(now: Date()).iso
+        try commit { raw in try ProfileEditor.contribute(&raw, savingId: savingId, amount: amount, date: day) }
+    }
+
     func setSetting(_ key: String, _ value: JSONValue) {
         let old = profile.raw["settings"]?[key]
         if old == value { return }
@@ -295,6 +308,8 @@ enum ActiveSheet: Identifiable, Hashable {
     case expected(kind: String, id: String?)
     case job(id: String?)
     case planned(id: String?)
+    case saving(id: String?)
+    case contrib
 
     var id: String {
         switch self {
@@ -302,10 +317,12 @@ enum ActiveSheet: Identifiable, Hashable {
         case .expected(let kind, let id): return "expected-\(kind)-\(id ?? "new")"
         case .job(let id): return "job-\(id ?? "new")"
         case .planned(let id): return "planned-\(id ?? "new")"
+        case .saving(let id): return "saving-\(id ?? "new")"
+        case .contrib: return "contrib"
         }
     }
 }
 
 enum AppTab: Hashable, CaseIterable {
-    case resumen, presupuesto, proyeccion, cuentas
+    case resumen, presupuesto, proyeccion, ahorro, cuentas
 }

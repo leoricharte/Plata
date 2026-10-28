@@ -129,3 +129,7 @@ public extension Engine {
 public extension Engine {
     static func roundCents(_ n: Double) -> Double { round2(n) }
 }
+
+public extension Engine {
+    static var cardColorsForApp: [String] { cardColors }
+}
