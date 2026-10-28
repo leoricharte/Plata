@@ -14,10 +14,14 @@ struct RootView: View {
             }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
-            // como la web: la barra se esconde cuando hay una pantalla abierta encima del Resumen
             if model.path.isEmpty {
                 PlataTabBar(tab: $model.tab) { model.showAddTransaction = true }
-                    .transition(.opacity)
+            }
+        }
+        // como la web: sobre una pantalla abierta (Movimientos, Ajustes…) se esconden las pestañas y queda solo el «+»
+        .overlay(alignment: .bottomTrailing) {
+            if !model.path.isEmpty {
+                PlataTabBar(tab: $model.tab, showTabs: false) { model.showAddTransaction = true }
             }
         }
         .animation(.easeOut(duration: 0.2), value: model.path.isEmpty)

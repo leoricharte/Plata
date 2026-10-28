@@ -17,6 +17,8 @@ struct GlassCapsule: ViewModifier {
 /// La barra de abajo de la web: una píldora con las 4 pestañas a la izquierda y el botón redondo «+» a la derecha.
 struct PlataTabBar: View {
     @Binding var tab: AppTab
+    /// En las pantallas abiertas encima del Resumen la web esconde las pestañas y deja solo el botón «+».
+    var showTabs = true
     var onNewMovement: () -> Void
 
     private struct Item {
@@ -34,6 +36,8 @@ struct PlataTabBar: View {
 
     var body: some View {
         HStack(spacing: 8) {
+            if !showTabs { Spacer(minLength: 0) }
+            if showTabs {
             HStack(spacing: 2) {
                 ForEach(items, id: \.tab) { item in
                     let on = tab == item.tab
@@ -58,6 +62,7 @@ struct PlataTabBar: View {
             .padding(.vertical, 6)
             .frame(height: 62)
             .modifier(GlassCapsule())
+            }
 
             Menu {
                 Button { onNewMovement() } label: {
