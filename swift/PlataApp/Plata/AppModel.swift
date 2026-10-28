@@ -201,6 +201,13 @@ final class AppModel {
     func deleteSub(id: JSONValue) throws { try commit { raw in ProfileEditor.deleteSub(&raw, id: id) } }
     func deleteAccountCascade(id: JSONValue) throws { try commit { raw in try ProfileEditor.deleteAccountCascade(&raw, id: id) } }
 
+    func saveCategory(original: String?, name: String, color: String, icon: String, limitUSD: Double) throws {
+        let setId = engine.activeSet()?["id"]
+        try commit { raw in try ProfileEditor.saveCategory(&raw, original: original, name: name, color: color, icon: icon, limitUSD: limitUSD, setId: setId) }
+    }
+
+    func deleteCategory(name: String) throws { try commit { raw in ProfileEditor.deleteCategory(&raw, name: name) } }
+
     func setSetting(_ key: String, _ value: JSONValue) {
         let old = profile.raw["settings"]?[key]
         if old == value { return }
@@ -319,6 +326,7 @@ enum ActiveSheet: Identifiable, Hashable {
     case account(id: String?)
     case debt(id: String?)
     case sub(id: String?)
+    case category(name: String?)
 
     var id: String {
         switch self {
@@ -331,6 +339,7 @@ enum ActiveSheet: Identifiable, Hashable {
         case .account(let id): return "account-\(id ?? "new")"
         case .debt(let id): return "debt-\(id ?? "new")"
         case .sub(let id): return "sub-\(id ?? "new")"
+        case .category(let n): return "category-\(n ?? "new")"
         }
     }
 }

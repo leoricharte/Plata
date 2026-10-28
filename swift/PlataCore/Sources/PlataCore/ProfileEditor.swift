@@ -117,7 +117,7 @@ public enum ProfileEditor {
 // MARK: - Transferencias e ingresos / gastos previstos
 
 public extension ProfileEditor {
-    enum FormError: Error, Equatable { case missingName, invalidAmount, invalidDays, endBeforeStart, sameAccount, invalidHours, missingStart, missingCard, invalidDueDay, negativeInterest, overLimit, lastAccount }
+    enum FormError: Error, Equatable { case missingName, invalidAmount, invalidDays, endBeforeStart, sameAccount, invalidHours, missingStart, missingCard, invalidDueDay, negativeInterest, overLimit, lastAccount, reservedName, duplicateCategory }
 
     /// Transferencia entre cuentas (`xferSubmit` de la web): dos movimientos con el mismo `pair`, y una comisión opcional.
     static func addTransfer(_ p: inout JSONValue, from: String, to: String, amount: Double, received: Double, commission: Double,
@@ -424,5 +424,72 @@ public extension ProfileEditor {
         for i in cards.indices where cards[i]["auto"]?["from"] == id { cards[i]["auto"]?["from"] = .string("") }
         p["cards"] = .array(cards)
         syncJobs(&p, newId: "")
+    }
+
+    // MARK: categorías y límites
+
+    private static let reservedNames = ["pago de crédito", "transferencia", "ingreso", "pago"]
+
+    /// Crea o edita una categoría (y renombra en cascada). `limitUSD` ≤ 0 quita el límite. `setId`: set de presupuesto donde va el límite (nil = base).
+    static func saveCategory(_ p: inout JSONValue, original: String?, name rawName: String, color: String, icon: String,
+                             limitUSD: Double, setId: JSONValue?) throws {
+        let nm = rawName.replacingOccurrences(of: "[<>:]", with: "", options: .regularExpression).trimmingCharacters(in: .whitespacesAndNewlines)
+        if nm.isEmpty { throw FormError.missingName }
+        if reservedNames.contains(nm.lowercased()) { throw FormError.reservedName }
+        var cats = p["cats"]?.arrayValue ?? []
+        if cats.contains(where: { Engine.str($0["name"]) == nm && Engine.str($0["name"]) != original }) { throw FormError.duplicateCategory }
+        let safeColor = color.range(of: "^#[0-9a-fA-F]{3,8}$", options: .regularExpression) != nil ? color : "#8E8E93"
+        if let orig = original, let i = cats.firstIndex(where: { Engine.str($0["name"]) == orig }) {
+            cats[i]["name"] = .string(nm); cats[i]["color"] = .string(safeColor); cats[i]["icon"] = .string(icon)
+            if nm != orig {
+                var tx = p["transactions"]?.arrayValue ?? []
+                for j in tx.indices where Engine.str(tx[j]["category"]) == orig { tx[j]["category"] = .string(nm) }
+                p["transactions"] = .array(tx)
+                for coll in ["planned", "expected_expense"] {
+                    var l = p[coll]?.arrayValue ?? []
+                    for j in l.indices where Engine.str(l[j]["cat"]) == orig { l[j]["cat"] = .string(nm) }
+                    p[coll] = .array(l)
+                }
+                renameBudgetKey(&p, from: orig, to: nm)
+            }
+        } else {
+            cats.append(.object(["name": .string(nm), "color": .string(safeColor), "icon": .string(icon)]))
+        }
+        p["cats"] = .array(cats)
+        setBudget(&p, key: nm, value: limitUSD > 0 ? Engine.round2(limitUSD) : nil, setId: setId)
+    }
+
+    static func deleteCategory(_ p: inout JSONValue, name: String) {
+        guard name != "Otros" else { return }
+        var cats = p["cats"]?.arrayValue ?? []
+        cats.removeAll { Engine.str($0["name"]) == name }
+        p["cats"] = .array(cats)
+        renameBudgetKey(&p, from: name, to: nil)
+    }
+
+    private static func renameBudgetKey(_ p: inout JSONValue, from: String, to: String?) {
+        func fix(_ b: JSONValue?) -> JSONValue? {
+            guard var o = b?.objectValue else { return b }
+            if let v = o[from] { o[from] = nil; if let to { o[to] = v } }
+            return .object(o)
+        }
+        p["budget"] = fix(p["budget"])
+        var sets = p["budgetSets"]?.arrayValue ?? []
+        for i in sets.indices { sets[i]["budget"] = fix(sets[i]["budget"]) }
+        if p["budgetSets"] != nil { p["budgetSets"] = .array(sets) }
+    }
+
+    private static func setBudget(_ p: inout JSONValue, key: String, value: Double?, setId: JSONValue?) {
+        func put(_ b: JSONValue?) -> JSONValue {
+            var o = b?.objectValue ?? [:]
+            if let value { o[key] = .number(value) } else { o[key] = nil }
+            return .object(o)
+        }
+        if let setId, var sets = p["budgetSets"]?.arrayValue, let i = sets.firstIndex(where: { $0["id"] == setId }) {
+            sets[i]["budget"] = put(sets[i]["budget"])
+            p["budgetSets"] = .array(sets)
+        } else {
+            p["budget"] = put(p["budget"])
+        }
     }
 }

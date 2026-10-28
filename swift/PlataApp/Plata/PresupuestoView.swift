@@ -31,7 +31,7 @@ struct PresupuestoView: View {
                         categoryRow(e, c, f, k, limit: limits[k] ?? 0)
                     }
                     RowDivider()
-                    addRow("Añadir categoría")
+                    addRow("Añadir categoría") { model.activeSheet = .category(name: nil) }
                 }
 
                 SectionHead("Servicios y suscripciones")
@@ -118,7 +118,7 @@ struct PresupuestoView: View {
         let base = Color(hex: e.categoryColor(k))
         let bar: Color = over ? Color(hex: "#FF3B30") : (pct > 0.85 ? Color(hex: "#FF9F0A") : base)
         let insight = budgetInsight(k, sp, lim, c, f)
-        return Button { soon = true } label: {
+        return Button { model.activeSheet = .category(name: k) } label: {
             HStack(spacing: 12) {
                 Tile(symbol: categorySymbol(k), color: base)
                 VStack(alignment: .leading, spacing: 0) {
