@@ -242,7 +242,7 @@ struct ResumenView: View {
             let hex = Engine.text(card["color"])
             Card(title: "Pago por confirmar") {
                 HStack(spacing: 12) {
-                    Tile(symbol: iconSymbol(Engine.text(card["icon"])) ?? (Engine.text(card["kind"]) == "loan" ? "banknote.fill" : "creditcard.fill"), color: Color(hex: hex.isEmpty ? "#B98AE6" : hex))
+                    AccountTile(o: card, color: hex.isEmpty ? "#B98AE6" : hex, debt: true)
                     VStack(alignment: .leading, spacing: 2) {
                         Text(Engine.text(card["name"])).font(.inter(17, .semibold)).tracking(-0.3).lineLimit(1)
                         Text("día de pago " + (late <= 0 ? "hoy" : late == 1 ? "ayer" : "hace \(late) días")).font(.inter(14)).foregroundStyle(.secondary)

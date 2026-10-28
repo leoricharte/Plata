@@ -173,7 +173,7 @@ struct PresupuestoView: View {
                 RowDivider()
                 Button { model.activeSheet = .sub(id: Engine.identifier(s["id"])) } label: {
                     HStack(spacing: 12) {
-                        LetterTile(letter: String(Engine.text(s["name"]).prefix(1)), color: Color(hex: Self.subColors[i % Self.subColors.count]))
+                        SubTile(name: Engine.text(s["name"]), fallback: Color(hex: Self.subColors[i % Self.subColors.count]))
                         VStack(alignment: .leading, spacing: 2) {
                             Text(Engine.text(s["name"])).font(.inter(16, .semibold)).tracking(-0.3).lineLimit(1)
                             Text("Día \(Int(Engine.number(s["day"]))) de cada mes").font(.inter(13)).foregroundStyle(.secondary)

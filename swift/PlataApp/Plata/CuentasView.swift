@@ -167,13 +167,7 @@ struct CuentasView: View {
     }
 
     private func tile(_ o: JSONValue, index: Int, debt: Bool, color: String?) -> some View {
-        let col = Color(hex: color ?? (Engine.text(o["color"]).isEmpty ? Self.colors[index % Self.colors.count] : Engine.text(o["color"])))
-        let icon = iconSymbol(Engine.text(o["icon"]))
-        return Group {
-            if let icon { Tile(symbol: icon, color: col) }
-            else if debt { Tile(symbol: "creditcard", color: col) }
-            else { LetterTile(letter: String(Engine.text(o["name"]).prefix(1)), color: col) }
-        }
+        return AccountTile(o: o, color: color ?? (Engine.text(o["color"]).isEmpty ? Self.colors[index % Self.colors.count] : Engine.text(o["color"])), debt: debt)
     }
 
     // MARK: listas
