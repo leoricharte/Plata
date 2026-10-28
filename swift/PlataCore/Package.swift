@@ -1,4 +1,4 @@
-// swift-tools-version: 5.10
+// swift-tools-version: 6.0
 import PackageDescription
 
 // PlataCore: el "órgano" compartido de Plata en Swift. Sin interfaz: formato del perfil, cifrado, combinación y sincronización,
@@ -16,5 +16,6 @@ let package = Package(
             dependencies: ["PlataCore"],
             resources: [.copy("Fixtures")]
         ),
-    ]
+    ],
+    swiftLanguageModes: [.v5]   // concurrencia estricta de Swift 6 más adelante; por ahora modo Swift 5
 )
