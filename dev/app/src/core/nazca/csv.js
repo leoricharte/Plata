@@ -227,11 +227,22 @@ const Nazca = (() => {
   /* --- Categoría sugerida: primero lo que ya hiciste antes con el mismo comercio, después palabras clave --- */
   const STOP = /\b(compra|compras|pago|pagos|consumo|consumos|pos|visa|mastercard|mc|deb|debito|credito|cargo|abono|trx|tarj|tarjeta|op|oper|operacion|transf|transferencia|interbancaria|yape|plin|pe|lima|peru|pen|usd|s\/|www|com|sac|eirl|srl|sa)\b/g;
   const merchant = (desc) => norm(desc).replace(/[0-9]+/g, ' ').replace(/\//g, ' ').replace(STOP, ' ').replace(/\s+/g, ' ').trim().split(' ').slice(0, 3).join(' ');
-  const KEYWORDS = [
-    ['Comida', /\b(tambo|oxxo|mass|plaza ?vea|plazavea|tottus|wong|metro|vivanda|makro|mercado|minimarket|market|bodega|restaurant|restaurante|rest|polleria|pollo|pizza|kfc|mcdonald|mcdonalds|burger|starbucks|cafe|cafeteria|rappi|pedidos ?ya|pedidosya|panaderia|chifa|cevicheria|bembos|norky|papa john|dominos|supermercado|juice|sanguch|comida|food)\b/],
-    ['Transporte', /\b(uber|cabify|indrive|indriver|beat|taxi|primax|repsol|petroperu|pecsa|grifo|gasolina|combustible|peaje|latam|sky airline|jetsmart|metropolitano|linea ?1|bus|cruz del sur|oltursa|estacionamiento|parking|autopista|lima expresa|rutas de lima|didi)\b/],
-    ['Ocio', /\b(netflix|spotify|disney|hbo|prime video|primevideo|youtube|cineplanet|cinemark|cinepolis|steam|playstation|xbox|nintendo|teleticket|joinnus|discoteca|bar|crunchyroll|twitch|apple com bill|google play)\b/],
-    ['Alquiler', /\b(alquiler|renta|arrendamiento|rent)\b/]
+  /* Catálogo de comercios (Perú y EE. UU.), igual para todos. Cada rubro lista los nombres de categoría que se aceptan, en orden de preferencia:
+     se usa la primera que la persona tenga; si no tiene ninguna, el movimiento queda en "Otros". El orden de los rubros importa (lo más específico primero). */
+  const CATALOG = [
+    ['Delivery', ['Comida', 'Food', 'Restaurantes'], /\b(rappi|pedidos ?ya|pedidosya|glovo|uber ?eats|ubereats|doordash|grubhub|postmates|seamless|instacart)\b/],
+    ['Salud', ['Salud', 'Health', 'Fitness', 'Gimnasio', 'Deporte'], /\b(inkafarma|mifarma|boticas?|fasa|arcangel|farmacia|farmacias|pharmacy|walgreens|cvs|rite aid|duane reade|clinica|hospital|dental|dentist|dentista|optica|optical|lenscrafters|labcorp|quest diagnostics|urgent care|kaiser|medico|doctor|oncosalud|smart ?fit|bodytech|planet fitness|la fitness|equinox|crossfit|gym|gimnasio|anytime fitness|24 hour fitness|orangetheory|peloton|yoga|pilates)\b/],
+    ['Mascotas', ['Mascotas', 'Pets'], /\b(petco|petsmart|chewy|veterinaria|veterinario|vet|kampa|mascotas?|pet shop|petshop)\b/],
+    ['Servicios', ['Servicios', 'Utilities', 'Bills', 'Cuentas', 'Facturas'], /\b(luz del sur|enel|pluz|sedapal|sunass|calidda|gas natural|claro|movistar|entel|bitel|telefonica|directv|att|at t|verizon|t mobile|tmobile|comcast|xfinity|spectrum|cox|optimum|con edison|coned|pg e|pge|duke energy|national grid|water bill|electric|electricity|internet|celular|mint mobile|visible|cricket wireless|metro pcs|google fi|geico|progressive|state farm|allstate|liberty mutual|rimac|pacifico seguros|mapfre|la positiva|insurance|seguro|seguros|sunat|irs|tax|impuesto)\b/],
+    ['Viajes', ['Viajes', 'Travel', 'Vacaciones', 'Transporte'], /\b(latam|sky airline|jetsmart|avianca|delta air|delta airlines|united airlines|american airlines|southwest|jetblue|spirit airlines|frontier airlines|alaska air|airlines?|airbnb|booking com|booking|expedia|hotels?|hostal|hostel|marriott|hilton|hyatt|vrbo|kayak|despegar|rent a car|hertz|avis|turo|tsa precheck|aeropuerto|airport)\b/],
+    ['Transporte', ['Transporte', 'Transport', 'Transportation', 'Auto', 'Carro', 'Movilidad'], /\b(uber|lyft|cabify|indrive|indriver|beat|didi|taxi|primax|repsol|petroperu|pecsa|grifo|gasolina|combustible|shell|exxon|exxonmobil|mobil|chevron|bp|sunoco|valero|speedway|circle k|marathon|citgo|peaje|e ?zpass|fastrak|sunpass|toll|tolls|estacionamiento|parking|impark|spothero|autopista|lima expresa|rutas de lima|metropolitano|metro de lima|linea 1|mta|bart|septa|wmata|clipper|metrocard|omny|muni|cruz del sur|oltursa|flixbus|greyhound|amtrak|bus|jiffy lube|autozone|o reilly|advance auto|pep boys|midas|firestone|discount tire|car wash|dmv)\b/],
+    ['Comida', ['Comida', 'Food', 'Groceries', 'Supermercado', 'Restaurantes', 'Alimentos', 'Mercado'], /\b(tambo|oxxo|mass|plaza ?vea|plazavea|tottus|wong|metro|vivanda|makro|mercado|minimarket|supermarket|farmers market|bodega|restaurant|restaurante|rest|polleria|pollo|pizza|kfc|mcdonald|mcdonalds|burger|burger king|starbucks|cafe|cafeteria|panaderia|bakery|chifa|cevicheria|bembos|norky|papa john|papa johns|dominos|pizza hut|supermercado|juice|sanguch|comida|food|la lucha|pardos|rokys|roky s|popeyes|tgi fridays|chilis|chili s|madam tusan|tanta|juan valdez|gloria jeans|dunkin|subway|chipotle|taco bell|wendy s|wendys|chick fil a|sonic|panera|panda express|five guys|shake shack|in n out|trader joe s|trader joes|whole foods|kroger|safeway|publix|aldi|costco|sam s club|walmart|wal mart|food lion|h e b|wegmans|7 eleven|seven eleven|deli|grill|kitchen|bar & grill|taqueria|sushi|ramen|noodle|bbq|diner|bistro|coffee|espresso|boba|tea house)\b/],
+    ['Ocio', ['Ocio', 'Entretenimiento', 'Entertainment', 'Suscripciones', 'Subscriptions', 'Diversion'], /\b(netflix|spotify|disney|hbo|hulu|peacock|paramount|apple tv|youtube|prime video|primevideo|amazon prime|crunchyroll|twitch|steam|playstation|xbox|nintendo|epic games|blizzard|roblox|cineplanet|cinemark|cinepolis|amc|regal|fandango|ticketmaster|stubhub|live nation|teleticket|joinnus|discoteca|bar|pub|casino|apple com bill|google play|itunes|audible|patreon|tidal|deezer|soundcloud|bowling|museum|museo|concert|concierto|cinema|cine)\b/],
+    ['Digital', ['Suscripciones', 'Subscriptions', 'Software', 'Servicios', 'Utilities', 'Ocio'], /\b(icloud|google one|google storage|dropbox|adobe|microsoft|openai|chatgpt|github|notion|canva|zoom|slack|1password|lastpass|nordvpn|expressvpn|squarespace|wix|godaddy|namecheap)\b/],
+    ['Hogar', ['Hogar', 'Home', 'Casa'], /\b(ikea|home depot|lowe s|lowes|ace hardware|sodimac|promart|maestro|wayfair|bed bath|muebles|ferreteria|hardware|container store)\b/],
+    ['Educación', ['Educación', 'Educacion', 'Education', 'Estudios'], /\b(universidad|university|colegio|school|instituto|academia|tuition|coursera|udemy|duolingo|platzi|khan academy|college|pucp|utec|upc|ulima|unmsm|cibertec|senati|chegg|masterclass|skillshare)\b/],
+    ['Compras', ['Compras', 'Shopping', 'Ropa'], /\b(amazon|amzn|ebay|etsy|aliexpress|temu|shein|target|best buy|apple store|apple com|macy s|macys|nordstrom|tj maxx|tjmaxx|marshalls|ross|old navy|h m|zara|uniqlo|nike|adidas|gap|forever 21|sephora|ulta|saga falabella|falabella|ripley|oechsle|mercado ?libre|mercadolibre|shopee|linio|tai loy|platanitos|hiraoka|coolbox|curacao|lacuracao|michaels|dollar tree|dollar general|five below|big lots|tienda|boutique)\b/],
+    ['Alquiler', ['Alquiler', 'Renta', 'Rent', 'Vivienda', 'Housing', 'Hogar'], /\b(alquiler|renta|arrendamiento|rent|apartments?|property management|landlord|hipoteca|mortgage)\b/]
   ];
   function categorizer(cats, history) {
     const names = (cats || []).map((x) => x.name), byNorm = {};
@@ -244,7 +255,10 @@ const Nazca = (() => {
       const k = merchant(desc); if (k && learned[k]) return learned[k];
       const n = norm(desc);
       for (let i = 0; i < names.length; i++) { const cn = norm(names[i]); if (cn.length >= 4 && cn !== 'otros' && (' ' + n + ' ').indexOf(' ' + cn + ' ') >= 0) return names[i]; }
-      for (let i = 0; i < KEYWORDS.length; i++) if (KEYWORDS[i][1].test(n) && byNorm[norm(KEYWORDS[i][0])]) return byNorm[norm(KEYWORDS[i][0])];
+      for (let i = 0; i < CATALOG.length; i++) {
+        if (!CATALOG[i][2].test(n)) continue;
+        for (let j = 0; j < CATALOG[i][1].length; j++) { const hit = byNorm[norm(CATALOG[i][1][j])]; if (hit) return hit; }
+      }
       return other;
     };
   }

@@ -63,7 +63,13 @@ ok(C.parseDate('31/02/2026', 'dmy') === null && C.parseDate('29/02/2028', 'dmy')
   ok(cat('VET SAN BORJA 456', -40) === 'Mascotas', 'categorías: aprende de lo que ya registraste');
   ok(cat('SUELDO', 3503) === 'Ingreso' && cat('ALGO RARO', -1) === 'Otros', 'categorías: ingreso y "Otros" por defecto');
   const sinComida = C.categorizer([{ name: 'Casa' }, { name: 'Otros' }], []);
-  ok(sinComida('TAMBO', -5) === 'Otros', 'categorías: no inventa categorías que la persona no tiene'); }
+  ok(sinComida('TAMBO', -5) === 'Otros', 'categorías: no inventa categorías que la persona no tiene');
+  const full = C.categorizer(['Comida', 'Transporte', 'Ocio', 'Salud', 'Compras', 'Servicios', 'Viajes', 'Hogar', 'Suscripciones', 'Educación', 'Mascotas', 'Otros'].map((name) => ({ name })), []);
+  const casos = [['UBER EATS 8005928996 CA', 'Comida'], ['UBER *TRIP HELP.UBER.COM', 'Transporte'], ['WALGREENS #5231 SAN FRANCISCO', 'Salud'], ['AMZN Mktp US*2K4', 'Compras'], ['AMAZON PRIME VIDEO', 'Ocio'], ['SHELL OIL 57444', 'Transporte'], ['CHICK-FIL-A #02211', 'Comida'], ['T-MOBILE AUTOPAY', 'Servicios'], ['COMPRA INKAFARMA SURCO', 'Salud'], ['PAGO LUZ DEL SUR', 'Servicios'], ['CONSUMO SAGA FALABELLA', 'Compras'], ['LATAM AIRLINES PE', 'Viajes'], ['ICLOUD.COM/BILL', 'Suscripciones'], ['SODIMAC SAN BORJA', 'Hogar'], ['COURSERA.ORG', 'Educación'], ['HOTEL LIABILITY INSURANCE', 'Servicios'], ['TRANSFER TO MONEY MARKET', 'Otros'], ['PAYPAL *JUAN', 'Otros']];
+  const malos = casos.filter(([d, e]) => full(d, -10) !== e).map(([d]) => d);
+  ok(malos.length === 0, 'categorías: catálogo de comercios de Perú y EE. UU.' + (malos.length ? ' · fallan: ' + malos.join(', ') : ''));
+  const base = C.categorizer(['Comida', 'Transporte', 'Ocio', 'Otros'].map((name) => ({ name })), []);
+  ok(base('LATAM AIRLINES', -300) === 'Transporte' && base('WALGREENS', -9) === 'Otros', 'categorías: si no tienes "Viajes" usa "Transporte"; si no tienes "Salud", "Otros"'); }
 
 // Repetidos
 { const { items } = load('a-con-signo.csv');
