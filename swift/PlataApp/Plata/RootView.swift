@@ -10,7 +10,7 @@ struct RootView: View {
             case .resumen: ResumenView()
             case .presupuesto: NavigationStack { PresupuestoView() }
             case .proyeccion: NavigationStack { ProyeccionView() }
-            case .cuentas: NavigationStack { ComingSoonView(title: "Cuentas") }
+            case .cuentas: NavigationStack { CuentasView() }
             }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
