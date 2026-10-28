@@ -33,6 +33,7 @@ function rawProfile(today) {
   const c2 = chance(0.3) ? undefined : (chance(0.5) ? (cur === 'USD' ? 'PEN' : 'USD') : '');
   const settings = { currency: cur, cushion: ri(0, 600), variable_weekly: ri(0, 300) };
   if (c2 !== undefined) settings.currency2 = c2;
+  if (chance(0.08)) settings.insights = false; else if (chance(0.08)) settings.score = false;
   if (chance(0.7)) settings.fx = chance(0.5) ? money(0.5, 5) : 3.7;
   if (chance(0.2)) settings.nick = 'Ana <b>"x"</b>';
   const curs = [cur].concat(c2 ? [c2] : []);
@@ -40,11 +41,12 @@ function rawProfile(today) {
   const cards = Array.from({ length: ri(0, 3) }, (_, i) => ({ ...(chance(0.85) ? { id: 'card' + i } : {}), kind: chance(0.7) ? 'card' : 'loan', name: 'Tarjeta ' + i, cur: pick(curs), limit: ri(500, 5000), balance: chance(0.15) ? 0 : money(0, 3000), apr: money(0, 36), payment: chance(0.4) ? 0 : ri(20, 300), due_day: chance(0.9) ? ri(1, 31) : 0 }));
   cards.forEach((c) => { if (c.id && chance(0.35) && c.due_day > 0) c.auto = { next: isoOf(addD(T, ri(-10, 20))) }; });
   const accIds = accounts.map((a, i) => a.id || 'a' + i), cardIds = cards.map((c, i) => c.id || 'c' + i), anyAcc = () => pick(accIds.concat(chance(0.2) ? cardIds : []));
-  const subs = Array.from({ length: ri(0, 4) }, (_, i) => ({ ...(chance(0.9) ? { id: 'sub' + i } : {}), name: NAMES[i % NAMES.length], amount: money(2, 60), cur: pick(curs), day: ri(1, 31) }));
+  const subs = Array.from({ length: ri(0, 4) }, (_, i) => ({ ...(chance(0.9) ? { id: 'sub' + i } : {}), name: NAMES[i % NAMES.length], amount: money(2, 60), cur: pick(curs), day: ri(1, 31), ...(chance(0.5) ? { since: isoOf(addD(T, -ri(0, 70))) } : {}) }));
   const savings = Array.from({ length: ri(0, 2) }, (_, i) => ({ ...(chance(0.9) ? { id: 'sv' + i } : {}), name: 'Meta ' + i, goal: ri(500, 9000), balance: money(0, 4000), monthly: ri(0, 400), cur: pick(curs), log: chance(0.5) ? [{ date: isoOf(addD(T, -ri(1, 60))), amount: ri(10, 300) }] : [] }));
   const monthStart = new Date(T.getFullYear(), T.getMonth(), 1);
-  const transactions = Array.from({ length: ri(8, 45) }, (_, i) => {
-    const d = addD(monthStart, ri(-45, Math.max(0, T.getDate() - 1))); const cat = pick(CATS), income = cat === 'Ingreso' || (cat !== 'Pago de crédito' && cat !== 'Transferencia' && chance(0.1));
+  const deep = chance(0.45);
+  const transactions = Array.from({ length: ri(8, 45) + (deep ? 90 : 0) }, (_, i) => {
+    const d = addD(monthStart, ri(deep ? -150 : -45, Math.max(0, T.getDate() - 1))); const cat = pick(CATS), income = cat === 'Ingreso' || (cat !== 'Pago de crédito' && cat !== 'Transferencia' && chance(0.1));
     const sub = subs.length && chance(0.15) ? pick(subs) : null;
     return { ...(chance(0.95) ? { id: i + 1 } : {}), date: isoOf(d), amount: income ? money(50, 3000) : -money(1, 400), category: sub ? 'Otros' : cat, note: sub ? (chance(0.5) ? sub.name.toUpperCase() : sub.name.normalize('NFD').replace(/[̀-ͯ]/g, '')) : 'nota ' + i, acc: anyAcc(), ...(sub && sub.id && chance(0.4) ? { sub: sub.id } : {}), ...(chance(0.2) ? { est: money(1, 400) } : {}) };
   });
@@ -66,7 +68,7 @@ function rawProfile(today) {
 const cases = [];
 for (let n = 0; n < 70; n++) {
   const today = TODAYS[n % TODAYS.length], variable = chance(0.8), raw = rawProfile(today);
-  const { api } = load({ today, entry: ['calc', 'genEvents', 'projection', 'dailySeries', 'simImpact', 'payoff', 'pendingItems', 'nextIncome', 'migrate', 'clone', 'syncCats', 'iso'] });
+  const { api } = load({ today, entry: ['calc', 'genEvents', 'projection', 'dailySeries', 'simImpact', 'payoff', 'pendingItems', 'nextIncome', 'migrate', 'clone', 'syncCats', 'iso', 'insightsModel', 'monthScore', 'insLocked', 'svGoal', 'debtSim'] });
   let data;
   try { data = api.migrate(api.clone(raw)); } catch (e) { continue; }
   api.setData(data); api.syncCats(); api.setUi({ variable });
@@ -89,7 +91,18 @@ for (let n = 0; n < 70; n++) {
   const payoff = {}; for (const k of [undefined, 'all', 'card', 'loan']) for (const x of [0, 50, 200]) payoff[String(k) + '|' + x] = api.payoff(x, k);
   const pend = api.pendingItems().map((x) => ({ k: x.k, id: x.e.id, date: x.e.date }));
   const ni = api.nextIncome();
-  cases.push({ today, variable, raw, migrated, calc, events: ev(api.genEvents(c.today)), keepSkipped: ev(api.genEvents(c.today, { keepSkipped: true })).filter((e) => e.skipped), noSim: (() => { const l = api.genEvents(c.today, { noSim: true }); return { count: l.length, sum: l.reduce((s, e) => s + e.amt, 0) }; })(),
+  // ---- insights: nota del mes, racha, half-time. subHist (fotos de suscripciones) se inventa: la web lo guarda con calc() mes a mes ----
+  const T0 = new Date(today + 'T00:00:00'), subHist = {};
+  for (let k = 1; k <= 8; k++) if (chance(0.6)) subHist[isoOf(new Date(T0.getFullYear(), T0.getMonth() - k, 1)).slice(0, 7)] = money(0, 120);
+  data.subHist = subHist;
+  const sumry = (m) => ({ streak: m.streak, plus: m.plus, isCur: m.isCur, day: m.day, dim: m.dim, mk: m.mk, pmk: m.pmk, est: m.est, hasPrev: m.hasPrev, ps: m.ps, within: m.within, lim: m.lim.length, contrib: m.contrib, rateC: m.rateC, rateP: m.rateP,
+    cur: m.cur, prev: m.prev, sg: m.sg, score: m.score, delta: m.delta, letter: m.letter });
+  const cmk = isoOf(T0).slice(0, 7), mks = [0, 1, 2, 3, 4, 5, 6].map((k) => isoOf(new Date(T0.getFullYear(), T0.getMonth() - k, 1)).slice(0, 7));
+  const im = api.insightsModel(), ip = api.insightsModel(mks[1]), ih = api.insightsModel(cmk, 15);
+  const scores = {}; mks.concat([isoOf(new Date(T0.getFullYear(), T0.getMonth() + 1, 1)).slice(0, 7)]).forEach((mk) => { scores[mk] = api.monthScore(mk); });
+  const ins = { subHist, mks, scores, model: sumry(im), prev: sumry(ip), half: sumry(ih), locked: api.insLocked(im), lockedPrev: api.insLocked(ip), lockedHalf: api.insLocked(ih),
+    svGoal: Object.fromEntries((data.savings || []).map((s) => [s.id, api.svGoal(s, T0)])), debtSim: (data.cards || []).map((k) => ({ id: k.id, r: api.debtSim(k.balance, k.apr, k.payment) })) };
+  cases.push({ today, variable, raw, migrated, ins, calc, events: ev(api.genEvents(c.today)), keepSkipped: ev(api.genEvents(c.today, { keepSkipped: true })).filter((e) => e.skipped), noSim: (() => { const l = api.genEvents(c.today, { noSim: true }); return { count: l.length, sum: l.reduce((s, e) => s + e.amt, 0) }; })(),
     projection, daily: D.map((d) => d.v), simImpact, payoff, pending: pend, nextIncome: ni ? { id: ni.id, date: ni.date, amount: ni.amount } : null });
 }
 writeFileSync(out, JSON.stringify({ cases }));
