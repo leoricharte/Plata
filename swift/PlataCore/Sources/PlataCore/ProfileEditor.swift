@@ -567,7 +567,13 @@ public extension ProfileEditor {
     /// Pago esperado de una tarjeta: «Aún no pagué» (`snooze`).
     static func snoozeCardAuto(_ p: inout JSONValue, id: JSONValue, until: String) {
         guard var list = p["cards"]?.arrayValue else { return }
-        for i in list.indices where list[i]["id"] == id { list[i]["auto"]?["snooze"] = .string(until) }
+        for i in list.indices where list[i]["id"] == id {
+            var card = list[i]
+            var auto = card["auto"] ?? .object([:])
+            auto["snooze"] = .string(until)
+            card["auto"] = auto
+            list[i] = card
+        }
         p["cards"] = .array(list)
     }
 
@@ -576,14 +582,18 @@ public extension ProfileEditor {
     static func advanceCardAuto(_ p: inout JSONValue, id: JSONValue, from: String, today: String) -> Bool {
         guard var list = p["cards"]?.arrayValue, let i = list.firstIndex(where: { $0["id"] == id }) else { return false }
         var paid = false
-        if Engine.number(list[i]["balance"]) > 0.005 {
-            list[i]["auto"]?["from"] = .string(from)
-            list[i]["auto"]?["next"] = .string(Engine.dueAfter(day: Int(Engine.number(list[i]["due_day"])), after: today))
-            list[i]["auto"]?["snooze"] = nil
+        var card = list[i]
+        if Engine.number(card["balance"]) > 0.005 {
+            var auto = card["auto"] ?? .object([:])
+            auto["from"] = .string(from)
+            auto["next"] = .string(Engine.dueAfter(day: Int(Engine.number(card["due_day"])), after: today))
+            auto["snooze"] = nil
+            card["auto"] = auto
         } else {
-            list[i]["auto"] = nil
+            card["auto"] = nil
             paid = true
         }
+        list[i] = card
         p["cards"] = .array(list)
         return paid
     }
