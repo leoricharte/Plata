@@ -77,4 +77,30 @@ extension Nazca {
         let h = headers.map { $0.jsTrimmed.lowercased() }
         return csvSignatures.first { sg in sg.need.allSatisfy { h.contains($0) } }
     }
+
+    /// Los bancos de los que Nazca ya sabe leer algún archivo en esta versión de la app; los demás salen como «No disponible».
+    public nonisolated(unsafe) static var ready: Set<String> = ["yape"]
+
+    /// Cómo descargar el estado de cuenta, paso a paso, por banco (`IMP_STEPS` de la web).
+    public static let bankSteps: [String: [String]] = [
+        "bcp": ["Ve a la Banca por Internet.", "Elige la cuenta a consultar.", "Selecciona la opción Más, y después Estado de Cuenta.", "Elige el mes y año a consultar.", "Genera el estado de cuenta y descárgalo de tu correo."],
+        "yape": ["Abre la app de Yape.", "Toca Movimientos.", "Descarga el reporte de movimientos en Excel.", "Guarda el archivo en tu celular o en tu PC."],
+        "io": ["Abre la app iO.", "Entra a tu tarjeta de crédito.", "Abre Estados de cuenta.", "Elige el ciclo a consultar.", "Descarga el estado de cuenta en PDF."],
+        "communitybank": ["Entra a la banca en línea o a la app de Community Bank.", "Abre tu cuenta y luego eStatements.", "Elige el mes a consultar.", "Descarga el estado de cuenta en PDF."],
+        "bofa": ["Entra a la app o a bankofamerica.com.", "Elige tu cuenta.", "Abre Statements & Documents.", "Elige el mes a consultar.", "Descarga el estado de cuenta."],
+        "milestone": ["Entra a mymilestonecard.com o a la app de Milestone.", "Abre tu cuenta y luego Statements.", "Elige el mes a consultar.", "Descarga el estado de cuenta en PDF."],
+        "tjx": ["Entra a tjxrewards.com o a la app de TJX Rewards.", "Abre tu cuenta y luego Statements.", "Elige el mes a consultar.", "Descarga el estado de cuenta en PDF."],
+        "applecard": ["Abre Wallet en tu iPhone y toca tu Apple Card.", "Toca Card Balance y luego Statements.", "Elige el mes a consultar.", "Toca Share o Descargar para guardar el PDF."],
+        "seen": ["Abre la app de Seen.", "Elige tu tarjeta.", "Abre Statements.", "Elige el mes a consultar.", "Descarga el estado de cuenta."],
+        "chime": ["Abre la app de Chime.", "Toca Cuenta o Settings.", "Abre Statements & documents.", "Elige el mes a consultar.", "Descarga el estado de cuenta."],
+        "capitalone": ["Entra a tu cuenta en la app o en la web de Capital One.", "Elige la tarjeta a consultar.", "Abre Statements.", "Elige el mes a consultar.", "Descarga el estado de cuenta."],
+        "mercadopago": ["Abre la app de Mercado Pago o entra a mercadopago.cl.", "Abre tu actividad o tus movimientos.", "Busca la opción para descargar el estado de cuenta.", "Elige el periodo a consultar.", "Descarga el estado de cuenta en PDF."],
+        "bbva": ["Entra a la banca por internet o a la app de BBVA.", "Elige tu cuenta.", "Abre Movimientos y saldos.", "Elige el periodo a consultar.", "Descarga el estado de cuenta en PDF."],
+        "interbank": ["Ve a la Banca por Internet.", "Elige la cuenta a consultar.", "Elige los ⋯ en la parte derecha.", "Elige el mes y año a consultar.", "Genera el estado de cuenta y guárdalo."]]
+
+    /// Bancos cuyo estado de cuenta siempre viene con clave: qué se le pide a la persona (`IMP_KEY`).
+    public struct KeyInfo: Sendable { public var label: String; public var numeric: Bool; public var note: String }
+    public static let bankKey: [String: KeyInfo] = [
+        "bcp": KeyInfo(label: "DNI", numeric: true, note: "El BCP protege el estado de cuenta con tu DNI. Plata no lo guarda ni lo revisa: solo sirve para abrirlo en este dispositivo."),
+        "io": KeyInfo(label: "DNI", numeric: true, note: "iO protege el estado de cuenta con tu DNI. Plata no lo guarda ni lo revisa: solo sirve para abrirlo en este dispositivo.")]
 }

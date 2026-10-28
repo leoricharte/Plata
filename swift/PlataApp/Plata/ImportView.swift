@@ -8,7 +8,7 @@ struct ImportFlowView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
 
-    enum Step { case start, how, busy, review, done }
+    enum Step { case start, how, country, banks, bank, busy, review, done }
 
     struct Notice: Equatable { var title: String; var message: String }
 
@@ -20,11 +20,16 @@ struct ImportFlowView: View {
     @State private var applied: ImportReview.Applied?
     @State private var picking = false
     @State private var seen = Set<String>()
+    @State private var bank: String?
+    @State private var country = "PE"
 
     private var head: (String, String) {
         switch step {
         case .start: return ("Importar", "Datos de banco")
         case .how: return ("Importar archivo", "Cómo funciona")
+        case .country: return ("Datos de banco", "Tu país")
+        case .banks: return (Nazca.bankCatalog.first { $0.id == country }?.name ?? "Perú", "Tu banco")
+        case .bank: return (Nazca.countryName(bank ?? ""), Nazca.bankShort(bank))
         case .busy: return ("Datos de banco", "Leyendo…")
         case .done: return ("Listo", "Importado")
         case .review:
@@ -69,6 +74,9 @@ struct ImportFlowView: View {
         switch step {
         case .start: startBody
         case .how: howBody
+        case .country: countryBody
+        case .banks: banksBody
+        case .bank: bankBody
         case .busy: busyBody
         case .review: reviewBody
         case .done: doneBody
@@ -82,13 +90,15 @@ struct ImportFlowView: View {
                 .frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 4).padding(.bottom, 14)
             SCard {
                 GoRow(symbol: "folder", title: "Importar archivo",
-                      sub: "Importa un archivo CSV o un estado de cuenta de tu banco. Plata usará Nazca para interpretarlo.") { pick(from: .start) }
+                      sub: "Importa un archivo CSV o un estado de cuenta de tu banco. Plata usará Nazca para interpretarlo.") { bank = nil; pick(from: .start) }
                 Button { step = .how; notice = nil } label: {
                     Text("Ver cómo funciona…").font(.inter(17)).foregroundStyle(Brand.green)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.leading, 38).padding(.bottom, 12)
                 }
                 .buttonStyle(.plain)
+                GoRow(symbol: "building.columns", title: "Elegir banco",
+                      sub: "Revisa una lista de bancos donde Nazca tiene funciones de interpretación avanzada.") { step = .country; notice = nil }
             }
             privacyNote
         }
@@ -112,7 +122,79 @@ struct ImportFlowView: View {
                 HowStep(n: 3, title: "Revisa la lista", text: "Nazca reconoce el banco y detecta solo las fechas, los montos y la moneda, y marca los movimientos repetidos.")
                 HowStep(n: 4, title: "Importa", text: "Eliges qué hacer con el saldo y, si algo sale mal, puedes deshacerlo.")
             }
-            Button { pick(from: .how) } label: { Text("Elegir archivo") }
+            Button { bank = nil; pick(from: .how) } label: { Text("Elegir archivo") }
+                .buttonStyle(PrimaryPillStyle())
+                .padding(.top, 8)
+        }
+    }
+
+    private var countryBody: some View {
+        VStack(spacing: 0) {
+            SCard {
+                ForEach(Array(Nazca.bankCatalog.enumerated()), id: \.element.id) { k, c in
+                    if k > 0 { RowDivider() }
+                    GoRow(symbol: "globe", title: c.name, sub: nil, verbatimTitle: true) { country = c.id; step = .banks; notice = nil }
+                }
+            }
+            Text("Más países, pronto.").font(.inter(13)).foregroundStyle(.secondary).multilineTextAlignment(.center).padding(.horizontal, 14).padding(.vertical, 14)
+        }
+    }
+
+    private var banksBody: some View {
+        let c = Nazca.bankCatalog.first { $0.id == country } ?? Nazca.bankCatalog[0]
+        return VStack(spacing: 0) {
+            SCard {
+                ForEach(Array(c.banks.enumerated()), id: \.element.id) { k, b in
+                    if k > 0 { RowDivider() }
+                    let on = b.active && Nazca.ready.contains(b.id)
+                    Button { bank = b.id; step = .bank; notice = nil } label: {
+                        HStack(spacing: 12) {
+                            Image(systemName: "building.columns").font(.system(size: 18)).foregroundStyle(.secondary)
+                                .frame(width: 38, height: 38).background(Color(.tertiarySystemFill), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                            VStack(alignment: .leading, spacing: 0) {
+                                Text(verbatim: b.name).font(.inter(16))
+                                Text(verbatim: b.hq).font(.inter(13.5)).foregroundStyle(.secondary)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            if on { Image(systemName: "chevron.right").font(.system(size: 15, weight: .semibold)).foregroundStyle(.tertiary) }
+                            else { Text("No disponible").font(.inter(14)).foregroundStyle(.secondary) }
+                        }
+                        .padding(.vertical, 12)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(!on)
+                    .opacity(on ? 1 : 0.55)
+                }
+            }
+            VStack(spacing: 0) {
+                Text("¿Quieres que añadamos el banco que usas? Manda un correo a") + Text(verbatim: " devs@plataapp.net ").foregroundStyle(Brand.green)
+                    + Text("para aportar al entrenamiento de Nazca, nuestro motor de reconocimiento de estados de cuenta.")
+            }
+            .font(.inter(13)).foregroundStyle(.secondary).multilineTextAlignment(.center).padding(.horizontal, 14).padding(.vertical, 14)
+        }
+    }
+
+    private var bankBody: some View {
+        let id = bank ?? ""
+        let steps = Nazca.bankSteps[id]
+        return VStack(spacing: 0) {
+            if let steps {
+                SCard {
+                    ForEach(Array(steps.enumerated()), id: \.offset) { k, t in
+                        HStack(alignment: .top, spacing: 14) {
+                            Text(verbatim: "\(k + 1)").font(.inter(13, .bold)).foregroundStyle(.white)
+                                .frame(width: 24, height: 24).background(Brand.accent, in: Circle())
+                            Text(t).font(.inter(17)).frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .padding(.vertical, 10)
+                    }
+                }
+            } else {
+                Text("Descarga tu estado de cuenta de ahorros desde Interbank APP o la banca por internet de Interbank.")
+                    .font(.inter(16)).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 4).padding(.bottom, 14)
+            }
+            Button { pick(from: .bank) } label: { Text(id == "yape" ? "Subir reporte de movimientos" : "Subir estado de cuenta") }
                 .buttonStyle(PrimaryPillStyle())
                 .padding(.top, 8)
         }
@@ -218,7 +300,9 @@ struct ImportFlowView: View {
         notice = nil
         switch step {
         case .start: dismiss()
-        case .how: step = .start
+        case .how, .country: step = .start
+        case .banks: step = .country
+        case .bank: step = .banks
         case .review: reviews = []; seen = []; step = origin
         default: break
         }
@@ -371,7 +455,7 @@ struct ImportFlowView: View {
             return .fail(Tr.t("Nazca no pudo leer ese archivo"), Tr.t("Revisa que sea el reporte de movimientos en Excel que descargaste."))
         }
         guard NazcaYape.detect(rows) else {
-            return .fail(Tr.t("Nazca todavía no reconoce este archivo"),
+            return .fail(Tr.t(bank == "yape" ? "Este archivo no parece de Yape" : "Nazca todavía no reconoce este archivo"),
                          Tr.t("Por ahora Nazca lee el reporte de movimientos en Excel que descargas desde Yape. Revisa que sea ese archivo."))
         }
         guard let res = NazcaYape.read(rows) else {
@@ -416,15 +500,16 @@ private struct NoticeCard: View {
 private struct GoRow: View {
     let symbol: String
     let title: String
-    let sub: String
+    let sub: String?
+    var verbatimTitle = false
     let action: () -> Void
     var body: some View {
         Button(action: action) {
             HStack(spacing: 12) {
                 Image(systemName: symbol).font(.system(size: 22)).foregroundStyle(Brand.accent).frame(width: 26)
                 VStack(alignment: .leading, spacing: 0) {
-                    Text(title).font(.inter(16))
-                    Text(sub).font(.inter(13.5)).foregroundStyle(.secondary).multilineTextAlignment(.leading)
+                    if verbatimTitle { Text(verbatim: title).font(.inter(16)) } else { Text(title).font(.inter(16)) }
+                    if let sub { Text(sub).font(.inter(13.5)).foregroundStyle(.secondary).multilineTextAlignment(.leading) }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 Image(systemName: "chevron.right").font(.system(size: 15, weight: .semibold)).foregroundStyle(.tertiary)
