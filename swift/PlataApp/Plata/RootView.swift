@@ -1,12 +1,22 @@
 import SwiftUI
 
 struct RootView: View {
+    @Environment(AppModel.self) private var model
+
     var body: some View {
-        TabView {
-            Tab("Resumen", systemImage: "chart.pie.fill") { ResumenView() }
-            Tab("Movimientos", systemImage: "list.bullet") { MovimientosView() }
-            Tab("Ajustes", systemImage: "gearshape.fill") { AjustesView() }
+        @Bindable var model = model
+        TabView(selection: $model.tab) {
+            Tab("Resumen", systemImage: "chart.pie.fill", value: AppTab.resumen) { ResumenView() }
+            Tab("Presupuesto", systemImage: "wallet.bifold.fill", value: AppTab.presupuesto) {
+                NavigationStack { ComingSoonView(title: "Presupuesto") }
+            }
+            Tab("Proyección", systemImage: "chart.line.uptrend.xyaxis", value: AppTab.proyeccion) {
+                NavigationStack { ComingSoonView(title: "Proyección") }
+            }
+            Tab("Cuentas", systemImage: "creditcard.fill", value: AppTab.cuentas) {
+                NavigationStack { ComingSoonView(title: "Cuentas") }
+            }
         }
-        .tint(Brand.green)
+        .tint(Brand.accent)
     }
 }

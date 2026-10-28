@@ -37,7 +37,7 @@ struct MovimientosView: View {
         let e = model.engine
         let f = model.fmt
         let groups = dayGroups(e)
-        NavigationStack {
+        Group {
             List {
                 Section {
                     Picker("Filtro", selection: $filter) {
@@ -58,7 +58,7 @@ struct MovimientosView: View {
                 ForEach(groups) { g in
                     Section {
                         ForEach(Array(g.items.enumerated()), id: \.offset) { _, tx in
-                            Button { editing = TxRef(id: Engine.identifier(tx["id"]), tx: tx) } label: { row(tx, e, f) }
+                            Button { editing = TxRef(id: Engine.identifier(tx["id"]), tx: tx) } label: { TransactionRow(tx: tx, engine: e, fmt: f) }
                                 .buttonStyle(.plain)
                                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                     Button(role: .destructive) { toDelete = TxRef(id: Engine.identifier(tx["id"]), tx: tx) } label: { Label("Borrar", systemImage: "trash") }

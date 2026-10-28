@@ -6,6 +6,8 @@ struct PlataApp: App {
     @State private var model = AppModel()
     @Environment(\.scenePhase) private var scenePhase
 
+    init() { PlataFont.register() }
+
     var body: some Scene {
         WindowGroup {
             RootView()

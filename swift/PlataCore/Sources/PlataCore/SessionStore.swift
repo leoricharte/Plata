@@ -104,6 +104,10 @@ public final class ProfileStore: @unchecked Sendable {
         try lock.withLock { try profile.jsonData().write(to: url, options: [.atomic, .completeFileProtection]) }
     }
 
+    public func delete() {
+        lock.withLock { try? FileManager.default.removeItem(at: url) }
+    }
+
     /// Nombre de archivo de exportación, igual que la web: `plata-AAAA-MM-DD_HH-mm.json`.
     public static func exportFileName(_ date: Date = Date(), calendar: Calendar = .current) -> String {
         let c = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: date)

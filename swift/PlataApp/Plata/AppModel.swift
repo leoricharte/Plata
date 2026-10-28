@@ -13,8 +13,11 @@ final class AppModel {
     /// Cambios hechos en esta sesión (para refrescar vistas derivadas, como el archivo de exportación).
     private(set) var changes = 0
     var errorMessage: String?
+    /// La pestaña abierta (para que los enlaces del Resumen puedan cambiarla).
+    var tab: AppTab = .resumen
 
     @ObservationIgnored private let store: ProfileStore
+    @ObservationIgnored private let stash: ProfileStore   // tus datos reales mientras ves un perfil de demostración
     @ObservationIgnored private var stamper = SyncStamper()
 
     init() {
@@ -28,10 +31,21 @@ final class AppModel {
         p = Profile(raw: raw)
         let t = LocalDate.today()
         self.store = store
+        self.stash = ProfileStore(directory: dir.appending(path: "stash", directoryHint: .isDirectory))
         self.stamper = stamper
         self.profile = p
         self.today = t
         self.engine = Engine(profile: p, today: t)
+    }
+
+    var isDemo: Bool { profile.isDemo }
+
+    /// Hay algo que valga la pena guardar antes de abrir un demo (igual que `demoHasReal` de la web).
+    var hasRealData: Bool {
+        let e = engine
+        return !e.allTransactions.isEmpty || !e.allCards.isEmpty || e.allAccounts.count > 1
+            || e.allAccounts.contains { Engine.number($0["balance"]) != 0 }
+            || !(e.data["savings"]?.arrayValue ?? []).isEmpty
     }
 
     var fmt: Fmt { Fmt(currency: engine.primaryCurrency, custom: engine.customCurrency) }
@@ -98,6 +112,34 @@ final class AppModel {
         try store.save(profile)
     }
 
+    // MARK: perfiles de demostración
+
+    func loadDemo(_ id: String) throws {
+        guard let url = Bundle.main.url(forResource: id, withExtension: "json") else { throw DemoError.missing }
+        let demo = try DemoProfile.load(Data(contentsOf: url), today: today)
+        if !profile.isDemo, hasRealData { try? stash.save(profile) }
+        try install(demo)
+    }
+
+    func exitDemo() throws {
+        if let saved = stash.load() {
+            try install(try Migration.migrate(saved))
+        } else {
+            try install(try Migration.migrate(Profile.empty))
+        }
+        stash.delete()
+    }
+
+    private func install(_ new: Profile) throws {
+        stamper = SyncStamper()
+        var raw = new.raw
+        stamper.stamp(&raw, now: Date().timeIntervalSince1970 * 1000)
+        profile = Profile(raw: raw)
+        engine = Engine(profile: profile, today: today)
+        changes += 1
+        try store.save(profile)
+    }
+
     func resetProfile() throws {
         try importProfile(Profile.empty.jsonData())
     }
@@ -121,4 +163,33 @@ struct Fmt {
     func exact(_ n: Double, _ cur: String) -> String { Money.exact(n, cur, custom: custom) }
     func signed(_ n: Double, _ cur: String) -> String { Money.signed(n, cur, custom: custom) }
     func symbol(_ cur: String) -> String { Money.symbol(cur, custom: custom) }
+}
+
+
+enum DemoError: LocalizedError {
+    case missing
+    var errorDescription: String? { "No se encontró el perfil de demostración." }
+}
+
+/// Los perfiles de demostración de la web.
+struct DemoPerson: Identifiable {
+    let id: String
+    let name: String
+    let city: String
+    let line: String
+    let color: String
+    let symbol: String
+
+    static let all: [DemoPerson] = [
+        DemoPerson(id: "shawn", name: "Shawn", city: "San Francisco, CA", line: "Sueldo por hora y vida social activa", color: "#22B573", symbol: "wineglass.fill"),
+        DemoPerson(id: "brenda", name: "Brenda", city: "Lima, PE", line: "De EE. UU. a la universidad", color: "#2EC4B6", symbol: "graduationcap.fill"),
+        DemoPerson(id: "alessandro", name: "Alessandro", city: "Lima, PE", line: "Primer empleo y vive con su familia", color: "#FF9F0A", symbol: "house.fill"),
+        DemoPerson(id: "andrea", name: "Andrea", city: "Lake Placid, NY", line: "Dueña de un hotel con mucho capital", color: "#8E6BD8", symbol: "building.2.fill"),
+        DemoPerson(id: "kevin", name: "Kevin", city: "Lima, PE", line: "Ayuda en el taller de su papá y ahorra para una PS5", color: "#5B8DEF", symbol: "gamecontroller.fill"),
+    ]
+}
+
+
+enum AppTab: Hashable {
+    case resumen, presupuesto, proyeccion, cuentas
 }

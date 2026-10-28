@@ -14,3 +14,6 @@ swift/PlataCore/.build/
 swift/PlataCore/.swiftpm/
 *.xcuserstate
 !swift/**/Fixtures/*.json
+!swift/PlataApp/**/Contents.json
+!swift/PlataApp/Plata/Resources/Demos/*.json
+swift/PlataApp/Plata.xcodeproj/

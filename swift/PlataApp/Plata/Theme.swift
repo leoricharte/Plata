@@ -1,4 +1,6 @@
 import SwiftUI
+import CoreText
+import PlataCore
 
 extension Color {
     /// `#RGB`, `#RRGGBB` o `#RRGGBBAA`.
@@ -13,13 +15,58 @@ extension Color {
     }
 }
 
+/// Los colores de la marca, los mismos de la web.
 enum Brand {
+    static let accent = Color(hex: "#22B573")
     static let green = Color(hex: "#1A9D63")
     static let gain = Color(hex: "#1A9D63")
     static let loss = Color(hex: "#E5322D")
     static let warn = Color(hex: "#E5A100")
     static let expenseBar = Color(hex: "#EDB03E")
     static let incomeBar = Color(hex: "#6D8BEA")
+    static let track = Color(.tertiarySystemFill)
+}
+
+// MARK: - Tipografía (Inter, la misma de la web)
+
+enum PlataFont {
+    /// Inter viene dentro de la app (fuente variable); se registra al abrir.
+    static func register() {
+        guard let url = Bundle.main.url(forResource: "Inter", withExtension: "ttf") else { return }
+        CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil)
+    }
+}
+
+extension Font {
+    static func inter(_ size: CGFloat, _ weight: Font.Weight = .regular, relativeTo style: Font.TextStyle = .body) -> Font {
+        Font.custom("Inter", size: size, relativeTo: style).weight(weight)
+    }
+}
+
+// MARK: - Textos en español (como la web)
+
+enum Spanish {
+    static let monthsFull = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
+    static let monthsShort = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"]
+    static let weekdaysFull = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"]
+    static let weekdaysShort = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"]
+
+    /// "Miércoles 28 de octubre"
+    static func dateLong(_ d: LocalDate) -> String {
+        "\(weekdaysFull[d.weekday]) \(d.day) de \(monthsFull[d.month0])"
+    }
+
+    /// "mié 28 oct"
+    static func dateShort(_ d: LocalDate) -> String {
+        "\(weekdaysShort[d.weekday]) \(d.day) \(monthsShort[d.month0])"
+    }
+
+    static func greeting(nick: String, hour: Int) -> String {
+        let word = hour < 12 ? "Buenos días" : (hour < 19 ? "Buenas tardes" : "Buenas noches")
+        return nick.isEmpty ? "\(word)." : "\(word), \(nick)."
+    }
+
+    static func plural(_ n: Int, _ one: String, _ many: String) -> String { "\(n) \(n == 1 ? one : many)" }
 }
 
 /// Un símbolo de SF Symbols para cada categoría conocida; las demás usan una etiqueta.
@@ -40,23 +87,41 @@ func categorySymbol(_ name: String) -> String {
     }
 }
 
-/// El cuadrito redondeado con el icono de una categoría o cuenta.
+// MARK: - Piezas
+
+/// El cuadrito redondeado con el icono de una categoría o cuenta (46 pt en la web).
 struct Tile: View {
     let symbol: String
     let color: Color
-    var size: CGFloat = 38
+    var size: CGFloat = 46
 
     var body: some View {
         Image(systemName: symbol)
-            .font(.system(size: size * 0.46, weight: .semibold))
+            .font(.system(size: size * 0.43, weight: .semibold))
             .foregroundStyle(.white)
             .frame(width: size, height: size)
-            .background(color, in: RoundedRectangle(cornerRadius: size * 0.3, style: .continuous))
+            .background(color, in: RoundedRectangle(cornerRadius: size * 0.283, style: .continuous))
             .accessibilityHidden(true)
     }
 }
 
-/// Una tarjeta del Resumen: título pequeño y contenido, sobre fondo de grupo.
+/// La inicial de un nombre en un cuadrito de color (ingresos previstos).
+struct LetterTile: View {
+    let letter: String
+    let color: Color
+    var size: CGFloat = 46
+
+    var body: some View {
+        Text(letter.uppercased())
+            .font(.inter(size * 0.43, .bold))
+            .foregroundStyle(.white)
+            .frame(width: size, height: size)
+            .background(color, in: RoundedRectangle(cornerRadius: size * 0.283, style: .continuous))
+            .accessibilityHidden(true)
+    }
+}
+
+/// Una tarjeta: texto pequeño arriba y el contenido; esquinas de 26 pt como la web.
 struct Card<Content: View>: View {
     let title: LocalizedStringKey?
     let content: Content
@@ -67,14 +132,126 @@ struct Card<Content: View>: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 8) {
             if let title {
-                Text(title).font(.subheadline.weight(.medium)).foregroundStyle(.secondary)
+                Text(title).font(.inter(15)).foregroundStyle(.secondary)
             }
             content
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
-        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .padding(18)
+        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 26, style: .continuous))
+    }
+}
+
+/// Tarjeta de lista: filas con separador fino y sin título (la web las llama `card lst`).
+struct ListCard<Content: View>: View {
+    let content: Content
+    init(@ViewBuilder content: () -> Content) { self.content = content() }
+
+    var body: some View {
+        VStack(spacing: 0) { content }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 16)
+            .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 26, style: .continuous))
+    }
+}
+
+/// Título de sección grande ("Cuentas", "Más").
+struct SectionHead: View {
+    let title: LocalizedStringKey
+    init(_ title: LocalizedStringKey) { self.title = title }
+
+    var body: some View {
+        Text(title)
+            .font(.inter(22, .bold, relativeTo: .title2))
+            .tracking(-0.4)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 4)
+            .padding(.top, 6)
+    }
+}
+
+/// Fila de una tarjeta de lista con flecha: título a la izquierda y detalle a la derecha.
+struct MoreRow: View {
+    let title: LocalizedStringKey
+    var detail: String = ""
+    var detailColor: Color = .secondary
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Text(title).font(.inter(17)).foregroundStyle(.primary)
+            Spacer(minLength: 8)
+            if !detail.isEmpty {
+                Text(detail).font(.inter(15)).foregroundStyle(detailColor).lineLimit(1)
+            }
+            Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(.tertiary)
+        }
+        .frame(minHeight: 52)
+        .contentShape(Rectangle())
+    }
+}
+
+/// Separador fino entre filas de una `ListCard`.
+struct RowDivider: View {
+    var body: some View { Divider().overlay(Color(.separator).opacity(0.5)) }
+}
+
+/// Enlace verde de una tarjeta ("Ver ahorro").
+struct GreenLink: View {
+    let title: LocalizedStringKey
+    var body: some View {
+        Text(title).font(.inter(15, .medium)).foregroundStyle(Brand.green).padding(.top, 6)
+    }
+}
+
+/// La píldora oscura "B E T A".
+struct BetaPill: View {
+    var body: some View {
+        Text("B E T A")
+            .font(.inter(11, .bold))
+            .foregroundStyle(.white)
+            .padding(.horizontal, 10)
+            .frame(height: 20)
+            .background(Color(hex: "#1C1C1E"), in: Capsule())
+            .accessibilityLabel("Beta")
+    }
+}
+
+/// Un botón redondo con efecto de vidrio (Liquid Glass en iOS 26 o posterior; material translúcido antes).
+struct GlassCircle: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 26, *) {
+            content.glassEffect(.regular.interactive(), in: Circle())
+        } else {
+            content
+                .background(.regularMaterial, in: Circle())
+                .overlay(Circle().strokeBorder(Color.white.opacity(0.6), lineWidth: 1))
+                .shadow(color: .black.opacity(0.08), radius: 8, y: 3)
+        }
+    }
+}
+
+struct GlassIcon: View {
+    let symbol: String
+    var body: some View {
+        Image(systemName: symbol)
+            .font(.system(size: 18, weight: .semibold))
+            .foregroundStyle(.primary)
+            .frame(width: 44, height: 44)
+            .modifier(GlassCircle())
+    }
+}
+
+/// El botón principal oscuro de la web (píldora negra, texto blanco).
+struct PrimaryPillStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.inter(16, .semibold))
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity)
+            .frame(height: 48)
+            .background(Color(hex: "#111111"), in: Capsule())
+            .opacity(configuration.isPressed ? 0.8 : 1)
     }
 }

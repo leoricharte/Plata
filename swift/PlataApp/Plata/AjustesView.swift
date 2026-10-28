@@ -18,7 +18,7 @@ struct AjustesView: View {
     var body: some View {
         let e = model.engine
         let f = model.fmt
-        NavigationStack {
+        Group {
             Form {
                 Section("Perfil") {
                     TextField("Tu nombre", text: $nick)
