@@ -1,0 +1,41 @@
+# Proyecto de Xcode de Plata para iOS, descrito para XcodeGen (así el .xcodeproj no se versiona).
+# En la Mac:  brew install xcodegen  →  sh ios/sync-web.sh  →  cd ios && xcodegen  →  abrir Plata.xcodeproj
+name: Plata
+options:
+  bundleIdPrefix: net.plataapp
+  createIntermediateGroups: true
+  deploymentTarget:
+    iOS: "18.0"
+configFiles:
+  Debug: Build.xcconfig
+  Release: Build.xcconfig
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "3.0"        # la compilación (CURRENT_PROJECT_VERSION) sale de APP_BUILD, ver sync-web.sh
+targets:
+  Plata:
+    type: application
+    platform: iOS
+    deploymentTarget: "18.0"        # piso: iOS 18. Lo exclusivo de iOS 26+ va dentro de #available.
+    sources:
+      - path: Plata
+        excludes:
+          - Web
+      - path: Plata/Web
+        type: folder                # se copia tal cual al bundle como carpeta "Web"
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: net.plataapp.plata   # CÁMBIALO si tu App ID en Apple Developer es otro
+        DEVELOPMENT_TEAM: ""                            # tu Team ID (Xcode → Signing & Capabilities lo rellena)
+        CODE_SIGN_STYLE: Automatic
+        TARGETED_DEVICE_FAMILY: "1"                     # solo iPhone en esta primera versión
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Plata
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.finance
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait

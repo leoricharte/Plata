@@ -8,3 +8,12 @@ node_modules/
 __pycache__/
 *.bak
 dist-web/
+
+# iOS: el proyecto se genera con XcodeGen y la web se copia con ios/sync-web.sh
+ios/Plata.xcodeproj/
+ios/Plata/Web/
+ios/build/
+xcuserdata/
+.DS_Store
+# los catálogos de assets de Xcode usan Contents.json
+!ios/**/Contents.json
