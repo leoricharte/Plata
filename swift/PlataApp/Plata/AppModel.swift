@@ -73,6 +73,9 @@ final class AppModel {
     }
 
     func setSetting(_ key: String, _ value: JSONValue) {
+        let old = profile.raw["settings"]?[key]
+        if old == value { return }
+        if old == nil && (value == .number(0) || value == .string("")) { return }   // no crear ajustes vacíos
         try? commit { raw in
             var s = raw["settings"] ?? .object([:])
             s[key] = value

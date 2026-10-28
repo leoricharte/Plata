@@ -81,7 +81,7 @@ struct AjustesView: View {
                 }
             }
             .navigationTitle("Ajustes")
-            .onAppear(perform: load)
+            .onAppear { load() }
             .onChange(of: model.changes) { _, _ in refreshExport() }
             .onDisappear(perform: commitFields)
             .fileImporter(isPresented: $importing, allowedContentTypes: [.json]) { result in
