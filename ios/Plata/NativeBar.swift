@@ -42,11 +42,12 @@ struct NativeBar: View {
     var body: some View {
         GlassGroup {
             ZStack(alignment: .topLeading) {
-                if state.bar.isUsable { pill }
-                if state.plus.isUsable {
+                // Cuando la web oculta un control (opacidad ~0) se quita del todo: el vidrio de iOS 26 no siempre respeta .opacity(0)
+                if state.bar.isUsable && state.bar.o > 0.02 { pill }
+                if state.plus.isUsable && state.plus.o > 0.02 {
                     roundButton(state.plus, asset: "btn-plus", sf: "plus", label: state.plusLabel, action: .plus)
                 }
-                if state.gear.isUsable {
+                if state.gear.isUsable && state.gear.o > 0.02 {
                     roundButton(state.gear, asset: "btn-gear", sf: "gearshape", label: state.gearLabel, action: .gear, dot: state.gdot)
                 }
             }
