@@ -1,0 +1,81 @@
+import CryptoKit
+import XCTest
+@testable import PlataCore
+
+final class CryptoTests: XCTestCase {
+    func testWordlistIsBIP39Size() {
+        XCTAssertEqual(Wordlist.words.count, 2048)
+        XCTAssertEqual(Set(Wordlist.words).count, 2048)
+    }
+
+    /// Semillas, frases, comprobación de clave y llave de escritura: deben coincidir con lo que calcula la web.
+    func testSeedsMatchWeb() throws {
+        let f = try fixture("crypto")
+        for s in f["seeds"]!.arrayValue! {
+            let seed = hexData(s["seedHex"]!.stringValue!)
+            XCTAssertEqual(Phrase.words(for: seed).joined(separator: " "), s["phrase"]!.stringValue!)
+            XCTAssertEqual(Phrase.seed(from: s["phrase"]!.stringValue!), seed)
+            XCTAssertEqual(CloudCrypto.keyCheck(seed: seed), s["check"]!.stringValue!)
+            XCTAssertEqual(CloudCrypto.writeKey(seed: seed), s["write"]!.stringValue!)
+            XCTAssertEqual(Base64URL.encode(seed), s["seedB64u"]!.stringValue!)
+        }
+    }
+
+    /// Copias cifradas por la web (con y sin gzip, con y sin revisión dentro): Swift las abre.
+    func testOpensBlobsSealedByWeb() throws {
+        let f = try fixture("crypto")
+        let seed = hexData(f["seeds"]!.arrayValue![0]["seedHex"]!.stringValue!)
+        let key = CloudCrypto.dataKey(seed: seed)
+        for b in f["blobs"]!.arrayValue! {
+            let name = b["name"]!.stringValue!, rev = b["rev"]!.intValue!
+            let r = try CloudCrypto.openProfile(b["blob"]!.stringValue!, key: key, rev: rev, knownV2: false)
+            XCTAssertEqual(r.profile, b["plain"]!, name)
+            XCTAssertEqual(r.sawV2, rev > 0, name)
+        }
+    }
+
+    func testRevisionMismatchIsRejected() throws {
+        let f = try fixture("crypto")
+        let key = CloudCrypto.dataKey(seed: hexData(f["seeds"]!.arrayValue![0]["seedHex"]!.stringValue!))
+        let b = f["blobs"]!.arrayValue![0]["blob"]!.stringValue!      // lleva rev 7 dentro
+        XCTAssertThrowsError(try CloudCrypto.openProfile(b, key: key, rev: 8, knownV2: false)) { XCTAssertEqual($0 as? CloudCryptoError, .revision) }
+        let old = f["blobs"]!.arrayValue![2]["blob"]!.stringValue!    // sin revisión dentro
+        XCTAssertThrowsError(try CloudCrypto.openProfile(old, key: key, rev: 1, knownV2: true)) { XCTAssertEqual($0 as? CloudCryptoError, .revision) }
+    }
+
+    func testWrongKeyFails() throws {
+        let f = try fixture("crypto")
+        let other = CloudCrypto.dataKey(seed: hexData(f["seeds"]!.arrayValue![1]["seedHex"]!.stringValue!))
+        XCTAssertThrowsError(try CloudCrypto.open(f["blobs"]!.arrayValue![0]["blob"]!.stringValue!, key: other))
+    }
+
+    func testSealOpenRoundTrip() throws {
+        let key = CloudCrypto.dataKey(seed: CloudCrypto.newSeed())
+        let p = profile([(1, -10), (2, -20.5)]).raw
+        let blob = try CloudCrypto.seal(p, key: key, rev: 5)
+        let r = try CloudCrypto.openProfile(blob, key: key, rev: 5, knownV2: true)
+        XCTAssertEqual(r.profile, p)
+        // La web también debe poder abrirlo: formato = 0x01, bandera gzip, IV de 12 bytes.
+        let raw = Base64URL.decode(blob)!
+        XCTAssertEqual(raw[0], 1); XCTAssertTrue(raw[1] == 0 || raw[1] == 1)
+    }
+
+    func testGzipRoundTripAndHeader() throws {
+        let data = Data(String(repeating: "Plata ☕ ", count: 500).utf8)
+        let z = try Gzip.compress(data)
+        XCTAssertEqual(Array(z.prefix(3)), [0x1f, 0x8b, 8])
+        XCTAssertLessThan(z.count, data.count)
+        XCTAssertEqual(try Gzip.decompress(z), data)
+        XCTAssertEqual(Gzip.crc32(Data("123456789".utf8)), 0xCBF43926)   // vector estándar de CRC-32
+    }
+
+    func testPhraseRejectsTypos() {
+        let seed = CloudCrypto.newSeed()
+        var w = Phrase.words(for: seed)
+        XCTAssertEqual(Phrase.seed(from: w.joined(separator: " ")), seed)
+        XCTAssertEqual(Phrase.seed(from: w.joined(separator: "  ").uppercased()), seed)    // mayúsculas y espacios de más
+        w[3] = w[3] == "zoo" ? "abandon" : "zoo"
+        XCTAssertNil(Phrase.seed(from: w.joined(separator: " ")))                          // la suma de verificación lo detecta
+        XCTAssertNil(Phrase.seed(from: w.dropLast().joined(separator: " ")))               // faltan palabras
+    }
+}

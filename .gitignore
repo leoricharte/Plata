@@ -8,3 +8,8 @@ node_modules/
 __pycache__/
 *.bak
 dist-web/
+
+# Swift
+swift/PlataCore/.build/
+swift/PlataCore/.swiftpm/
+*.xcuserstate
