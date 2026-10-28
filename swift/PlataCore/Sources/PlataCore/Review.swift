@@ -35,7 +35,7 @@ public struct ReviewBrand: Equatable, Sendable {
 
 public extension Engine {
     /// Lo que Revisión encuentra en los movimientos. `skip`: claves ya descartadas. `brandOf`: marca de suscripción de un texto, si la hay.
-    func reviewScan(skip skipKeys: [String], brandOf: (String) -> ReviewBrand?) -> [ReviewCard] {
+    func reviewScan(skip skipKeys: [String], brandOf: @escaping (String) -> ReviewBrand?) -> [ReviewCard] {
         Review(engine: self, skip: Set(skipKeys), brandOf: brandOf).scan()
     }
 }

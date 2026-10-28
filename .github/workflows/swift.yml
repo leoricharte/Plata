@@ -28,14 +28,28 @@ jobs:
 
       - name: Pruebas del núcleo (PlataCore)
         working-directory: swift/PlataCore
-        run: swift test 2>&1 | tail -60
+        run: |
+          set -o pipefail
+          swift test 2>&1 | tee test.log | tail -60
+
+      - name: Errores de pruebas
+        if: always()
+        working-directory: swift/PlataCore
+        run: |
+          # cada prueba que falla sale como anotación del job (se puede leer con la API de GitHub)
+          grep -E "error:" test.log 2>/dev/null | sort -u | head -40 | while IFS= read -r l; do
+            m=$(printf '%s' "$l" | sed 's/%/%25/g')
+            echo "::error::$m"
+          done || true
 
       - name: Generar el proyecto
+        if: always()
         run: |
           brew install xcodegen
           cd swift/PlataApp && xcodegen
 
       - name: Compilar la app (simulador)
+        if: always()
         working-directory: swift/PlataApp
         run: |
           set -o pipefail
