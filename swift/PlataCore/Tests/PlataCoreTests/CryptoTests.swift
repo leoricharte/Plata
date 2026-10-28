@@ -74,8 +74,14 @@ final class CryptoTests: XCTestCase {
         var w = Phrase.words(for: seed)
         XCTAssertEqual(Phrase.seed(from: w.joined(separator: " ")), seed)
         XCTAssertEqual(Phrase.seed(from: w.joined(separator: "  ").uppercased()), seed)    // mayúsculas y espacios de más
-        w[3] = w[3] == "zoo" ? "abandon" : "zoo"
-        XCTAssertNil(Phrase.seed(from: w.joined(separator: " ")))                          // la suma de verificación lo detecta
+        // la suma de verificación (4 bits) detecta casi todos los cambios de una palabra; uno solo puede colarse por azar (1 de 16)
+        var rejected = 0
+        for i in w.indices {
+            var t = w
+            t[i] = t[i] == "zoo" ? "abandon" : "zoo"
+            if Phrase.seed(from: t.joined(separator: " ")) == nil { rejected += 1 }
+        }
+        XCTAssertGreaterThanOrEqual(rejected, 6)
         XCTAssertNil(Phrase.seed(from: w.dropLast().joined(separator: " ")))               // faltan palabras
     }
 }

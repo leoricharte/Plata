@@ -37,7 +37,7 @@ jobs:
         working-directory: swift/PlataCore
         run: |
           # cada prueba que falla sale como anotación del job (se puede leer con la API de GitHub)
-          grep -E "error:" test.log 2>/dev/null | sort -u | head -40 | while IFS= read -r l; do
+          grep -E -A30 "error:" test.log 2>/dev/null | head -150 | while IFS= read -r l; do
             m=$(printf '%s' "$l" | sed 's/%/%25/g')
             echo "::error::$m"
           done || true

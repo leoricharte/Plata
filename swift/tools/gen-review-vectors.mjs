@@ -95,7 +95,8 @@ for (let n = 0; n < 60; n++) {
   api.setData(data); api.syncCats();
   const snap = JSON.parse(JSON.stringify(data));
   const brands = {};
-  data.transactions.forEach((t) => { const nm = String(t.note || ''); if (nm && !(nm in brands)) { const b = api.subBrand({ name: nm }); brands[nm] = b ? { id: b.i, key0: b.keys[0], name: api.REC_NAME[b.i] || null } : null; } });
+  const names = [].concat(data.transactions.map((t) => t.note), data.subs.map((x) => x.name), data.expected_expense.map((x) => x.name), data.expected_income.map((x) => x.name), data.jobs.map((x) => x.name), (data.recurring || []).map((x) => x.name));
+  names.forEach((n0) => { const nm = String(n0 || ''); if (nm && !(nm in brands)) { const b = api.subBrand({ name: nm }); brands[nm] = b ? { id: b.i, key0: b.keys[0], name: api.REC_NAME[b.i] || null } : null; } });
   const shape = (list) => list.map((r) => ({ kind: r.kind, k: r.k, txs: r.txs.map((x) => String(x.id)), score: r.score, hi: !!r.hi, far: !!r.far, label: r.label || null, cur: r.cur == null ? null : r.cur, out: r.out == null ? null : r.out, inn: r.inn == null ? null : r.inn, med: r.med == null ? null : r.med, card: r.card || null, acc: r.acc || null, miss: r.miss || null, diff: r.diff == null ? null : r.diff,
     type: r.type || null, name: r.kind === 'rec' ? r.name : null, amt: r.kind === 'rec' ? r.amt : null, fixed: r.kind === 'rec' ? !!r.fixed : null, cad: r.cad || null, neg: r.kind === 'rec' ? !!r.neg : null, q: r.q || null, brand: r.brand ? r.brand.i : null }));
   const first = shape(api.revScan());

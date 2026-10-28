@@ -35,6 +35,7 @@ final class CurrencyChangeTests: XCTestCase {
 
     func test_manualRateScalesAccountAndItsTransactions() {
         var p = base()
+        p["settings"] = .object(["currency": .string("USD"), "currency2": .string(""), "fx": .number(4)])   // la segunda moneda cambia a PEN: EUR queda fuera
         CurrencyChange.apply(&p, primary: "USD", secondary: "PEN", mode: .manual(2))
         let accs = p["accounts"]?.arrayValue ?? []
         XCTAssertEqual(accs[2]["cur"]?.stringValue, "USD")
