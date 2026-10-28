@@ -30,8 +30,10 @@ struct RootView: View {
             case .category(let n): CategorySheet(name: n)
             case .event(let k): EventSheet(key: k)
             case .budgetSets: BudgetSetsSheet()
+            case .confirm(let k, let i, let p): ConfirmSheet(kind: k, id: i, pick: p)
             }
         }
         .tint(Brand.accent)
+        .task { model.checkPending() }
     }
 }

@@ -527,3 +527,64 @@ public extension ProfileEditor {
         }
     }
 }
+
+// MARK: confirmar pendientes
+
+public extension ProfileEditor {
+    /// Ingreso que llegó: movimiento con lo estimado y, si es de un trabajo, tarifa y horas; suma a la cuenta.
+    static func confirmIncome(_ p: inout JSONValue, date: String, amount: Double, name: String, account: JSONValue, estimate: Double,
+                              job: JSONValue?, rate: Double, hours: Double, now: Double) {
+        var tx: [String: JSONValue] = ["id": .number(nextTxId(p, now: now)), "date": .string(date), "amount": .number(amount), "category": .string("Ingreso"),
+                                       "note": .string(name), "acc": account, "est": .number(estimate)]
+        if let job {
+            tx["job"] = job["id"] ?? .null
+            if Engine.text(job["mode"]) != "s" { tx["rate"] = .number(rate); tx["hrs"] = .number(hours) }
+        }
+        var list = p["transactions"]?.arrayValue ?? []
+        list.append(.object(tx))
+        p["transactions"] = .array(list)
+        applyTo(&p, account, amount)
+    }
+
+    /// Tras confirmar: si se repite pasa a la fecha siguiente (`next`, sin aviso pospuesto); si no, se quita.
+    static func finishExpected(_ p: inout JSONValue, collection: String, id: JSONValue, next: String?) {
+        guard var list = p[collection]?.arrayValue else { return }
+        if let next {
+            for i in list.indices where list[i]["id"] == id { list[i]["date"] = .string(next); list[i]["snooze"] = nil }
+        } else {
+            list.removeAll { $0["id"] == id }
+        }
+        p[collection] = .array(list)
+    }
+
+    /// «Aún no…»: vuelve a preguntar desde `until`.
+    static func snoozeExpected(_ p: inout JSONValue, collection: String, id: JSONValue, until: String) {
+        guard var list = p[collection]?.arrayValue else { return }
+        for i in list.indices where list[i]["id"] == id { list[i]["snooze"] = .string(until) }
+        p[collection] = .array(list)
+    }
+
+    /// Pago esperado de una tarjeta: «Aún no pagué» (`snooze`).
+    static func snoozeCardAuto(_ p: inout JSONValue, id: JSONValue, until: String) {
+        guard var list = p["cards"]?.arrayValue else { return }
+        for i in list.indices where list[i]["id"] == id { list[i]["auto"]?["snooze"] = .string(until) }
+        p["cards"] = .array(list)
+    }
+
+    /// Después de pagar: si aún se debe, el siguiente aviso es el próximo día de pago; si no, se apaga. Devuelve si quedó saldada.
+    @discardableResult
+    static func advanceCardAuto(_ p: inout JSONValue, id: JSONValue, from: String, today: String) -> Bool {
+        guard var list = p["cards"]?.arrayValue, let i = list.firstIndex(where: { $0["id"] == id }) else { return false }
+        var paid = false
+        if Engine.number(list[i]["balance"]) > 0.005 {
+            list[i]["auto"]?["from"] = .string(from)
+            list[i]["auto"]?["next"] = .string(Engine.dueAfter(day: Int(Engine.number(list[i]["due_day"])), after: today))
+            list[i]["auto"]?["snooze"] = nil
+        } else {
+            list[i]["auto"] = nil
+            paid = true
+        }
+        p["cards"] = .array(list)
+        return paid
+    }
+}

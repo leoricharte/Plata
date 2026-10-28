@@ -183,6 +183,8 @@ struct ResumenView: View {
                 }
                 .padding(.top, 2)
             }
+            .contentShape(Rectangle())
+            .onTapGesture { if pending { model.activeSheet = .confirm(kind: "in", id: next.id, pick: true) } }
         }
     }
 
@@ -229,6 +231,8 @@ struct ResumenView: View {
                 }
                 .padding(.top, 2)
             }
+            .contentShape(Rectangle())
+            .onTapGesture { if due { model.activeSheet = .confirm(kind: "out", id: Engine.identifier(x["id"]), pick: true) } }
         }
     }
 
@@ -256,6 +260,8 @@ struct ResumenView: View {
                 }
                 .padding(.top, 2)
             }
+            .contentShape(Rectangle())
+            .onTapGesture { model.activeSheet = .confirm(kind: "pay", id: item.id, pick: true) }
         }
     }
 

@@ -189,6 +189,96 @@ final class AppModel {
         }
     }
 
+    // MARK: pendientes por confirmar
+
+    /// Lo próximo que falta confirmar (ingreso, gasto o pago de tarjeta) y cuántos hay.
+    func nextPending() -> (item: PendingItem, count: Int)? {
+        let l = engine.pendingItems()
+        return l.first.map { ($0, l.count) }
+    }
+
+    /// Abre la hoja de confirmar si hay algo vencido y no hay otra hoja abierta (`checkPending`).
+    func checkPending() {
+        guard activeSheet == nil, !showAddTransaction, let p = nextPending() else { return }
+        activeSheet = .confirm(kind: p.item.kind, id: p.item.id, pick: false)
+    }
+
+    private func tomorrow() -> String { today.adding(days: 1).iso }
+
+    /// Confirma un ingreso o gasto esperado con el monto real. `hours`: horas trabajadas (ingresos de un trabajo).
+    func confirmExpected(kind: String, id: String, amount: Double, hours: Double) throws {
+        guard amount > 0 else { throw ProfileEditor.FormError.invalidAmount }
+        let e = engine
+        let out = kind == "out"
+        let coll = out ? "expected_expense" : "expected_income"
+        guard let item = e.data[coll]?.arrayValue?.first(where: { Engine.identifier($0["id"]) == id }) else { return }
+        let itemId = item["id"] ?? .null
+        let acc = item["acc"] ?? .null
+        let rawDate = Engine.text(item["date"])
+        let day = rawDate <= today.iso ? rawDate : today.iso
+        let now = Date().timeIntervalSince1970 * 1000
+        var next: String?
+        if Engine.flag(item["repeat"]), let rep = item["repeat"] {
+            let n = Engine.nextOccurrence(rawDate, rep)
+            let until = Engine.text(item["until"])
+            next = (!until.isEmpty && n > until) ? nil : n
+        }
+        let card = out ? e.paymentCard(item) : nil
+        let cat = e.categoryNames.contains(Engine.text(item["cat"])) ? Engine.text(item["cat"]) : "Otros"
+        let est = Engine.number(e.effectiveItem(out ? "exp" : "in", item)["amount"])
+        let job = out ? nil : e.jobOf(item)
+        let cur = e.accountCurrency(acc)
+        try commit { raw in
+            if let card {
+                let cardAmt = Engine.roundCents(e.fromUSD(e.usd(amount, cur), Engine.text(card["cur"])))
+                let pair = String(UUID().uuidString.replacingOccurrences(of: "-", with: "").prefix(6)).lowercased()
+                let name = Engine.text(item["name"])
+                ProfileEditor.registerPay(&raw, card: card["id"] ?? .null, amount: cardAmt, fromAmount: amount, date: day, from: acc,
+                                          note: name.isEmpty ? "Pago de " + Engine.text(card["name"]) : name, now: now, pair: pair)
+            } else if out {
+                _ = try ProfileEditor.addTransaction(&raw, date: day, amount: -amount, category: cat, note: Engine.text(item["name"]),
+                                                     account: Engine.identifier(acc), now: now)
+            } else {
+                ProfileEditor.confirmIncome(&raw, date: day, amount: amount, name: Engine.text(item["name"]), account: acc, estimate: est,
+                                            job: job, rate: Engine.number(job?["rate"]), hours: hours > 0 ? hours : (job.map { Engine.jobHours($0) } ?? 0), now: now)
+            }
+            ProfileEditor.finishExpected(&raw, collection: coll, id: itemId, next: next)
+        }
+    }
+
+    /// «Aún no llegó / se cobró / pagué»: pregunta mañana.
+    func snoozePending(kind: String, id: String) {
+        let e = engine
+        if kind == "pay" {
+            guard let c = e.allCards.first(where: { Engine.identifier($0["id"]) == id }) else { return }
+            try? commit { raw in ProfileEditor.snoozeCardAuto(&raw, id: c["id"] ?? .null, until: tomorrow()) }
+        } else {
+            let coll = kind == "out" ? "expected_expense" : "expected_income"
+            guard let item = e.data[coll]?.arrayValue?.first(where: { Engine.identifier($0["id"]) == id }) else { return }
+            try? commit { raw in ProfileEditor.snoozeExpected(&raw, collection: coll, id: item["id"] ?? .null, until: tomorrow()) }
+        }
+    }
+
+    /// Confirma el pago esperado de una tarjeta o préstamo. `from`: cuenta de origen ("" = sin descontar).
+    func confirmCardPay(id: String, amount: Double, from: String) throws {
+        guard amount > 0 else { throw ProfileEditor.FormError.invalidAmount }
+        let e = engine
+        guard let card = e.allCards.first(where: { Engine.identifier($0["id"]) == id }), let auto = card["auto"] else { return }
+        let nextDate = Engine.text(auto["next"])
+        let day = nextDate <= today.iso ? nextDate : today.iso
+        let fromJSON: JSONValue? = from.isEmpty ? nil : .string(from)
+        let fromAmt = from.isEmpty ? 0 : Engine.roundCents(e.fromUSD(e.usd(amount, Engine.text(card["cur"])), e.accountCurrency(.string(from))))
+        let left = Engine.roundCents(Engine.number(card["balance"]) - amount)
+        let final = Engine.number(card["payment"]) > 0 && left <= 0.005
+        let note = "Pago de " + Engine.text(card["name"]) + (final ? " · final" : "")
+        let pair = String(UUID().uuidString.replacingOccurrences(of: "-", with: "").prefix(6)).lowercased()
+        let now = Date().timeIntervalSince1970 * 1000
+        try commit { raw in
+            ProfileEditor.registerPay(&raw, card: card["id"] ?? .null, amount: amount, fromAmount: fromAmt, date: day, from: fromJSON, note: note, now: now, pair: pair)
+            ProfileEditor.advanceCardAuto(&raw, id: card["id"] ?? .null, from: from, today: today.iso)
+        }
+    }
+
     func saveSaving(_ item: JSONValue) throws {
         try commit { raw in try ProfileEditor.saveSaving(&raw, item: item) }
     }
@@ -368,6 +458,8 @@ enum ActiveSheet: Identifiable, Hashable {
     case category(name: String?)
     case event(key: String)
     case budgetSets
+    /// Confirmar un pendiente. `pick`: se abrió a mano desde una tarjeta (un solo elemento, con «Cancelar»).
+    case confirm(kind: String, id: String, pick: Bool)
 
     var id: String {
         switch self {
@@ -383,6 +475,7 @@ enum ActiveSheet: Identifiable, Hashable {
         case .category(let n): return "category-\(n ?? "new")"
         case .event(let k): return "event-\(k)"
         case .budgetSets: return "budgetSets"
+        case .confirm(let k, let i, let p): return "confirm-\(k)-\(i)-\(p)"
         }
     }
 }

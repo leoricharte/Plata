@@ -367,7 +367,7 @@ struct ProyeccionView: View {
                         title: Engine.text(x["name"]), badge: pend.contains(Engine.identifier(x["id"])) ? "Por confirmar" : nil,
                         sub: Self.dlabel(Engine.text(x["date"])) + " · " + Engine.repeatLabel(x["repeat"]) + untilText(x),
                         trailing: AnyView(Text("+" + f.whole(Engine.number(x["amount"]), cur)).font(.inter(16, .semibold)).monospacedDigit().foregroundStyle(Brand.gainText)),
-                        onTap: { model.activeSheet = .expected(kind: "income", id: Engine.identifier(x["id"])) })
+                        onTap: { let i = Engine.identifier(x["id"]); model.activeSheet = pend.contains(i) ? .confirm(kind: "in", id: i, pick: true) : .expected(kind: "income", id: i) })
                 }
                 if !est.isEmpty {
                     Text("Variación media vs. lo previsto: \(avg >= 0 ? "+" : "−")\(f.exact(abs(avg))) (\(est.count) \(est.count == 1 ? "ingreso confirmado" : "ingresos confirmados"))")
@@ -453,7 +453,7 @@ struct ProyeccionView: View {
                         title: Engine.text(x["name"]), badge: pend.contains(Engine.identifier(x["id"])) ? "Por confirmar" : nil,
                         sub: Self.dlabel(Engine.text(x["date"])) + " · " + Engine.repeatLabel(x["repeat"]) + untilText(x) + " · " + (isCard ? "Pago de crédito" : cat),
                         trailing: AnyView(Text("−" + f.whole(Engine.number(x["amount"]), cur)).font(.inter(16, .semibold)).monospacedDigit()),
-                        onTap: { model.activeSheet = .expected(kind: isCard ? "cardpay" : "expense", id: Engine.identifier(x["id"])) })
+                        onTap: { let i = Engine.identifier(x["id"]); model.activeSheet = pend.contains(i) ? .confirm(kind: "out", id: i, pick: true) : .expected(kind: isCard ? "cardpay" : "expense", id: i) })
                 }
                 RowDivider()
                 addRow("Añadir gasto previsto") { model.activeSheet = .expected(kind: "expense", id: nil) }

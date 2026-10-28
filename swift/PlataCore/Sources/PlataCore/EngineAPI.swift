@@ -41,6 +41,7 @@ public extension Engine {
     var allCards: [JSONValue] { list("cards") }
     var allTransactions: [JSONValue] { list("transactions") }
     var allIncomeItems: [JSONValue] { list("expected_income") }
+    var allExpenseItems: [JSONValue] { list("expected_expense") }
 
     /// Suma de montos de una lista en moneda principal.
     func totalUSD(_ items: [JSONValue], amount: String = "balance") -> Double {
@@ -183,4 +184,46 @@ public extension Engine {
     func isCreditPayment(_ t: JSONValue) -> Bool { isPay(t) }
     /// Monto de un movimiento en dólares (negativo = gasto).
     func amountUSD(_ t: JSONValue) -> Double { txUSD(t) }
+}
+
+// Confirmar ingresos, gastos y pagos esperados (`doConfirm` / `doConfirmPay` de la web).
+public extension Engine {
+    /// La fecha siguiente de una serie (`nextRep`).
+    static func nextOccurrence(_ iso: String, _ rep: JSONValue) -> String {
+        guard let d = LocalDate(iso: iso) else { return iso }
+        return nextRep(d, rep).iso
+    }
+
+    /// Ingreso o gasto con las ediciones de Proyección aplicadas. `kind`: "in" o "exp".
+    func effectiveItem(_ kind: String, _ e: JSONValue) -> JSONValue { effItem(kind, e) }
+
+    /// El primer día `day` del mes que cae después de `after` (`dueAfter`).
+    static func dueAfter(day: Int, after iso: String) -> String {
+        guard let a = LocalDate(iso: iso) else { return iso }
+        for m in 0..<3 {
+            let mm = a.month0 + m
+            let y = a.year + mm / 12, m0 = mm % 12
+            let d = LocalDate(year: y, month0: m0, day: min(day, LocalDate.daysInMonth(year: y, month0: m0)))
+            if d.days > a.days { return d.iso }
+        }
+        return iso
+    }
+
+    /// El trabajo al que pertenece un ingreso esperado (`jobOf`).
+    func jobOf(_ e: JSONValue) -> JSONValue? {
+        guard JS.truthy(e["job"]), let id = e["job"] else { return nil }
+        return list("jobs").first(where: { $0["id"] == id })
+    }
+
+    /// Horas por pago de un trabajo (`jobHrs`); 0 si es sueldo fijo.
+    static func jobHours(_ j: JSONValue) -> Double {
+        if str(j["mode"]) == "s" { return 0 }
+        return round2(num(j["hours"]) * (jobMult[str(j["freq"])] ?? 1))
+    }
+
+    /// Porcentaje descontado entre lo bruto (tarifa × horas) y lo que llegó (`taxPct`).
+    static func taxPercent(amount: Double, rate: Double, hours: Double) -> Double {
+        let g = rate * hours
+        return g > 0 ? max(0, min(100, ((1 - amount / g) * 1000).rounded() / 10)) : 0
+    }
 }
