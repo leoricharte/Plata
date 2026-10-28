@@ -13,6 +13,10 @@ struct SavingSheet: View {
     @State private var balanceText = ""
     @State private var monthlyText = ""
     @State private var cur = ""
+    @State private var color = ""
+    @State private var icon = ""
+    @State private var iconUser = false
+    @State private var colorUser = false
     @State private var original: JSONValue?
     @State private var errorText: String?
     @State private var confirmDelete = false
@@ -37,6 +41,7 @@ struct SavingSheet: View {
                     RowDivider()
                     FieldRow(symbol: "plus.circle", label: "Aporte mensual", placeholder: "0", text: $monthlyText, numeric: true)
                 }
+                StylePicker(color: $color, icon: $icon, iconUser: $iconUser, colorUser: $colorUser)
                 if let errorText { Text(errorText).font(.inter(14)).foregroundStyle(Brand.lossText).padding(.bottom, 10) }
                 Button("Guardar") { save() }.buttonStyle(PrimaryPillStyle()).padding(.bottom, 8)
                 if id != nil {
@@ -81,7 +86,9 @@ struct SavingSheet: View {
             balanceText = clean(Engine.number(o["balance"]))
             monthlyText = clean(Engine.number(o["monthly"]))
             cur = Engine.text(o["cur"])
+            color = Engine.text(o["color"]); icon = Engine.text(o["icon"]); iconUser = Engine.flag(o["iconUser"]); colorUser = Engine.flag(o["colorUser"])
         } else {
+            color = Engine.cardColorsForApp.randomElement() ?? "#6D8BEA"
             cur = e.primaryCurrency
             goalFocused = true
         }
@@ -90,13 +97,13 @@ struct SavingSheet: View {
     private func save() {
         var o: JSONValue = original ?? .object([
             "id": .string(String(UUID().uuidString.replacingOccurrences(of: "-", with: "").prefix(6)).lowercased()),
-            "color": .string(Engine.cardColorsForApp.randomElement() ?? "#6D8BEA"), "icon": .string(""),
         ])
         o["name"] = .string(name)
         o["cur"] = .string(cur)
         o["goal"] = .number(num(goalText))
         o["balance"] = .number(num(balanceText))
         o["monthly"] = .number(num(monthlyText))
+        o["color"] = .string(color); o["icon"] = .string(icon); o["iconUser"] = .bool(iconUser); o["colorUser"] = .bool(colorUser)
         do {
             try model.saveSaving(o)
             dismiss()

@@ -19,6 +19,9 @@ struct AccountSheet: View {
     @State private var cur = ""
     @State private var balance = ""
     @State private var color = ""
+    @State private var icon = ""
+    @State private var iconUser = false
+    @State private var colorUser = false
     @State private var original: JSONValue?
     @State private var errorText: String?
     @State private var askDelete = false
@@ -46,7 +49,7 @@ struct AccountSheet: View {
                         FieldRow(symbol: "percent", label: "Rendimiento anual (%) — opcional", placeholder: "0", text: $apy, numeric: true)
                     }
                 }
-                SwatchRow(color: $color).padding(.bottom, 8)
+                StylePicker(color: $color, icon: $icon, iconUser: $iconUser, colorUser: $colorUser)
                 if let errorText { Text(errorText).font(.inter(14)).foregroundStyle(Brand.lossText).padding(.bottom, 10) }
                 Button("Guardar") { save() }.buttonStyle(PrimaryPillStyle()).padding(.bottom, 8)
                 if id != nil {
@@ -96,14 +99,14 @@ struct AccountSheet: View {
         if let id, let o = e.allAccounts.first(where: { Engine.identifier($0["id"]) == id }) {
             original = o
             name = Engine.text(o["name"]); last4 = Engine.text(o["last4"]); type = Engine.text(o["type"]).isEmpty ? "checking" : Engine.text(o["type"])
-            apy = clean(Engine.number(o["apy"])); cur = Engine.text(o["cur"]); balance = clean(Engine.number(o["balance"])); color = Engine.text(o["color"])
+            apy = clean(Engine.number(o["apy"])); cur = Engine.text(o["cur"]); balance = clean(Engine.number(o["balance"])); color = Engine.text(o["color"]); icon = Engine.text(o["icon"]); iconUser = Engine.flag(o["iconUser"]); colorUser = Engine.flag(o["colorUser"])
         } else { cur = e.primaryCurrency; focus = true }
     }
 
     private func save() {
         var o: JSONValue = original ?? .object(["id": .string(newId()), "icon": .string("")])
         o["name"] = .string(name); o["last4"] = .string(last4); o["type"] = .string(type)
-        o["apy"] = .number(num(apy)); o["cur"] = .string(cur); o["balance"] = .number(num(balance)); o["color"] = .string(color)
+        o["apy"] = .number(num(apy)); o["cur"] = .string(cur); o["balance"] = .number(num(balance)); o["color"] = .string(color); o["icon"] = .string(icon); o["iconUser"] = .bool(iconUser); o["colorUser"] = .bool(colorUser)
         do { try model.saveAccount(o); dismiss() }
         catch ProfileEditor.FormError.missingName { errorText = "Escribe un nombre." }
         catch { errorText = "No se pudo guardar." }
@@ -127,6 +130,9 @@ struct DebtSheet: View {
     @State private var cur = ""
     @State private var balance = ""
     @State private var color = ""
+    @State private var icon = ""
+    @State private var iconUser = false
+    @State private var colorUser = false
     @State private var original: JSONValue?
     @State private var errorText: String?
     @State private var askDelete = false
@@ -160,7 +166,7 @@ struct DebtSheet: View {
                     RowDivider()
                     FieldRow(symbol: "calendar", label: "Día de pago", placeholder: "0", text: $dueDay, numeric: true)
                 }
-                SwatchRow(color: $color).padding(.bottom, 8)
+                StylePicker(color: $color, icon: $icon, iconUser: $iconUser, colorUser: $colorUser, debt: true)
                 if let errorText { Text(errorText).font(.inter(14)).foregroundStyle(Brand.lossText).padding(.bottom, 10) }
                 Button("Guardar") { save() }.buttonStyle(PrimaryPillStyle()).padding(.bottom, 8)
                 if id != nil {
@@ -208,7 +214,7 @@ struct DebtSheet: View {
             kind = Engine.text(o["kind"]) == "loan" ? "loan" : "card"
             name = Engine.text(o["name"]); last4 = Engine.text(o["last4"]); limit = clean(Engine.number(o["limit"]))
             apr = clean(Engine.number(o["apr"])); payment = clean(Engine.number(o["payment"])); dueDay = clean(Engine.number(o["due_day"]))
-            cur = Engine.text(o["cur"]); balance = clean(Engine.number(o["balance"])); color = Engine.text(o["color"])
+            cur = Engine.text(o["cur"]); balance = clean(Engine.number(o["balance"])); color = Engine.text(o["color"]); icon = Engine.text(o["icon"]); iconUser = Engine.flag(o["iconUser"]); colorUser = Engine.flag(o["colorUser"])
         } else { cur = e.primaryCurrency; focus = true }
     }
 
@@ -216,7 +222,7 @@ struct DebtSheet: View {
         var o: JSONValue = original ?? .object(["id": .string(newId()), "icon": .string("")])
         o["kind"] = .string(kind); o["name"] = .string(name); o["last4"] = .string(last4)
         o["limit"] = .number(num(limit)); o["apr"] = .number(num(apr)); o["payment"] = .number(num(payment))
-        o["due_day"] = .number(num(dueDay)); o["cur"] = .string(cur); o["balance"] = .number(num(balance)); o["color"] = .string(color)
+        o["due_day"] = .number(num(dueDay)); o["cur"] = .string(cur); o["balance"] = .number(num(balance)); o["color"] = .string(color); o["icon"] = .string(icon); o["iconUser"] = .bool(iconUser); o["colorUser"] = .bool(colorUser)
         do { try model.saveDebt(o); dismiss() }
         catch ProfileEditor.FormError.missingName { errorText = "Escribe un nombre." }
         catch ProfileEditor.FormError.invalidDueDay { errorText = "El día de pago va del 1 al 31." }

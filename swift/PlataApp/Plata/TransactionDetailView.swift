@@ -40,7 +40,7 @@ struct TransactionDetailView: View {
 
         return ScrollView {
             VStack(spacing: 0) {
-                Tile(symbol: categorySymbol(shown), color: color, size: 64)
+                Tile(symbol: e.catSymbol(shown), color: color, size: 64)
                     .padding(.top, 4).padding(.bottom, 8)
                 Text(note.isEmpty ? shown : note)
                     .font(.inter(28, .bold, relativeTo: .title)).tracking(-0.8)

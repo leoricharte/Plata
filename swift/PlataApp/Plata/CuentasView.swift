@@ -168,7 +168,7 @@ struct CuentasView: View {
 
     private func tile(_ o: JSONValue, index: Int, debt: Bool, color: String?) -> some View {
         let col = Color(hex: color ?? (Engine.text(o["color"]).isEmpty ? Self.colors[index % Self.colors.count] : Engine.text(o["color"])))
-        let icon = Self.icons[Engine.text(o["icon"])]
+        let icon = iconSymbol(Engine.text(o["icon"]))
         return Group {
             if let icon { Tile(symbol: icon, color: col) }
             else if debt { Tile(symbol: "creditcard", color: col) }

@@ -12,6 +12,8 @@ struct CategorySheet: View {
     @State private var limitText = ""
     @State private var color = "#6D8BEA"
     @State private var icon = ""
+    @State private var iconUser = false
+    @State private var colorUser = false
     @State private var errorText: String?
     @State private var askDelete = false
     @FocusState private var focus: Bool
@@ -28,7 +30,7 @@ struct CategorySheet: View {
                 SCard {
                     FieldRow(symbol: "pencil", label: "Nombre", placeholder: "Nombre", text: $nameText)
                 }
-                SwatchRow(color: $color).padding(.bottom, 8)
+                StylePicker(color: $color, icon: $icon, iconUser: $iconUser, colorUser: $colorUser)
                 if let errorText { Text(errorText).font(.inter(14)).foregroundStyle(Brand.lossText).padding(.bottom, 10) }
                 Button("Guardar") { save() }.buttonStyle(PrimaryPillStyle()).padding(.bottom, 8)
                 if let name, name != "Otros" {

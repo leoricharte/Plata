@@ -91,7 +91,7 @@ struct AhorroView: View {
         }()
         return Button { model.activeSheet = .saving(id: Engine.identifier(s["id"])) } label: {
             HStack(spacing: 12) {
-                Tile(symbol: "leaf.fill", color: Color(hex: color))
+                Tile(symbol: iconSymbol(Engine.text(s["icon"])) ?? "leaf.fill", color: Color(hex: color))
                 VStack(alignment: .leading, spacing: 6) {
                     Text(Engine.text(s["name"])).font(.inter(16, .semibold)).tracking(-0.3).lineLimit(1)
                     if goal > 0 {

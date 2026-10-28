@@ -214,7 +214,7 @@ struct ResumenView: View {
             let cat = e.categoryNames.contains(raw) ? raw : "Otros"
             Card(title: due ? "Gasto por confirmar" : "Próximo gasto") {
                 HStack(spacing: 12) {
-                    Tile(symbol: categorySymbol(cat), color: Color(hex: e.categoryColor(cat)))
+                    Tile(symbol: e.catSymbol(cat), color: Color(hex: e.categoryColor(cat)))
                     VStack(alignment: .leading, spacing: 2) {
                         Text(Engine.text(x["name"])).font(.inter(17, .semibold)).tracking(-0.3).lineLimit(1)
                         Text(expenseWhen(day: day, days: days, due: due)).font(.inter(14)).foregroundStyle(.secondary)
@@ -242,7 +242,7 @@ struct ResumenView: View {
             let hex = Engine.text(card["color"])
             Card(title: "Pago por confirmar") {
                 HStack(spacing: 12) {
-                    Tile(symbol: Engine.text(card["kind"]) == "loan" ? "banknote.fill" : "creditcard.fill", color: Color(hex: hex.isEmpty ? "#B98AE6" : hex))
+                    Tile(symbol: iconSymbol(Engine.text(card["icon"])) ?? (Engine.text(card["kind"]) == "loan" ? "banknote.fill" : "creditcard.fill"), color: Color(hex: hex.isEmpty ? "#B98AE6" : hex))
                     VStack(alignment: .leading, spacing: 2) {
                         Text(Engine.text(card["name"])).font(.inter(17, .semibold)).tracking(-0.3).lineLimit(1)
                         Text("día de pago " + (late <= 0 ? "hoy" : late == 1 ? "ayer" : "hace \(late) días")).font(.inter(14)).foregroundStyle(.secondary)
@@ -433,7 +433,7 @@ struct TransactionRow: View {
         if let date { sub += " · \(date.day) \(Spanish.monthsShort[date.month0])" }
         if many { sub += " · " + engine.accountName(tx["acc"]) }
         return HStack(spacing: 12) {
-            Tile(symbol: categorySymbol(shown), color: color)
+            Tile(symbol: engine.catSymbol(shown), color: color)
             VStack(alignment: .leading, spacing: 2) {
                 Text(note.isEmpty ? shown : note).font(.inter(16, .semibold)).tracking(-0.3).lineLimit(1)
                 Text(sub).font(.inter(13)).foregroundStyle(.secondary).lineLimit(1)
