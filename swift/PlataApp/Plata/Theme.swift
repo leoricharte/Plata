@@ -1,5 +1,6 @@
 import SwiftUI
 import CoreText
+import UIKit
 import PlataCore
 
 extension Color {
@@ -15,6 +16,13 @@ extension Color {
     }
 }
 
+extension Color {
+    /// Un color que cambia entre modo claro y oscuro.
+    init(light: String, dark: String) {
+        self.init(UIColor { $0.userInterfaceStyle == .dark ? UIColor(Color(hex: dark)) : UIColor(Color(hex: light)) })
+    }
+}
+
 /// Los colores de la marca, los mismos de la web.
 enum Brand {
     static let accent = Color(hex: "#22B573")
@@ -25,6 +33,12 @@ enum Brand {
     static let expenseBar = Color(hex: "#EDB03E")
     static let incomeBar = Color(hex: "#6D8BEA")
     static let track = Color(.tertiarySystemFill)
+    /// Texto verde de la web (`--gt`) y su fondo suave (`--gbg`).
+    static let gainText = Color(light: "#138A55", dark: "#34D08A")
+    static let gainTextStrong = Color(light: "#12784A", dark: "#4FE0A0")
+    static let gainBg = Color(light: "#E2F6EC", dark: "#12301F")
+    static let warnText = Color(light: "#8A5100", dark: "#FFB340")
+    static let lossText = Color(light: "#D70015", dark: "#FF6961")
 }
 
 // MARK: - Tipografía (Inter, la misma de la web)

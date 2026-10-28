@@ -22,15 +22,18 @@ struct ResumenView: View {
                 VStack(spacing: 14) {
                     topBar
                     titleBlock(e)
+                    idleBanner(e)
                     if !hasData(e) { startCard }
                     if model.isDemo { demoCard }
                     KPIGrid(items: kpis(e, c, f))
                     nextIncomeCard(e, f)
+                    nextExpenseCard(e, f)
+                    payCard(e)
+                    subscriptionsCard(e, f)
                     monthSection(e, c, f)
                     budgetCard(c, f)
                     expensesCard(c, f)
                     categoriesCard(c, f)
-                    gradeCard(e)
                     SectionHead("Cuentas")
                     accountsList(e, c, f)
                     SectionHead("Más")
@@ -181,7 +184,7 @@ struct ResumenView: View {
                         Text(whenText(day: day, days: days, pending: pending)).font(.inter(14)).foregroundStyle(.secondary)
                     }
                     Spacer(minLength: 8)
-                    Text(f.signed(next.amount, cur)).font(.inter(16, .semibold)).monospacedDigit().foregroundStyle(Brand.gain)
+                    Text("+" + f.whole(next.amount, cur)).font(.inter(16, .semibold)).monospacedDigit().foregroundStyle(Brand.gainText)
                 }
                 .padding(.top, 2)
             }
@@ -192,6 +195,105 @@ struct ResumenView: View {
         if pending { return days < 0 ? "esperado hace \(-days) \(days == -1 ? "día" : "días")" : "esperado hoy" }
         let label = Spanish.dateShort(day)
         return days > 0 ? "\(label) · en \(days) \(days == 1 ? "día" : "días")" : label
+    }
+
+    @ViewBuilder
+    private func idleBanner(_ e: Engine) -> some View {
+        if let gap = e.daysSinceLastTransaction(), gap >= 2 {
+            Button { model.showAddTransaction = true } label: {
+                HStack(spacing: 10) {
+                    Text("Llevas \(Spanish.plural(gap, "día", "días")) sin registrar movimientos")
+                        .font(.inter(14)).foregroundStyle(Brand.gainTextStrong).multilineTextAlignment(.leading)
+                    Spacer(minLength: 0)
+                    Text("Añadir").font(.inter(14, .semibold)).foregroundStyle(Brand.gainText)
+                }
+                .padding(.horizontal, 14).padding(.vertical, 10)
+                .background(Brand.gainBg, in: Capsule())
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    @ViewBuilder
+    private func nextExpenseCard(_ e: Engine, _ f: Fmt) -> some View {
+        if let x = e.nextExpense(), let day = LocalDate(iso: Engine.text(x["date"])) {
+            let due = e.pendingItems().contains { $0.kind == "out" }
+            let days = day.days - model.today.days
+            let cur = e.accountCurrency(x["acc"])
+            let raw = Engine.text(x["cat"])
+            let cat = e.categoryNames.contains(raw) ? raw : "Otros"
+            Card(title: due ? "Gasto por confirmar" : "Próximo gasto") {
+                HStack(spacing: 12) {
+                    Tile(symbol: categorySymbol(cat), color: Color(hex: e.categoryColor(cat)))
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(Engine.text(x["name"])).font(.inter(17, .semibold)).tracking(-0.3).lineLimit(1)
+                        Text(expenseWhen(day: day, days: days, due: due)).font(.inter(14)).foregroundStyle(.secondary)
+                    }
+                    Spacer(minLength: 8)
+                    Text("−" + f.whole(Engine.number(x["amount"]), cur)).font(.inter(16, .semibold)).monospacedDigit()
+                }
+                .padding(.top, 2)
+            }
+        }
+    }
+
+    private func expenseWhen(day: LocalDate, days: Int, due: Bool) -> String {
+        if due { return days < 0 ? "previsto hace \(-days) \(days == -1 ? "día" : "días")" : "previsto hoy" }
+        let label = Spanish.dateShort(day)
+        return days > 0 ? "\(label) · en \(days) \(days == 1 ? "día" : "días")" : label
+    }
+
+    @ViewBuilder
+    private func payCard(_ e: Engine) -> some View {
+        if let item = e.pendingItems().first(where: { $0.kind == "pay" }),
+           let card = e.allCards.first(where: { Engine.identifier($0["id"]) == item.id }),
+           let day = LocalDate(iso: item.date) {
+            let late = model.today.days - day.days
+            let hex = Engine.text(card["color"])
+            Card(title: "Pago por confirmar") {
+                HStack(spacing: 12) {
+                    Tile(symbol: Engine.text(card["kind"]) == "loan" ? "banknote.fill" : "creditcard.fill", color: Color(hex: hex.isEmpty ? "#B98AE6" : hex))
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(Engine.text(card["name"])).font(.inter(17, .semibold)).tracking(-0.3).lineLimit(1)
+                        Text("día de pago " + (late <= 0 ? "hoy" : late == 1 ? "ayer" : "hace \(late) días")).font(.inter(14)).foregroundStyle(.secondary)
+                    }
+                    Spacer(minLength: 0)
+                }
+                .padding(.top, 2)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func subscriptionsCard(_ e: Engine, _ f: Fmt) -> some View {
+        let events = e.upcomingSubscriptions()
+        if !events.isEmpty {
+            let subs = e.data["subs"]?.arrayValue ?? []
+            let colors = ["#B98AE6", "#6D8BEA", "#EDB03E", "#F08FB0", "#5CC8C0"]
+            Card(title: "Próximos servicios y suscripciones") {
+                VStack(spacing: 0) {
+                    ForEach(Array(events.enumerated()), id: \.offset) { i, ev in
+                        let idx = subs.firstIndex(where: { Engine.identifier($0["id"]) == (ev.srcId ?? "") })
+                        let sub = idx.map { subs[$0] }
+                        let dd = ev.date.days - model.today.days
+                        let accId = sub?["acc"]
+                        let accName: String = accId.map { e.accountName($0) } ?? ""
+                        HStack(spacing: 12) {
+                            LetterTile(letter: String(ev.name.prefix(1)), color: Color(hex: colors[(idx ?? 0) % colors.count]))
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(ev.name).font(.inter(17, .semibold)).tracking(-0.3).lineLimit(1)
+                                Text((dd <= 0 ? "hoy" : "\(Spanish.dateShort(ev.date)) · en \(Spanish.plural(dd, "día", "días"))") + (accName.isEmpty ? "" : " · " + accName))
+                                    .font(.inter(14)).foregroundStyle(.secondary).lineLimit(1)
+                            }
+                            Spacer(minLength: 8)
+                            Text("−" + f.whole(abs(ev.a0), ev.cur ?? f.currency)).font(.inter(16, .semibold)).monospacedDigit()
+                        }
+                        .padding(.top, i == 0 ? 2 : 10)
+                        .padding(.bottom, i == events.count - 1 ? 0 : 10)
+                    }
+                }
+            }
+        }
     }
 
     // MARK: movimientos del mes
@@ -208,7 +310,7 @@ struct ResumenView: View {
             let acc = Engine.identifier(tx["acc"])
             return !hidden.contains(acc.isEmpty ? firstAccount : acc)
         }
-        SectionHead(LocalizedStringKey(month.capitalized))
+        MonthHeader(month0: model.today.month0, year: model.today.year, hemi: Engine.text(e.data["settings"]?["hemi"]))
         ListCard {
             if rows.isEmpty {
                 Text("Aún sin movimientos en \(month)").font(.inter(15)).foregroundStyle(.secondary)
@@ -364,7 +466,7 @@ struct TransactionRow: View {
         let date = LocalDate(iso: Engine.text(tx["date"]))
         let many = engine.allAccounts.count + engine.allCards.count > 1
         var sub = isTransfer ? (amount < 0 ? "Salida" : "Entrada") : shown
-        if let date { sub += " · " + Spanish.dateShort(date) }
+        if let date { sub += " · \(date.day) \(Spanish.monthsShort[date.month0])" }
         if many { sub += " · " + engine.accountName(tx["acc"]) }
         return HStack(spacing: 12) {
             Tile(symbol: categorySymbol(shown), color: color)

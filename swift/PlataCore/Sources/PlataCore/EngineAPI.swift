@@ -49,3 +49,38 @@ public extension Engine {
         return s
     }
 }
+
+// Lo que muestra el Resumen además de lo que ya calcula `calc()`.
+public extension Engine {
+    /// El próximo gasto previsto (con las ediciones de Proyección aplicadas), el más cercano primero.
+    func nextExpense() -> JSONValue? {
+        let items = list("expected_expense").map { effItem("exp", $0) }
+        let sorted = Engine.stableSort(items) { (a: JSONValue, b: JSONValue) -> Int in
+            let da = Engine.str(a["date"]), db = Engine.str(b["date"])
+            return da < db ? -1 : (da > db ? 1 : 0)
+        }
+        return sorted.first
+    }
+
+    /// Los próximos cobros de suscripciones (hasta `limit`, dentro de `days` días), del más cercano al más lejano.
+    func upcomingSubscriptions(days: Int = 35, limit: Int = 3) -> [EngineEvent] {
+        let horizon = today.adding(days: days)
+        let subs = genEvents().filter { $0.type == "sub" && $0.date <= horizon }
+        let sorted = Engine.stableSort(subs) { (a: EngineEvent, b: EngineEvent) -> Int in
+            a.date < b.date ? -1 : (a.date > b.date ? 1 : 0)
+        }
+        return Array(sorted.prefix(limit))
+    }
+
+    /// Días desde el último movimiento registrado (hasta hoy); nil si no hay ninguno.
+    func daysSinceLastTransaction() -> Int? {
+        let t = today.iso
+        var last = ""
+        for tx in list("transactions") {
+            let d = Engine.str(tx["date"])
+            if d <= t && d > last { last = d }
+        }
+        guard !last.isEmpty, let day = LocalDate(iso: last) else { return nil }
+        return today.days - day.days
+    }
+}
