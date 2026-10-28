@@ -160,7 +160,9 @@ struct MonthHeader: View {
         let s2 = scheme == .dark ? g[1] : g[2]
         let name = Spanish.monthsFull[month0].capitalized
         HStack(spacing: 0) {
-            SeasonArt(season: season).frame(maxWidth: .infinity, alignment: .trailing).padding(.trailing, -8).clipped()
+            Color.clear.frame(maxWidth: .infinity, minHeight: 50)
+                .overlay(alignment: .trailing) { SeasonArt(season: season).padding(.trailing, -8) }
+                .clipped()
             VStack(spacing: 0) {
                 Text("\(season.name) \(String(year))").font(.inter(15, .semibold)).tracking(-0.1).foregroundStyle(s1)
                 Text(name)
@@ -168,16 +170,18 @@ struct MonthHeader: View {
                     .tracking(-1.4)
                     .foregroundStyle(LinearGradient(colors: [s1, s2], startPoint: .leading, endPoint: .trailing))
                     .lineLimit(1)
+                    .minimumScaleFactor(0.5)
                     .padding(.horizontal, 2).padding(.bottom, 4)
             }
-            .fixedSize(horizontal: true, vertical: false)
             .layoutPriority(1)
             .background {
                 RadialGradient(colors: [s1.opacity(0.2), .clear], center: .center, startRadius: 0, endRadius: 90)
                     .padding(.horizontal, -44).padding(.vertical, -14)
                     .allowsHitTesting(false)
             }
-            SeasonArt(season: season, right: true).frame(maxWidth: .infinity, alignment: .leading).padding(.leading, -8).clipped()
+            Color.clear.frame(maxWidth: .infinity, minHeight: 50)
+                .overlay(alignment: .leading) { SeasonArt(season: season, right: true).padding(.leading, -8) }
+                .clipped()
         }
         .padding(.top, 6).padding(.bottom, 12)
         .accessibilityElement(children: .combine)
