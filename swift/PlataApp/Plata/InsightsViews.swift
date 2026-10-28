@@ -285,8 +285,7 @@ struct InsightsView: View {
         }
     }
 
-    @ViewBuilder
-    private func changedCategories(_ e: Engine, _ f: Fmt, _ m: InsightsModel, _ isHalf: Bool) -> some View {
+    private func topChanges(_ e: Engine, _ m: InsightsModel) -> [CatChange] {
         var all: [CatChange] = []
         for k in e.categoryNames {
             let a: Double = m.cur.cat[k] ?? 0
@@ -294,7 +293,12 @@ struct InsightsView: View {
             if a > 0 || b > 0 { all.append(CatChange(name: k, now: a, before: b)) }
         }
         all.sort { (x: CatChange, y: CatChange) -> Bool in abs(x.now - x.before) > abs(y.now - y.before) }
-        let rows = Array(all.prefix(3))
+        return Array(all.prefix(3))
+    }
+
+    @ViewBuilder
+    private func changedCategories(_ e: Engine, _ f: Fmt, _ m: InsightsModel, _ isHalf: Bool) -> some View {
+        let rows = topChanges(e, m)
         if !isHalf, m.prev.n > 0, !rows.isEmpty {
             VStack(alignment: .leading, spacing: 8) {
                 SectionHead("Categorías que más cambiaron")
