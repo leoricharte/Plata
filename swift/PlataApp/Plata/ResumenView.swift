@@ -8,6 +8,7 @@ enum Route: Hashable {
     case tx(String)
     case ajustes
     case soon(String)
+    case profile
 }
 
 struct ResumenView: View {
@@ -26,7 +27,6 @@ struct ResumenView: View {
                     titleBlock(e)
                     idleBanner(e)
                     if !hasData(e) { startCard }
-                    if model.isDemo { demoCard }
                     KPIGrid(items: kpis(e, c, f))
                     nextIncomeCard(e, f)
                     nextExpenseCard(e, f)
@@ -53,6 +53,7 @@ struct ResumenView: View {
                 case .month: MonthView()
                 case .tx(let id): TransactionDetailView(id: id)
                 case .ajustes: AjustesView()
+                case .profile: ProfileSettingsView()
                 case .soon(let title): ComingSoonView(title: title)
                 }
             }
@@ -128,26 +129,6 @@ struct ResumenView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-    }
-
-    private var demoCard: some View {
-        Card {
-            HStack(spacing: 8) {
-                Circle().fill(Brand.accent).frame(width: 10, height: 10)
-                Text("Perfil de demostración").font(.inter(16, .semibold))
-            }
-            Text("Estás viendo datos de ejemplo. Tus datos reales siguen guardados aparte y vuelven cuando salgas del demo.")
-                .font(.inter(14)).foregroundStyle(.secondary)
-                .padding(.bottom, 4)
-            Button { try? model.exitDemo() } label: {
-                Text("Salir del demo")
-                    .font(.inter(15, .semibold))
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity, minHeight: 44)
-                    .background(Brand.accent, in: Capsule())
-            }
-            .buttonStyle(.plain)
-        }
     }
 
     // MARK: números

@@ -18,6 +18,11 @@ final class AppModel {
     /// Pantallas abiertas encima del Resumen (Movimientos, Ajustes…).
     var path: [Route] = []
     var showAddTransaction = false
+    /// Última vez que se guardó en el dispositivo (la web lo muestra bajo «Guardado»).
+    private(set) var lastSaved: Date? = {
+        let t = UserDefaults.standard.double(forKey: "plata.lastSaved")
+        return t > 0 ? Date(timeIntervalSince1970: t) : nil
+    }()
 
     @ObservationIgnored private let store: ProfileStore
     @ObservationIgnored private let stash: ProfileStore   // tus datos reales mientras ves un perfil de demostración
@@ -69,7 +74,7 @@ final class AppModel {
         profile = Profile(raw: raw)
         engine = Engine(profile: profile, today: today)
         changes += 1
-        do { try store.save(profile) } catch { errorMessage = "No se pudo guardar en el dispositivo: \(error.localizedDescription)" }
+        do { try store.save(profile); stampSaved() } catch { errorMessage = "No se pudo guardar en el dispositivo: \(error.localizedDescription)" }
     }
 
     func addTransaction(date: LocalDate, amount: Double, category: String, note: String, account: String) throws {
@@ -87,6 +92,25 @@ final class AppModel {
 
     func deleteTransaction(id: JSONValue) throws {
         try commit { raw in try ProfileEditor.deleteTransaction(&raw, id: id) }
+    }
+
+    private func stampSaved() {
+        let d = Date()
+        lastSaved = d
+        UserDefaults.standard.set(d.timeIntervalSince1970, forKey: "plata.lastSaved")
+    }
+
+    /// Oculta o vuelve a mostrar una cuenta o tarjeta (`hid`).
+    func setAccountHidden(id: String, hidden: Bool) {
+        try? commit { raw in
+            for key in ["accounts", "cards"] {
+                guard var list = raw[key]?.arrayValue else { continue }
+                for i in list.indices where Engine.identifier(list[i]["id"]) == id {
+                    list[i]["hid"] = hidden ? .bool(true) : nil
+                }
+                raw[key] = .array(list)
+            }
+        }
     }
 
     func setSetting(_ key: String, _ value: JSONValue) {
@@ -113,6 +137,7 @@ final class AppModel {
         engine = Engine(profile: profile, today: today)
         changes += 1
         try store.save(profile)
+        stampSaved()
     }
 
     // MARK: perfiles de demostración
@@ -141,6 +166,7 @@ final class AppModel {
         engine = Engine(profile: profile, today: today)
         changes += 1
         try store.save(profile)
+        stampSaved()
     }
 
     func resetProfile() throws {

@@ -221,8 +221,9 @@ struct GreenLink: View {
 
 /// La píldora oscura "B E T A".
 struct BetaPill: View {
+    var label: String = "B E T A"
     var body: some View {
-        Text("B E T A")
+        Text(label)
             .font(.inter(11, .bold))
             .foregroundStyle(.white)
             .padding(.horizontal, 10)
