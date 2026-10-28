@@ -163,29 +163,3 @@ struct CategoryDonut: View {
         }
     }
 }
-
-/// La letra de la nota del mes (S, A, B, C, D, F).
-struct GradeBadge: View {
-    let letter: String
-    var size: CGFloat = 56
-
-    static func color(_ letter: String) -> Color {
-        switch letter {
-        case "S": return Color(hex: "#C9A227")
-        case "A": return Color(hex: "#1A9D63")
-        case "B": return Color(hex: "#2AA6A0")
-        case "C": return Color(hex: "#E5A100")
-        case "D": return Color(hex: "#F07A28")
-        default: return Color(hex: "#E5322D")
-        }
-    }
-
-    var body: some View {
-        Text(letter)
-            .font(.system(size: size * 0.55, weight: .heavy, design: .rounded))
-            .foregroundStyle(.white)
-            .frame(width: size, height: size)
-            .background(GradeBadge.color(letter).gradient, in: RoundedRectangle(cornerRadius: size * 0.32, style: .continuous))
-            .accessibilityLabel("Nota \(letter)")
-    }
-}

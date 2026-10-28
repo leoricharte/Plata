@@ -4,6 +4,7 @@ import PlataCore
 /// Pantallas a las que se llega desde el Resumen.
 enum Route: Hashable {
     case movimientos
+    case month
     case ajustes
     case soon(String)
 }
@@ -48,6 +49,7 @@ struct ResumenView: View {
             .navigationDestination(for: Route.self) { route in
                 switch route {
                 case .movimientos: MovimientosView()
+                case .month: MonthView()
                 case .ajustes: AjustesView()
                 case .soon(let title): ComingSoonView(title: title)
                 }
@@ -159,7 +161,7 @@ struct ResumenView: View {
             .init(id: "balance", title: "Balance actual", value: f.whole(balance), detail: Spanish.plural(accounts.count, "cuenta", "cuentas"),
                   action: { model.tab = .cuentas }),
             .init(id: "income", title: "Ingresos del mes", value: f.whole(c.income), detail: Spanish.plural(c.incomeCount, "ingreso", "ingresos"),
-                  action: { model.path.append(.movimientos) }),
+                  action: { model.path.append(.month) }),
             .init(id: "saved", title: "Ahorro total", value: f.whole(c.saved), detail: Spanish.plural(goals, "meta", "metas"), link: "Ver ahorro",
                   action: { model.path.append(.soon("Ahorro")) }),
             .init(id: "debt", title: "Deuda total", value: f.whole(debt), detail: Spanish.plural(cards.count, "cuenta", "cuentas"), link: "Ver deuda",
@@ -328,7 +330,7 @@ struct ResumenView: View {
                 }
             }
             RowDivider()
-            NavigationLink(value: Route.movimientos) { MoreRow(title: LocalizedStringKey("Ver todo \(month)")) }
+            NavigationLink(value: Route.month) { MoreRow(title: LocalizedStringKey("Ver todo \(month)")) }
                 .buttonStyle(.plain)
         }
     }
@@ -385,33 +387,6 @@ struct ResumenView: View {
                 CategoryDonut(cats: c.cats, total: f.whole(c.expV), format: { f.whole($0) })
                     .padding(.top, 4)
             }
-        }
-    }
-
-    @ViewBuilder
-    private func gradeCard(_ e: Engine) -> some View {
-        if e.scoreEnabled && !e.allTransactions.isEmpty {
-            let m = e.insightsModel()
-            if m.hasPrev && e.insightsLocked(m) == nil {
-                Card(title: "Tu nota del mes") {
-                    HStack(spacing: 14) {
-                        GradeBadge(letter: m.letter)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("\(m.score) de 100").font(.inter(17, .semibold))
-                            Text(streakText(m)).font(.inter(15)).foregroundStyle(.secondary)
-                        }
-                        Spacer()
-                    }
-                }
-            }
-        }
-    }
-
-    private func streakText(_ m: InsightsModel) -> String {
-        switch m.plus {
-        case .diamond: return "Diamante · \(m.streak) meses seguidos"
-        case .plus: return "\(m.letter)\(m.letter == "D" || m.letter == "F" ? "−" : "+") · \(m.streak) meses seguidos"
-        case .none: return m.hasPrev ? "Va como \(m.letter) este mes" : ""
         }
     }
 
