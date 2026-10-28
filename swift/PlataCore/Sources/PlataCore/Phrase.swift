@@ -11,7 +11,7 @@ public enum Phrase {
     }()
 
     private static func checksum(_ seed: Data) -> Int {
-        Int(SHA256.hash(data: seed).first! >> 4)
+        Int(Array(SHA256.hash(data: seed))[0] >> 4)
     }
 
     public static func words(for seed: Data) -> [String] {
