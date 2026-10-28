@@ -171,7 +171,7 @@ struct PresupuestoView: View {
             Text("\(f.exact(c.subsTotal * 12)) al año").font(.inter(15)).foregroundStyle(.secondary).padding(.bottom, 4)
             ForEach(Array(subs.enumerated()), id: \.offset) { i, s in
                 RowDivider()
-                Button { soon = true } label: {
+                Button { model.activeSheet = .sub(id: Engine.identifier(s["id"])) } label: {
                     HStack(spacing: 12) {
                         LetterTile(letter: String(Engine.text(s["name"]).prefix(1)), color: Color(hex: Self.subColors[i % Self.subColors.count]))
                         VStack(alignment: .leading, spacing: 2) {
@@ -188,15 +188,15 @@ struct PresupuestoView: View {
                 .buttonStyle(.plain)
             }
             RowDivider()
-            addRow("Añadir servicio o suscripción")
+            addRow("Añadir servicio o suscripción") { model.activeSheet = .sub(id: nil) }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(18)
         .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 26, style: .continuous))
     }
 
-    private func addRow(_ title: LocalizedStringKey) -> some View {
-        Button { soon = true } label: {
+    private func addRow(_ title: LocalizedStringKey, _ action: (() -> Void)? = nil) -> some View {
+        Button { if let action { action() } else { soon = true } } label: {
             HStack(spacing: 10) {
                 Image(systemName: "plus.circle").font(.system(size: 22))
                 Text(title).font(.inter(17))

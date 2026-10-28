@@ -24,6 +24,9 @@ struct RootView: View {
             case .planned(let id): PlannedSheet(id: id)
             case .saving(let id): SavingSheet(id: id)
             case .contrib: ContribSheet()
+            case .account(let id): AccountSheet(id: id)
+            case .debt(let id): DebtSheet(id: id)
+            case .sub(let id): SubSheet(id: id)
             }
         }
         .tint(Brand.accent)

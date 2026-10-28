@@ -117,7 +117,7 @@ public enum ProfileEditor {
 // MARK: - Transferencias e ingresos / gastos previstos
 
 public extension ProfileEditor {
-    enum FormError: Error, Equatable { case missingName, invalidAmount, invalidDays, endBeforeStart, sameAccount, invalidHours, missingStart, missingCard }
+    enum FormError: Error, Equatable { case missingName, invalidAmount, invalidDays, endBeforeStart, sameAccount, invalidHours, missingStart, missingCard, invalidDueDay, negativeInterest, overLimit, lastAccount }
 
     /// Transferencia entre cuentas (`xferSubmit` de la web): dos movimientos con el mismo `pair`, y una comisión opcional.
     static func addTransfer(_ p: inout JSONValue, from: String, to: String, amount: Double, received: Double, commission: Double,
@@ -324,5 +324,105 @@ public extension ProfileEditor {
         log.append(.object(["date": .string(date), "amount": .number(amount)]))
         list[i]["log"] = .array(log)
         p["savings"] = .array(list)
+    }
+
+    // MARK: cuentas, tarjetas y suscripciones
+
+    private static func upsert(_ p: inout JSONValue, _ coll: String, _ o: JSONValue) {
+        var list = p[coll]?.arrayValue ?? []
+        if let i = list.firstIndex(where: { $0["id"] == o["id"] }) { list[i] = o } else { list.append(o) }
+        p[coll] = .array(list)
+    }
+
+    private static func digits4(_ v: JSONValue?) -> String { String(Engine.str(v).filter { $0.isNumber }.prefix(4)) }
+
+    static func saveAccount(_ p: inout JSONValue, item: JSONValue) throws {
+        var o = item
+        let name = Engine.str(o["name"]).trimmingCharacters(in: .whitespacesAndNewlines)
+        if name.isEmpty { throw FormError.missingName }
+        o["name"] = .string(name)
+        o["last4"] = .string(digits4(o["last4"]))
+        if Engine.str(o["type"]) == "cash" { o["last4"] = .string(""); o["apy"] = .number(0) }
+        upsert(&p, "accounts", o)
+    }
+
+    static func saveDebt(_ p: inout JSONValue, item: JSONValue) throws {
+        var o = item
+        let name = Engine.str(o["name"]).trimmingCharacters(in: .whitespacesAndNewlines)
+        if name.isEmpty { throw FormError.missingName }
+        o["name"] = .string(name)
+        o["last4"] = .string(digits4(o["last4"]))
+        let dd = Int(Engine.num(o["due_day"]).rounded())
+        guard dd >= 0, dd <= 31 else { throw FormError.invalidDueDay }
+        o["due_day"] = .number(Double(dd))
+        guard Engine.num(o["apr"]) >= 0 else { throw FormError.negativeInterest }
+        let isCard = Engine.str(o["kind"]) == "card"
+        let limit = Engine.num(o["limit"]), bal = Engine.num(o["balance"])
+        if isCard && limit > 0 && bal > limit { throw FormError.overLimit }
+        if !isCard { o["limit"] = .number(0) }
+        upsert(&p, "cards", o)
+    }
+
+    static func saveSub(_ p: inout JSONValue, item: JSONValue) throws {
+        var o = item
+        let name = Engine.str(o["name"]).trimmingCharacters(in: .whitespacesAndNewlines)
+        if name.isEmpty { throw FormError.missingName }
+        guard abs(Engine.num(o["amount"])) > 0 else { throw FormError.invalidAmount }
+        o["name"] = .string(name)
+        o["day"] = .number(Double(max(1, min(31, Int(Engine.num(o["day"]).rounded()) == 0 ? 1 : Int(Engine.num(o["day"]).rounded())))))
+        upsert(&p, "subs", o)
+    }
+
+    static func deleteSub(_ p: inout JSONValue, id: JSONValue) {
+        var list = p["subs"]?.arrayValue ?? []
+        list.removeAll { $0["id"] == id }
+        p["subs"] = .array(list)
+    }
+
+    /// Lo que depende de una cuenta o tarjeta: cantidad de movimientos y los textos de lo que está ligado (`delLinks`).
+    static func accountLinks(_ p: JSONValue, id: JSONValue) -> (transactions: Int, links: [String]) {
+        let n = (p["transactions"]?.arrayValue ?? []).filter { $0["acc"] == id }.count
+        var l: [String] = []
+        func c(_ n: Int, _ one: String, _ many: String) { if n > 0 { l.append("\(n) \(n == 1 ? one : many)") } }
+        c((p["jobs"]?.arrayValue ?? []).filter { $0["acc"] == id }.count, "trabajo", "trabajos")
+        c((p["subs"]?.arrayValue ?? []).filter { $0["acc"] == id }.count, "suscripción", "suscripciones")
+        let ei = (p["expected_income"]?.arrayValue ?? []).filter { $0["acc"] == id && Engine.str($0["job"]).isEmpty }.count
+        let ee = (p["expected_expense"]?.arrayValue ?? []).filter { $0["acc"] == id || $0["card"] == id }.count
+        c(ei + ee, "movimiento previsto", "movimientos previstos")
+        c((p["cards"]?.arrayValue ?? []).filter { $0["auto"]?["from"] == id }.count, "pago esperado", "pagos esperados")
+        return (n, l)
+    }
+
+    /// Elimina una cuenta o tarjeta y todo lo que dependía de ella (`delCascade`).
+    static func deleteAccountCascade(_ p: inout JSONValue, id: JSONValue) throws {
+        let isAccount = (p["accounts"]?.arrayValue ?? []).contains { $0["id"] == id }
+        if isAccount, (p["accounts"]?.arrayValue ?? []).count < 2 { throw FormError.lastAccount }
+        let gone = (p["transactions"]?.arrayValue ?? []).filter { $0["acc"] == id }
+        let pairs = Set(gone.compactMap { Engine.str($0["pair"]).isEmpty ? nil : Engine.str($0["pair"]) })
+        var tx = (p["transactions"]?.arrayValue ?? []).filter { $0["acc"] != id }
+        for i in tx.indices where pairs.contains(Engine.str(tx[i]["pair"])) { tx[i]["pair"] = nil }
+        p["transactions"] = .array(tx)
+        for coll in ["accounts", "cards"] {
+            var list = p[coll]?.arrayValue ?? []
+            list.removeAll { $0["id"] == id }
+            p[coll] = .array(list)
+        }
+        let fb = (p["accounts"]?.arrayValue ?? []).first?["id"] ?? .string("")
+        func fix(_ coll: String, _ field: String, _ to: JSONValue) {
+            var l = p[coll]?.arrayValue ?? []
+            for i in l.indices where l[i][field] == id { l[i][field] = to }
+            p[coll] = .array(l)
+        }
+        fix("jobs", "acc", fb); fix("subs", "acc", .string("")); fix("expected_income", "acc", fb)
+        var ee = (p["expected_expense"]?.arrayValue ?? []).filter { $0["card"] != id }
+        for i in ee.indices where ee[i]["acc"] == id { ee[i]["acc"] = fb }
+        p["expected_expense"] = .array(ee)
+        var pl = (p["planned"]?.arrayValue ?? []).filter { $0["card"] != id }
+        for i in pl.indices where pl[i]["acc"] == id { pl[i]["acc"] = fb }
+        p["planned"] = .array(pl)
+        var cards = p["cards"]?.arrayValue ?? []
+        for i in cards.indices where cards[i]["auto"]?["from"] == id { cards[i]["auto"]?["from"] = .string("") }
+        p["cards"] = .array(cards)
+        syncJobs(&p, newId: "")
     }
 }

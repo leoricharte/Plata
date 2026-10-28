@@ -195,6 +195,12 @@ final class AppModel {
         try commit { raw in try ProfileEditor.contribute(&raw, savingId: savingId, amount: amount, date: day) }
     }
 
+    func saveAccount(_ item: JSONValue) throws { try commit { raw in try ProfileEditor.saveAccount(&raw, item: item) } }
+    func saveDebt(_ item: JSONValue) throws { try commit { raw in try ProfileEditor.saveDebt(&raw, item: item) } }
+    func saveSub(_ item: JSONValue) throws { try commit { raw in try ProfileEditor.saveSub(&raw, item: item) } }
+    func deleteSub(id: JSONValue) throws { try commit { raw in ProfileEditor.deleteSub(&raw, id: id) } }
+    func deleteAccountCascade(id: JSONValue) throws { try commit { raw in try ProfileEditor.deleteAccountCascade(&raw, id: id) } }
+
     func setSetting(_ key: String, _ value: JSONValue) {
         let old = profile.raw["settings"]?[key]
         if old == value { return }
@@ -310,6 +316,9 @@ enum ActiveSheet: Identifiable, Hashable {
     case planned(id: String?)
     case saving(id: String?)
     case contrib
+    case account(id: String?)
+    case debt(id: String?)
+    case sub(id: String?)
 
     var id: String {
         switch self {
@@ -319,6 +328,9 @@ enum ActiveSheet: Identifiable, Hashable {
         case .planned(let id): return "planned-\(id ?? "new")"
         case .saving(let id): return "saving-\(id ?? "new")"
         case .contrib: return "contrib"
+        case .account(let id): return "account-\(id ?? "new")"
+        case .debt(let id): return "debt-\(id ?? "new")"
+        case .sub(let id): return "sub-\(id ?? "new")"
         }
     }
 }

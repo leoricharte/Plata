@@ -101,8 +101,8 @@ struct CuentasView: View {
         .padding(.horizontal, 4).padding(.top, 6).padding(.bottom, 12)
     }
 
-    private func addRow(_ title: LocalizedStringKey) -> some View {
-        Button { soon = true } label: {
+    private func addRow(_ title: LocalizedStringKey, _ action: (() -> Void)? = nil) -> some View {
+        Button { if let action { action() } else { soon = true } } label: {
             HStack(spacing: 10) {
                 Image(systemName: "plus.circle").font(.system(size: 22))
                 Text(title).font(.inter(17))
@@ -185,7 +185,7 @@ struct CuentasView: View {
                 if i > 0 { RowDivider() }
                 let cur = Engine.text(a["cur"])
                 let sub = debitSub(a, f)
-                Button { soon = true } label: {
+                Button { model.activeSheet = .account(id: Engine.identifier(a["id"])) } label: {
                     HStack(spacing: 12) {
                         tile(a, index: i, debt: false, color: nil)
                         VStack(alignment: .leading, spacing: 2) {
@@ -204,7 +204,7 @@ struct CuentasView: View {
                 .buttonStyle(.plain)
             }
             if !list.isEmpty { RowDivider() }
-            addRow("Añadir cuenta de débito")
+            addRow("Añadir cuenta de débito") { model.activeSheet = .account(id: nil) }
         }
         .padding(.bottom, 14)
     }
@@ -218,7 +218,7 @@ struct CuentasView: View {
                 creditRow(e, f, k, i, calc[Engine.identifier(k["id"])])
             }
             RowDivider()
-            addRow("Añadir tarjeta o préstamo")
+            addRow("Añadir tarjeta o préstamo") { model.activeSheet = .debt(id: nil) }
         }
         .padding(.bottom, 14)
     }
@@ -235,7 +235,7 @@ struct CuentasView: View {
             if bal > 0 { parts.append("≈ \(f.exact(bal * apr / 1200, cur))/mes") }
         }
         if Engine.number(k["due_day"]) > 0 { parts.append("pago día \(Int(Engine.number(k["due_day"])))") }
-        return Button { soon = true } label: {
+        return Button { model.activeSheet = .debt(id: Engine.identifier(k["id"])) } label: {
             HStack(spacing: 12) {
                 tile(k, index: i, debt: true, color: color)
                 VStack(alignment: .leading, spacing: 0) {

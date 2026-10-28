@@ -277,3 +277,32 @@ struct OptionalDateRow: View {
         }
     }
 }
+
+/// Monedas disponibles en el perfil: la principal primero, luego las de tus cuentas y tarjetas.
+func profileCurrencies(_ e: Engine, including extra: String = "") -> [String] {
+    var out: [String] = [e.primaryCurrency]
+    for a in e.allAccounts + e.allCards { let c = Engine.text(a["cur"]); if !c.isEmpty && !out.contains(c) { out.append(c) } }
+    if !extra.isEmpty && !out.contains(extra) { out.append(extra) }
+    return out
+}
+
+/// Elegir el color de una cuenta o tarjeta (`SWATCH` de la web).
+struct SwatchRow: View {
+    @Binding var color: String
+    static let colors = ["#B98AE6", "#6D8BEA", "#5CC8C0", "#22B573", "#EDB03E", "#FF9F0A", "#F08FB0", "#FF453A", "#8E8E93", "#1C1C1E"]
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 12) {
+                ForEach(Self.colors, id: \.self) { c in
+                    Button { color = c } label: {
+                        Circle().fill(Color(hex: c)).frame(width: 32, height: 32)
+                            .overlay(Circle().strokeBorder(Color.primary, lineWidth: color == c ? 3 : 0).padding(-4))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, 6).padding(.vertical, 8)
+        }
+        .scrollClipDisabled()
+    }
+}
