@@ -531,7 +531,9 @@ final class AppModel {
         let migrated = try Migration.migrate(incoming)
         stamper = SyncStamper()                       // perfil nuevo: se vuelve a tomar la foto, como en la web
         var raw = migrated.raw
-        stamper.stamp(&raw, now: Date().timeIntervalSince1970 * 1000)
+        let now = Date().timeIntervalSince1970 * 1000
+        stamper.stamp(&raw, now: now)
+        SyncStamper.markLoaded(&raw, now: now)        // lo que cargas a propósito gana sobre borrados viejos de la nube
         profile = Profile(raw: raw)
         engine = Engine(profile: profile, today: today)
         Self.syncTrNames(engine)

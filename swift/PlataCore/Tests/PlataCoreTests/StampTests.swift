@@ -39,4 +39,23 @@ final class StampTests: XCTestCase {
         XCTAssertEqual(p["tomb"]!.arrayValue!.count, 1)
         XCTAssertEqual(p["tomb"]!.arrayValue![0]["t"], .number(3000))
     }
+
+    /// Cargar un archivo a propósito gana sobre una lápida más nueva que la última edición de una cuenta del archivo (caso Chime).
+    func testLoadedFileWinsOverNewerTombstone() throws {
+        var file: JSONValue = .object([
+            "accounts": .array([.object(["id": .string("bank"), "name": .string("Chime"), "balance": .number(10), "mod": .number(100)])]),
+            "tomb": .array([.object(["c": .string("accounts"), "id": .string("bank"), "t": .number(500)])]),
+        ])
+        let remote: JSONValue = .object([
+            "accounts": .array([]),
+            "tomb": .array([.object(["c": .string("accounts"), "id": .string("bank"), "t": .number(500)])]),
+        ])
+        // sin la corrección, la lápida (500) es más nueva que la edición (100) y la cuenta se descarta
+        let before = Merge.profiles(base: nil, local: file, remote: remote, now: 1000)
+        XCTAssertTrue((before["accounts"]?.arrayValue ?? []).isEmpty)
+        SyncStamper.markLoaded(&file, now: 900)
+        XCTAssertTrue((file["tomb"]?.arrayValue ?? []).isEmpty)
+        let after = Merge.profiles(base: nil, local: file, remote: remote, now: 1000)
+        XCTAssertEqual((after["accounts"]?.arrayValue ?? []).count, 1)
+    }
 }

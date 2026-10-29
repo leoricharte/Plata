@@ -37,6 +37,30 @@ public final class SyncStamper {
         return String(decoding: data, as: UTF8.self)
     }
 
+    /// Un archivo de perfil que la persona carga a propósito reemplaza lo que hay: todo lo que trae cuenta como editado ahora y
+    /// se quitan las lápidas de lo que contiene. Sin esto, una lápida más nueva que la última edición de un elemento del archivo
+    /// (p. ej. una cuenta borrada en otro momento) lo descartaba al combinar con la nube, aunque nadie lo hubiera borrado a la vez.
+    public static func markLoaded(_ profile: inout JSONValue, now: Double) {
+        guard case .object(var d) = profile else { return }
+        var present = Set<String>()
+        for col in collections {
+            guard case .array(var list)? = d[col] else { continue }
+            for i in list.indices {
+                guard case .object(var it) = list[i], let idv = it["id"], !idv.isNull else { continue }
+                it["mod"] = .number(now)
+                present.insert(col + "|" + JS.string(idv))
+                list[i] = .object(it)
+            }
+            d[col] = .array(list)
+        }
+        let tomb = (d["tomb"]?.arrayValue ?? []).filter { x in
+            guard let c = x["c"]?.stringValue, let id = x["id"] else { return true }
+            return !present.contains(c + "|" + JS.string(id))
+        }
+        d["tomb"] = .array(tomb)
+        profile = .object(d)
+    }
+
     /// Sella `profile` con la hora `now` (milisegundos desde 1970, como `Date.now()`).
     public func stamp(_ profile: inout JSONValue, now: Double) {
         guard case .object(var d) = profile else { return }
