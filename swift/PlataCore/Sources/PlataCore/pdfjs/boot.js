@@ -1,5 +1,13 @@
 /* Arranque de la página interna de lectura de PDF (solo iOS; no existe en la web).
    El worker de pdf.js corre en el hilo principal de esta página (globalThis.pdfjsWorker): así no hace falta crear un Worker desde un esquema propio. */
+/* WebKit (iPhone) no trae el iterador asíncrono de ReadableStream que pdf.js usa para leer el texto de la página: se añade aquí, antes de cargar pdf.js. */
+if (typeof ReadableStream !== 'undefined' && !ReadableStream.prototype[Symbol.asyncIterator]) {
+  ReadableStream.prototype[Symbol.asyncIterator] = ReadableStream.prototype.values = async function* () {
+    const reader = this.getReader();
+    try { for (;;) { const { done, value } = await reader.read(); if (done) return; yield value; } }
+    finally { reader.releaseLock(); }
+  };
+}
 try {
   window.NazcaPDF = NazcaPDF;   // viene de nazca-pdf.js, el mismo archivo que usa la web
   const W = await import('./pdf.worker.mjs');
