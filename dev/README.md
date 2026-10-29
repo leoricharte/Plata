@@ -20,7 +20,7 @@ CHANNEL=alpha python3 dev/app/build.py   # variante con icono blanco
 `dev/app/src/` contiene:
 
 - `app.html`: la app (HTML + CSS + JS). Todo el código está aquí.
-- `tr/*.json`: traducciones, una fila por frase: `["es","en","ja","it","fr","hr"]`. Una frase nueva en la app se agrega aquí en los 6 idiomas.
+- `tr/*.json`: traducciones, una fila por frase: `["es","en","ja","it","fr","hr"]` + una 7.ª posición opcional con una nota para quien traduce (no entra a la app). Guía general en `tr/_guia.json`; `build.py` avisa si los marcadores `{0}` no coinciden entre idiomas. Una frase nueva en la app se agrega aquí en los 6 idiomas.
 - `i18n*.js`, `icons_rmx.js` (Remix Icon, Apache-2.0), `icons_sf.js`, `demo_profiles.js`, `worldmap.js`.
 - `../assets/`: la fuente Inter (la app); el sitio sirve Inter desde `fonts/` en la raíz, la fuente de números de tarjeta y los iconos. Se incrustan en el archivo final.
 

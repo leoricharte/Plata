@@ -12,11 +12,18 @@ b64 = lambda p: base64.b64encode(p.read_bytes()).decode()
 
 html = (src / "app.html").read_text(encoding="utf-8")
 rows = []
-for f in sorted((src / "tr").glob("*.json")):  # cada fila: [es, en, ja, it, fr, hr]
-    for r in json.loads(f.read_text(encoding="utf-8")):
-        r = [str(x).strip() for x in r]
+import re as _re
+_ph = lambda t: sorted(_re.findall(r"\{\d+\}|<[^>]+>", t))
+for f in sorted((src / "tr").glob("*.json")):  # cada fila: [es, en, ja, it, fr, hr] y, opcional, una 7.ª con la nota para quien traduce (no entra a la app)
+    data = json.loads(f.read_text(encoding="utf-8"))
+    if not isinstance(data, list): continue  # _guia.json: instrucciones, no traducciones
+    for r in data:
+        if not isinstance(r, list): continue  # {"nota": "..."}: comentario suelto
+        r = [str(x).strip() for x in r[:6]]
         if len(r) < 6: r += [""] * (6 - len(r))
-        rows.append(r[:6])
+        for k in range(1, 6):  # aviso (no rompe): marcadores {0} o etiquetas que no coinciden con el español
+            if r[k] and _ph(r[k]) != _ph(r[0]): print("AVISO traducción: marcadores distintos en %s (col %d): %s" % (f.name, k + 1, r[0][:50]))
+        rows.append(r)
 i18n = (src / "i18n.js").read_text(encoding="utf-8").replace("__TR_DATA__", json.dumps(rows, ensure_ascii=False))
 i18n += "\n" + (src / "i18n_phr.js").read_text(encoding="utf-8") + "\n" + (src / "i18n_demo.js").read_text(encoding="utf-8")
 html = html.replace("__BUILD__", re.search(r"const APP_BUILD = (\d+)", html).group(1))  # el número de la pantalla de inicio sale de APP_BUILD
