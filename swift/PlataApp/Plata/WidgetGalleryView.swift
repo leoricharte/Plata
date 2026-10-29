@@ -31,7 +31,7 @@ struct WidgetsSheet: View {
                         Text("Los widgets podrían volverse una función premium en el futuro.").font(.inter(14)).foregroundStyle(.secondary)
                     }
                     .padding(12).frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .plataGlass(in: RoundedRectangle(cornerRadius: 16, style: .continuous))
                     .padding(.top, 12)
 
                     SectionHead("Mi galería").padding(.top, 24)
@@ -59,7 +59,7 @@ struct WidgetsSheet: View {
                 }
                 .padding(.horizontal, 16).padding(.bottom, 30)
             }
-            .background(Color(.systemGroupedBackground))
+            .plataBackground()
             .navigationTitle("Widgets")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("Cerrar") { dismiss() } } }
@@ -159,7 +159,7 @@ struct BentoBuilder: View {
             Button(page == 2 ? "Guardar en mi galería" : "Siguiente") { next() }
                 .buttonStyle(PrimaryPillStyle()).disabled(!canNext).padding(.horizontal, 20).padding(.bottom, 12)
         }
-        .background(Color(.systemGroupedBackground).ignoresSafeArea())
+        .plataBackground()
         .onAppear {
             if let e = editing { size = e.size; pieces = e.pieces; name = e.name }
         }
@@ -200,7 +200,7 @@ struct BentoBuilder: View {
                         Spacer()
                         Image(systemName: size == s ? "checkmark.circle.fill" : "circle").font(.system(size: 22)).foregroundStyle(size == s ? Brand.accent : Color.secondary.opacity(0.5))
                     }
-                    .padding(14).background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .padding(14).plataGlass(in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                 }
                 .buttonStyle(.plain)
             }
@@ -231,7 +231,7 @@ struct BentoBuilder: View {
                         if on, let i = pieces.firstIndex(of: p), size != .small { Text("\(i + 1)").font(.inter(13, .bold)).foregroundStyle(.white).frame(width: 24, height: 24).background(Brand.accent, in: Circle()) }
                         else { Image(systemName: on ? "checkmark.circle.fill" : "circle").font(.system(size: 22)).foregroundStyle(on ? Brand.accent : Color.secondary.opacity(0.5)) }
                     }
-                    .padding(12).background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .padding(12).plataGlass(in: RoundedRectangle(cornerRadius: 16, style: .continuous))
                     .opacity(!on && full && size != .small ? 0.45 : 1)
                 }
                 .buttonStyle(.plain)
@@ -246,7 +246,7 @@ struct BentoBuilder: View {
             canvas().padding(.vertical, 6)
             TextField("Nombre del bento", text: $name)
                 .font(.inter(17)).padding(14)
-                .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .plataGlass(in: RoundedRectangle(cornerRadius: 14, style: .continuous))
         }
     }
 }

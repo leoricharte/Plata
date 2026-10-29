@@ -46,7 +46,7 @@ struct WelcomeView: View {
         }
         .padding(.horizontal, 20)
         .padding(.bottom, 18)
-        .background(Color(.systemGroupedBackground).ignoresSafeArea())
+        .plataBackground()
         .fileImporter(isPresented: $importing, allowedContentTypes: [.json]) { result in
             guard case .success(let url) = result else { return }
             let scoped = url.startAccessingSecurityScopedResource()
@@ -163,7 +163,7 @@ struct WelcomeView: View {
                 } label: {
                     Image(systemName: "ellipsis").font(.system(size: 22, weight: .bold)).foregroundStyle(Color(hex: "#1C1C1E"))
                         .frame(width: 54, height: 54)
-                        .background(Color(.secondarySystemGroupedBackground), in: Circle())
+                        .plataGlass(in: Circle())
                         .overlay(Circle().stroke(Color.primary.opacity(0.14), lineWidth: 1))
                         .shadow(color: .black.opacity(0.06), radius: 4, y: 2)
                 }
@@ -234,7 +234,7 @@ struct WelcomeView: View {
                             }
                             .foregroundStyle(.primary)
                             .padding(16)
-                            .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+                            .plataGlass(in: RoundedRectangle(cornerRadius: 22, style: .continuous))
                         }
                         .buttonStyle(.plain)
                     }
@@ -285,7 +285,7 @@ struct WelcomeView: View {
             }
             .foregroundStyle(.primary)
             .padding(16)
-            .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .plataGlass(in: RoundedRectangle(cornerRadius: 22, style: .continuous))
         }
         .buttonStyle(.plain)
         .padding(.bottom, 10)
@@ -394,7 +394,7 @@ struct WelcomeCloudCard: View {
             }
             .padding(.horizontal, 24).padding(.bottom, 20)
         }
-        .background(Color(.systemGroupedBackground).ignoresSafeArea())
+        .plataBackground()
     }
 
     private func item(_ n: String, _ t: String) -> some View {

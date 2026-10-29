@@ -85,7 +85,7 @@ struct SCard<Content: View>: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 16)
             .padding(.vertical, 4)
-            .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .plataGlass(in: RoundedRectangle(cornerRadius: 22, style: .continuous))
             .padding(.top, 6)
             .padding(.bottom, 14)
     }
@@ -194,7 +194,7 @@ struct SecondaryPillStyle: ButtonStyle {
             .foregroundStyle(destructive ? Brand.lossText : Color.primary)
             .frame(maxWidth: .infinity)
             .frame(height: 50)
-            .background(Color(.secondarySystemGroupedBackground), in: Capsule())
+            .plataGlass(in: Capsule())
             .overlay(Capsule().strokeBorder(Color(.separator).opacity(0.5), lineWidth: 1))
             .opacity(configuration.isPressed ? 0.75 : 1)
     }

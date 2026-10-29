@@ -63,7 +63,7 @@ struct ReviewView: View {
                             .font(.inter(15, .semibold)).foregroundStyle(Brand.green)
                     }
                     .padding(.horizontal, 16).padding(.vertical, 12)
-                    .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+                    .plataGlass(in: RoundedRectangle(cornerRadius: 22, style: .continuous))
                     .padding(.horizontal, 16).padding(.bottom, 12)
                 }
                 if cards.isEmpty {
@@ -72,7 +72,7 @@ struct ReviewView: View {
                         Text("Plata no encontró movimientos que parezcan mal clasificados.").font(.inter(13.5)).foregroundStyle(.secondary).multilineTextAlignment(.center)
                     }
                     .frame(maxWidth: .infinity).padding(.vertical, 22).padding(.horizontal, 16)
-                    .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+                    .plataGlass(in: RoundedRectangle(cornerRadius: 22, style: .continuous))
                     .padding(.horizontal, 16).padding(.bottom, 12)
                 } else if let sel {
                     ScrollView(.horizontal, showsIndicators: false) {
@@ -179,7 +179,7 @@ struct ReviewView: View {
         }
         .padding(22)
         .frame(minHeight: 380, alignment: .top)
-        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 28, style: .continuous))
+        .plataGlass(in: RoundedRectangle(cornerRadius: 28, style: .continuous))
     }
 
     private func accept(_ r: ReviewCard, _ byId: [String: JSONValue]) {

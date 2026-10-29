@@ -46,7 +46,7 @@ struct InsightsBanner: View {
             Text("Vuelve a revisar en \(left).").font(.inter(15, .semibold)).padding(.top, 10)
         }
         .frame(maxWidth: .infinity).padding(18)
-        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 26, style: .continuous))
+        .plataGlass(in: RoundedRectangle(cornerRadius: 26, style: .continuous))
     }
 
     private func closeBanner(_ e: Engine, _ m: InsightsModel, _ label: String) -> some View {
@@ -64,7 +64,7 @@ struct InsightsBanner: View {
                 } else { Spacer().frame(height: 8) }
                 Text("Ver informe").font(.inter(17, .semibold)).foregroundStyle(g[1])
                     .frame(maxWidth: .infinity).frame(height: 50)
-                    .background(Color(.secondarySystemGroupedBackground), in: Capsule())
+                    .plataGlass(in: Capsule())
             }
             .foregroundStyle(.white)
             .padding(18).frame(maxWidth: .infinity)
@@ -98,7 +98,7 @@ struct InsightsBanner: View {
                     .background(LinearGradient(colors: [Color(hex: "#2C2C2E"), Color(hex: "#0B0B0C")], startPoint: .top, endPoint: .bottom), in: Capsule())
             }
             .padding(.horizontal, 16).padding(.vertical, 14)
-            .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .plataGlass(in: RoundedRectangle(cornerRadius: 24, style: .continuous))
         }
         .buttonStyle(.plain)
     }
@@ -140,7 +140,7 @@ struct InsightsView: View {
             .padding(.horizontal, 16).padding(.bottom, 24)
         }
         .syncRefresh()
-        .background(Color(.systemGroupedBackground))
+        .plataBackground()
         .navigationBarTitleDisplayMode(.inline)
     }
 

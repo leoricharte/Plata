@@ -33,7 +33,7 @@ struct KPIGrid: View {
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                     .padding(16)
-                    .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 26, style: .continuous))
+                    .plataGlass(in: RoundedRectangle(cornerRadius: 26, style: .continuous))
                 }
                 .buttonStyle(.plain)
             }

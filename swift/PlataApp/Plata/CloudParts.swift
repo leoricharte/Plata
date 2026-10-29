@@ -329,7 +329,7 @@ struct CloudStrip: View {
                 .accessibilityLabel("Cerrar")
         }
         .padding(.leading, 14).padding(.trailing, 8).padding(.vertical, 8)
-        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .plataGlass(in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     private var goneStrip: some View {

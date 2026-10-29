@@ -115,7 +115,7 @@ struct CloudFlowView: View {
                     Spacer(minLength: 0)
                 }
                 .padding(.horizontal, 14).frame(minHeight: 52)
-                .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .plataGlass(in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                 .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(Color(.separator).opacity(0.5)))
             }
         }
@@ -334,7 +334,7 @@ private struct CloudPreview: View {
                 row("clock", Text(verbatim: pend.at > 0 ? Date(timeIntervalSince1970: pend.at / 1000).formatted(date: .abbreviated, time: .shortened) : Tr.t("Sin fecha")))
             }
             .padding(.horizontal, 16)
-            .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .plataGlass(in: RoundedRectangle(cornerRadius: 20, style: .continuous))
             Label { Text("Esta vista previa se abre solo en tu dispositivo y solo después de verificar tu correo, para que confirmes que este archivo es tuyo.") } icon: { Image(systemName: "lock.open") }
                 .font(.inter(14)).foregroundStyle(.secondary).padding(.horizontal, 4)
         }
@@ -395,7 +395,7 @@ struct FirstPickView: View {
                 Spacer(minLength: 0)
             }
             .padding(16).frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 26, style: .continuous))
+            .plataGlass(in: RoundedRectangle(cornerRadius: 26, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 26, style: .continuous).strokeBorder(Color(.separator).opacity(0.5)))
         }
         .buttonStyle(.plain)

@@ -54,7 +54,7 @@ struct MonthView: View {
                 }
                 .padding(18)
                 .frame(maxWidth: .infinity)
-                .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 26, style: .continuous))
+                .plataGlass(in: RoundedRectangle(cornerRadius: 26, style: .continuous))
                 .rowStyle(top: 0, bottom: 14)
 
                 PillSegmented(items: filters(e).map { ($0, label($0, e)) }, selection: $filter)
@@ -65,7 +65,7 @@ struct MonthView: View {
                 if slice.isEmpty {
                     Text("Sin movimientos en este mes").font(.inter(15)).foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity).padding(.vertical, 18)
-                        .listRowBackground(Color(.secondarySystemGroupedBackground))
+                        .listRowBackground(Brand.glassFill)
                 }
                 ForEach(Array(slice.enumerated()), id: \.offset) { _, tx in
                     Button { model.path.append(.tx(Engine.identifier(tx["id"]))) } label: {
@@ -73,7 +73,7 @@ struct MonthView: View {
                     }
                     .buttonStyle(.plain)
                     .listRowInsets(EdgeInsets(top: 0, leading: 18, bottom: 0, trailing: 18))
-                    .listRowBackground(Color(.secondarySystemGroupedBackground))
+                    .listRowBackground(Brand.glassFill)
                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                         Button(role: .destructive) { toDelete = MovimientosView.TxRef(id: Engine.identifier(tx["id"]), tx: tx) } label: {
                             Label("Eliminar", systemImage: "trash")
@@ -109,7 +109,7 @@ struct MonthView: View {
         .listStyle(.insetGrouped)
         .listSectionSpacing(0)
         .scrollContentBackground(.hidden)
-        .background(Color(.systemGroupedBackground))
+        .plataBackground()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) { monthMenu(e, month, month0, year) }

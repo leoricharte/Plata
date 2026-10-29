@@ -163,7 +163,7 @@ struct Card<Content: View>: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(18)
-        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 26, style: .continuous))
+        .plataGlass(in: RoundedRectangle(cornerRadius: 26, style: .continuous))
     }
 }
 
@@ -176,7 +176,7 @@ struct ListCard<Content: View>: View {
         VStack(spacing: 0) { content }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 16)
-            .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 26, style: .continuous))
+            .plataGlass(in: RoundedRectangle(cornerRadius: 26, style: .continuous))
     }
 }
 
@@ -284,4 +284,41 @@ struct PrimaryPillStyle: ButtonStyle {
             .background(Color(hex: "#111111"), in: Capsule())
             .opacity(enabled ? (configuration.isPressed ? 0.8 : 1) : 0.4)
     }
+}
+
+// MARK: - Fondo con degradado y tarjetas de cristal (mismo aire que el escritorio de la web)
+
+extension Brand {
+    /// Relleno de respaldo para iOS < 26: blanco translúcido en claro, verde-blanco tenue en oscuro.
+    static let glassFill = Color(UIColor { $0.userInterfaceStyle == .dark ? UIColor(white: 1, alpha: 0.07) : UIColor(white: 1, alpha: 0.62) })
+}
+
+/// El degradado de fondo: menta en claro, verde bosque en oscuro.
+struct PlataBackdrop: View {
+    var body: some View {
+        LinearGradient(stops: [
+            .init(color: Color(light: "#CFEFDF", dark: "#0F3626"), location: 0),
+            .init(color: Color(light: "#E3F4EB", dark: "#0A2218"), location: 0.38),
+            .init(color: Color(light: "#F1F7F4", dark: "#07140E"), location: 0.78)
+        ], startPoint: .top, endPoint: .bottom)
+        .ignoresSafeArea()
+    }
+}
+
+struct PlataGlass<S: Shape>: ViewModifier {
+    let shape: S
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content.glassEffect(.regular, in: shape)
+        } else {
+            content.background(Brand.glassFill, in: shape)
+        }
+    }
+}
+
+extension View {
+    /// Fondo de pantalla con el degradado de Plata.
+    func plataBackground() -> some View { background { PlataBackdrop() } }
+    /// Tarjeta o bloque de cristal que toma el tono del fondo.
+    func plataGlass<S: Shape>(in shape: S) -> some View { modifier(PlataGlass(shape: shape)) }
 }

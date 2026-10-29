@@ -53,7 +53,7 @@ struct ResumenView: View {
                 .padding(.bottom, 24)
             }
             .syncRefresh()
-            .background(Color(.systemGroupedBackground))
+            .plataBackground()
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { rootToolbar }
             .task(id: model.changes) { model.syncInsightsState(); model.reviewSyncBanner() }

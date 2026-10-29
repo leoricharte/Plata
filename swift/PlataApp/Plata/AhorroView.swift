@@ -40,7 +40,7 @@ struct AhorroView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .padding(18)
-                .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 26, style: .continuous))
+                .plataGlass(in: RoundedRectangle(cornerRadius: 26, style: .continuous))
                 .padding(.bottom, 14)
 
                 SectionHead("Metas")
@@ -71,7 +71,7 @@ struct AhorroView: View {
             .padding(.bottom, 24)
         }
         .syncRefresh()
-        .background(Color(.systemGroupedBackground))
+        .plataBackground()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { ToolbarItem(placement: .topBarTrailing) { AddMenuButton() } }
     }

@@ -117,7 +117,7 @@ struct ProyeccionView: View {
             .padding(.bottom, 24)
         }
         .syncRefresh()
-        .background(Color(.systemGroupedBackground))
+        .plataBackground()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { ToolbarItem(placement: .topBarTrailing) { AddMenuButton() } }
         .navigationDestination(for: Route.self) { route in
@@ -132,7 +132,7 @@ struct ProyeccionView: View {
         VStack(alignment: .leading, spacing: 0) { content() }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(padding)
-            .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 26, style: .continuous))
+            .plataGlass(in: RoundedRectangle(cornerRadius: 26, style: .continuous))
             .padding(.bottom, 14)
     }
 
@@ -603,7 +603,7 @@ struct TimelineDot: View {
     var body: some View {
         Circle().fill(color).frame(width: 12, height: 12)
             .padding(3)
-            .background(Color(.secondarySystemGroupedBackground), in: Circle())
+            .plataGlass(in: Circle())
             .offset(x: -8)   // el centro del punto (6 + 3) queda sobre el centro de la línea (x = 1)
             .accessibilityHidden(true)
     }

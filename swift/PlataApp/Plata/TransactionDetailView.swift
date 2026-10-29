@@ -74,7 +74,7 @@ struct TransactionDetailView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(18)
-                .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 26, style: .continuous))
+                .plataGlass(in: RoundedRectangle(cornerRadius: 26, style: .continuous))
 
                 if Engine.text(tx["src"]) == "watch" {
                     Label("Anotado desde el Apple Watch", systemImage: "applewatch")
@@ -98,7 +98,7 @@ struct TransactionDetailView: View {
             .padding(.horizontal, 16)
             .padding(.bottom, 24)
         }
-        .background(Color(.systemGroupedBackground))
+        .plataBackground()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             if !isTransfer {

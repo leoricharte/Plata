@@ -268,7 +268,7 @@ struct WelcomeStepView: View {
             }
             .foregroundStyle(.primary)
             .frame(maxWidth: .infinity).padding(.top, 12).padding(.bottom, 10)
-            .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .plataGlass(in: RoundedRectangle(cornerRadius: 18, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(i != nil ? Brand.accent : .clear, lineWidth: 2))
             .overlay(alignment: .topTrailing) {
                 if let i, w.cur.count > 1 {
@@ -293,7 +293,7 @@ struct WelcomeStepView: View {
                         }
                         .foregroundStyle(.primary)
                         .frame(maxWidth: .infinity).padding(.top, 12).padding(.bottom, 10)
-                        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                        .plataGlass(in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                     }
                     .buttonStyle(.plain)
                 }
@@ -533,7 +533,7 @@ struct LookPreview: View {
                         Text(info.total).font(.inter(28, .bold)).tracking(-0.6).monospacedDigit()
                     }
                     .frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 14).padding(.vertical, 12)
-                    .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .plataGlass(in: RoundedRectangle(cornerRadius: 16, style: .continuous))
                     VStack(spacing: 0) {
                         ForEach(Array(info.rows.enumerated()), id: \.offset) { i, r in
                             if i > 0 { RowDivider() }
@@ -548,7 +548,7 @@ struct LookPreview: View {
                         }
                     }
                     .padding(.horizontal, 14).padding(.vertical, 4)
-                    .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .plataGlass(in: RoundedRectangle(cornerRadius: 16, style: .continuous))
                 }
                 .padding(14)
                 .background(Color(.tertiarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 22, style: .continuous))

@@ -61,7 +61,7 @@ struct ImportFlowView: View {
                 .padding(.horizontal, 20)
                 .padding(.bottom, 24)
             }
-            .background(Color(.systemGroupedBackground))
+            .plataBackground()
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -707,7 +707,7 @@ private struct NoticeCard: View {
             Spacer(minLength: 0)
         }
         .padding(.horizontal, 16).padding(.vertical, 14)
-        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .plataGlass(in: RoundedRectangle(cornerRadius: 18, style: .continuous))
         .padding(.bottom, 14)
         .accessibilityElement(children: .combine)
     }
@@ -743,7 +743,7 @@ private struct LockedCard: View {
             Spacer(minLength: 0)
         }
         .padding(.horizontal, 16).padding(.vertical, 14)
-        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .plataGlass(in: RoundedRectangle(cornerRadius: 18, style: .continuous))
         .padding(.bottom, 14)
     }
 }
@@ -1243,7 +1243,7 @@ struct ImportReviewBody: View {
         }
         .tint(.secondary)
         .padding(.horizontal, 16).padding(.vertical, 12)
-        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .plataGlass(in: RoundedRectangle(cornerRadius: 22, style: .continuous))
         .padding(.top, 6).padding(.bottom, 14)
     }
 
@@ -1304,7 +1304,7 @@ struct ImportReviewBody: View {
                     Image(systemName: "line.3.horizontal.decrease").font(.system(size: 18, weight: .semibold))
                         .foregroundStyle(cur.key != "all" ? Brand.accent : Color.primary)
                         .frame(width: 44, height: 44)
-                        .background(Color(.secondarySystemGroupedBackground), in: Circle())
+                        .plataGlass(in: Circle())
                         .overlay(Circle().strokeBorder(Color(.separator).opacity(0.5), lineWidth: 1))
                 }
                 .buttonStyle(.plain)

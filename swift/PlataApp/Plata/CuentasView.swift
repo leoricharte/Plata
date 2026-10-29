@@ -64,7 +64,7 @@ struct CuentasView: View {
             .padding(.bottom, 24)
         }
         .syncRefresh()
-        .background(Color(.systemGroupedBackground))
+        .plataBackground()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { ToolbarItem(placement: .topBarTrailing) { AddMenuButton() } }
         .sheet(isPresented: $showExtra) { ExtraPaySheet() }
@@ -77,7 +77,7 @@ struct CuentasView: View {
         VStack(alignment: .leading, spacing: 0) { content() }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(18)
-            .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 26, style: .continuous))
+            .plataGlass(in: RoundedRectangle(cornerRadius: 26, style: .continuous))
             .padding(.bottom, 14)
     }
 

@@ -63,7 +63,7 @@ struct MovimientosView: View {
                 }
                 .buttonStyle(.plain)
                 .listRowInsets(EdgeInsets(top: 0, leading: 18, bottom: 0, trailing: 18))
-                .listRowBackground(Color(.secondarySystemGroupedBackground))
+                .listRowBackground(Brand.glassFill)
                 Button { model.showImport = true } label: {
                     HStack(spacing: 10) {
                         Image(systemName: "folder.badge.plus").font(.system(size: 22)).foregroundStyle(Brand.accent).frame(width: 26)
@@ -75,14 +75,14 @@ struct MovimientosView: View {
                 }
                 .buttonStyle(.plain)
                 .listRowInsets(EdgeInsets(top: 0, leading: 18, bottom: 0, trailing: 18))
-                .listRowBackground(Color(.secondarySystemGroupedBackground))
+                .listRowBackground(Brand.glassFill)
             }
 
             Section {
                 if rows.isEmpty {
                     Text("Sin movimientos todavía").font(.inter(15)).foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity).padding(.vertical, 18)
-                        .listRowBackground(Color(.secondarySystemGroupedBackground))
+                        .listRowBackground(Brand.glassFill)
                 }
                 ForEach(Array(rows.enumerated()), id: \.offset) { _, tx in
                     Button { model.path.append(.tx(Engine.identifier(tx["id"]))) } label: {
@@ -90,7 +90,7 @@ struct MovimientosView: View {
                     }
                     .buttonStyle(.plain)
                     .listRowInsets(EdgeInsets(top: 0, leading: 18, bottom: 0, trailing: 18))
-                    .listRowBackground(Color(.secondarySystemGroupedBackground))
+                    .listRowBackground(Brand.glassFill)
                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                         Button(role: .destructive) { toDelete = TxRef(id: Engine.identifier(tx["id"]), tx: tx) } label: {
                             Label("Eliminar", systemImage: "trash")
@@ -115,7 +115,7 @@ struct MovimientosView: View {
         .listStyle(.insetGrouped)
         .listSectionSpacing(12)
         .scrollContentBackground(.hidden)
-        .background(Color(.systemGroupedBackground))
+        .plataBackground()
         .navigationBarTitleDisplayMode(.inline)
         .sheet(item: $editing) { ref in TransactionSheet(mode: .edit(ref.tx)) }
         .sheet(item: $postponing) { ref in PostponeSheet(tx: ref.tx) { postponing = nil } }

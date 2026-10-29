@@ -43,7 +43,7 @@ struct PresupuestoView: View {
             .padding(.bottom, 24)
         }
         .syncRefresh()
-        .background(Color(.systemGroupedBackground))
+        .plataBackground()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { ToolbarItem(placement: .topBarTrailing) { AddMenuButton() } }
         .alert("Llega en la siguiente versión", isPresented: $soon) { Button("Entendido", role: .cancel) {} }
@@ -77,7 +77,7 @@ struct PresupuestoView: View {
             }
             .padding(.vertical, 10).padding(.horizontal, 16)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 26, style: .continuous))
+            .plataGlass(in: RoundedRectangle(cornerRadius: 26, style: .continuous))
             .padding(.bottom, 14)
         }
         .buttonStyle(.plain)
@@ -114,7 +114,7 @@ struct PresupuestoView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(18)
-        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 26, style: .continuous))
+        .plataGlass(in: RoundedRectangle(cornerRadius: 26, style: .continuous))
         .padding(.bottom, 14)
     }
 
@@ -201,7 +201,7 @@ struct PresupuestoView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(18)
-        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 26, style: .continuous))
+        .plataGlass(in: RoundedRectangle(cornerRadius: 26, style: .continuous))
     }
 
     private func addRow(_ title: String, _ action: (() -> Void)? = nil) -> some View {

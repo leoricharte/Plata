@@ -133,7 +133,7 @@ struct HistorySheet: View {
                 .padding(.horizontal, 16).padding(.bottom, 24)
             }
         }
-        .background(Color(.systemGroupedBackground))
+        .plataBackground()
         .presentationDetents([.large])
     }
 }
@@ -404,7 +404,7 @@ struct CreditsView: View {
             }
             .padding(.horizontal, 16).padding(.bottom, 24)
         }
-        .background(Color(.systemGroupedBackground))
+        .plataBackground()
         .navigationBarTitleDisplayMode(.inline)
     }
 
