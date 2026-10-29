@@ -52,6 +52,8 @@ struct RootView: View {
         .feedbackAlert(isPresented: $model.showFeedback, manual: model.feedbackManual)
         .tint(Brand.accent)
         .task {
+            // los avisos esperan a que termine el splash
+            while !model.splashDone { try? await Task.sleep(for: .milliseconds(100)) }
             model.checkPending()
             try? await Task.sleep(for: .milliseconds(700))
             if Nudges.shouldShowNews(model) { model.showNews = true }

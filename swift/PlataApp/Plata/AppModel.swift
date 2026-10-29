@@ -258,6 +258,8 @@ final class AppModel {
     }
 
     /// Abre la hoja de confirmar si hay algo vencido y no hay otra hoja abierta (`checkPending`).
+    var splashDone = false
+
     func checkPending() {
         guard activeSheet == nil, !showAddTransaction, let p = nextPending() else { return }
         activeSheet = .confirm(kind: p.item.kind, id: p.item.id, pick: false)

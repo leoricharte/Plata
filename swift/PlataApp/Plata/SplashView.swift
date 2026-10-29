@@ -3,6 +3,8 @@ import SwiftUI
 /// Pantalla de inicio: el mismo verde y logo blanco de la pantalla de arranque del sistema, y luego se abre en círculo.
 struct SplashView: View {
     var opening: Bool
+    /// primero se apagan el «Beta 4» y el aviso; luego queda solo el logo y se abre el círculo
+    var footerGone = false
 
     var body: some View {
         GeometryReader { geo in
@@ -24,8 +26,8 @@ struct SplashView: View {
                 }
                 .foregroundStyle(.white.opacity(0.75))
                 .padding(.bottom, 18 + geo.safeAreaInsets.bottom)
-                .opacity(opening ? 0 : 1)
-                .animation(.easeOut(duration: 0.25), value: opening)
+                .opacity(footerGone || opening ? 0 : 1)
+                .animation(.easeOut(duration: 0.35), value: footerGone)
             }
             .frame(width: geo.size.width, height: geo.size.height)
             .mask {
