@@ -471,7 +471,11 @@ struct ImportFlowView: View {
             }
         }
         if list.isEmpty {
-            if let l = lockedNew.first { openLocked(l, single: single); return }
+            if let l = lockedNew.first {
+                // Varios PDF protegidos y ninguno legible: se pide la clave del primero y los demás quedan esperando como tarjetas (cada uno con su clave).
+                if files.count > 1 { locked = Array(lockedNew.dropFirst()) }
+                openLocked(l, single: single); return
+            }
             step = adding ? .review : origin
             asDoc = wrong
             if let f = fails.first, fails.count == 1 || empty.isEmpty { notice = Notice(title: f.title, message: f.message, asBank: wrong?.bank) }
