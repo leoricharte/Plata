@@ -83,10 +83,12 @@ struct MonthView: View {
                                 Label("Editar", systemImage: "pencil")
                             }
                             .tint(Color(hex: "#4F94F7"))
-                            Button { postponing = MovimientosView.TxRef(id: Engine.identifier(tx["id"]), tx: tx) } label: {
+                            if Engine.text(tx["category"]) != "Pago de crédito" {
+                                Button { postponing = MovimientosView.TxRef(id: Engine.identifier(tx["id"]), tx: tx) } label: {
                                 Label("Posponer", systemImage: "calendar.badge.clock")
                             }
                             .tint(Color(hex: "#FF9F0A"))
+                            }
                         }
                     }
                 }
