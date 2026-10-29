@@ -96,6 +96,6 @@ final class WidgetBridge {
             day: today.day, dim: c.dim, budgetTotal: bt, budgetSpent: c.expV, debtTotal: c.debt,
             creditUsed: limitSum > 0 ? min(1, owedSum / limitSum) : -1,
             cats: Array(slices), budget: Array(budget.prefix(5)), top: Array(top), upcoming: upcoming, debt: Array(debt.prefix(3)),
-            goals: Array(goals.prefix(3)), daily: daily, weekday: weekday, flow: Array(flow))
+            goals: Array(goals.prefix(3)), daily: daily, weekday: weekday, flow: Array(flow), lang: Tr.lang)
     }
 }

@@ -89,8 +89,8 @@ private struct Empty: View {
     var title: String
     var body: some View {
         VStack(spacing: 4) {
-            Text(title).font(.system(size: 13, weight: .semibold)).foregroundStyle(pal.accent)
-            Text("Abre Plata para cargar tus datos").font(.system(size: 11)).foregroundStyle(.secondary).multilineTextAlignment(.center)
+            Text(verbatim: Tr.t(title)).font(.system(size: 13, weight: .semibold)).foregroundStyle(pal.accent)
+            Text(verbatim: Tr.t("Abre Plata para cargar tus datos")).font(.system(size: 11)).foregroundStyle(.secondary).multilineTextAlignment(.center)
         }
     }
 }
@@ -98,7 +98,7 @@ private struct Empty: View {
 private struct Head: View {
     @Environment(\.bentoPal) private var pal
     var title: String
-    var body: some View { Text(title).font(.system(size: 12, weight: .semibold)).foregroundStyle(.secondary).lineLimit(1) }
+    var body: some View { Text(verbatim: Tr.t(title)).font(.system(size: 12, weight: .semibold)).foregroundStyle(.secondary).lineLimit(1) }
 }
 
 private struct BarRow: View {
@@ -106,7 +106,7 @@ private struct BarRow: View {
     var name: String; var value: String; var frac: Double; var tint: Color
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
-            HStack { Text(name).lineLimit(1); Spacer(minLength: 4); Text(value).monospacedDigit() }.font(.system(size: 12, weight: .medium))
+            HStack { Text(verbatim: Tr.t(name)).lineLimit(1); Spacer(minLength: 4); Text(value).monospacedDigit() }.font(.system(size: 12, weight: .medium))
             GeometryReader { g in
                 ZStack(alignment: .leading) {
                     Capsule().fill(pal.track)
@@ -125,7 +125,7 @@ private struct Line: View {
         HStack(spacing: 6) {
             VStack(alignment: .leading, spacing: 0) {
                 Text(left).font(.system(size: 13, weight: .medium)).lineLimit(1)
-                if !sub.isEmpty { Text(sub).font(.system(size: 10)).foregroundStyle(.secondary) }
+                if !sub.isEmpty { Text(verbatim: WTr.sub(sub)).font(.system(size: 10)).foregroundStyle(.secondary) }
             }
             Spacer(minLength: 4)
             Text(right).font(.system(size: 13, weight: .semibold)).foregroundStyle(tint).monospacedDigit()
@@ -180,7 +180,7 @@ struct CatsView: View {
                 SectorMark(angle: .value("v", c.v), innerRadius: .ratio(0.62), angularInset: 1.5).foregroundStyle(Color(wHex: c.hex))
             }
             if small {
-                donut.overlay { VStack(spacing: 0) { Text(s.whole(s.expense)).font(.system(size: 14, weight: .bold, design: .rounded)); Text("gastado").font(.system(size: 9)).foregroundStyle(.secondary) } }
+                donut.overlay { VStack(spacing: 0) { Text(s.whole(s.expense)).font(.system(size: 14, weight: .bold, design: .rounded)); Text(verbatim: Tr.t("gastado")).font(.system(size: 9)).foregroundStyle(.secondary) } }
             } else {
                 HStack(spacing: 14) {
                     donut.frame(maxWidth: 120)
@@ -215,13 +215,13 @@ struct BudgetView: View {
                     ZStack {
                         Circle().stroke(Color.secondary.opacity(0.2), lineWidth: 9)
                         Circle().trim(from: 0, to: max(0.01, r)).stroke(r >= 1 ? pal.loss : pal.accent, style: StrokeStyle(lineWidth: 9, lineCap: .round)).rotationEffect(.degrees(-90))
-                        VStack(spacing: 0) { Text(s.whole(abs(left))).font(.system(size: 15, weight: .bold, design: .rounded)).minimumScaleFactor(0.6); Text(left < 0 ? "pasado" : "quedan").font(.system(size: 9)).foregroundStyle(.secondary) }
+                        VStack(spacing: 0) { Text(s.whole(abs(left))).font(.system(size: 15, weight: .bold, design: .rounded)).minimumScaleFactor(0.6); Text(verbatim: Tr.t(left < 0 ? "pasado" : "quedan")).font(.system(size: 9)).foregroundStyle(.secondary) }
                     }
                     Head(title: "Presupuesto")
                 }
             } else {
                 VStack(alignment: .leading, spacing: 6) {
-                    HStack { Head(title: "Presupuesto del mes"); Spacer(); Text("\(s.whole(s.budgetSpent)) de \(s.whole(s.budgetTotal))").font(.system(size: 11)).foregroundStyle(.secondary) }
+                    HStack { Head(title: "Presupuesto del mes"); Spacer(); Text(verbatim: "\(s.whole(s.budgetSpent)) \(Tr.t("de")) \(s.whole(s.budgetTotal))").font(.system(size: 11)).foregroundStyle(.secondary) }
                     ForEach(s.budget.prefix(4)) { b in BarRow(name: b.name, value: s.whole(b.amt), frac: b.frac, tint: b.frac >= 1 ? pal.loss : b.frac >= 0.8 ? pal.warn : pal.accent) }
                 }
             }
@@ -317,7 +317,7 @@ struct RateView: View {
             VStack(spacing: 2) {
                 Head(title: "Tasa de ahorro")
                 Text("\(Int((s.rate * 100).rounded()))%").font(.system(size: 38, weight: .bold, design: .rounded)).foregroundStyle(s.rate >= 0 ? pal.gain : pal.loss).minimumScaleFactor(0.6)
-                Text("de tus ingresos").font(.system(size: 10)).foregroundStyle(.secondary)
+                Text(verbatim: Tr.t("de tus ingresos")).font(.system(size: 10)).foregroundStyle(.secondary)
             }
         } else { Empty(title: "Tasa de ahorro") }
     }
@@ -331,7 +331,7 @@ struct ScoreView: View {
             VStack(spacing: 0) {
                 Head(title: "Nota del mes")
                 Text(s.letter).font(.system(size: 54, weight: .bold, design: .rounded)).foregroundStyle(pal.accent)
-                Text(s.adjective).font(.system(size: 13, weight: .semibold))
+                Text(verbatim: Tr.t(s.adjective)).font(.system(size: 13, weight: .semibold))
             }
         } else { Empty(title: "Nota del mes") }
     }
@@ -342,7 +342,7 @@ struct WeekdayView: View {
     var s: PhoneSnapshot?
     var body: some View {
         if let s, s.weekday.contains(where: { $0 > 0 }) {
-            let names = ["D", "L", "M", "X", "J", "V", "S"]
+            let names = Tr.isEnglish ? ["S", "M", "T", "W", "T", "F", "S"] : ["D", "L", "M", "X", "J", "V", "S"]
             let mx = s.weekday.max() ?? 0
             VStack(alignment: .leading, spacing: 4) {
                 Head(title: "Gasto por día de la semana")
@@ -364,8 +364,8 @@ struct FlowView: View {
                 Head(title: "Ingresos vs gastos")
                 Chart {
                     ForEach(s.flow) { m in
-                        BarMark(x: .value("mes", m.label), y: .value("monto", m.income)).foregroundStyle(pal.accent).position(by: .value("tipo", "Ingresos")).cornerRadius(3)
-                        BarMark(x: .value("mes", m.label), y: .value("monto", m.expense)).foregroundStyle(Color.orange).position(by: .value("tipo", "Gastos")).cornerRadius(3)
+                        BarMark(x: .value("mes", Tr.monthAbbr(m.label)), y: .value("monto", m.income)).foregroundStyle(pal.accent).position(by: .value("tipo", Tr.t("Ingresos"))).cornerRadius(3)
+                        BarMark(x: .value("mes", Tr.monthAbbr(m.label)), y: .value("monto", m.expense)).foregroundStyle(Color.orange).position(by: .value("tipo", Tr.t("Gastos"))).cornerRadius(3)
                     }
                 }
                 .chartYAxis(.hidden).chartLegend(.hidden)
@@ -374,3 +374,17 @@ struct FlowView: View {
     }
 }
 
+
+
+/// Textos de los widgets que vienen de la app ya armados en español («hoy», «en 3 d», «15 oct»).
+enum WTr {
+    static func sub(_ s: String) -> String {
+        guard Tr.isEnglish, !s.isEmpty else { return s }
+        if s == "hoy" { return "today" }
+        if s == "mañana" { return "tomorrow" }
+        let p = s.split(separator: " ").map(String.init)
+        if p.count == 3, p[0] == "en", p[2] == "d" { return "in \(p[1]) d" }
+        if p.count == 2, Int(p[0]) != nil { return Tr.monthAbbr(p[1]) + " " + p[0] }
+        return Tr.t(s)
+    }
+}

@@ -24,6 +24,7 @@ struct PlataApp: App {
                 }
             }
             .onAppear { AppLock.shared.attach() }
+            .onChange(of: lang) { _, _ in WidgetBridge.shared.push() }
             .task {
                 try? await Task.sleep(for: .seconds(0.9))
                 footerGone = true

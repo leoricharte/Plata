@@ -101,6 +101,8 @@ targets:
       - path: PlataWidgets
       - path: Shared
       - path: SharedPhone
+      - path: Plata/Tr.swift
+      - path: Plata/Resources/tr_en.json
     info:
       path: PlataWidgets/Info.plist
       properties:

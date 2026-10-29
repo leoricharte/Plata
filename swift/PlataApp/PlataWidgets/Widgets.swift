@@ -87,8 +87,8 @@ struct BentoView: View {
             BentoCanvas(pieces: b.pieces, snap: e.snap, family: family)
         } else {
             VStack(spacing: 4) {
-                Text("Tu bento").font(.system(size: 13, weight: .semibold)).foregroundStyle(Color(red: 0.133, green: 0.710, blue: 0.451))
-                Text("Crea uno en Plata → Ajustes → Widgets").font(.system(size: 11)).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                Text(verbatim: Tr.t("Tu bento")).font(.system(size: 13, weight: .semibold)).foregroundStyle(Color(red: 0.133, green: 0.710, blue: 0.451))
+                Text(verbatim: Tr.t("Crea uno en Plata → Ajustes → Widgets")).font(.system(size: 11)).foregroundStyle(.secondary).multilineTextAlignment(.center)
             }
         }
     }

@@ -42,14 +42,17 @@ struct PhoneSnapshot: Codable {
     var daily: [Double]      // gasto acumulado por día del mes
     var weekday: [Double]    // gasto por día de la semana (domingo primero)
     var flow: [PBar]
+    var lang: String? = nil  // idioma efectivo de la app (es/en)
 }
 
 enum PhoneShare {
     static let key = "phone.snapshot"
     static func save(_ data: Data) { UserDefaults(suiteName: WatchShare.group)?.set(data, forKey: key) }
     static func load() -> PhoneSnapshot? {
-        guard let d = UserDefaults(suiteName: WatchShare.group)?.data(forKey: key) else { return nil }
-        return try? JSONDecoder().decode(PhoneSnapshot.self, from: d)
+        guard let d = UserDefaults(suiteName: WatchShare.group)?.data(forKey: key),
+              let s = try? JSONDecoder().decode(PhoneSnapshot.self, from: d) else { return nil }
+        Tr.forced = s.lang
+        return s
     }
 }
 

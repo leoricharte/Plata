@@ -15,7 +15,9 @@ enum Tr {
     static var pref: String { UserDefaults.standard.string(forKey: langKey) ?? "auto" }
 
     /// El idioma efectivo: `es` o `en`.
-    static var lang: String { resolve(pref) }
+    /// Los widgets usan el idioma que la app dejó en el snapshot.
+    nonisolated(unsafe) static var forced: String?
+    static var lang: String { forced ?? resolve(pref) }
     static var isEnglish: Bool { lang == "en" }
 
     static func resolve(_ p: String) -> String {
