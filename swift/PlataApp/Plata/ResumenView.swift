@@ -220,11 +220,12 @@ struct ResumenView: View {
                     }
                     .buttonStyle(.plain)
                     Button { model.reviewCloseBanner() } label: {
-                        Image(systemName: "xmark").font(.system(size: 12, weight: .bold)).foregroundStyle(Brand.warnText).frame(width: 26, height: 26)
+                        Image(systemName: "xmark").font(.system(size: 12, weight: .bold)).foregroundStyle(Brand.warnText).frame(width: 26, height: 17)
+                            .contentShape(Rectangle().inset(by: -8))   // área de toque grande sin agrandar el aviso
                     }
                     .buttonStyle(.plain).accessibilityLabel("Cerrar")
                 }
-                .padding(.leading, 14).padding(.trailing, 8).padding(.vertical, 8)
+                .padding(.leading, 14).padding(.trailing, 8).padding(.vertical, 10)   // 10 como .idlebn de la web: los dos avisos miden lo mismo
                 .background(Brand.warn.opacity(0.16), in: Capsule())
             }
         }
