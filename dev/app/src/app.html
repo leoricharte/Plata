@@ -3741,11 +3741,13 @@ function setSeg(btn) {
   bs.forEach((b, j) => b.classList.toggle('on', j === i));
 }
 function swapIn(el) { el.classList.remove('swap'); void el.offsetWidth; el.classList.add('swap'); }
+/* Marca de origen: el movimiento se anotó desde el Apple Watch (campo `src` del movimiento) */
+const WATCH_MARK = '<svg role="img" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:5px;vertical-align:-2px;opacity:.6"><rect x="6" y="6" width="12" height="12" rx="3"/><path d="M9 6l.6-3h4.8L15 6M9 18l.6 3h4.8L15 18"/></svg>';
 function txRow(t, sw) {
     const cat = isPay(t) ? pcat(t) : t.amount > 0 ? 'Ingreso' : (CAT_ORDER.indexOf(t.category) >= 0 ? t.category : 'Otros');
     const d = pd(t.date), cur = accOf(t.acc).cur, sb = txSub(t);
     const html = '<div class="row tap"' + (sw && isWebView() ? ' data-ctx="' + (isPay(t) ? 'p' : 't') + '"' : '') + ' data-act="tx:' + t.id + '">' + (sb ? subTile(sb, data.subs.indexOf(sb)) : '<span class="tile" style="background:' + (cat === XFER ? 'transparent' : cat === PAY ? '#B98AE6' : CAT_COLOR[cat]) + '" aria-hidden="true">' + (cat === XFER ? RMI('arrow-left-right-line', 30, t.amount < 0 ? 'var(--rt)' : '#22B573') : cat === PAY ? iconSVG('card', '#fff', 20) : catGlyph(cat)) + '</span>') +
-      '<div class="grow"><div class="name" style="font-size:16px">' + esc(t.note || cat) + '</div><div class="sub" style="font-size:13px">' + (cat === XFER ? (t.amount < 0 ? 'Salida' : 'Entrada') : sb ? 'Suscripción' : esc(cat)) + ' · ' + dshort(d) + (data.accounts.length + data.cards.length > 1 ? ' · ' + esc(accOf(t.acc).name) : '') + '</div></div>' +
+      '<div class="grow"><div class="name" style="font-size:16px">' + esc(t.note || cat) + '</div><div class="sub" style="font-size:13px">' + (cat === XFER ? (t.amount < 0 ? 'Salida' : 'Entrada') : sb ? 'Suscripción' : esc(cat)) + ' · ' + dshort(d) + (data.accounts.length + data.cards.length > 1 ? ' · ' + esc(accOf(t.acc).name) : '') + (t.src === 'watch' ? WATCH_MARK : '') + '</div></div>' +
       amtHrs(t, '<span class="amt" style="color:' + (t.amount > 0 && !isPay(t) ? 'var(--gt)' : 'var(--ink)') + '">' + fmtSC2(t.amount, cur) + '</span>') + ICON.chev + '</div>';
     return sw && !isWebView() ? swWrap(t, html, isPay(t), isXfer(t)) : html;
 }
