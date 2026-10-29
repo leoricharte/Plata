@@ -104,7 +104,7 @@ struct BudgetPage: View {
                                 Text(left < 0 ? "pasado hoy" : "te quedan hoy").font(.system(size: 13)).foregroundStyle(.secondary)
                             }
                         } else {
-                            Text("Sin presupuesto este mes").font(.system(size: 14)).foregroundStyle(.secondary)
+                            Text(s.cats.isEmpty ? "Sin presupuesto este mes" : "Presupuesto del mes agotado").font(.system(size: 14)).foregroundStyle(.secondary).multilineTextAlignment(.center)
                         }
                         if !s.cats.isEmpty && !expanded {
                             Text("Toca el círculo para ver todos").font(.system(size: 11)).foregroundStyle(.tertiary)
@@ -135,16 +135,14 @@ struct BudgetPage: View {
     private func rings(_ s: WatchSnapshot) -> some View {
         let top = Array(s.cats.prefix(4))
         let width: CGFloat = 12, gap: CGFloat = 2, outer: CGFloat = 78
-        let items: [(name: String, frac: Double, color: Color, over: Bool)] = top.isEmpty
-            ? [("Hoy", s.allowance > 0 ? min(1, s.spentToday / s.allowance) : 0, WatchTheme.accent, s.allowance > 0 && s.spentToday >= s.allowance)]
-            : top.map { ($0.name, $0.limit > 0 ? min(1, $0.spent / $0.limit) : 0, Color(watchHex: $0.color), $0.limit > 0 && $0.spent >= $0.limit) }
+        let items: [(name: String, frac: Double, color: Color)] = top.isEmpty
+            ? [("Hoy", s.allowance > 0 ? s.spentToday / s.allowance : 0, WatchTheme.accent)]
+            : top.map { ($0.name, $0.limit > 0 ? $0.spent / $0.limit : 0, Color(watchHex: $0.color)) }
         return ZStack {
             ForEach(Array(items.enumerated()), id: \.offset) { i, it in
-                let r = outer - CGFloat(i) * (width + gap)   // radio del centro del anillo
-                let radius = r - width / 2
+                let radius = outer - CGFloat(i) * (width + gap) - width / 2
                 ZStack {
-                    Circle().stroke(it.color.opacity(0.22), lineWidth: width)
-                    Circle().trim(from: 0, to: max(0.004, it.frac)).stroke(it.over ? Color.red : it.color, style: StrokeStyle(lineWidth: width, lineCap: .round)).rotationEffect(.degrees(-90))
+                    ActivityRing(frac: it.frac, color: it.color, width: width, radius: radius)
                     CurvedLabel(text: String(it.name.prefix(12)), radius: radius, size: 8.5)
                 }
                 .frame(width: radius * 2, height: radius * 2)
@@ -157,6 +155,31 @@ struct BudgetPage: View {
         }
         .frame(width: 160, height: 160)
         .contentShape(Circle())
+    }
+}
+
+/// Un anillo como los de Actividad: la pista tenue, el progreso con degradado y, si pasas del 100 %, una segunda vuelta con sombra.
+struct ActivityRing: View {
+    var frac: Double
+    var color: Color
+    var width: CGFloat
+    var radius: CGFloat
+    var body: some View {
+        let lap = min(1, max(0.004, frac))
+        let extra = min(1, max(0, frac - 1))
+        ZStack {
+            Circle().stroke(color.opacity(0.25), lineWidth: width)
+            Circle().trim(from: 0, to: lap)
+                .stroke(AngularGradient(colors: [color.opacity(0.65), color], center: .center, startAngle: .degrees(0), endAngle: .degrees(max(1, 360 * lap))),
+                        style: StrokeStyle(lineWidth: width, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+            if extra > 0 {
+                Circle().trim(from: 0, to: extra)
+                    .stroke(color, style: StrokeStyle(lineWidth: width, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                    .shadow(color: .black.opacity(0.55), radius: 3)
+            }
+        }
     }
 }
 
@@ -173,8 +196,8 @@ struct AddPage: View {
     @State private var category = ""
     @State private var editing = false
     @State private var typedText = ""
-    private enum Step { case amount, category, account }
-    @State private var step = Step.amount
+    private enum Step: Hashable { case category, account }
+    @State private var path: [Step] = []
 
     var body: some View {
         if let s = store.snapshot {
@@ -218,12 +241,14 @@ struct AddPage: View {
     }
 
     private func form(_ s: WatchSnapshot) -> some View {
-        Group {
-            switch step {
-            case .amount: amountView(s)
-            case .category: categoryView(s)
-            case .account: accountView(s)
-            }
+        NavigationStack(path: $path) {
+            amountView(s)
+                .navigationDestination(for: Step.self) { st in
+                    switch st {
+                    case .category: categoryView(s).navigationTitle("Categoría")
+                    case .account: accountView(s).navigationTitle("Cuenta")
+                    }
+                }
         }
         .sheet(isPresented: $editing) {
             VStack {
@@ -247,7 +272,7 @@ struct AddPage: View {
             }
             .buttonStyle(.plain)
             Text("Gira la corona · toca el monto para escribirlo").font(.system(size: 11)).foregroundStyle(.secondary).multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
-            Button { step = isOut ? .category : .account } label: { Text("Siguiente").font(.system(size: 13, weight: .semibold)).frame(maxWidth: .infinity) }
+            Button { path = [isOut ? .category : .account] } label: { Text("Siguiente").font(.system(size: 13, weight: .semibold)).frame(maxWidth: .infinity) }
                 .buttonStyle(.borderedProminent).controlSize(.small).tint(WatchTheme.accent).disabled(value <= 0)
             SyncNote()
         }
@@ -262,12 +287,9 @@ struct AddPage: View {
         let cats = s.catInfo ?? s.categories.map { WatchCategory(name: $0, label: $0, symbol: "tag.fill", color: "") }
         return ScrollView {
             VStack(spacing: 8) {
-                Button { step = .amount } label: { Label(WatchFormat.money(value, sym: s.sym, dec: 2), systemImage: "chevron.left").font(.system(size: 13)) }
-                    .buttonStyle(.plain).foregroundStyle(WatchTheme.accent)
-                Text("Categoría").font(.system(size: 15, weight: .semibold))
                 LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
                     ForEach(cats, id: \.name) { c in
-                        Button { category = c.name; step = .account; WKInterfaceDevice.current().play(.click) } label: {
+                        Button { category = c.name; path.append(.account); WKInterfaceDevice.current().play(.click) } label: {
                             VStack(spacing: 4) {
                                 Image(systemName: c.symbol).font(.system(size: 26, weight: .semibold)).foregroundStyle(Color(watchHex: c.color))
                                     .frame(width: 52, height: 52).background(Color(watchHex: c.color).opacity(0.22), in: Circle())
@@ -287,8 +309,6 @@ struct AddPage: View {
     /// Paso 3: cuenta o tarjeta, en una lista como la de apps del reloj.
     private func accountView(_ s: WatchSnapshot) -> some View {
         List {
-            Button { step = isOut ? .category : .amount } label: { Label("Atrás", systemImage: "chevron.left").font(.system(size: 13)) }
-                .foregroundStyle(WatchTheme.accent)
             ForEach(s.accounts, id: \.id) { a in
                 Button { save(account: a.id) } label: {
                     HStack(spacing: 10) {
@@ -310,14 +330,14 @@ struct AddPage: View {
         if let d = a.logo, let img = UIImage(data: d) {
             Image(uiImage: img).renderingMode(.template).resizable().scaledToFit().frame(width: 26, height: 26).foregroundStyle(.white)
         } else {
-            Image(systemName: a.symbol ?? "creditcard.fill").font(.system(size: 20)).foregroundStyle(WatchTheme.accent).frame(width: 26, height: 26)
+            Image(systemName: a.symbol ?? "creditcard.fill").font(.system(size: 20)).foregroundStyle(.white).frame(width: 26, height: 26)
         }
     }
 
     private func save(account: String) {
         let iso = DateFormatter.iso.string(from: Date())
         store.add(WatchEntry(id: UUID().uuidString, amount: isOut ? -value : value, category: isOut ? category : "Ingreso", account: account, note: "", date: iso))
-        value = 0; step = .amount
+        value = 0; path = []
     }
 }
 
@@ -340,7 +360,10 @@ struct ProjectionPage: View {
 
     var body: some View {
         if let s = store.snapshot, s.days.count >= 7 {
-            if byDay { dayView(s) } else { weekView(s) }
+            NavigationStack {
+                weekView(s)
+                    .navigationDestination(isPresented: $byDay) { dayView(s).navigationTitle(dayLabel(s.days[min(s.days.count - 1, max(0, Int(day)))].iso)) }
+            }
         } else {
             VStack { SyncNote() }
         }
@@ -377,8 +400,6 @@ struct ProjectionPage: View {
         let d = s.days[i]
         return ScrollView {
             VStack(spacing: 4) {
-                Button { byDay = false } label: { Label("Semanas", systemImage: "chevron.left").font(.system(size: 13)) }.buttonStyle(.plain).foregroundStyle(WatchTheme.accent)
-                Text(dayLabel(d.iso)).font(.system(size: 16, weight: .semibold))
                 HStack(spacing: 12) {
                     VStack(spacing: 0) { Amount(text: s.fmt(d.cash)).font(.system(size: 21, weight: .bold, design: .rounded)).foregroundStyle(d.cash < 0 ? .red : .primary); Text("caja").font(.system(size: 12)).foregroundStyle(.secondary) }
                     if s.hasCredit { VStack(spacing: 0) { Amount(text: s.fmt(d.credit)).font(.system(size: 21, weight: .bold, design: .rounded)); Text("crédito disp.").font(.system(size: 12)).foregroundStyle(.secondary) } }

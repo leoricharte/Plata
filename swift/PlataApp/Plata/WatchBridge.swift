@@ -150,17 +150,19 @@ struct WhiteGlyph: View {
     let bank: BankBrand
     var body: some View {
         Canvas { ctx, size in
-            let k = size.width / 460
-            let bs = bank.size / max(bank.box.width, bank.box.height)
-            let w = bank.box.width * bs, h = bank.box.height * bs
-            let t = CGAffineTransform(translationX: -bank.box.minX, y: -bank.box.minY)
-                .concatenating(CGAffineTransform(scaleX: bs, y: bs))
-                .concatenating(CGAffineTransform(translationX: (460 - w) / 2, y: (460 - h) / 2))
+            let shapes = bank.shapes.filter { $0.opacity > 0.5 }   // las formas casi transparentes eran fondo
+            var rect = CGRect.null
+            for sh in shapes { rect = rect.union(sh.path.boundingRect) }
+            if let c = bank.clip, !rect.isNull { rect = rect.intersection(c) }
+            guard !rect.isNull, rect.width > 0, rect.height > 0 else { return }
+            // Todos los glifos se ajustan al mismo recuadro, así ninguno se ve más chico que otro.
+            let pad: CGFloat = 3
+            let k = (min(size.width, size.height) - pad * 2) / max(rect.width, rect.height)
+            let t = CGAffineTransform(translationX: -rect.midX, y: -rect.midY)
                 .concatenating(CGAffineTransform(scaleX: k, y: k))
+                .concatenating(CGAffineTransform(translationX: size.width / 2, y: size.height / 2))
             if let c = bank.clip { ctx.clip(to: Path(c).applying(t)) }
-            for sh in bank.shapes where sh.opacity > 0.5 {   // las formas casi transparentes eran fondo
-                ctx.fill(sh.path.applying(t), with: .color(.white), style: FillStyle(eoFill: sh.evenOdd))
-            }
+            for sh in shapes { ctx.fill(sh.path.applying(t), with: .color(.white), style: FillStyle(eoFill: sh.evenOdd)) }
         }
     }
 }
