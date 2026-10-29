@@ -259,7 +259,7 @@ struct ResumenView: View {
             let cat = e.categoryNames.contains(raw) ? raw : "Otros"
             Card(title: due ? "Gasto por confirmar" : "Próximo gasto") {
                 HStack(spacing: 12) {
-                    Tile(symbol: e.catSymbol(cat), color: Color(hex: e.categoryColor(cat)))
+                    CategoryTile(engine: e, name: cat, color: Color(hex: e.categoryColor(cat)))
                     VStack(alignment: .leading, spacing: 2) {
                         Text(Engine.text(x["name"])).font(.inter(17, .semibold)).tracking(-0.3).lineLimit(1)
                         Text(expenseWhen(day: day, days: days, due: due)).font(.inter(14)).foregroundStyle(.secondary)

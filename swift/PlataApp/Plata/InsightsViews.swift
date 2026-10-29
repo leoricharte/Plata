@@ -317,7 +317,7 @@ struct InsightsView: View {
                     ForEach(Array(rows.enumerated()), id: \.offset) { i, r in
                         if i > 0 { RowDivider() }
                         HStack(spacing: 12) {
-                            Tile(symbol: e.catSymbol(r.name), color: Color(hex: e.categoryColor(r.name)))
+                            CategoryTile(engine: e, name: r.name, color: Color(hex: e.categoryColor(r.name)))
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(r.name).font(.inter(16, .semibold)).tracking(-0.3)
                                 Text("\(f.whole(r.before)) → \(f.whole(r.now))").font(.inter(13)).foregroundStyle(.secondary)

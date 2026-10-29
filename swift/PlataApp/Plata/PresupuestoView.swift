@@ -126,7 +126,7 @@ struct PresupuestoView: View {
         let insight = budgetInsight(k, sp, lim, c, f)
         return Button { model.activeSheet = .category(name: k) } label: {
             HStack(spacing: 12) {
-                Tile(symbol: model.engine.catSymbol(k), color: base)
+                CategoryTile(engine: model.engine, name: k, color: base)
                 VStack(alignment: .leading, spacing: 0) {
                     Text(k).font(.inter(16, .semibold)).tracking(-0.3)
                     GeometryReader { geo in

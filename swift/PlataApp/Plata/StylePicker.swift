@@ -19,6 +19,19 @@ extension Engine {
     }
 }
 
+/// El icono de una categoría en las listas: el que eligió la persona o, si no hay, la inicial (como la web).
+struct CategoryTile: View {
+    let engine: Engine
+    let name: String
+    let color: Color
+    var size: CGFloat = 46
+    var body: some View {
+        let cat = (engine.data["cats"]?.arrayValue ?? []).first { Engine.text($0["name"]) == name }
+        if let sym = iconSymbol(Engine.text(cat?["icon"])) { Tile(symbol: sym, color: color, size: size) }
+        else { LetterTile(letter: String(Tr.t(name).prefix(1)), color: color, size: size) }
+    }
+}
+
 extension Color {
     var hexString: String {
         var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
