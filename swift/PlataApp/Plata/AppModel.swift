@@ -18,6 +18,9 @@ final class AppModel {
     /// Pantallas abiertas encima del Resumen (Movimientos, Ajustes…).
     var path: [Route] = []
     var showAddTransaction = false
+    /// Cuenta con la que se abre el movimiento nuevo y meta que se elige en «Aportar» (al deslizar una fila); se limpian al cerrar.
+    var addAccountPreset: String?
+    var contribPreset: String?
     /// Posición en pantalla de los botones que el tutorial resalta (`tourAnchor`).
     var tourFrames: [String: CGRect] = [:]
     /// Novedades (historias), «Historia de Plata» y el pedido de opinión: los presenta `RootView`.

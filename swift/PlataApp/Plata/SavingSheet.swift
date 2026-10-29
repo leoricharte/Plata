@@ -167,7 +167,8 @@ struct ContribSheet: View {
         .onAppear {
             guard !loaded else { return }
             loaded = true
-            savingId = Engine.identifier(savings.first?["id"])
+            savingId = model.contribPreset.flatMap { p in savings.contains { Engine.identifier($0["id"]) == p } ? p : nil } ?? Engine.identifier(savings.first?["id"])
+            model.contribPreset = nil
             amountFocused = true
         }
     }

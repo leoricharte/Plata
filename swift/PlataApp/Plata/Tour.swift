@@ -197,3 +197,79 @@ private struct TourAnchor: ViewModifier {
             .onDisappear { model.tourFrames[id] = nil }
     }
 }
+
+
+/// El paso «Guarda aquí» (`addtx` de la web): dentro de la hoja de movimiento nuevo, con anillo sobre el check verde.
+/// La capa del tutorial de la app queda detrás de las hojas, así que este paso se dibuja dentro de la propia hoja.
+private struct TourSheetTip: ViewModifier {
+    @Environment(AppModel.self) private var model
+    let active: Bool
+    @State private var shown = false
+
+    private var tip: TourTip {
+        TourTip(id: "addtx", title: "Guarda aquí", text: "Escribe el monto, elige gasto o ingreso y la categoría, y toca el check verde para guardar.", auto: true, anchor: "submit")
+    }
+
+    private var visible: Bool {
+        active && model.tourOn && !model.isDemo && (shown || !model.tourSeen("addtx")) && model.tourFrames["submit"] != nil
+    }
+
+    func body(content: Content) -> some View {
+        content.overlay {
+            if visible, let frame = model.tourFrames["submit"] {
+                GeometryReader { geo in
+                    let o = geo.frame(in: .global).origin
+                    let box = frame.offsetBy(dx: -o.x, dy: -o.y).insetBy(dx: -6, dy: -6)
+                    let w = min(300, geo.size.width - 28)
+                    ZStack(alignment: .topLeading) {
+                        Path { p in
+                            p.addRect(CGRect(origin: .zero, size: geo.size))
+                            p.addRoundedRect(in: box, cornerSize: CGSize(width: box.height / 2, height: box.height / 2), style: .continuous)
+                        }
+                        .fill(Color.black.opacity(0.28), style: FillStyle(eoFill: true)).allowsHitTesting(false)
+                        Circle().stroke(Brand.accent, lineWidth: 2.5).frame(width: box.width, height: box.height)
+                            .offset(x: box.minX, y: box.minY).allowsHitTesting(false)
+                        tipCard(w: w, arrowX: box.midX - min(max(14, box.midX - w / 2), geo.size.width - w - 14))
+                            .offset(x: min(max(14, box.midX - w / 2), geo.size.width - w - 14), y: box.maxY + 12)
+                    }
+                }
+                .transition(.opacity)
+                .onAppear { shown = true; if !model.tourSeen("addtx") { model.tourMark("addtx") } }
+            }
+        }
+        .animation(.easeOut(duration: 0.22), value: visible)
+    }
+
+    private func tipCard(w: CGFloat, arrowX: CGFloat) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text(tip.title).font(.inter(15.5, .bold)).padding(.bottom, 3)
+            Text(tip.text).font(.inter(14)).lineSpacing(2)
+            HStack(spacing: 8) {
+                Button("Omitir tutorial") { shown = false; model.tourEnd() }
+                    .font(.inter(14, .medium)).foregroundStyle(.secondary).frame(minHeight: 40)
+                Spacer(minLength: 0)
+                Button("Entendido") { shown = false }
+                    .font(.inter(14, .semibold)).foregroundStyle(.white)
+                    .padding(.horizontal, 12).frame(minHeight: 40)
+                    .background(Brand.accent, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            }
+            .padding(.top, 8)
+        }
+        .padding(.top, 14).padding(.horizontal, 14).padding(.bottom, 8)
+        .frame(width: w, alignment: .leading)
+        .background(Color(light: "#FFFFFF", dark: "#1C1C1E"), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).stroke(Brand.accent.opacity(0.45), lineWidth: 1.5))
+        .overlay(alignment: .topLeading) {
+            Triangle().fill(Color(light: "#FFFFFF", dark: "#1C1C1E"))
+                .overlay(Triangle().stroke(Brand.accent.opacity(0.45), lineWidth: 1.5))
+                .frame(width: 18, height: 10)
+                .offset(x: min(max(18, arrowX), w - 36) - 9, y: -9)
+        }
+        .shadow(color: .black.opacity(0.24), radius: 20, y: 12)
+    }
+}
+
+extension View {
+    /// Pista del tutorial dentro de la hoja de movimiento nuevo.
+    func tourSheetTip(active: Bool) -> some View { modifier(TourSheetTip(active: active)) }
+}

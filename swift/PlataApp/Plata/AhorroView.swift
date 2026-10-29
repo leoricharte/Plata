@@ -117,7 +117,7 @@ struct AhorroView: View {
         }
         .buttonStyle(.plain)
         .swipeRow([
-            SwipeAction(label: "Aportar", symbol: "plus", color: Brand.accent) { model.activeSheet = .contrib },
+            SwipeAction(label: "Aportar", symbol: "plus", color: Brand.accent) { model.contribPreset = Engine.identifier(s["id"]); model.activeSheet = .contrib },
             SwipeAction(label: "Editar", symbol: "pencil", color: Color(hex: "#4F94F7")) { model.activeSheet = .saving(id: Engine.identifier(s["id"])) },
         ])
     }

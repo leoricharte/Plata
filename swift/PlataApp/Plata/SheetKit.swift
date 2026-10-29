@@ -31,6 +31,7 @@ struct SheetHead: View {
                             .foregroundStyle(.white)
                             .frame(width: 44, height: 44)
                             .background(Brand.accent, in: Circle())
+                            .tourAnchor("submit")
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("Guardar")

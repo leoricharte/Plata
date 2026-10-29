@@ -17,7 +17,7 @@ struct RootView: View {
             Tab(value: AppTab.ahorro) { NavigationStack { AhorroView().routeDestinations().navigationDestination(for: AcctRef.self) { AccountDetailView(id: $0.id).toolbarVisibility(.hidden, for: .tabBar) } } } label: { Label("Ahorro", systemImage: "dollarsign.gauge.chart.leftthird.topthird.rightthird") }
             Tab(value: AppTab.cuentas) { NavigationStack { CuentasView().routeDestinations().navigationDestination(for: AcctRef.self) { AccountDetailView(id: $0.id).toolbarVisibility(.hidden, for: .tabBar) } } } label: { Label("Cuentas", systemImage: "creditcard") }
         }
-        .sheet(isPresented: $model.showAddTransaction) { TransactionSheet(mode: .new) }
+        .sheet(isPresented: $model.showAddTransaction, onDismiss: { model.addAccountPreset = nil }) { TransactionSheet(mode: .new, presetAccount: model.addAccountPreset) }
         .sheet(item: $model.activeSheet) { sheet in
             switch sheet {
             case .transfer: TransferSheet()

@@ -305,7 +305,7 @@ struct CuentasView: View {
         let id = Engine.identifier(o["id"])
         let hid = Engine.flag(o["hid"])
         return [
-            SwipeAction(label: "Añadir", symbol: "plus", color: Brand.accent) { model.showAddTransaction = true },
+            SwipeAction(label: "Añadir", symbol: "plus", color: Brand.accent) { model.addAccountPreset = id; model.showAddTransaction = true },
             SwipeAction(label: "Editar", symbol: "pencil", color: Color(hex: "#4F94F7")) { model.activeSheet = debt ? .debt(id: id) : .account(id: id) },
             SwipeAction(label: hid ? "Mostrar" : "Ocultar", symbol: hid ? "eye" : "eye.slash", color: Color(hex: "#8E8E93")) { model.setAccountHidden(id: id, hidden: !hid) },
         ]
