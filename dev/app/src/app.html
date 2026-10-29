@@ -4005,7 +4005,7 @@ function renderTx(el) {
     '<div class="acctop"><div class="ptile"><span class="tile" style="background:' + col + '" aria-hidden="true">' + glyph + '</span></div><h1 style="font-size:28px;margin:10px 0 2px">' + esc(t.note || cat) + '</h1><div class="sub">' + cat + '</div>' +
     '<div class="big" style="font-size:40px;margin-top:12px;color:' + (t.amount > 0 && !pay ? 'var(--gt)' : '#1C1C1E') + '">' + fmtSC2(t.amount, cur) + '</div></div>' +
     '<div class="card"><div class="stats" style="border:0;margin:0;padding:0;gap:20px">' + st('Cuenta', esc(acc.name)) + st('Fecha', dlabel(d) + ' ' + d.getFullYear()) + '</div>' +
-    '<div class="stats" style="margin-top:14px;gap:20px">' + st('Tipo', kind) + st('Categoría', cat) + '</div>' + extra + '</div>' +
+    '<div class="stats" style="margin-top:14px;gap:20px">' + st('Tipo', kind) + st('Categoría', cat) + '</div>' + extra + (t.src === 'watch' ? '<div class="sub" style="margin-top:14px;display:flex;align-items:center;gap:6px">' + WATCH_MARK.replace('margin-left:5px;', '') + '<span>Anotado desde el Apple Watch</span></div>' : '') + '</div>' +
     (xf ? '' : '<button class="secbtn" data-act="txedit">Editar</button>') +
     (pay ? '' : '<button class="secbtn" data-act="txpost">Posponer</button>') +
     '<button class="delbtn" data-act="txdel">' + 'Eliminar' + '</button>';
