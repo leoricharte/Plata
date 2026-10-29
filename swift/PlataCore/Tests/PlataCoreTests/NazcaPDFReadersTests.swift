@@ -118,7 +118,7 @@ final class NazcaPDFReadersTests: XCTestCase {
             let name = d["name"]!.stringValue!
             guard let r = d["read"], !r.isNull else { continue }
             let doc: PdfDoc
-            do { doc = try await NazcaPDFWeb.read(NazcaPDFTests.pdfData(name), password: d["key"]?.stringValue) } catch { report.append("\(name): no abrió (\(error))"); continue }
+            do { doc = try await NazcaPDFWeb.read(NazcaPDFTests.pdfData(name), password: d["key"]?.stringValue) } catch { report.append("\(name): no abrió (\(error)) · \(NazcaPDFWeb.lastDetail)"); continue }
             guard let rd = NazcaPDFBancos.detect(doc) else {
                 let flat = PDFx.flat(doc)
                 func around(_ k: String) -> String { guard let r = flat.range(of: k, options: .caseInsensitive) else { return "«\(k)»: NO está" }; let a = flat.index(r.lowerBound, offsetBy: -12, limitedBy: flat.startIndex) ?? flat.startIndex; let b = flat.index(r.upperBound, offsetBy: 12, limitedBy: flat.endIndex) ?? flat.endIndex; return "«\(flat[a..<b])»" }

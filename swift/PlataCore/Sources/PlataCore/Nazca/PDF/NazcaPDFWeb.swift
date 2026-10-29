@@ -12,6 +12,8 @@ import WebKit
 public enum NazcaPDFWeb {
     static let scheme = "plata-pdf"
     static let timeout: UInt64 = 90_000_000_000
+    /// Solo para diagnóstico en pruebas: el tipo y el mensaje técnico del último fallo de pdf.js (nunca el contenido del PDF).
+    public internal(set) static var lastDetail = ""
 
     public static func read(_ data: Data, password: String? = nil) async throws -> PdfDoc {
         if data.count > NazcaPDF.maxBytes { throw NazcaPDF.Failure.tooBig }
@@ -64,11 +66,12 @@ public enum NazcaPDFWeb {
             let any = try await w.callAsyncJavaScript(body, arguments: ["b64": data.base64EncodedString(), "pw": password ?? ""], in: nil, contentWorld: .page)
             guard let s = any as? String, let raw = s.data(using: .utf8) else { throw NazcaPDF.Failure.unavailable }
             let r: Reply
-            do { r = try JSONDecoder().decode(Reply.self, from: raw) } catch { throw NazcaPDF.Failure.invalid }
+            do { r = try JSONDecoder().decode(Reply.self, from: raw) } catch { NazcaPDFWeb.lastDetail = "respuesta: \(error)".prefix(300).description; throw NazcaPDF.Failure.invalid }
             if r.ok, let d = r.d {
                 return PdfDoc(pages: d.pages.map { p in PdfPage(w: p.w, h: p.h, items: p.items.map { PdfItem(str: $0.str, x: $0.x, y: $0.y, w: $0.w) }) },
                               total: d.total, truncated: d.truncated)
             }
+            NazcaPDFWeb.lastDetail = r.detail ?? ""
             throw NazcaPDF.Failure(rawValue: r.code ?? "") ?? .invalid
         }
 
@@ -90,6 +93,7 @@ public enum NazcaPDFWeb {
         let ok: Bool
         let d: Doc?
         let code: String?
+        let detail: String?
     }
 
     // MARK: - Sirve solo los 4 archivos del paquete
