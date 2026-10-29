@@ -110,6 +110,7 @@ struct AddPage: View {
     @State private var category = ""
     @State private var editing = false
     @State private var typedText = ""
+    @State private var details = false
 
     /// La corona acelera: los primeros pasos van de 1 en 1, luego de 5 y luego de 25.
     static func mapped(_ v: Double) -> Double { v <= 60 ? v : v <= 120 ? 60 + (v - 60) * 5 : 360 + (v - 120) * 25 }
@@ -132,30 +133,8 @@ struct AddPage: View {
     }
 
     private func form(_ s: WatchSnapshot) -> some View {
-        ScrollView {
-            VStack(spacing: 6) {
-                Button { editing = true; typedText = "" } label: {
-                    Amount(text: (isOut ? "-" : "+") + s.fmt(amount))
-                        .font(.system(size: 30, weight: .bold, design: .rounded)).minimumScaleFactor(0.6).lineLimit(1)
-                        .foregroundStyle(isOut ? Color.primary : WatchTheme.accent)
-                }
-                .buttonStyle(.plain)
-                .focusable()
-                .digitalCrownRotation($crown, from: 0, through: 200, by: 1, sensitivity: .medium, isContinuous: false, isHapticFeedbackEnabled: true)
-                .onChange(of: crown) { _, _ in typed = nil }
-                Text("Gira la corona o toca el monto").font(.system(size: 10)).foregroundStyle(.secondary)
-                Picker("", selection: $isOut) { Text("Gasto").tag(true); Text("Ingreso").tag(false) }.frame(height: 40)
-                if isOut {
-                    Picker("Categoría", selection: $category) { ForEach(s.categories, id: \.self) { Text($0).tag($0) } }
-                }
-                Picker("Cuenta", selection: $account) { ForEach(s.accounts, id: \.id) { Text($0.name).tag($0.id) } }
-                Button {
-                    save(s)
-                } label: { Text("Añadir").frame(maxWidth: .infinity) }
-                .buttonStyle(.borderedProminent).tint(WatchTheme.accent).disabled(amount <= 0 || account.isEmpty)
-                SyncNote()
-            }
-            .padding(.horizontal, 4)
+        Group {
+            if details { detailsView(s) } else { amountView(s) }
         }
         .onAppear {
             if account.isEmpty { account = s.accounts.first?.id ?? "" }
@@ -169,10 +148,50 @@ struct AddPage: View {
         }
     }
 
+    /// Paso 1: solo el monto, sin scroll, para que la corona sea del monto.
+    private func amountView(_ s: WatchSnapshot) -> some View {
+        VStack(spacing: 6) {
+            Button { isOut.toggle() } label: {
+                Text(isOut ? "Gasto" : "Ingreso").font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(isOut ? Color.secondary : WatchTheme.accent)
+            }.buttonStyle(.plain)
+            Button { editing = true; typedText = "" } label: {
+                Amount(text: (isOut ? "-" : "+") + s.fmt(amount))
+                    .font(.system(size: 34, weight: .bold, design: .rounded)).minimumScaleFactor(0.5).lineLimit(1)
+                    .foregroundStyle(isOut ? Color.primary : WatchTheme.accent)
+            }
+            .buttonStyle(.plain)
+            Text("Gira la corona · toca el monto para escribirlo").font(.system(size: 9)).foregroundStyle(.secondary).multilineTextAlignment(.center)
+            Button { details = true } label: { Text("Siguiente").frame(maxWidth: .infinity) }
+                .buttonStyle(.borderedProminent).tint(WatchTheme.accent).disabled(amount <= 0)
+            SyncNote()
+        }
+        .padding(.horizontal, 6)
+        .focusable()
+        .digitalCrownRotation($crown, from: 0, through: 200, by: 1, sensitivity: .medium, isContinuous: false, isHapticFeedbackEnabled: true)
+        .onChange(of: crown) { _, _ in typed = nil }
+    }
+
+    /// Paso 2: categoría, cuenta y confirmar.
+    private func detailsView(_ s: WatchSnapshot) -> some View {
+        ScrollView {
+            VStack(spacing: 6) {
+                Button { details = false } label: { Label(s.fmt(amount), systemImage: "chevron.left").font(.system(size: 12)) }.buttonStyle(.plain).foregroundStyle(WatchTheme.accent)
+                if isOut {
+                    Picker("Categoría", selection: $category) { ForEach(s.categories, id: \.self) { Text($0).tag($0) } }
+                }
+                Picker("Cuenta", selection: $account) { ForEach(s.accounts, id: \.id) { Text($0.name).tag($0.id) } }
+                Button { save(s) } label: { Text("Añadir").frame(maxWidth: .infinity) }
+                    .buttonStyle(.borderedProminent).tint(WatchTheme.accent).disabled(account.isEmpty)
+            }
+            .padding(.horizontal, 4)
+        }
+    }
+
     private func save(_ s: WatchSnapshot) {
         let iso = DateFormatter.iso.string(from: Date())
         store.add(WatchEntry(id: UUID().uuidString, amount: isOut ? -amount : amount, category: isOut ? category : "Ingreso", account: account, note: "", date: iso))
-        crown = 0; typed = nil
+        crown = 0; typed = nil; details = false
     }
 }
 
