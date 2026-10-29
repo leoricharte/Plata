@@ -182,7 +182,7 @@ struct ResumenView: View {
                 if pending { confirmButton("Confirmar ingreso") { model.activeSheet = .confirm(kind: "in", id: next.id, pick: true) } }
             }
             .contentShape(Rectangle())
-            .onTapGesture { if pending { model.activeSheet = .confirm(kind: "in", id: next.id, pick: true) } }
+            .onTapGesture { model.activeSheet = .confirm(kind: "in", id: next.id, pick: true) }
         }
     }
 
@@ -270,7 +270,7 @@ struct ResumenView: View {
                 if due { confirmButton("Confirmar gasto") { model.activeSheet = .confirm(kind: "out", id: Engine.identifier(x["id"]), pick: true) } }
             }
             .contentShape(Rectangle())
-            .onTapGesture { if due { model.activeSheet = .confirm(kind: "out", id: Engine.identifier(x["id"]), pick: true) } }
+            .onTapGesture { model.activeSheet = .confirm(kind: "out", id: Engine.identifier(x["id"]), pick: true) }
         }
     }
 
