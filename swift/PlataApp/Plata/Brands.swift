@@ -37,8 +37,7 @@ enum Brands {
               let data = try? Data(contentsOf: url), let raw = try? JSONDecoder().decode(Raw.self, from: data) else { return ([], []) }
         let b = raw.banks.map { r in
             BankBrand(keys: r.keys, bg: Color(hex: r.bg), fixed: r.fixed, box: CGRect(x: r.box[0], y: r.box[1], width: r.box[2], height: r.box[3]), size: r.sz,
-                      shapes: r.shapes.map { BrandShape(path: SVGPath.parse($0.d), accFill: Color(hex: $0.a), cardFill: Color(hex: $0.c), opacity: $0.o, evenOdd: $0.eo) },
-                      clip: r.keys.contains("applecard") ? CGRect(x: 0, y: 0, width: 23.1, height: 29) : nil)
+                      shapes: r.shapes.map { BrandShape(path: SVGPath.parse($0.d), accFill: Color(hex: $0.a), cardFill: Color(hex: $0.c), opacity: $0.o, evenOdd: $0.eo) })
         }
         let s = raw.subs.map { r in
             SubBrand(id: r.i, bg: Color(hex: r.bg), vb: r.vb, bb: r.bb, k: r.k, evenOdd: r.eo, keys: r.keys, path: SVGPath.parse(r.d))
