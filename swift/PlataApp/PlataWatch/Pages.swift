@@ -163,7 +163,7 @@ struct AddPage: View {
         }
         .sheet(isPresented: $editing) {
             VStack {
-                TextField("Monto", text: $typedText).keyboardType(.decimalPad)
+                TextField("Monto", text: $typedText)
                 Button("Listo") { typed = Double(typedText.replacingOccurrences(of: ",", with: ".")); editing = false }
             }
         }
