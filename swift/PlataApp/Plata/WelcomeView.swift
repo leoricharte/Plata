@@ -12,6 +12,7 @@ enum Welcome {
 /// Bienvenida: portada → (nivel → pasos) → «Tus datos son tuyos» → perfil nuevo (`welcomeHTML` de la web).
 struct WelcomeView: View {
     @Environment(AppModel.self) private var model
+    @Environment(CloudModel.self) private var cloud
 
     private enum Page: Equatable { case landing, demo, level, step, privacy }
 
@@ -23,6 +24,9 @@ struct WelcomeView: View {
     @State private var privacyDemo = false
     @State private var importing = false
     @State private var errorText: String?
+    @State private var cloudCard = false
+    @State private var cloudMode = false
+    @State private var checkingCloud = false
 
     private var steps: [String] { Onboarding.steps(level: w.level) }
     private var key: String { page == .step ? "step-\(step)" : "\(page)" }
@@ -52,6 +56,14 @@ struct WelcomeView: View {
             catch MigrationError.legacyFormat { errorText = "Este archivo es de una versión muy antigua de Plata y no se puede abrir aquí." }
             catch { errorText = "Este archivo no parece un perfil de Plata." }
         }
+        .sheet(isPresented: $cloudCard) {
+            WelcomeCloudCard {
+                cloudCard = false
+                Task { try? await Task.sleep(for: .milliseconds(350)); cloud.openFlow(.email) }
+            } later: { cloudCard = false }
+            .presentationDetents([.large])
+        }
+        .fullScreenCover(isPresented: Binding(get: { cloud.flow != nil }, set: { if !$0 { cloud.flow = nil } })) { CloudFlowHost().interactiveDismissDisabled() }
         .alert("No se pudo abrir", isPresented: Binding(get: { errorText != nil }, set: { if !$0 { errorText = nil } })) {
             Button("Entendido", role: .cancel) {}
         } message: { Text(errorText ?? "") }
@@ -106,7 +118,16 @@ struct WelcomeView: View {
                 }
             }
             Spacer()
-            Color.clear.frame(width: 44, height: 44)
+            if cloudMode && (page == .level || page == .step) {
+                HStack(spacing: 5) {
+                    Image(systemName: "cloud").font(.system(size: 12, weight: .semibold))
+                    Text("Plata Cloud").font(.inter(13, .semibold))
+                }
+                .foregroundStyle(Brand.gainText)
+                .padding(.horizontal, 10).padding(.vertical, 5)
+                .background(Brand.accent.opacity(0.15), in: Capsule())
+                .fixedSize()
+            } else { Color.clear.frame(width: 44, height: 44) }
         }
         .frame(minHeight: 44)
     }
@@ -132,7 +153,7 @@ struct WelcomeView: View {
             Spacer()
             Text("Beta 4 · 464").font(.inter(13, .medium)).foregroundStyle(.secondary).padding(.bottom, 12)
             HStack(spacing: 10) {
-                Button("Empezar") { w = WelcomeAnswers(); w.cur = Onboarding.guessCurrencies(timeZone: TimeZone.current.identifier, region: Locale.current.region?.identifier ?? ""); go(.level) }
+                Button("Empezar") { cloudMode = false; w = WelcomeAnswers(); w.cur = Onboarding.guessCurrencies(timeZone: TimeZone.current.identifier, region: Locale.current.region?.identifier ?? ""); go(.level) }
                     .buttonStyle(PrimaryPillStyle())
                 Menu {
                     Button { quick() } label: { Label("Inicio rápido", systemImage: "flashlight.on.fill") }
@@ -146,6 +167,34 @@ struct WelcomeView: View {
                         .shadow(color: .black.opacity(0.06), radius: 4, y: 2)
                 }
                 .accessibilityLabel("Más opciones")
+            }
+            Button { startCloud() } label: {
+                HStack(spacing: 8) {
+                    CloudMark(kind: .cloud, height: 22).foregroundStyle(Brand.accent)
+                    Text(checkingCloud ? "Revisando tu nube…" : "Empezar en la nube").font(.inter(18, .semibold))
+                }
+                .foregroundStyle(Color(hex: "#1C1C1E"))
+                .frame(maxWidth: .infinity).frame(height: 54)
+                .background(Color.white, in: Capsule())
+                .overlay(Capsule().stroke(Color.black.opacity(0.06), lineWidth: 1))
+                .shadow(color: .black.opacity(0.12), radius: 10, y: 4)
+            }
+            .buttonStyle(.plain)
+            .disabled(checkingCloud)
+            .padding(.top, 10)
+        }
+    }
+
+    /// `wcloudGo`: con sesión y sin datos aquí, carga tu nube o inicia el recorrido en modo nube; si no, muestra la tarjeta de Plata Cloud.
+    private func startCloud() {
+        guard cloud.isIn, !model.profile.hasData else { cloudCard = true; return }
+        checkingCloud = true
+        Task {
+            await cloud.sync(.first)
+            checkingCloud = false
+            if model.showWelcome && !model.profile.hasData {
+                w = WelcomeAnswers(); w.cur = Onboarding.guessCurrencies(timeZone: TimeZone.current.identifier, region: Locale.current.region?.identifier ?? "")
+                cloudMode = true; go(.level)
             }
         }
     }
@@ -314,5 +363,42 @@ struct WelcomeView: View {
             }
         }
         .padding(.top, 22)
+    }
+}
+
+
+/// La tarjeta de «Empezar en la nube» (`wclHTML` de la web).
+struct WelcomeCloudCard: View {
+    var enter: () -> Void
+    var later: () -> Void
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                CloudMark(kind: .logo, height: 34).padding(.top, 8)
+                Text("Tus datos, en todos tus dispositivos").font(.inter(24, .bold)).padding(.top, 14)
+                Text("Plata Cloud sincroniza tu información entre tu teléfono y tu computadora, sin dejar de ser tuya.")
+                    .font(.inter(16)).foregroundStyle(.secondary).padding(.top, 6)
+                VStack(alignment: .leading, spacing: 12) {
+                    item("1", "Cifrado de extremo a extremo: solo tú puedes leer tus datos.")
+                    item("2", "Sin contraseñas: entras con un código que te llega al correo.")
+                    item("3", "Marcha blanca gratuita de un mes, por invitación. Si aún no tienes, entras a la lista de espera.")
+                }
+                .padding(.top, 16)
+                CloudPriceLine().frame(maxWidth: .infinity).padding(.top, 8)
+                Button("Crear cuenta o entrar", action: enter).buttonStyle(CloudButtonStyle()).padding(.top, 12)
+                Button("Ahora no", action: later).buttonStyle(CloudButtonStyle(kind: .alt)).padding(.top, 8)
+            }
+            .padding(.horizontal, 24).padding(.bottom, 20)
+        }
+        .background(Color(.systemGroupedBackground).ignoresSafeArea())
+    }
+
+    private func item(_ n: String, _ t: String) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Text(verbatim: n).font(.inter(13, .bold)).foregroundStyle(Brand.gainText)
+                .frame(width: 22, height: 22).background(Brand.accent.opacity(0.15), in: Circle())
+            Text(t).font(.inter(15)).frame(maxWidth: .infinity, alignment: .leading)
+        }
     }
 }

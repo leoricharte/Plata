@@ -40,7 +40,7 @@ struct RootView: View {
         .fullScreenCover(isPresented: $model.showNews) { NewsStoryView() }
         .fullScreenCover(isPresented: $model.showImport) { ImportFlowView() }
         .sheet(isPresented: $model.showHistory) { HistorySheet() }
-        .fullScreenCover(isPresented: Binding(get: { cloud.flow != nil }, set: { if !$0 { cloud.flow = nil } })) { CloudFlowHost().interactiveDismissDisabled() }
+        .fullScreenCover(isPresented: Binding(get: { cloud.flow != nil && !model.showWelcome }, set: { if !$0 { cloud.flow = nil } })) { CloudFlowHost().interactiveDismissDisabled() }
         .alert("¿Cargar la copia local como la de la nube?", isPresented: $cloud.askLocalUp) {
             Button("Enviar código") { cloud.confirmLocalUp() }
             Button("No, seguir en modo local", role: .cancel) {}
