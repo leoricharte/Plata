@@ -12,7 +12,7 @@ struct WatchEvent: Codable, Hashable {
 struct WatchDay: Codable, Hashable {
     var iso: String         // 2026-10-29
     var cash: Double        // saldo en caja al cierre del día
-    var debt: Double        // deuda de tarjetas ese día
+    var credit: Double      // crédito disponible ese día (límites menos deuda)
     var events: [WatchEvent]
 }
 
@@ -43,6 +43,7 @@ struct WatchSnapshot: Codable {
     var nextName: String
     var nextAmt: Double
     var nextIn: Int                     // días hasta el próximo cobro o pago (-1 = no hay)
+    var hasCredit: Bool                 // hay tarjetas con límite
 }
 
 /// Un movimiento anotado en el reloj, pendiente de guardarse en el iPhone.

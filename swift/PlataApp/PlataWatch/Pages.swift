@@ -218,7 +218,7 @@ struct ProjectionPage: View {
                 VStack(spacing: 0) { Amount(text: s.fmt(out)); Text("sale").foregroundStyle(.secondary) }
             }
             .font(.system(size: 11))
-            HStack(spacing: 3) { Text("Crédito"); Amount(text: s.fmt(last.debt)) }.font(.system(size: 11)).foregroundStyle(.secondary)
+            if s.hasCredit { HStack(spacing: 3) { Text("Crédito disp."); Amount(text: s.fmt(last.credit)) }.font(.system(size: 11)).foregroundStyle(.secondary) }
             Text("toca para ver los días").font(.system(size: 9)).foregroundStyle(.tertiary)
         }
         .contentShape(Rectangle())
@@ -236,7 +236,7 @@ struct ProjectionPage: View {
                 Text(dayLabel(d.iso)).font(.system(size: 13, weight: .semibold))
                 HStack(spacing: 12) {
                     VStack(spacing: 0) { Amount(text: s.fmt(d.cash)).font(.system(size: 17, weight: .bold, design: .rounded)).foregroundStyle(d.cash < 0 ? .red : .primary); Text("caja").font(.system(size: 9)).foregroundStyle(.secondary) }
-                    VStack(spacing: 0) { Amount(text: s.fmt(d.debt)).font(.system(size: 17, weight: .bold, design: .rounded)); Text("crédito").font(.system(size: 9)).foregroundStyle(.secondary) }
+                    if s.hasCredit { VStack(spacing: 0) { Amount(text: s.fmt(d.credit)).font(.system(size: 17, weight: .bold, design: .rounded)); Text("crédito disp.").font(.system(size: 9)).foregroundStyle(.secondary) } }
                 }
                 if d.events.isEmpty {
                     Text("Sin cobros ni ingresos").font(.system(size: 11)).foregroundStyle(.secondary).padding(.top, 4)

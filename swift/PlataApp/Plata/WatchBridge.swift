@@ -66,12 +66,15 @@ final class WatchBridge: NSObject, WCSessionDelegate {
             byDay[ev.date.iso, default: []].append(WatchEvent(name: ev.name, amt: ev.amt, type: ev.type))
         }
         let series = e.dailySeries()
-        var debt = c.debt
+        let limited = e.allCards.filter { Engine.text($0["kind"]) == "card" && Engine.number($0["limit"]) > 0 }
+        let creditLimit = limited.reduce(0.0) { $0 + e.usd(Engine.number($1["limit"]), Engine.text($1["cur"])) }
+        let avail0 = limited.reduce(0.0) { $0 + max(0, e.usd(Engine.number($1["limit"]) - Engine.number($1["balance"]), Engine.text($1["cur"]))) }
+        var owed = max(0, creditLimit - avail0)
         var days: [WatchDay] = []
         for p in series.prefix(28) {
             let list = byDay[p.date.iso] ?? []
-            for x in list where x.type == "card" { debt = max(0, debt + x.amt) }   // un pago de tarjeta (negativo en caja) baja la deuda
-            days.append(WatchDay(iso: p.date.iso, cash: p.v, debt: debt, events: list))
+            for x in list where x.type == "card" { owed = max(0, owed + x.amt) }   // un pago de tarjeta (negativo en caja) baja lo que debes y sube lo disponible
+            days.append(WatchDay(iso: p.date.iso, cash: p.v, credit: creditLimit - owed, events: list))
         }
 
         var next: (String, Double, Int)?
@@ -89,7 +92,7 @@ final class WatchBridge: NSObject, WCSessionDelegate {
             spentToday: spentToday, allowance: allowance, daysLeft: dl, cats: Array(cats.prefix(4)), days: days,
             accounts: accounts, categories: e.categoryNames.filter { $0 != "Ingreso" }, letter: im.letter,
             adjective: Tr.t(InsightsText.adjective[im.letter] ?? ""),
-            nextName: next?.0 ?? "", nextAmt: next?.1 ?? 0, nextIn: next?.2 ?? -1)
+            nextName: next?.0 ?? "", nextAmt: next?.1 ?? 0, nextIn: next?.2 ?? -1, hasCredit: creditLimit > 0)
     }
 
     // MARK: WCSessionDelegate
