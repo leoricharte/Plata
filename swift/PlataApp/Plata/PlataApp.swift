@@ -34,7 +34,7 @@ struct PlataApp: App {
             }
             .environment(model)
                 .environment(cloud)
-                .task { cloud.attach(model); WatchBridge.shared.start(model) }
+                .task { cloud.attach(model); WatchBridge.shared.start(model); WidgetBridge.shared.start(model) }
                 .preferredColorScheme(Prefs.scheme(theme))
                 .environment(\.locale, Prefs.locale(lang))
                 .onChange(of: scenePhase) { _, phase in

@@ -149,6 +149,7 @@ struct AjustesView: View {
     @State private var pendingImport: Data?
     @State private var confirmWipe = false
     @State private var showDemos = false
+    @State private var showWidgets = false
     @State private var message: String?
 
     var body: some View {
@@ -195,6 +196,13 @@ struct AjustesView: View {
                     }
                 }
                 SettingsNote(text: "Esta información no es recopilada por Plata ni Estudio 22. Toda la información se maneja en tu archivo de perfil.")
+
+                SCard {
+                    LinkRow(symbol: "square.grid.2x2", title: "Widgets", color: Brand.green, first: true) { showWidgets = true }
+                }
+                .padding(.top, 8)
+                .sheet(isPresented: $showWidgets) { WidgetsSheet() }
+                SettingsNote(text: "Crea widgets con las piezas del Bento y añádelos a tu pantalla de inicio. Podrían volverse una función premium en el futuro.")
 
                 if !hidden.isEmpty {
                     SectionHead("Cuentas ocultas").padding(.top, 30).padding(.bottom, 0)

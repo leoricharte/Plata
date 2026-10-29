@@ -23,14 +23,17 @@ targets:
     sources:
       - path: Plata
       - path: Shared
+      - path: SharedPhone
     dependencies:
       - package: PlataCore
       - target: PlataWatch
+      - target: PlataWidgets
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: net.plataapp.plata   # CÁMBIALO si tu App ID en Apple Developer es otro
         DEVELOPMENT_TEAM: "8YMVGT4T6Q"
         CODE_SIGN_STYLE: Automatic
+        CODE_SIGN_ENTITLEMENTS: Plata/Plata.entitlements
         TARGETED_DEVICE_FAMILY: "1"                     # iPhone primero; iPad después
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
@@ -87,4 +90,27 @@ targets:
         CODE_SIGN_STYLE: Automatic
         TARGETED_DEVICE_FAMILY: "4"
         CODE_SIGN_ENTITLEMENTS: PlataWatchWidgets/PlataWatchWidgets.entitlements
+        SKIP_INSTALL: YES
+
+  PlataWidgets:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "18.0"
+    sources:
+      - path: PlataWidgets
+      - path: Shared
+      - path: SharedPhone
+    info:
+      path: PlataWidgets/Info.plist
+      properties:
+        CFBundleDisplayName: Plata
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: net.plataapp.plata.widgets
+        DEVELOPMENT_TEAM: "8YMVGT4T6Q"
+        CODE_SIGN_STYLE: Automatic
+        TARGETED_DEVICE_FAMILY: "1"
+        CODE_SIGN_ENTITLEMENTS: PlataWidgets/PlataWidgets.entitlements
         SKIP_INSTALL: YES

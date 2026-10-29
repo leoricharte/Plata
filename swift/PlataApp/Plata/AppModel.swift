@@ -9,7 +9,7 @@ import PlataCore
 final class AppModel {
     private(set) var profile: Profile
     private(set) var today: LocalDate
-    private(set) var engine: Engine { didSet { WatchBridge.shared.push() } }
+    private(set) var engine: Engine { didSet { WatchBridge.shared.push(); WidgetBridge.shared.push() } }
     /// Cambios hechos en esta sesión (para refrescar vistas derivadas, como el archivo de exportación).
     private(set) var changes = 0
     var errorMessage: String?
