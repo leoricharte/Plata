@@ -22,7 +22,7 @@ struct RootPages: View {
 struct Amount: View {
     @Environment(\.isLuminanceReduced) private var dim
     var text: String
-    var body: some View { Text(dim ? "———" : text) }
+    var body: some View { Text(dim ? "●●●●" : text) }
 }
 
 /// «hace 3 min» chiquito, como el del iPhone.
@@ -48,54 +48,114 @@ extension WatchSnapshot {
 
 // MARK: presupuesto del día
 
+extension Color {
+    init(watchHex h: String?) {
+        let t = (h ?? "").replacingOccurrences(of: "#", with: "")
+        guard t.count == 6, let v = UInt32(t, radix: 16) else { self = WatchTheme.accent; return }
+        self = Color(red: Double((v >> 16) & 255) / 255, green: Double((v >> 8) & 255) / 255, blue: Double(v & 255) / 255)
+    }
+}
+
+/// Texto pegado a un arco: termina justo arriba (a las 12) y se lee hacia ahí, como en un anillo de Actividad.
+struct CurvedLabel: View {
+    var text: String
+    var radius: CGFloat
+    var size: CGFloat
+    var body: some View {
+        let chars = Array(text.uppercased())
+        let step = Double(size * 0.78 / radius) * 180 / .pi   // grados por letra
+        ZStack {
+            ForEach(Array(chars.enumerated()), id: \.offset) { i, ch in
+                let angle = -Double(chars.count - i) * step - 3
+                Text(String(ch))
+                    .font(.system(size: size, weight: .heavy, design: .rounded))
+                    .foregroundStyle(.white)
+                    .shadow(color: .black.opacity(0.45), radius: 0.6)
+                    .offset(y: -radius)
+                    .rotationEffect(.degrees(angle))
+            }
+        }
+    }
+}
+
 struct BudgetPage: View {
     @Environment(WatchStore.self) private var store
+    @State private var expanded = false
 
     var body: some View {
         if let s = store.snapshot {
-            ScrollView {
-                VStack(spacing: 6) {
-                    if !s.letter.isEmpty {
-                        Text("\(s.letter) • \(s.adjective)").font(.system(size: 12, weight: .semibold)).foregroundStyle(WatchTheme.accent)
-                    }
-                    ring(s)
-                    if s.allowance > 0 {
-                        let left = s.allowance - s.spentToday
-                        VStack(spacing: 0) {
-                            Amount(text: s.fmt(abs(left))).font(.system(size: 22, weight: .bold, design: .rounded)).foregroundStyle(left < 0 ? .red : .primary)
-                            Text(left < 0 ? "pasado hoy" : "te quedan hoy").font(.system(size: 11)).foregroundStyle(.secondary)
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(spacing: 8) {
+                        if !s.letter.isEmpty {
+                            Text("\(s.letter) • \(s.adjective)").font(.system(size: 14, weight: .semibold)).foregroundStyle(WatchTheme.accent)
                         }
-                    } else {
-                        Text("Sin presupuesto este mes").font(.system(size: 12)).foregroundStyle(.secondary)
-                    }
-                    ForEach(s.cats, id: \.name) { c in
-                        let r = c.spent / c.limit
-                        VStack(alignment: .leading, spacing: 2) {
-                            HStack { Text(c.name).lineLimit(1); Spacer(); Amount(text: s.fmt(c.spent)) }.font(.system(size: 11))
-                            ProgressView(value: min(1, r)).tint(r >= 1 ? .red : r >= 0.8 ? .orange : WatchTheme.accent)
+                        rings(s)
+                            .onTapGesture {
+                                withAnimation { expanded.toggle() }
+                                WKInterfaceDevice.current().play(.click)
+                                if !expanded { DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { withAnimation { proxy.scrollTo("lista", anchor: .top) } } }
+                            }
+                        if s.allowance > 0 {
+                            let left = s.allowance - s.spentToday
+                            VStack(spacing: 0) {
+                                Amount(text: s.fmt(abs(left))).font(.system(size: 26, weight: .bold, design: .rounded)).foregroundStyle(left < 0 ? .red : .primary)
+                                Text(left < 0 ? "pasado hoy" : "te quedan hoy").font(.system(size: 13)).foregroundStyle(.secondary)
+                            }
+                        } else {
+                            Text("Sin presupuesto este mes").font(.system(size: 14)).foregroundStyle(.secondary)
                         }
-                        .padding(.top, 2)
+                        if !s.cats.isEmpty && !expanded {
+                            Text("Toca el círculo para ver todos").font(.system(size: 11)).foregroundStyle(.tertiary)
+                        }
+                        if expanded {
+                            VStack(spacing: 8) {
+                                ForEach(s.cats, id: \.name) { c in
+                                    let r = c.limit > 0 ? c.spent / c.limit : 0
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        HStack { Text(c.name).lineLimit(1); Spacer(); Amount(text: s.fmt(c.spent)) }.font(.system(size: 14, weight: .medium))
+                                        ProgressView(value: min(1, r)).tint(r >= 1 ? .red : Color(watchHex: c.color))
+                                    }
+                                }
+                            }
+                            .id("lista")
+                        }
+                        SyncNote().padding(.top, 4)
                     }
-                    SyncNote().padding(.top, 4)
+                    .padding(.horizontal, 6)
                 }
-                .padding(.horizontal, 6)
             }
         } else {
             VStack { SyncNote() }
         }
     }
 
-    private func ring(_ s: WatchSnapshot) -> some View {
-        let r = s.allowance > 0 ? min(1.0, s.spentToday / s.allowance) : 0
+    /// Hasta 5 anillos concéntricos (las categorías con más uso), cada uno de su color y con su nombre curvado.
+    private func rings(_ s: WatchSnapshot) -> some View {
+        let top = Array(s.cats.prefix(5))
+        let width: CGFloat = 10, gap: CGFloat = 2, outer: CGFloat = 78
+        let items: [(name: String, frac: Double, color: Color, over: Bool)] = top.isEmpty
+            ? [("Hoy", s.allowance > 0 ? min(1, s.spentToday / s.allowance) : 0, WatchTheme.accent, s.allowance > 0 && s.spentToday >= s.allowance)]
+            : top.map { ($0.name, $0.limit > 0 ? min(1, $0.spent / $0.limit) : 0, Color(watchHex: $0.color), $0.limit > 0 && $0.spent >= $0.limit) }
         return ZStack {
-            Circle().stroke(Color.secondary.opacity(0.25), lineWidth: 9)
-            Circle().trim(from: 0, to: max(0.001, r)).stroke(r >= 1 ? Color.red : WatchTheme.accent, style: StrokeStyle(lineWidth: 9, lineCap: .round)).rotationEffect(.degrees(-90))
+            ForEach(Array(items.enumerated()), id: \.offset) { i, it in
+                let r = outer - CGFloat(i) * (width + gap)   // radio del centro del anillo
+                let radius = r - width / 2
+                ZStack {
+                    Circle().stroke(it.color.opacity(0.22), lineWidth: width)
+                    Circle().trim(from: 0, to: max(0.004, it.frac)).stroke(it.over ? Color.red : it.color, style: StrokeStyle(lineWidth: width, lineCap: .round)).rotationEffect(.degrees(-90))
+                    CurvedLabel(text: String(it.name.prefix(12)), radius: radius, size: 7.5)
+                }
+                .frame(width: radius * 2, height: radius * 2)
+            }
             VStack(spacing: 0) {
-                Amount(text: s.fmt(s.spentToday)).font(.system(size: 15, weight: .bold, design: .rounded))
+                Amount(text: s.fmt(s.spentToday)).font(.system(size: 15, weight: .bold, design: .rounded)).minimumScaleFactor(0.6).lineLimit(1)
                 Text("hoy").font(.system(size: 10)).foregroundStyle(.secondary)
             }
+            .frame(width: 58)
         }
-        .frame(width: 92, height: 92)
+        .frame(width: 160, height: 160)
+        .contentShape(Circle())
     }
 }
 
@@ -103,8 +163,11 @@ struct BudgetPage: View {
 
 struct AddPage: View {
     @Environment(WatchStore.self) private var store
-    @State private var crown = 0.0
-    @State private var typed: Double?
+    @State private var crown = 500.0
+    @State private var lastCrown = 500.0
+    @State private var lastTick = Date.distantPast
+    @State private var streakStart = Date.distantPast
+    @State private var value = 0.0
     @State private var isOut = true
     @State private var account = ""
     @State private var category = ""
@@ -112,9 +175,33 @@ struct AddPage: View {
     @State private var typedText = ""
     @State private var details = false
 
-    /// La corona acelera: los primeros pasos van de 1 en 1, luego de 5 y luego de 25.
-    static func mapped(_ v: Double) -> Double { v <= 60 ? v : v <= 120 ? 60 + (v - 60) * 5 : 360 + (v - 120) * 25 }
-    private var amount: Double { typed ?? Self.mapped(crown) }
+    private var amount: Double { value }
+
+    /// Corona con tres velocidades: lento = de a 0.01 (preciso); normal = de a 0.25; rápido y sostenido = acelera (1, 5, 25).
+    private func turned(to new: Double) {
+        let now = Date()
+        var d = new - lastCrown
+        lastCrown = new
+        if abs(new - 500) > 400 { crown = 500; lastCrown = 500; return }   // recentra sin saltos
+        guard d != 0 else { return }
+        let dt = max(0.016, now.timeIntervalSince(lastTick))
+        if dt > 0.35 { streakStart = now }
+        lastTick = now
+        let rate = abs(d) / dt                       // vueltas por segundo
+        let sustained = now.timeIntervalSince(streakStart)
+        let step: Double
+        switch rate {
+        case ..<0.45: step = 0.01
+        case ..<1.3: step = 0.25
+        case ..<2.6: step = sustained > 0.8 ? 1 : 0.25
+        default: step = sustained > 1.6 ? 25 : sustained > 0.8 ? 5 : 1
+        }
+        let ticks = abs(d) * 24                      // ~24 muescas por vuelta
+        d = (d < 0 ? -1 : 1) * ticks * step
+        let before = value
+        value = max(0, ((value + d) * 100).rounded() / 100)
+        if Int(before / max(step, 0.25)) != Int(value / max(step, 0.25)) { WKInterfaceDevice.current().play(.click) }
+    }
 
     var body: some View {
         if let s = store.snapshot {
@@ -143,7 +230,7 @@ struct AddPage: View {
         .sheet(isPresented: $editing) {
             VStack {
                 TextField("Monto", text: $typedText)
-                Button("Listo") { typed = Double(typedText.replacingOccurrences(of: ",", with: ".")); editing = false }
+                Button("Listo") { if let v = Double(typedText.replacingOccurrences(of: ",", with: ".")) { value = max(0, v) }; editing = false }
             }
         }
     }
@@ -156,20 +243,20 @@ struct AddPage: View {
                     .foregroundStyle(isOut ? Color.secondary : WatchTheme.accent)
             }.buttonStyle(.plain)
             Button { editing = true; typedText = "" } label: {
-                Amount(text: (isOut ? "-" : "+") + s.fmt(amount))
+                Amount(text: (isOut ? "-" : "+") + WatchFormat.money(amount, sym: s.sym, dec: 2))
                     .font(.system(size: 34, weight: .bold, design: .rounded)).minimumScaleFactor(0.5).lineLimit(1)
                     .foregroundStyle(isOut ? Color.primary : WatchTheme.accent)
             }
             .buttonStyle(.plain)
-            Text("Gira la corona · toca el monto para escribirlo").font(.system(size: 9)).foregroundStyle(.secondary).multilineTextAlignment(.center)
-            Button { details = true } label: { Text("Siguiente").frame(maxWidth: .infinity) }
-                .buttonStyle(.borderedProminent).tint(WatchTheme.accent).disabled(amount <= 0)
+            Text("Gira la corona · toca el monto para escribirlo").font(.system(size: 11)).foregroundStyle(.secondary).multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
+            Button { details = true } label: { Text("Siguiente").font(.system(size: 13, weight: .semibold)).frame(maxWidth: .infinity) }
+                .buttonStyle(.borderedProminent).controlSize(.small).tint(WatchTheme.accent).disabled(amount <= 0)
             SyncNote()
         }
         .padding(.horizontal, 6)
         .focusable()
-        .digitalCrownRotation($crown, from: 0, through: 200, by: 1, sensitivity: .medium, isContinuous: false, isHapticFeedbackEnabled: true)
-        .onChange(of: crown) { _, _ in typed = nil }
+        .digitalCrownRotation($crown, from: 0, through: 1000, by: nil, sensitivity: .low, isContinuous: false, isHapticFeedbackEnabled: false)
+        .onChange(of: crown) { _, n in turned(to: n) }
     }
 
     /// Paso 2: categoría, cuenta y confirmar.
@@ -191,7 +278,7 @@ struct AddPage: View {
     private func save(_ s: WatchSnapshot) {
         let iso = DateFormatter.iso.string(from: Date())
         store.add(WatchEntry(id: UUID().uuidString, amount: isOut ? -amount : amount, category: isOut ? category : "Ingreso", account: account, note: "", date: iso))
-        crown = 0; typed = nil; details = false
+        value = 0; details = false
     }
 }
 
@@ -228,17 +315,17 @@ struct ProjectionPage: View {
         let inc = days.flatMap(\.events).filter { $0.amt > 0 }.reduce(0) { $0 + $1.amt }
         let out = days.flatMap(\.events).filter { $0.amt < 0 }.reduce(0) { $0 + $1.amt }
         return VStack(spacing: 4) {
-            Text(w == 0 ? "Esta semana" : "Semana \(w + 1)").font(.system(size: 13, weight: .semibold)).foregroundStyle(WatchTheme.accent)
-            Text(rangeLabel(days.first!.iso, last.iso)).font(.system(size: 10)).foregroundStyle(.secondary)
-            Amount(text: s.fmt(last.cash)).font(.system(size: 26, weight: .bold, design: .rounded)).foregroundStyle(last.cash < 0 ? .red : .primary)
-            Text("en caja").font(.system(size: 10)).foregroundStyle(.secondary)
+            Text(w == 0 ? "Esta semana" : "Semana \(w + 1)").font(.system(size: 17, weight: .semibold)).foregroundStyle(WatchTheme.accent)
+            Text(rangeLabel(days.first!.iso, last.iso)).font(.system(size: 13)).foregroundStyle(.secondary)
+            Amount(text: s.fmt(last.cash)).font(.system(size: 34, weight: .bold, design: .rounded)).foregroundStyle(last.cash < 0 ? .red : .primary)
+            Text("en caja").font(.system(size: 13)).foregroundStyle(.secondary)
             HStack(spacing: 10) {
                 VStack(spacing: 0) { Amount(text: s.fmt(inc, signed: true)).foregroundStyle(WatchTheme.accent); Text("entra") .foregroundStyle(.secondary) }
                 VStack(spacing: 0) { Amount(text: s.fmt(out)); Text("sale").foregroundStyle(.secondary) }
             }
-            .font(.system(size: 11))
-            if s.hasCredit { HStack(spacing: 3) { Text("Crédito disp."); Amount(text: s.fmt(last.credit)) }.font(.system(size: 11)).foregroundStyle(.secondary) }
-            Text("toca para ver los días").font(.system(size: 9)).foregroundStyle(.tertiary)
+            .font(.system(size: 14, weight: .medium))
+            if s.hasCredit { HStack(spacing: 3) { Text("Crédito disp."); Amount(text: s.fmt(last.credit)) }.font(.system(size: 13)).foregroundStyle(.secondary) }
+            Text("toca para ver los días").font(.system(size: 11)).foregroundStyle(.tertiary)
         }
         .contentShape(Rectangle())
         .onTapGesture { day = Double(w * 7); byDay = true; WKInterfaceDevice.current().play(.click) }
@@ -251,17 +338,17 @@ struct ProjectionPage: View {
         let d = s.days[i]
         return ScrollView {
             VStack(spacing: 4) {
-                Button { byDay = false } label: { Label("Semanas", systemImage: "chevron.left").font(.system(size: 11)) }.buttonStyle(.plain).foregroundStyle(WatchTheme.accent)
-                Text(dayLabel(d.iso)).font(.system(size: 13, weight: .semibold))
+                Button { byDay = false } label: { Label("Semanas", systemImage: "chevron.left").font(.system(size: 13)) }.buttonStyle(.plain).foregroundStyle(WatchTheme.accent)
+                Text(dayLabel(d.iso)).font(.system(size: 16, weight: .semibold))
                 HStack(spacing: 12) {
-                    VStack(spacing: 0) { Amount(text: s.fmt(d.cash)).font(.system(size: 17, weight: .bold, design: .rounded)).foregroundStyle(d.cash < 0 ? .red : .primary); Text("caja").font(.system(size: 9)).foregroundStyle(.secondary) }
-                    if s.hasCredit { VStack(spacing: 0) { Amount(text: s.fmt(d.credit)).font(.system(size: 17, weight: .bold, design: .rounded)); Text("crédito disp.").font(.system(size: 9)).foregroundStyle(.secondary) } }
+                    VStack(spacing: 0) { Amount(text: s.fmt(d.cash)).font(.system(size: 21, weight: .bold, design: .rounded)).foregroundStyle(d.cash < 0 ? .red : .primary); Text("caja").font(.system(size: 12)).foregroundStyle(.secondary) }
+                    if s.hasCredit { VStack(spacing: 0) { Amount(text: s.fmt(d.credit)).font(.system(size: 21, weight: .bold, design: .rounded)); Text("crédito disp.").font(.system(size: 12)).foregroundStyle(.secondary) } }
                 }
                 if d.events.isEmpty {
-                    Text("Sin cobros ni ingresos").font(.system(size: 11)).foregroundStyle(.secondary).padding(.top, 4)
+                    Text("Sin cobros ni ingresos").font(.system(size: 14)).foregroundStyle(.secondary).padding(.top, 4)
                 }
                 ForEach(Array(d.events.enumerated()), id: \.offset) { _, ev in
-                    HStack { Text(ev.name).lineLimit(1); Spacer(); Amount(text: s.fmt(ev.amt, signed: true)).foregroundStyle(ev.amt > 0 ? WatchTheme.accent : .primary) }.font(.system(size: 11))
+                    HStack { Text(ev.name).lineLimit(1); Spacer(); Amount(text: s.fmt(ev.amt, signed: true)).foregroundStyle(ev.amt > 0 ? WatchTheme.accent : .primary) }.font(.system(size: 14))
                 }
             }
             .padding(.horizontal, 4)

@@ -56,9 +56,9 @@ final class WatchBridge: NSObject, WCSessionDelegate {
         var cats: [WatchCat] = []
         for k in e.categoryNames {
             let lim = limits[k] ?? 0
-            if lim > 0 { cats.append(WatchCat(name: Tr.t(k), spent: c.catTot[k] ?? 0, limit: lim)) }
+            if lim > 0 { cats.append(WatchCat(name: Tr.t(k), spent: c.catTot[k] ?? 0, limit: lim, color: e.categoryColor(k))) }
         }
-        cats.sort { ($0.spent / $0.limit) > ($1.spent / $1.limit) }
+        cats.sort { $0.spent > $1.spent }   // las de más uso primero
 
         var byDay: [String: [WatchEvent]] = [:]
         let events = e.genEvents()
@@ -89,7 +89,7 @@ final class WatchBridge: NSObject, WCSessionDelegate {
         let cur = model.fmt.currency
         return WatchSnapshot(
             stamp: Date().timeIntervalSince1970 * 1000, sym: model.fmt.symbol(cur), dec: Money.decimals(cur),
-            spentToday: spentToday, allowance: allowance, daysLeft: dl, cats: Array(cats.prefix(4)), days: days,
+            spentToday: spentToday, allowance: allowance, daysLeft: dl, cats: Array(cats.prefix(12)), days: days,
             accounts: accounts, categories: e.categoryNames.filter { $0 != "Ingreso" }, letter: im.letter,
             adjective: Tr.t(InsightsText.adjective[im.letter] ?? ""),
             nextName: next?.0 ?? "", nextAmt: next?.1 ?? 0, nextIn: next?.2 ?? -1, hasCredit: creditLimit > 0)

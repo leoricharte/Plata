@@ -20,6 +20,7 @@ struct WatchCat: Codable, Hashable {
     var name: String
     var spent: Double
     var limit: Double
+    var color: String? = nil    // #RRGGBB de la categoría
 }
 
 struct WatchAccount: Codable, Hashable {
