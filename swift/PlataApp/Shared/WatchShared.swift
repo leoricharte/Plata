@@ -26,6 +26,18 @@ struct WatchCat: Codable, Hashable {
 struct WatchAccount: Codable, Hashable {
     var id: String
     var name: String
+    var last4: String? = nil
+    var credit: Bool? = nil
+    var symbol: String? = nil           // SF Symbol si no hay logo
+    var logo: Data? = nil               // solo el glifo del banco (PNG blanco, sin fondo), si existe
+}
+
+/// Una categoría tal como se ve en la cuadrícula del reloj.
+struct WatchCategory: Codable, Hashable {
+    var name: String                    // el nombre real (lo que se guarda)
+    var label: String                   // traducido, para mostrar
+    var symbol: String
+    var color: String
 }
 
 struct WatchSnapshot: Codable {
@@ -39,6 +51,7 @@ struct WatchSnapshot: Codable {
     var days: [WatchDay]                // hoy + 27 días
     var accounts: [WatchAccount]
     var categories: [String]
+    var catInfo: [WatchCategory]? = nil
     var letter: String                  // nota de Insights (S, A, B…)
     var adjective: String
     var nextName: String

@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 import PlataCore
 import WatchConnectivity
 
@@ -82,17 +83,40 @@ final class WatchBridge: NSObject, WCSessionDelegate {
             next = (ev.name, ev.amt, ev.date.days - today.days); break
         }
 
-        var accounts = e.allAccounts.map { WatchAccount(id: Engine.text($0["id"]), name: Engine.text($0["name"])) }
-        accounts += e.allCards.map { WatchAccount(id: Engine.text($0["id"]), name: Engine.text($0["name"])) }
+        func account(_ o: JSONValue, credit: Bool) -> WatchAccount {
+            let sym = iconSymbol(Engine.text(o["icon"])) ?? (credit ? "creditcard.fill" : "building.columns.fill")
+            let l4 = Engine.text(o["last4"])
+            return WatchAccount(id: Engine.text(o["id"]), name: Engine.text(o["name"]), last4: l4.isEmpty ? nil : l4, credit: credit,
+                                symbol: sym, logo: WatchBridge.logo(for: o))
+        }
+        var accounts = e.allAccounts.map { account($0, credit: false) }
+        accounts += e.allCards.map { account($0, credit: true) }
+        let catInfo = e.categoryNames.filter { $0 != "Ingreso" }.map {
+            WatchCategory(name: $0, label: Tr.t($0), symbol: e.catSymbol($0), color: e.categoryColor($0))
+        }
 
         let im = e.insightsModel()
         let cur = model.fmt.currency
         return WatchSnapshot(
             stamp: Date().timeIntervalSince1970 * 1000, sym: model.fmt.symbol(cur), dec: Money.decimals(cur),
             spentToday: spentToday, allowance: allowance, daysLeft: dl, cats: Array(cats.prefix(12)), days: days,
-            accounts: accounts, categories: e.categoryNames.filter { $0 != "Ingreso" }, letter: im.letter,
+            accounts: accounts, categories: e.categoryNames.filter { $0 != "Ingreso" }, catInfo: catInfo, letter: im.letter,
             adjective: Tr.t(InsightsText.adjective[im.letter] ?? ""),
             nextName: next?.0 ?? "", nextAmt: next?.1 ?? 0, nextIn: next?.2 ?? -1, hasCredit: creditLimit > 0)
+    }
+
+    /// Solo el glifo del banco (sin fondo), en blanco, para que el reloj lo pinte del color que quiera. Solo si ya existe un logo real.
+    private static var logoCache: [String: Data] = [:]
+    static func logo(for o: JSONValue) -> Data? {
+        guard let bk = Brands.bankPick(o) else { return nil }
+        let key = bk.keys.joined(separator: ",")
+        if let d = logoCache[key] { return d }
+        let r = ImageRenderer(content: WhiteGlyph(bank: bk).frame(width: 40, height: 40))
+        r.scale = 2
+        r.isOpaque = false
+        guard let d = r.uiImage?.pngData() else { return nil }
+        logoCache[key] = d
+        return d
     }
 
     // MARK: WCSessionDelegate
@@ -118,5 +142,25 @@ final class WatchBridge: NSObject, WCSessionDelegate {
             UserDefaults.standard.set(Array(done.suffix(100)), forKey: doneKey)
             pushNow()
         } catch { model.errorMessage = error.localizedDescription }
+    }
+}
+
+/// El glifo de un banco en blanco y sin fondo (para el reloj).
+struct WhiteGlyph: View {
+    let bank: BankBrand
+    var body: some View {
+        Canvas { ctx, size in
+            let k = size.width / 460
+            let bs = bank.size / max(bank.box.width, bank.box.height)
+            let w = bank.box.width * bs, h = bank.box.height * bs
+            let t = CGAffineTransform(translationX: -bank.box.minX, y: -bank.box.minY)
+                .concatenating(CGAffineTransform(scaleX: bs, y: bs))
+                .concatenating(CGAffineTransform(translationX: (460 - w) / 2, y: (460 - h) / 2))
+                .concatenating(CGAffineTransform(scaleX: k, y: k))
+            if let c = bank.clip { ctx.clip(to: Path(c).applying(t)) }
+            for sh in bank.shapes where sh.opacity > 0.5 {   // las formas casi transparentes eran fondo
+                ctx.fill(sh.path.applying(t), with: .color(.white), style: FillStyle(eoFill: sh.evenOdd))
+            }
+        }
     }
 }
