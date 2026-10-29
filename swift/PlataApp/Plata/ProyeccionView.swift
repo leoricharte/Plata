@@ -450,7 +450,7 @@ struct ProyeccionView: View {
                     let cur = e.accountCurrency(x["acc"])
                     let cat = e.categoryNames.contains(Engine.text(x["cat"])) ? Engine.text(x["cat"]) : "Otros"
                     let isCard = e.paymentCard(x) != nil
-                    row(tile: AnyView(isCard ? Tile(symbol: "creditcard.fill", color: Color(hex: "#B98AE6")) : CategoryTile(engine: e, name: cat, color: Color(hex: e.categoryColor(cat)))),
+                    row(tile: AnyView(isCard ? AnyView(Tile(symbol: "creditcard.fill", color: Color(hex: "#B98AE6"))) : AnyView(CategoryTile(engine: e, name: cat, color: Color(hex: e.categoryColor(cat))))),
                         title: Engine.text(x["name"]), badge: pend.contains(Engine.identifier(x["id"])) ? "Por confirmar" : nil,
                         sub: Self.dlabel(Engine.text(x["date"])) + " · " + Engine.repeatLabel(x["repeat"]) + untilText(x) + " · " + (isCard ? "Pago de crédito" : cat),
                         trailing: AnyView(Text("−" + f.whole(Engine.number(x["amount"]), cur)).font(.inter(16, .semibold)).monospacedDigit()),
