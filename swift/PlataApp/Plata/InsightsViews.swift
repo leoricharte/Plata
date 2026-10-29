@@ -153,6 +153,17 @@ struct InsightsView: View {
         }
     }
 
+    /// `--ink2` de la web (#3A3A3C claro, #D1D1D6 oscuro): el gris oscuro de los textos largos de una tarjeta.
+    private static let ink2 = Color(UIColor { $0.userInterfaceStyle == .dark ? UIColor(red: 0.82, green: 0.82, blue: 0.84, alpha: 1) : UIColor(red: 0.227, green: 0.227, blue: 0.235, alpha: 1) })
+
+    private func whyDot(_ hollow: Bool, _ color: Color) -> some View {
+        Group {
+            if hollow { Circle().strokeBorder(color, lineWidth: 1.5) } else { Circle().fill(color) }
+        }
+        .frame(width: 11, height: 11)
+        .alignmentGuide(.firstTextBaseline) { $0[.bottom] - 1 }
+    }
+
     private func tri(_ dir: Int, _ color: Color, _ size: CGFloat = 12) -> some View {
         Image(systemName: dir > 0 ? "arrowtriangle.up.fill" : dir < 0 ? "arrowtriangle.down.fill" : "minus").font(.system(size: size)).foregroundStyle(color)
     }
@@ -230,7 +241,7 @@ struct InsightsView: View {
             }
             if m.hasPrev {
                 Text(isHalf ? (InsightsText.halfEvaluation[hl.letter] ?? InsightsText.halfEvaluation["B"]!) : (InsightsText.evaluation[m.letter] ?? InsightsText.evaluation["B"]!))
-                    .font(.inter(14)).foregroundStyle(.secondary).padding(.top, 6)
+                    .font(.inter(14)).foregroundStyle(Self.ink2).padding(.top, 10)
                 if !isHalf { StreakRow(letter: m.letter, streak: m.streak, level: m.plus) }
                 if !isHalf, let hs {
                     HStack(spacing: 8) {
@@ -248,8 +259,8 @@ struct InsightsView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     ForEach(Array(why.enumerated()), id: \.offset) { _, w in
                         HStack(alignment: .firstTextBaseline, spacing: 6) {
-                            Text(w.0 == "○" ? "○" : "●").font(.inter(12)).foregroundStyle(w.0 == "▲" ? good : w.0 == "○" ? mute : bad)
-                            Text(w.1).font(.inter(14)).foregroundStyle(.primary.opacity(0.8))
+                            whyDot(w.0 == "○", w.0 == "▲" ? good : w.0 == "○" ? mute : bad)
+                            Text(w.1).font(.inter(14)).foregroundStyle(Self.ink2)
                         }
                         .padding(.vertical, 4)
                     }
