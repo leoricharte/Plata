@@ -141,6 +141,6 @@ struct BentoCanvas: View {
                 }
             }
         }
-        .environment(\.widgetFamily, family)
+        .environment(\.bentoFamily, family)
     }
 }

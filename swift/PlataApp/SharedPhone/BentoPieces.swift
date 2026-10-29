@@ -2,9 +2,11 @@ import Charts
 import SwiftUI
 import WidgetKit
 
+private struct FamilyKey: EnvironmentKey { static let defaultValue: WidgetFamily = .systemMedium }
 private struct CompactKey: EnvironmentKey { static let defaultValue = false }
 extension EnvironmentValues {
     /// Dentro de un bento, cada pieza chica se dibuja en su versión compacta.
+    var bentoFamily: WidgetFamily { get { self[FamilyKey.self] } set { self[FamilyKey.self] = newValue } }
     var bentoCompact: Bool { get { self[CompactKey.self] } set { self[CompactKey.self] = newValue } }
 }
 
@@ -67,7 +69,7 @@ private struct Line: View {
 // MARK: vistas
 
 struct KpiView: View {
-    @Environment(\.widgetFamily) private var family
+    @Environment(\.bentoFamily) private var family
     @Environment(\.bentoCompact) private var compact
     private var small: Bool { family == .systemSmall || compact }
     var s: PhoneSnapshot?
@@ -99,7 +101,7 @@ struct KpiView: View {
 }
 
 struct CatsView: View {
-    @Environment(\.widgetFamily) private var family
+    @Environment(\.bentoFamily) private var family
     @Environment(\.bentoCompact) private var compact
     private var small: Bool { family == .systemSmall || compact }
     var s: PhoneSnapshot?
@@ -130,7 +132,7 @@ struct CatsView: View {
 }
 
 struct BudgetView: View {
-    @Environment(\.widgetFamily) private var family
+    @Environment(\.bentoFamily) private var family
     @Environment(\.bentoCompact) private var compact
     private var small: Bool { family == .systemSmall || compact }
     var s: PhoneSnapshot?
@@ -178,7 +180,7 @@ struct DailyView: View {
 }
 
 struct TopView: View {
-    @Environment(\.widgetFamily) private var family
+    @Environment(\.bentoFamily) private var family
     @Environment(\.bentoCompact) private var compact
     private var small: Bool { family == .systemSmall || compact }
     var s: PhoneSnapshot?
@@ -193,7 +195,7 @@ struct TopView: View {
 }
 
 struct UpcomingView: View {
-    @Environment(\.widgetFamily) private var family
+    @Environment(\.bentoFamily) private var family
     @Environment(\.bentoCompact) private var compact
     private var small: Bool { family == .systemSmall || compact }
     var s: PhoneSnapshot?
