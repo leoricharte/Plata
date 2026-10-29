@@ -116,5 +116,9 @@ struct AhorroView: View {
             .padding(.vertical, 10).frame(minHeight: 64).contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .swipeRow([
+            SwipeAction(label: "Aportar", symbol: "plus", color: Brand.accent) { model.activeSheet = .contrib },
+            SwipeAction(label: "Editar", symbol: "pencil", color: Color(hex: "#4F94F7")) { model.activeSheet = .saving(id: Engine.identifier(s["id"])) },
+        ])
     }
 }

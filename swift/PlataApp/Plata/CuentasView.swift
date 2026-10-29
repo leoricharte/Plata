@@ -221,6 +221,7 @@ struct CuentasView: View {
                     .frame(minHeight: 64).contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .swipeRow(accountSwipe(a, debt: false))
             }
             if !list.isEmpty { hiddenNote(e.allAccounts, kind: "acc", e) }
             addRow("Añadir cuenta de débito") { model.activeSheet = .account(id: nil) }
@@ -296,6 +297,18 @@ struct CuentasView: View {
             .padding(.vertical, 10).frame(minHeight: 64).contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .swipeRow(accountSwipe(k, debt: true))
+    }
+
+    /// Deslizar una cuenta o tarjeta: añadir movimiento, editar y ocultar o mostrar (`PX_ACTS` · `acct` de la web).
+    private func accountSwipe(_ o: JSONValue, debt: Bool) -> [SwipeAction] {
+        let id = Engine.identifier(o["id"])
+        let hid = Engine.flag(o["hid"])
+        return [
+            SwipeAction(label: "Añadir", symbol: "plus", color: Brand.accent) { model.showAddTransaction = true },
+            SwipeAction(label: "Editar", symbol: "pencil", color: Color(hex: "#4F94F7")) { model.activeSheet = debt ? .debt(id: id) : .account(id: id) },
+            SwipeAction(label: hid ? "Mostrar" : "Ocultar", symbol: hid ? "eye" : "eye.slash", color: Color(hex: "#8E8E93")) { model.setAccountHidden(id: id, hidden: !hid) },
+        ]
     }
 
     // MARK: anillo de deuda

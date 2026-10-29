@@ -152,6 +152,8 @@ struct PresupuestoView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .swipeRow([SwipeAction(label: "Editar", symbol: "pencil", color: Color(hex: "#4F94F7")) { model.activeSheet = .category(name: k) }]
+            + (k == "Otros" ? [] : [SwipeAction(label: "Eliminar", symbol: "trash", color: Color(hex: "#EB5757"), confirm: "¿Eliminar la categoría «\(k)»?") { try? model.deleteCategory(name: k) }]))
     }
 
     /// Los avisos bajo cada límite (`budgetInsight` de la web).

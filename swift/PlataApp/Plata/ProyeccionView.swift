@@ -313,7 +313,7 @@ struct ProyeccionView: View {
 
     // MARK: listas
 
-    private func row(tile: AnyView, title: String, badge: String? = nil, sub: String, trailing: AnyView, onTap: (() -> Void)? = nil) -> some View {
+    private func row(tile: AnyView, title: String, badge: String? = nil, sub: String, trailing: AnyView, onTap: (() -> Void)? = nil, swipe: [SwipeAction] = []) -> some View {
         HStack(spacing: 12) {
             tile
             VStack(alignment: .leading, spacing: 2) {
@@ -331,6 +331,17 @@ struct ProyeccionView: View {
         .frame(minHeight: 64)
         .contentShape(Rectangle())
         .onTapGesture { if let onTap { onTap() } else { soon = true } }
+        .swipeRow(swipe)
+    }
+
+    /// Deslizar un ingreso o gasto previsto: confirmar, editar y eliminar (`PX_ACTS` de la web).
+    private func expectedSwipe(_ x: JSONValue, confirmKind: String, editKind: String, collection: String, noun: String) -> [SwipeAction] {
+        let id = Engine.identifier(x["id"])
+        return [
+            SwipeAction(label: "Confirmar", symbol: "checkmark", color: Brand.accent) { model.activeSheet = .confirm(kind: confirmKind, id: id, pick: true) },
+            SwipeAction(label: "Editar", symbol: "pencil", color: Color(hex: "#4F94F7")) { model.activeSheet = .expected(kind: editKind, id: id) },
+            SwipeAction(label: "Eliminar", symbol: "trash", color: Color(hex: "#EB5757"), confirm: "¿Eliminar este \(noun)?") { try? model.deleteExpected(collection: collection, id: x["id"] ?? .null) },
+        ]
     }
 
     private func addRow(_ title: String, _ action: (() -> Void)? = nil) -> some View {
@@ -368,7 +379,8 @@ struct ProyeccionView: View {
                         title: Engine.text(x["name"]), badge: pend.contains(Engine.identifier(x["id"])) ? "Por confirmar" : nil,
                         sub: Self.dlabel(Engine.text(x["date"])) + " · " + Engine.repeatLabel(x["repeat"]) + untilText(x),
                         trailing: AnyView(Text("+" + f.whole(Engine.number(x["amount"]), cur)).font(.inter(16, .semibold)).monospacedDigit().foregroundStyle(Brand.gainText)),
-                        onTap: { let i = Engine.identifier(x["id"]); model.activeSheet = pend.contains(i) ? .confirm(kind: "in", id: i, pick: true) : .expected(kind: "income", id: i) })
+                        onTap: { let i = Engine.identifier(x["id"]); model.activeSheet = pend.contains(i) ? .confirm(kind: "in", id: i, pick: true) : .expected(kind: "income", id: i) },
+                        swipe: expectedSwipe(x, confirmKind: "in", editKind: "income", collection: "expected_income", noun: "ingreso previsto"))
                 }
                 if !est.isEmpty {
                     Text("Variación media vs. lo previsto: \(avg >= 0 ? "+" : "−")\(f.exact(abs(avg))) (\(est.count) \(est.count == 1 ? "ingreso confirmado" : "ingresos confirmados"))")
@@ -454,7 +466,8 @@ struct ProyeccionView: View {
                         title: Engine.text(x["name"]), badge: pend.contains(Engine.identifier(x["id"])) ? "Por confirmar" : nil,
                         sub: Self.dlabel(Engine.text(x["date"])) + " · " + Engine.repeatLabel(x["repeat"]) + untilText(x) + " · " + (isCard ? "Pago de crédito" : cat),
                         trailing: AnyView(Text("−" + f.whole(Engine.number(x["amount"]), cur)).font(.inter(16, .semibold)).monospacedDigit()),
-                        onTap: { let i = Engine.identifier(x["id"]); model.activeSheet = pend.contains(i) ? .confirm(kind: "out", id: i, pick: true) : .expected(kind: isCard ? "cardpay" : "expense", id: i) })
+                        onTap: { let i = Engine.identifier(x["id"]); model.activeSheet = pend.contains(i) ? .confirm(kind: "out", id: i, pick: true) : .expected(kind: isCard ? "cardpay" : "expense", id: i) },
+                        swipe: expectedSwipe(x, confirmKind: "out", editKind: isCard ? "cardpay" : "expense", collection: "expected_expense", noun: isCard ? "pago previsto" : "gasto previsto"))
                 }
                 RowDivider()
                 addRow("Añadir gasto previsto") { model.activeSheet = .expected(kind: "expense", id: nil) }
