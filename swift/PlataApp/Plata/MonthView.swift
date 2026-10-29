@@ -105,6 +105,7 @@ struct MonthView: View {
                 .rowStyle(top: 0, bottom: 14)
             }
         }
+        .syncRefresh()
         .listStyle(.insetGrouped)
         .listSectionSpacing(0)
         .scrollContentBackground(.hidden)

@@ -42,6 +42,7 @@ struct PresupuestoView: View {
             .padding(.top, 8)
             .padding(.bottom, 24)
         }
+        .syncRefresh()
         .background(Color(.systemGroupedBackground))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { ToolbarItem(placement: .topBarTrailing) { AddMenuButton() } }

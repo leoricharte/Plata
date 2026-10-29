@@ -78,3 +78,14 @@ extension View {
         actions.isEmpty ? AnyView(self) : AnyView(modifier(SwipeRowModifier(actions: actions)))
     }
 }
+
+/// Gesto de jalar para recargar: sincroniza con Plata Cloud (si hay sesión) y refresca.
+private struct SyncRefresh: ViewModifier {
+    @Environment(CloudModel.self) private var cloud
+    func body(content: Content) -> some View {
+        content.refreshable {
+            if cloud.isIn && cloud.isCloud { await cloud.sync(.manual) } else { try? await Task.sleep(for: .milliseconds(500)) }
+        }
+    }
+}
+extension View { func syncRefresh() -> some View { modifier(SyncRefresh()) } }

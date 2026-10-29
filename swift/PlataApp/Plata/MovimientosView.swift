@@ -111,6 +111,7 @@ struct MovimientosView: View {
                 }
             }
         }
+        .syncRefresh()
         .listStyle(.insetGrouped)
         .listSectionSpacing(12)
         .scrollContentBackground(.hidden)
