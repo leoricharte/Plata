@@ -304,13 +304,13 @@ struct CuentasView: View {
             if items.isEmpty {
                 Text("Sin deuda registrada").font(.inter(15)).foregroundStyle(.secondary).frame(maxWidth: .infinity).padding(.vertical, 18)
             } else {
-                RingChart(items: items, radius: 126, lineWidth: 30, gap: 6, box: 300) {
+                RingChart(items: items, radius: 126, lineWidth: 30, gap: 6, box: 300,
+                          arcTop: .init(text: Tr.t("\(heading) · \(cards.count) \(cards.count == 1 ? "CUENTA" : "CUENTAS")"), radius: 88),
+                          arcBottom: .init(text: Tr.t("INTERESES ESTIMADOS AL MES"), radius: 104)) {
                     AnyView(
                         VStack(spacing: 0) {
-                            Text("\(heading) · \(cards.count) \(cards.count == 1 ? "CUENTA" : "CUENTAS")").font(.inter(11, .medium)).tracking(1.6).foregroundStyle(.secondary)
                             Text(f.whole(total)).font(.inter(46, .bold)).tracking(-1.6).lineLimit(1).minimumScaleFactor(0.5)
                             Text(f.exact(interest)).font(.inter(22, .semibold)).foregroundStyle(Brand.warnText)
-                            Text("INTERESES ESTIMADOS AL MES").font(.inter(11, .medium)).tracking(1.6).foregroundStyle(.secondary).multilineTextAlignment(.center)
                         }
                         .padding(.horizontal, 56)
                     )

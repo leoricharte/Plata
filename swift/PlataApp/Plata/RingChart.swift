@@ -9,6 +9,10 @@ struct RingChart<Center: View>: View {
     var lineWidth: CGFloat = 22
     var gap: CGFloat = 4
     var box: CGFloat = 240
+    /// Texto curvado dentro del anillo (`<textPath>` de la web): arriba sigue un arco que se lee de izquierda a derecha, abajo igual por debajo.
+    struct Arc { let text: String; let radius: CGFloat }
+    var arcTop: Arc? = nil
+    var arcBottom: Arc? = nil
     @ViewBuilder var center: () -> Center
 
     var body: some View {
@@ -33,9 +37,33 @@ struct RingChart<Center: View>: View {
                     ctx.stroke(p, with: .color(it.color), style: StrokeStyle(lineWidth: sw, lineCap: .round))
                     cum += share
                 }
+                if let a = arcTop { Self.drawArc(&ctx, a, c, k, top: true) }
+                if let a = arcBottom { Self.drawArc(&ctx, a, c, k, top: false) }
             }
             center()
         }
         .aspectRatio(1, contentMode: .fit)
+    }
+
+    /// Dibuja `a.text` letra a letra sobre un arco centrado en el anillo (11 pt, tracking 1.6, como la web).
+    private static func drawArc(_ ctx: inout GraphicsContext, _ a: Arc, _ c: CGPoint, _ k: CGFloat, top: Bool) {
+        let r = a.radius * k, tracking = 1.6 * k
+        let glyphs: [(GraphicsContext.ResolvedText, CGFloat)] = a.text.map { ch in
+            let t = ctx.resolve(Text(verbatim: String(ch)).font(.inter(11 * k, .medium)).foregroundColor(.secondary))
+            return (t, t.measure(in: CGSize(width: 200, height: 200)).width)
+        }
+        let total = glyphs.reduce(0) { $0 + $1.1 + tracking } - tracking
+        var s = -total / 2
+        for (t, w) in glyphs {
+            let mid = (s + w / 2) / r                       // ángulo del centro de la letra, 0 = arriba (o abajo)
+            var g = ctx
+            if top {
+                g.translateBy(x: c.x + r * sin(mid), y: c.y - r * cos(mid)); g.rotate(by: .radians(mid))
+            } else {
+                g.translateBy(x: c.x + r * sin(mid), y: c.y + r * cos(mid)); g.rotate(by: .radians(-mid))
+            }
+            g.draw(t, at: .zero, anchor: .bottom)
+            s += w + tracking
+        }
     }
 }
