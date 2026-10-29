@@ -12,7 +12,7 @@ struct PageHead: View {
         VStack(alignment: .leading, spacing: 0) {
             Text(eyebrow).font(.inter(15)).foregroundStyle(.secondary)
             if let id = bankMark, BankMarks.all[id] != nil {
-                BankMarkView(id: id, logo: true).foregroundStyle(Color.primary.opacity(0.46)).padding(.top, 8).padding(.bottom, 4)
+                BankMarkView(id: id, logo: true).foregroundStyle(Color(red: 0.133, green: 0.710, blue: 0.451)).padding(.top, 8).padding(.bottom, 4)
                     .accessibilityElement(children: .ignore).accessibilityLabel(title).accessibilityAddTraits(.isHeader)
             } else {
                 Text(title).font(.inter(34, .bold, relativeTo: .largeTitle)).tracking(-1.2).padding(.top, 2)

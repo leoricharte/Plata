@@ -162,7 +162,7 @@ struct ImportFlowView: View {
                     let on = b.active && Nazca.ready.contains(b.id)
                     Button { bank = b.id; step = .bank; notice = nil } label: {
                         HStack(spacing: 12) {
-                            BankMarkView(id: b.id, size: nil).foregroundStyle(on ? Color.primary.opacity(0.46) : Color.secondary)
+                            BankMarkView(id: b.id, size: nil).foregroundStyle(on ? Color(red: 0.133, green: 0.710, blue: 0.451) : Color.secondary)
                                 .frame(width: 40, height: 40)
                             VStack(alignment: .leading, spacing: 0) {
                                 Text(verbatim: b.name).font(.inter(16))
@@ -947,7 +947,7 @@ struct ImportReviewBody: View {
         return SCard {
             HStack(spacing: 14) {
                 Group {
-                    if let b = bank, BankMarks.all[b] != nil { BankMarkView(id: b, size: 32) }
+                    if let b = bank, BankMarks.all[b] != nil { BankMarkView(id: b, size: 32).foregroundStyle(Color(red: 0.133, green: 0.710, blue: 0.451)) }
                     else { Image(systemName: bank != nil ? "building.columns" : "doc.text").font(.system(size: 30)) }
                 }
                 .foregroundStyle(Color.primary.opacity(0.46)).frame(width: 52, height: 52)

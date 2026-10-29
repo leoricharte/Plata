@@ -328,7 +328,7 @@ struct AddPage: View {
     /// Solo el glifo del logo real (sin fondo); si no hay uno, el símbolo de siempre.
     @ViewBuilder private func accountIcon(_ a: WatchAccount) -> some View {
         if let d = a.logo, let img = UIImage(data: d) {
-            Image(uiImage: img).renderingMode(.template).resizable().scaledToFit().frame(width: 26, height: 26).foregroundStyle(.white)
+            Image(uiImage: img).renderingMode(.template).resizable().scaledToFit().frame(width: 26, height: 26).foregroundStyle(WatchTheme.accent)
         } else {
             Image(systemName: a.symbol ?? "creditcard.fill").font(.system(size: 20)).foregroundStyle(.white).frame(width: 26, height: 26)
         }
