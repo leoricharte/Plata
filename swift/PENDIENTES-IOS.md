@@ -1,10 +1,10 @@
 # Plata iOS (SwiftUI nativo) — estado y pendientes
 
-Documento para pasarle a otra IA o a otra persona. Actualizado: 28 oct 2026 (noche). Avance estimado: **~75 %** del port (una cifra anterior de ~90 % estaba inflada: faltaba Revisión y Nazca no lee PDFs reales). Es una estimación: lo que más falta es el arreglo de lectura de PDF, la revisión visual y pruebas con datos reales.
+Documento para pasarle a otra IA o a otra persona. Actualizado: 29 oct 2026. Avance estimado: **~75 %** del port (una cifra anterior de ~90 % estaba inflada: faltaba Revisión y Nazca no lee PDFs reales). Es una estimación: lo que más falta es el arreglo de lectura de PDF, la revisión visual y pruebas con datos reales.
 
 ## ESTADO AL PAUSAR (lo primero que hay que leer)
 
-**Rama `swift-nativo`, todo subido. Último CI: rojo por UNA sola prueba**, `NazcaPDFReadersTests.testReadersOnPdfKitText` (`NazcaPDFReadersTests.swift`, ~línea 130). Todo lo demás pasa (incluida `ReviewTests`, que compara Revisión contra la web con vectores dorados). La pantalla de Revisión, el banner y la fila compilaron en la app.
+**Rama `swift-nativo`, todo subido. Último CI (29 oct, versión 5.0 build 9): verde**, incluida la prueba de PDF que antes fallaba. Lo que sigue sin confirmarse es la lectura de estados de cuenta reales en un iPhone (Apple Card, BBVA, BCP ahorros). Texto histórico de la pausa del 28 oct, ya resuelto en CI: la prueba `NazcaPDFReadersTests.testReadersOnPdfKitText` estaba en rojo.
 
 ### 1. Nazca y los PDF reales en iPhone (en curso: se cambió el lector)
 
@@ -51,7 +51,7 @@ Hojas: movimiento nuevo/editar, transferir, ingreso previsto, gasto previsto, pa
 
 Casi todo el contenido de la web ya está portado. Lo que queda:
 
-1. **Plata Cloud**: ya está escrito (entrar, frase en español/inglés, sincronizar, elegir qué conservar, aprobar dispositivos, borrar datos/cuenta, cargar archivo) y compila en CI, pero **falta probarlo contra el servidor real** (cuenta con invitación) y agregar la lista de palabras en español a la web. Queda fuera de la v1.0 «Mandar archivo a Nazca para que aprenda».
+1. **Plata Cloud**: ya está escrito (entrar, frase en español/inglés, sincronizar, elegir qué conservar, aprobar dispositivos, borrar datos/cuenta, cargar archivo), compila en CI y **el usuario ya lo probó (29 oct 2026)**. Ya no es un pendiente. Queda fuera de la v1.0 «Mandar archivo a Nazca para que aprenda».
 2. **Revisión visual 1:1** contra la web, pantalla por pantalla (espaciados, tamaños, pesos, modo oscuro). Necesita ojos y capturas: nada de esto se puede comprobar desde el CI.
 3. **Nazca con estados de cuenta reales**: ver «ESTADO AL PAUSAR», punto 1 (en PDFKit real fallan Apple Card, BBVA y BCP ahorros).
 4. Detalles de diseño: etiquetas curvas del anillo (el logo «Estudio 22» ya está hecho), posición de la persona sin foto y letra de la insignia en el avatar.
