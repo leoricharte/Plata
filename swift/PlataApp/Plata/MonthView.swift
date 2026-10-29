@@ -9,6 +9,7 @@ struct MonthView: View {
     @State private var page = 0
     @State private var editing: MovimientosView.TxRef?
     @State private var toDelete: MovimientosView.TxRef?
+    @State private var postponing: MovimientosView.TxRef?
 
     enum Filter: String, Identifiable {
         case all, income, out, pay
@@ -82,6 +83,10 @@ struct MonthView: View {
                                 Label("Editar", systemImage: "pencil")
                             }
                             .tint(Color(hex: "#4F94F7"))
+                            Button { postponing = MovimientosView.TxRef(id: Engine.identifier(tx["id"]), tx: tx) } label: {
+                                Label("Posponer", systemImage: "calendar.badge.clock")
+                            }
+                            .tint(Color(hex: "#FF9F0A"))
                         }
                     }
                 }
@@ -110,6 +115,7 @@ struct MonthView: View {
         .onChange(of: filter) { _, _ in page = 0 }
         .onChange(of: mk) { _, _ in page = 0 }
         .sheet(item: $editing) { ref in TransactionSheet(mode: .edit(ref.tx)) }
+        .sheet(item: $postponing) { ref in PostponeSheet(tx: ref.tx) { postponing = nil } }
         .alert("¿Eliminar este movimiento?", isPresented: Binding(get: { toDelete != nil }, set: { if !$0 { toDelete = nil } })) {
             Button("Eliminar", role: .destructive) {
                 if let t = toDelete { try? model.deleteTransaction(id: t.tx["id"] ?? .null) }

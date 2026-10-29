@@ -7,6 +7,7 @@ struct MovimientosView: View {
     @State private var filter: Filter = .all
     @State private var editing: TxRef?
     @State private var toDelete: TxRef?
+    @State private var postponing: TxRef?
 
     enum Filter: String, CaseIterable, Identifiable {
         case all, income, out
@@ -99,6 +100,10 @@ struct MovimientosView: View {
                                 Label("Editar", systemImage: "pencil")
                             }
                             .tint(Color(hex: "#4F94F7"))
+                            Button { postponing = TxRef(id: Engine.identifier(tx["id"]), tx: tx) } label: {
+                                Label("Posponer", systemImage: "calendar.badge.clock")
+                            }
+                            .tint(Color(hex: "#FF9F0A"))
                         }
                     }
                 }
@@ -110,6 +115,7 @@ struct MovimientosView: View {
         .background(Color(.systemGroupedBackground))
         .navigationBarTitleDisplayMode(.inline)
         .sheet(item: $editing) { ref in TransactionSheet(mode: .edit(ref.tx)) }
+        .sheet(item: $postponing) { ref in PostponeSheet(tx: ref.tx) { postponing = nil } }
         .alert("¿Eliminar este movimiento?", isPresented: Binding(get: { toDelete != nil }, set: { if !$0 { toDelete = nil } })) {
             Button("Eliminar", role: .destructive) {
                 if let t = toDelete { try? model.deleteTransaction(id: t.tx["id"] ?? .null) }
