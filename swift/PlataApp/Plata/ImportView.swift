@@ -443,7 +443,7 @@ struct ImportFlowView: View {
     }
     private struct Parsed: Sendable { var analysis: Nazca.Analysis; var items: [Nazca.Item]; var unreadable: Int }
 
-    @MainActor private func ingest(_ files: [Picked], adding: Bool, key: String? = nil) async {
+    @MainActor private func ingest(_ files: [Picked], adding: Bool, key: String? = nil, reuse: Bool = true) async {
         await Task.yield()
         asDoc = nil
         let single = files.count == 1 && !adding
@@ -502,6 +502,14 @@ struct ImportFlowView: View {
         } else if !dupes.isEmpty {
             notice = Notice(title: dupes.count == 1 ? Tr.t("Un archivo ya estaba cargado") : Tr.f("{0} archivos ya estaban cargados", String(dupes.count)),
                             message: String(dupes.joined(separator: " · ").prefix(200)))
+        }
+        // La clave que acaba de abrir un PDF se prueba en los demás que siguen protegidos (muchos estados comparten la misma). Solo en memoria; los que no abren siguen pidiendo la suya.
+        if reuse, files.count == 1, let key, !key.isEmpty, !locked.isEmpty {
+            let waiting = locked.map(\.file), keepIdx = idx, keepNotice = notice
+            locked = []
+            await ingest(waiting, adding: true, key: key, reuse: false)
+            locked = locked.map { var l = $0; l.bad = false; return l }   // no abrieron con esa clave: no es un «clave incorrecta», solo esperan la suya
+            if locked.count == waiting.count { idx = keepIdx; notice = keepNotice }   // ninguno abrió: la revisión queda como estaba
         }
     }
 

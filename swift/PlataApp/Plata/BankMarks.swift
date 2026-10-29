@@ -4,11 +4,12 @@ import SwiftUI
 /// Se dibujan con el color del texto (`foregroundStyle`), igual que `currentColor` en la web.
 enum BankMarks {
     struct Shape { let path: Path; let evenOdd: Bool }
-    struct Mark { let vb: CGRect; let gs: CGFloat?; let shapes: [Shape] }
+    /// `clip`: el recuadro interno que recorta un logotipo completo para dejar solo el icono (el `<svg>` anidado de la web).
+    struct Mark { let vb: CGRect; let gs: CGFloat?; let clip: CGRect?; let shapes: [Shape] }
     struct Entry { let glyph: Mark; let logo: Mark; let h: CGFloat }
 
     private struct RawShape: Decodable { let d: String?; let eo: Bool?; let p: String? }
-    private struct RawMark: Decodable { let vb: [CGFloat]; let gs: CGFloat?; let s: [RawShape] }
+    private struct RawMark: Decodable { let vb: [CGFloat]; let gs: CGFloat?; let clip: [CGFloat]?; let s: [RawShape] }
     private struct RawEntry: Decodable { let glyph: RawMark; let logo: RawMark; let h: CGFloat }
 
     private static func polygon(_ points: String) -> Path {
@@ -29,7 +30,8 @@ enum BankMarks {
             if let d = s.d { return Shape(path: SVGPath.parse(d), evenOdd: s.eo ?? false) }
             return Shape(path: polygon(s.p ?? ""), evenOdd: false)
         }
-        return Mark(vb: CGRect(x: r.vb[0], y: r.vb[1], width: r.vb[2], height: r.vb[3]), gs: r.gs, shapes: shapes)
+        let clip = (r.clip?.count == 4) ? CGRect(x: r.clip![0], y: r.clip![1], width: r.clip![2], height: r.clip![3]) : nil
+        return Mark(vb: CGRect(x: r.vb[0], y: r.vb[1], width: r.vb[2], height: r.vb[3]), gs: r.gs, clip: clip, shapes: shapes)
     }
 
     static let all: [String: Entry] = {
@@ -46,6 +48,7 @@ private struct MarkCanvas: View {
             let vb = mark.vb
             let s = min(size.width / vb.width, size.height / vb.height)
             let t = CGAffineTransform(translationX: (size.width - vb.width * s) / 2 - vb.minX * s, y: (size.height - vb.height * s) / 2 - vb.minY * s).scaledBy(x: s, y: s)
+            if let c = mark.clip { ctx.clip(to: Path(c).applying(t)) }
             for sh in mark.shapes { ctx.fill(sh.path.applying(t), with: .foreground, style: FillStyle(eoFill: sh.evenOdd)) }
         }
     }
