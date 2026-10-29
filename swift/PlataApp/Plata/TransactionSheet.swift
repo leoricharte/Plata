@@ -122,6 +122,11 @@ struct TransactionSheet: View {
                     }
                 }
 
+                if let tx = editedTx, Engine.text(tx["src"]) == "watch" {
+                    Label("Anotado desde el Apple Watch", systemImage: "applewatch")
+                        .font(.inter(13)).foregroundStyle(.secondary).padding(.bottom, 10)
+                }
+
                 if let errorText {
                     Text(errorText).font(.inter(14)).foregroundStyle(Brand.lossText).padding(.bottom, 10)
                 }
