@@ -131,10 +131,10 @@ final class AppModel {
         _ = try? commit { raw in ImportReview.undo(applied, in: &raw) }
     }
 
-    func addTransaction(date: LocalDate, amount: Double, category: String, note: String, account: String) throws {
+    func addTransaction(date: LocalDate, amount: Double, category: String, note: String, account: String, src: String? = nil) throws {
         try commit { raw in
             _ = try ProfileEditor.addTransaction(&raw, date: date.iso, amount: amount, category: category, note: note, account: account,
-                                             now: Date().timeIntervalSince1970 * 1000)
+                                             now: Date().timeIntervalSince1970 * 1000, src: src)
         }
     }
 

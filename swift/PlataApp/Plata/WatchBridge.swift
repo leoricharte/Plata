@@ -113,7 +113,7 @@ final class WatchBridge: NSObject, WCSessionDelegate {
         var done = UserDefaults.standard.stringArray(forKey: doneKey) ?? []
         guard !done.contains(entry.id), let model, let d = LocalDate(iso: entry.date) else { return }
         do {
-            try model.addTransaction(date: d, amount: entry.amount, category: entry.category, note: entry.note, account: entry.account)
+            try model.addTransaction(date: d, amount: entry.amount, category: entry.category, note: entry.note, account: entry.account, src: "watch")
             done.append(entry.id)
             UserDefaults.standard.set(Array(done.suffix(100)), forKey: doneKey)
             pushNow()

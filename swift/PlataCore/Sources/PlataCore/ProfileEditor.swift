@@ -39,13 +39,15 @@ public enum ProfileEditor {
 
     @discardableResult
     public static func addTransaction(_ p: inout JSONValue, date: String, amount: Double, category: String, note: String, account: String,
-                                      now: Double, jitter: Int = Int.random(in: 0..<1000)) throws -> Double {
+                                      now: Double, jitter: Int = Int.random(in: 0..<1000), src: String? = nil) throws -> Double {
         guard amount != 0, amount.isFinite else { throw EditError.invalidAmount }
         if amount > 0 && category == "Ingreso" && isCredit(p, accountId: .string(account)) { throw EditError.incomeOnCard }
         let id = nextTxId(p, now: now, jitter: jitter)
         let accId = locate(p, .string(account)).flatMap { loc in p[loc.col]?.arrayValue?[loc.index]["id"] } ?? .string(account)
-        let tx: JSONValue = .object(["id": .number(id), "date": .string(date), "amount": .number(amount), "category": .string(category),
-                                     "note": .string(note), "acc": accId])
+        var fields: [String: JSONValue] = ["id": .number(id), "date": .string(date), "amount": .number(amount), "category": .string(category),
+                                           "note": .string(note), "acc": accId]
+        if let src { fields["src"] = .string(src) }   // dónde se anotó (p. ej. "watch")
+        let tx: JSONValue = .object(fields)
         var list = p["transactions"]?.arrayValue ?? []
         list.append(tx)
         p["transactions"] = .array(list)

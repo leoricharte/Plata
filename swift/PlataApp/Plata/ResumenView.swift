@@ -527,7 +527,8 @@ struct TransactionRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 // Sin límite de una línea (como la web): lo largo pasa a la siguiente línea en vez de cortarse con «…».
                 Text(note.isEmpty ? shown : note).font(.inter(16, .semibold)).tracking(-0.3).fixedSize(horizontal: false, vertical: true)
-                Text(sub).font(.inter(13)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                (Text(sub) + (Engine.text(tx["src"]) == "watch" ? Text("  ") + Text(Image(systemName: "applewatch")).font(.system(size: 11)) : Text("")))
+                    .font(.inter(13)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             }
             Spacer(minLength: 8)
             Text(fmt.signed(amount, cur))
