@@ -122,23 +122,28 @@ struct BentoCanvas: View {
         Group {
             if list.isEmpty {
                 Text("Elige piezas para tu bento").font(.system(size: 12)).foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if list.count == 1 || family == .systemSmall {
-                PieceView(piece: list[0], snap: snap)
+                PieceView(piece: list[0], snap: snap).bentoTile(list[0])
             } else if family == .systemMedium {
-                HStack(spacing: 14) {
-                    ForEach(list) { p in PieceView(piece: p, snap: snap).environment(\.bentoCompact, true).frame(maxWidth: .infinity, maxHeight: .infinity) }
+                HStack(spacing: 8) {
+                    ForEach(list) { p in
+                        PieceView(piece: p, snap: snap).environment(\.bentoCompact, true).bentoTile(p, radius: 20)
+                    }
                 }
+                .padding(8)
             } else {
                 let rows = stride(from: 0, to: list.count, by: 2).map { Array(list[$0..<min($0 + 2, list.count)]) }
-                VStack(spacing: 12) {
+                VStack(spacing: 8) {
                     ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
-                        HStack(spacing: 14) {
+                        HStack(spacing: 8) {
                             ForEach(row) { p in
-                                PieceView(piece: p, snap: snap).environment(\.bentoCompact, row.count == 2).frame(maxWidth: .infinity, maxHeight: .infinity)
+                                PieceView(piece: p, snap: snap).environment(\.bentoCompact, row.count == 2).bentoTile(p, radius: 20)
                             }
                         }
                     }
                 }
+                .padding(8)
             }
         }
         .environment(\.bentoFamily, family)

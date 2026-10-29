@@ -29,25 +29,25 @@ struct EventSheet: View {
                 SheetHead(title: "Editar este evento", onClose: { dismiss() }, onSave: { save() })
                 AmountField(symbol: f.symbol(cur).trimmingCharacters(in: .whitespaces), text: $amount,
                             placeholder: Money.decimals(cur) > 0 ? "0.00" : "0", focus: $focus, label: (entry?.name ?? ""))
-                SCard { DateRow(symbol: "calendar", label: "Fecha de este evento", date: $date) }
+                SCard { DateRow(symbol: "calendar", label: "Fecha de este evento", date: $date) }.padding(.top, 14)
                 Text("Solo cambia este evento; el resto de la serie sigue igual.")
                     .font(.inter(13)).foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 8).padding(.bottom, 10)
                 if let errorText { Text(errorText).font(.inter(14)).foregroundStyle(Brand.lossText).padding(.bottom, 10) }
-                Button("Guardar") { save() }.buttonStyle(PrimaryPillStyle()).padding(.bottom, 8)
+                Button("Guardar") { save() }.buttonStyle(PrimaryPillStyle()).padding(.top, 8).padding(.bottom, 12)
                 if !skipped {
                     Button("Omitir este evento") { model.setEventOverride(key: key, entry: .object(["skip": .bool(true)])); dismiss() }
-                        .buttonStyle(SecondaryPillStyle()).padding(.bottom, 8)
+                        .buttonStyle(SecondaryPillStyle()).padding(.bottom, 12)
                 }
                 if had {
                     Button("Restaurar el original") { model.setEventOverride(key: key, entry: nil); dismiss() }
-                        .buttonStyle(SecondaryPillStyle()).padding(.bottom, 8)
+                        .buttonStyle(SecondaryPillStyle()).padding(.bottom, 12)
                 }
                 if let form = entry?.form, let title = Self.seriesTitle[form] {
-                    Button("Editar toda la \(title)") { openSeries(form) }.buttonStyle(SecondaryPillStyle()).padding(.bottom, 8)
+                    Button("Editar toda la \(title)") { openSeries(form) }.buttonStyle(SecondaryPillStyle()).padding(.bottom, 12)
                 }
             }
-            .padding(.horizontal, 16).padding(.top, 16)
+            .padding(.horizontal, 20).padding(.top, 16).padding(.bottom, 24)
         }
         .scrollDismissesKeyboard(.interactively)
         .fitSheet().presentationDragIndicator(.visible).presentationCornerRadius(38)

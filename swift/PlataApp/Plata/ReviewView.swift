@@ -43,6 +43,8 @@ struct ReviewView: View {
         "gap": "Puede faltar un estado, o la cuenta ya tenía saldo antes del primero que importaste."]
     private static let cadence = ["w": "cada semana", "b": "cada 2 semanas", "m": "cada mes", "q": "cada quincena"]
 
+    @State private var cw: CGFloat = UIScreen.main.bounds.width
+
     var body: some View {
         let cards = model.reviewCards
         let tabs = Self.groups.filter { g in cards.contains { g.kinds.contains($0.kind) } }
@@ -94,7 +96,7 @@ struct ReviewView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         LazyHStack(alignment: .top, spacing: 12) {
                             ForEach(list, id: \.k) { r in
-                                cardView(r).containerRelativeFrame(.horizontal) { w, _ in w - 32 }
+                                cardView(r).frame(width: max(240, cw - 32))
                             }
                         }
                         .scrollTargetLayout()
@@ -122,7 +124,8 @@ struct ReviewView: View {
                         .font(.inter(16)).foregroundStyle(Brand.green).frame(maxWidth: .infinity).frame(height: 48).padding(.top, 8)
                 }
             }
-            .padding(.top, 16).padding(.bottom, 24)
+            .padding(.top, 16).padding(.bottom, 28)
+            .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { cw = $0 }
         }
         .fitSheet().presentationDragIndicator(.visible).presentationCornerRadius(38)
         .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))
@@ -164,18 +167,19 @@ struct ReviewView: View {
             }
             .padding(.top, 10).tint(.secondary)
             Button { accept(r, byId) } label: {
-                Text(Self.button[key] ?? "Aceptar").font(.inter(16, .semibold)).foregroundStyle(.white)
-                    .frame(maxWidth: .infinity).frame(height: 48)
+                Text(Self.button[key] ?? "Aceptar").font(.inter(17, .semibold)).foregroundStyle(.white)
+                    .frame(maxWidth: .infinity).frame(height: 54)
                     .background(Color(hex: "#111111"), in: Capsule())
             }
-            .buttonStyle(.plain).padding(.top, 14)
+            .buttonStyle(.plain).padding(.top, 20)
             Button { model.reviewDismiss(r); notice = nil } label: {
                 Text("No es").font(.inter(16)).foregroundStyle(Brand.green).frame(maxWidth: .infinity).frame(height: 44)
             }
             .buttonStyle(.plain)
         }
-        .padding(18)
-        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 26, style: .continuous))
+        .padding(22)
+        .frame(minHeight: 380, alignment: .top)
+        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 28, style: .continuous))
     }
 
     private func accept(_ r: ReviewCard, _ byId: [String: JSONValue]) {

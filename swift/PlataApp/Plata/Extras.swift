@@ -244,44 +244,49 @@ struct NewsStoryView: View {
 
     private func slide(_ k: Int, size: CGSize) -> some View {
         let s = newsSlides[k]
+        let small = size.height < 760
         let head = VStack(alignment: .leading, spacing: 0) {
-            Text(s.tag).font(.inter(12, .bold)).tracking(3.1).foregroundStyle(.white.opacity(0.72)).lineLimit(1).padding(.bottom, 12)
-            Text(s.title).font(.inter(size.height < 700 ? 34 : 42, .bold)).tracking(-1.5).lineSpacing(-2).foregroundStyle(.white)
+            Text(s.tag).font(.inter(12, .bold)).tracking(3.1).foregroundStyle(.white.opacity(0.72)).lineLimit(1).padding(.bottom, 10)
+            Text(s.title).font(.inter(small ? 30 : 36, .bold)).tracking(-1.2).lineSpacing(-2).foregroundStyle(.white)
+                .lineLimit(3).minimumScaleFactor(0.75)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         let body = VStack(alignment: .leading, spacing: 0) {
-            Text(s.text).font(.inter(size.height < 700 ? 17 : 19)).lineSpacing(4).foregroundStyle(.white.opacity(0.93))
+            Text(s.text).font(.inter(small ? 16 : 18)).lineSpacing(3).foregroundStyle(.white.opacity(0.93))
                 .fixedSize(horizontal: false, vertical: true)
-            if let n = s.note { Text(n).font(.inter(12.5)).foregroundStyle(.white.opacity(0.68)).padding(.top, 12) }
+            if let n = s.note { Text(n).font(.inter(12.5)).foregroundStyle(.white.opacity(0.68)).padding(.top, 10) }
             if k == newsSlides.count - 1 { Color.clear.frame(height: 22 + 54 + 14 + 20) }   // sitio para «Aceptar» y el enlace
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        return ZStack {
-            art(s, size: size)
-            VStack(spacing: 0) {
-                if k % 2 == 0 { head; Spacer(minLength: 12); body } else { body; Spacer(minLength: 12); head }
-            }
-            .padding(.top, 92 + 44).padding(.horizontal, 28).padding(.bottom, 30)
-            .padding(.top, 0)
+        // Tres bandas que nunca se pisan: titular, dibujo (usa el espacio que sobra) y texto; en las historias impares se invierten.
+        return VStack(spacing: 18) {
+            if k % 2 == 0 { head } else { body }
+            GeometryReader { g in art(s, slot: g.size, screen: size).frame(width: g.size.width, height: g.size.height) }
+                .frame(maxHeight: .infinity)
+            if k % 2 == 0 { body } else { head }
         }
+        .padding(.top, 78).padding(.horizontal, 28).padding(.bottom, 30)
     }
 
     @ViewBuilder
-    private func art(_ s: NewsSlide, size: CGSize) -> some View {
+    private func art(_ s: NewsSlide, slot: CGSize, screen: CGSize) -> some View {
         if let img = s.image {
+            let h = max(120, min(360, slot.height)), w = min(min(310, screen.width * 0.8), h * 310 / 360)
             Image(img).resizable().scaledToFill()
-                .frame(width: min(310, size.width * 0.8), height: 360, alignment: .top)
+                .frame(width: w, height: h, alignment: .top)
                 .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
                 .overlay(RoundedRectangle(cornerRadius: 26, style: .continuous).stroke(.white.opacity(0.35), lineWidth: 1.5))
                 .shadow(color: Color(red: 0, green: 40/255, blue: 25/255).opacity(0.65), radius: 27, y: 26)
+                .frame(width: slot.width, height: slot.height)
         } else {
-            let side: CGFloat = size.height < 700 ? 110 : 150
+            let side: CGFloat = min(slot.height - 10, screen.height < 760 ? 110 : 150)
             RoundedRectangle(cornerRadius: 44, style: .continuous).fill(.white.opacity(0.14))
-                .frame(width: side, height: side)
+                .frame(width: max(60, side), height: max(60, side))
                 .overlay(RoundedRectangle(cornerRadius: 44, style: .continuous).stroke(.white.opacity(0.22), lineWidth: 1.5))
-                .overlay(Image(systemName: s.symbol).font(.system(size: side * 0.56, weight: .regular)).foregroundStyle(.white))
+                .overlay(Image(systemName: s.symbol).font(.system(size: max(60, side) * 0.56, weight: .regular)).foregroundStyle(.white))
                 .shadow(color: Color(red: 0, green: 50/255, blue: 30/255).opacity(0.55), radius: 25, y: 24)
+                .frame(width: slot.width, height: slot.height)
         }
     }
 

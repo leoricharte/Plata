@@ -329,6 +329,9 @@ struct ResumenView: View {
                             }
                             Spacer(minLength: 8)
                             Text("−" + f.whole(abs(ev.a0), ev.cur ?? f.currency)).font(.inter(16, .semibold)).monospacedDigit()
+                            if ev.srcId != nil, sub != nil {
+                                Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(Color(.tertiaryLabel))
+                            }
                         }
                         .padding(.top, i == 0 ? 2 : 10)
                         .padding(.bottom, i == events.count - 1 ? 0 : 10)

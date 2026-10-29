@@ -150,6 +150,7 @@ struct AjustesView: View {
     @State private var confirmWipe = false
     @State private var showDemos = false
     @State private var showWidgets = false
+    @State private var showSecurity = false
     @State private var message: String?
 
     var body: some View {
@@ -198,8 +199,10 @@ struct AjustesView: View {
                 SettingsNote(text: "Esta información no es recopilada por Plata ni Estudio 22. Toda la información se maneja en tu archivo de perfil.")
 
                 SCard {
-                    LinkRow(symbol: "square.grid.2x2", title: "Widgets", color: Brand.green, first: true) { showWidgets = true }
+                    LinkRow(symbol: "lock.fill", title: "Seguridad", color: Brand.green, first: true) { showSecurity = true }
+                    LinkRow(symbol: "square.grid.2x2", title: "Widgets", color: Brand.green) { showWidgets = true }
                 }
+                .sheet(isPresented: $showSecurity) { SecuritySheet() }
                 .padding(.top, 8)
                 .sheet(isPresented: $showWidgets) { WidgetsSheet() }
                 SettingsNote(text: "Crea widgets con las piezas del Bento y añádelos a tu pantalla de inicio. Podrían volverse una función premium en el futuro.")

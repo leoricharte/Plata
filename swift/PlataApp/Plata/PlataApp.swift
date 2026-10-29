@@ -23,6 +23,7 @@ struct PlataApp: App {
                     SplashView(opening: opening, footerGone: footerGone).zIndex(1)
                 }
             }
+            .onAppear { AppLock.shared.attach() }
             .task {
                 try? await Task.sleep(for: .seconds(0.9))
                 footerGone = true
@@ -38,7 +39,9 @@ struct PlataApp: App {
                 .preferredColorScheme(Prefs.scheme(theme))
                 .environment(\.locale, Prefs.locale(lang))
                 .onChange(of: scenePhase) { _, phase in
-                    if phase == .active { model.refreshToday() }
+                    if phase == .active { model.refreshToday(); AppLock.shared.sceneActive() }
+                    else if phase == .inactive { AppLock.shared.sceneInactive() }
+                    else if phase == .background { AppLock.shared.sceneBackground() }
                     cloud.scene(active: phase == .active)
                 }
         }

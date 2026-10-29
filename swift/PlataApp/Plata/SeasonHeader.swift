@@ -183,7 +183,7 @@ struct MonthHeader: View {
                 .overlay(alignment: .leading) { SeasonArt(season: season, right: true).padding(.leading, -8) }
                 .clipped()
         }
-        .padding(.top, 6).padding(.bottom, 12)
+        .padding(.top, 16).padding(.bottom, 2)
         .accessibilityElement(children: .combine)
     }
 }

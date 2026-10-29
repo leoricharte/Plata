@@ -183,17 +183,17 @@ struct ProyeccionView: View {
                     dayCell(k, d, by[k] ?? [], bal[k], cushion, tk, sel)
                 }
             }
-            HStack(spacing: 14) {
-                ForEach(Array([("Ingreso", "in"), ("Gasto", "out"), ("Servicio o suscripción", "sub"), ("Pago de deuda", "card"), ("Simulado", "sim")].enumerated()), id: \.offset) { _, x in
+            FlowLayout(spacing: 10) {
+                ForEach(Array([("Ingreso", "in"), ("Gasto", "out"), ("Suscripción", "sub"), ("Pago de deuda", "card"), ("Simulado", "sim")].enumerated()), id: \.offset) { _, x in
                     HStack(spacing: 6) {
                         Circle().fill(Color(hex: Self.dot[x.1] ?? "#8E8E93")).frame(width: 10, height: 10)
-                        Text((x.0))
+                        Text(x.0).lineLimit(1).fixedSize()
                     }
                 }
             }
-            .font(.inter(13)).foregroundStyle(.secondary)
-            .fixedSize(horizontal: false, vertical: true)
-            .padding(.top, 10).padding(.bottom, 4)
+            .font(.inter(13.5)).foregroundStyle(.secondary)
+            .frame(maxWidth: .infinity)
+            .padding(.top, 14).padding(.bottom, 8)
             VStack(alignment: .leading, spacing: 0) {
                 RowDivider().padding(.bottom, 12)
                 HStack(spacing: 0) {

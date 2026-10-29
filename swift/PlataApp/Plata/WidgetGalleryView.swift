@@ -74,9 +74,9 @@ struct WidgetsSheet: View {
 
     private func preview(_ pieces: [BentoPiece], _ size: BentoSize) -> some View {
         BentoCanvas(pieces: pieces, snap: snap, family: size.family)
-            .padding(14)
             .frame(width: size.width, height: size.height)
-            .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .background(Color.black)
+            .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
             .frame(maxWidth: .infinity)
     }
 
@@ -178,9 +178,9 @@ struct BentoBuilder: View {
 
     private func canvas() -> some View {
         BentoCanvas(pieces: pieces, snap: snap, family: size.family)
-            .padding(14)
             .frame(width: size.width, height: size.height)
-            .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .background(Color.black)
+            .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
             .frame(maxWidth: .infinity)
     }
 

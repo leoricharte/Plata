@@ -18,27 +18,27 @@ struct PProvider: TimelineProvider {
 
 private func make<V: View>(_ kind: String, _ title: String, _ desc: String, _ families: [WidgetFamily], @ViewBuilder _ view: @escaping (PhoneSnapshot?) -> V) -> some WidgetConfiguration {
     StaticConfiguration(kind: kind, provider: PProvider()) { e in
-        view(e.snap).padding(2).containerBackground(.background, for: .widget)
+        view(e.snap).containerBackground(.black, for: .widget)
     }
-    .configurationDisplayName(title).description(desc).supportedFamilies(families)
+    .configurationDisplayName(title).description(desc).supportedFamilies(families).contentMarginsDisabled()
 }
 
 private let sm: [WidgetFamily] = [.systemSmall]
 private let sml: [WidgetFamily] = [.systemSmall, .systemMedium]
 private let med: [WidgetFamily] = [.systemMedium]
 
-struct KpiWidget: Widget { var body: some WidgetConfiguration { make("plata.kpi", "Resumen del mes", "Balance, ingresos, gastos y ahorro neto.", sml) { KpiView(s: $0) } } }
-struct CatsWidget: Widget { var body: some WidgetConfiguration { make("plata.cats", "Gasto por categoría", "En qué se va tu plata este mes.", sml) { CatsView(s: $0) } } }
-struct BudgetWidget: Widget { var body: some WidgetConfiguration { make("plata.budget", "Presupuesto", "Cuánto llevas contra tus límites.", sml) { BudgetView(s: $0) } } }
-struct DailyWidget: Widget { var body: some WidgetConfiguration { make("plata.daily", "Gasto acumulado del mes", "Cómo avanza tu gasto día a día.", med) { DailyView(s: $0) } } }
-struct TopWidget: Widget { var body: some WidgetConfiguration { make("plata.top", "Mayores gastos", "Lo que más dinero se llevó este mes.", sml) { TopView(s: $0) } } }
-struct UpcomingWidget: Widget { var body: some WidgetConfiguration { make("plata.upcoming", "Próximos movimientos", "Lo que viene en los próximos días.", sml) { UpcomingView(s: $0) } } }
-struct DebtWidget: Widget { var body: some WidgetConfiguration { make("plata.debt", "Tarjetas y deuda", "Cuánto debes y cuánto crédito usas.", sml) { DebtView(s: $0) } } }
-struct GoalsWidget: Widget { var body: some WidgetConfiguration { make("plata.goals", "Metas de ahorro", "Qué tanto te falta para cada meta.", sml) { GoalsView(s: $0) } } }
-struct RateWidget: Widget { var body: some WidgetConfiguration { make("plata.rate", "Tasa de ahorro", "Qué parte de tus ingresos te queda.", sm) { RateView(s: $0) } } }
-struct ScoreWidget: Widget { var body: some WidgetConfiguration { make("plata.score", "Nota del mes", "Tu nota de Insights.", sm) { ScoreView(s: $0) } } }
-struct WeekdayWidget: Widget { var body: some WidgetConfiguration { make("plata.weekday", "Gasto por día", "En qué días de la semana gastas más.", med) { WeekdayView(s: $0) } } }
-struct FlowWidget: Widget { var body: some WidgetConfiguration { make("plata.flow", "Ingresos vs gastos", "Comparación de los últimos meses.", med) { FlowView(s: $0) } } }
+struct KpiWidget: Widget { var body: some WidgetConfiguration { make("plata.kpi", "Resumen del mes", "Balance, ingresos, gastos y ahorro neto.", sml) { KpiView(s: $0).bentoTile(.kpi) } } }
+struct CatsWidget: Widget { var body: some WidgetConfiguration { make("plata.cats", "Gasto por categoría", "En qué se va tu plata este mes.", sml) { CatsView(s: $0).bentoTile(.cats) } } }
+struct BudgetWidget: Widget { var body: some WidgetConfiguration { make("plata.budget", "Presupuesto", "Cuánto llevas contra tus límites.", sml) { BudgetView(s: $0).bentoTile(.budget) } } }
+struct DailyWidget: Widget { var body: some WidgetConfiguration { make("plata.daily", "Gasto acumulado del mes", "Cómo avanza tu gasto día a día.", med) { DailyView(s: $0).bentoTile(.daily) } } }
+struct TopWidget: Widget { var body: some WidgetConfiguration { make("plata.top", "Mayores gastos", "Lo que más dinero se llevó este mes.", sml) { TopView(s: $0).bentoTile(.top) } } }
+struct UpcomingWidget: Widget { var body: some WidgetConfiguration { make("plata.upcoming", "Próximos movimientos", "Lo que viene en los próximos días.", sml) { UpcomingView(s: $0).bentoTile(.upcoming) } } }
+struct DebtWidget: Widget { var body: some WidgetConfiguration { make("plata.debt", "Tarjetas y deuda", "Cuánto debes y cuánto crédito usas.", sml) { DebtView(s: $0).bentoTile(.debt) } } }
+struct GoalsWidget: Widget { var body: some WidgetConfiguration { make("plata.goals", "Metas de ahorro", "Qué tanto te falta para cada meta.", sml) { GoalsView(s: $0).bentoTile(.goals) } } }
+struct RateWidget: Widget { var body: some WidgetConfiguration { make("plata.rate", "Tasa de ahorro", "Qué parte de tus ingresos te queda.", sm) { RateView(s: $0).bentoTile(.rate) } } }
+struct ScoreWidget: Widget { var body: some WidgetConfiguration { make("plata.score", "Nota del mes", "Tu nota de Insights.", sm) { ScoreView(s: $0).bentoTile(.score) } } }
+struct WeekdayWidget: Widget { var body: some WidgetConfiguration { make("plata.weekday", "Gasto por día", "En qué días de la semana gastas más.", med) { WeekdayView(s: $0).bentoTile(.weekday) } } }
+struct FlowWidget: Widget { var body: some WidgetConfiguration { make("plata.flow", "Ingresos vs gastos", "Comparación de los últimos meses.", med) { FlowView(s: $0).bentoTile(.flow) } } }
 
 // MARK: Bento (el que se arma en la app)
 
@@ -97,10 +97,10 @@ struct BentoView: View {
 struct BentoWidget: Widget {
     var body: some WidgetConfiguration {
         AppIntentConfiguration(kind: "plata.bento", intent: BentoIntent.self, provider: BentoProvider()) { e in
-            BentoView(e: e).padding(2).containerBackground(.background, for: .widget)
+            BentoView(e: e).containerBackground(.black, for: .widget)
         }
         .configurationDisplayName("Bento").description("Un bento de tu galería: tú eliges las piezas.")
-        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
+        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge]).contentMarginsDisabled()
     }
 }
 

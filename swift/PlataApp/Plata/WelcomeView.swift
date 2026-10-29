@@ -14,7 +14,7 @@ struct WelcomeView: View {
     @Environment(AppModel.self) private var model
     @Environment(CloudModel.self) private var cloud
 
-    private enum Page: Equatable { case landing, demo, level, step, privacy }
+    private enum Page: Equatable { case landing, demo, level, step, privacy, protect }
 
     @State private var page: Page = .landing
     @State private var w = WelcomeAnswers()
@@ -142,6 +142,7 @@ struct WelcomeView: View {
         case .level: level
         case .step: stepPage
         case .privacy: privacy
+        case .protect: ProtectStep { let f = onAccept; onAccept = nil; f?() }
         }
     }
 
@@ -335,7 +336,7 @@ struct WelcomeView: View {
         VStack(spacing: 0) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
-                    Image(systemName: "lock.doc").font(.system(size: 54, weight: .light)).foregroundStyle(Color(hex: "#3A3A3C")).padding(.top, 36).padding(.bottom, 20)
+                    Image(systemName: "lock.square.dashed").font(.system(size: 54, weight: .light)).foregroundStyle(Color(hex: "#3A3A3C")).padding(.top, 36).padding(.bottom, 20)
                     Text("Tus datos son tuyos.").font(.inter(32, .bold)).tracking(-0.8)
                     block("#22B573", "iphone", "Tus datos se almacenan localmente en tu teléfono.", "Estudio 22 y Plata no recopilan tus datos financieros.")
                     block("#8E8E93", "gearshape", "Respalda tus datos", "Aunque por el momento cerrar y abrir la app mantiene tus datos, haz siempre una copia desde Ajustes para mantenerla al día y segura.")
@@ -350,7 +351,9 @@ struct WelcomeView: View {
             .scrollIndicators(.hidden)
             Text("Plata está en una versión Beta. Plata Cloud, la sincronización opcional, es por invitación.")
                 .font(.inter(12)).foregroundStyle(.secondary).multilineTextAlignment(.center).padding(.horizontal, 14).padding(.bottom, 12)
-            Button("Aceptar") { let f = onAccept; onAccept = nil; f?() }.buttonStyle(PrimaryPillStyle())
+            Button("Aceptar") {
+                if AppLock.shared.hasPIN { let f = onAccept; onAccept = nil; f?() } else { go(.protect) }
+            }.buttonStyle(PrimaryPillStyle())
         }
     }
 
