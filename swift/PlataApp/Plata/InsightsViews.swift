@@ -153,7 +153,7 @@ struct InsightsView: View {
         }
     }
 
-    private func tri(_ dir: Int, _ color: Color, _ size: CGFloat = 21) -> some View {
+    private func tri(_ dir: Int, _ color: Color, _ size: CGFloat = 12) -> some View {
         Image(systemName: dir > 0 ? "arrowtriangle.up.fill" : dir < 0 ? "arrowtriangle.down.fill" : "minus").font(.system(size: size)).foregroundStyle(color)
     }
 
@@ -224,7 +224,7 @@ struct InsightsView: View {
                     Text(detail).font(.inter(13)).foregroundStyle(.secondary)
                 }
                 Spacer(minLength: 0)
-                if m.hasPrev { tri(dir, dcol, 38) }
+                if m.hasPrev { tri(dir, dcol, 22) }
                 if isHalf || !m.hasPrev { GhostScore(size: 64, letter: m.hasPrev ? hl.letter : "?") }
                 else { GradeTile(letter: m.letter, level: m.plus, size: 64) }
             }
