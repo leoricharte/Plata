@@ -63,8 +63,16 @@ struct MiniField: View {
     @Binding var text: String
     var width: CGFloat = 96
     var numeric = true
+    /// Muestra «0» como valor (oscuro, como la web) en vez de dejar el campo vacío con un «0» gris de ayuda.
+    var zeroDefault = false
+    @FocusState private var focused: Bool
     var body: some View {
         TextField(placeholder, text: $text)
+            .focused($focused)
+            .onChange(of: focused) { _, f in
+                guard zeroDefault else { return }
+                if f && text == "0" { text = "" } else if !f && text.trimmingCharacters(in: .whitespaces).isEmpty { text = "0" }
+            }
             .keyboardType(numeric ? .decimalPad : .default)
             .multilineTextAlignment(.trailing)
             .font(.inter(17))
@@ -203,10 +211,10 @@ struct AjustesView: View {
 
                 SCard {
                     SettingRow("Gasto variable por semana", note: "Gasto semanal estimado fuera de lo programado.", first: true) {
-                        MiniField(placeholder: "0", text: $variable)
+                        MiniField(placeholder: "0", text: $variable, zeroDefault: true)
                     }
                     SettingRow("Colchón mínimo", note: "Si tu saldo proyectado baja de aquí, te avisamos.") {
-                        MiniField(placeholder: "0", text: $cushion)
+                        MiniField(placeholder: "0", text: $cushion, zeroDefault: true)
                     }
                 }
 
@@ -360,12 +368,12 @@ struct AjustesView: View {
         if loaded && !force { return }
         loaded = true
         let s = model.engine.data["settings"]
-        cushion = numText(Engine.number(s?["cushion"]))
-        variable = numText(Engine.number(s?["variable_weekly"]))
+        cushion = numText(Engine.number(s?["cushion"]), zero: "0")
+        variable = numText(Engine.number(s?["variable_weekly"]), zero: "0")
         refreshExport()
     }
 
-    private func numText(_ n: Double) -> String { n == 0 ? "" : (n == n.rounded() ? String(Int64(n)) : String(n)) }
+    private func numText(_ n: Double, zero: String = "") -> String { n == 0 ? zero : (n == n.rounded() ? String(Int64(n)) : String(n)) }
 
     private func saveNumber(_ key: String, _ text: String) {
         let t = text.replacingOccurrences(of: ",", with: ".").trimmingCharacters(in: .whitespaces)
