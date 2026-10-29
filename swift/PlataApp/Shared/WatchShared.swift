@@ -72,3 +72,14 @@ enum WatchFormat {
         return sign + sym + s
     }
 }
+
+/// El reloj y sus widgets comparten el último resumen por un App Group.
+enum WatchShare {
+    static let group = "group.net.plataapp.plata"
+    static var defaults: UserDefaults { UserDefaults(suiteName: group) ?? .standard }
+    static func save(_ data: Data) { defaults.set(data, forKey: WatchKey.snapshot) }
+    static func load() -> WatchSnapshot? {
+        guard let d = defaults.data(forKey: WatchKey.snapshot) else { return nil }
+        return try? JSONDecoder().decode(WatchSnapshot.self, from: d)
+    }
+}

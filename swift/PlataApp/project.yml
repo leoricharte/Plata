@@ -48,6 +48,8 @@ targets:
     type: application
     platform: watchOS
     deploymentTarget: "11.0"
+    dependencies:
+      - target: PlataWatchWidgets
     sources:
       - path: PlataWatch
       - path: Shared
@@ -63,3 +65,26 @@ targets:
         INFOPLIST_KEY_CFBundleDisplayName: Plata
         INFOPLIST_KEY_WKCompanionAppBundleIdentifier: net.plataapp.plata
         INFOPLIST_KEY_WKApplication: YES
+        CODE_SIGN_ENTITLEMENTS: PlataWatch/PlataWatch.entitlements
+
+  PlataWatchWidgets:
+    type: app-extension
+    platform: watchOS
+    deploymentTarget: "11.0"
+    sources:
+      - path: PlataWatchWidgets
+      - path: Shared
+    info:
+      path: PlataWatchWidgets/Info.plist
+      properties:
+        CFBundleDisplayName: Plata
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: net.plataapp.plata.watchkitapp.widgets
+        DEVELOPMENT_TEAM: "8YMVGT4T6Q"
+        CODE_SIGN_STYLE: Automatic
+        TARGETED_DEVICE_FAMILY: "4"
+        CODE_SIGN_ENTITLEMENTS: PlataWatchWidgets/PlataWatchWidgets.entitlements
+        SKIP_INSTALL: YES

@@ -3,6 +3,7 @@ import Observation
 import SwiftUI
 import WatchConnectivity
 import WatchKit
+import WidgetKit
 
 /// Lo último que mandó el iPhone, guardado para usarlo sin conexión, y los movimientos anotados aquí.
 @MainActor
@@ -28,6 +29,8 @@ final class WatchStore: NSObject, WCSessionDelegate {
         guard let d = ctx[WatchKey.snapshot] as? Data, let s = try? JSONDecoder().decode(WatchSnapshot.self, from: d) else { return }
         snapshot = s
         UserDefaults.standard.set(d, forKey: key)
+        WatchShare.save(d)
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     nonisolated func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
