@@ -37,3 +37,6 @@ HISTORIAL ¦ HISTORY ¦ 履歴 ¦ CRONOLOGIA ¦ HISTORIQUE ¦ POVIJEST
 La historia de cada suscripción ¦ The story of each subscription ¦ 各サブスクの履歴 ¦ La storia di ogni abbonamento ¦ L'histoire de chaque abonnement ¦ Povijest svake pretplate
 Mira cuándo empezó, cuándo subió de precio o cambió de cuenta, y si se saltó un mes o hubo un quiebre. ¦ See when it started, when it went up in price or changed account, and whether a month was skipped or there was a gap. ¦ いつ始まったか、いつ値上がりや口座変更があったか、月が抜けたり中断があったかを確認できます。 ¦ Guarda quando è iniziato, quando è aumentato di prezzo o ha cambiato conto, e se è saltato un mese o c'è stata un'interruzione. ¦ Voyez quand il a commencé, quand son prix a augmenté ou son compte a changé, et si un mois a été sauté ou s'il y a eu une rupture. ¦ Vidi kada je počela, kada je poskupjela ili promijenila račun te je li preskočen mjesec ili je bilo prekida.
 Anotado desde el Apple Watch ¦ Added from Apple Watch ¦ Apple Watchから追加 ¦ Aggiunto da Apple Watch ¦ Ajouté depuis l’Apple Watch ¦ Dodano s Apple Watcha
+Bloqueo con PIN ¦ PIN lock ¦ PINロック ¦ Blocco con PIN ¦ Verrouillage par PIN ¦ Zaključavanje PIN-om
+Activado ¦ On ¦ オン ¦ Attivo ¦ Activé ¦ Uključeno
+Apagado ¦ Off ¦ オフ ¦ Spento ¦ Désactivé ¦ Isključeno
