@@ -139,7 +139,7 @@ struct TransactionSheet: View {
         .presentationCornerRadius(38)
         .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))
         .onAppear(perform: load)
-        .confirmationDialog("Estás pagando más de lo que debes", isPresented: Binding(get: { overpay != nil }, set: { if !$0 { overpay = nil } }), titleVisibility: .visible) {
+        .alert("Estás pagando más de lo que debes", isPresented: Binding(get: { overpay != nil }, set: { if !$0 { overpay = nil } })) {
             if let owed = overpay {
                 if owed > 0.005 { Button("Pagar solo " + f.exact(owed, e.accountCurrency(.string(card)))) { finishPay(owed) } }
                 Button(owed > 0.005 ? "Registrar el pago completo" : "Registrar de todos modos") { finishPay(parsedAmount() ?? 0) }

@@ -264,19 +264,19 @@ struct AjustesView: View {
             defer { if scoped { url.stopAccessingSecurityScopedResource() } }
             if let data = try? Data(contentsOf: url) { pendingImport = data } else { message = "No se pudo leer el archivo." }
         }
-        .confirmationDialog("¿Reemplazar tus datos con este archivo?", isPresented: Binding(get: { pendingImport != nil }, set: { if !$0 { pendingImport = nil } }), titleVisibility: .visible) {
+        .alert("¿Reemplazar tus datos con este archivo?", isPresented: Binding(get: { pendingImport != nil }, set: { if !$0 { pendingImport = nil } })) {
             Button("Reemplazar", role: .destructive) { applyImport() }
             Button("Cancelar", role: .cancel) { pendingImport = nil }
         } message: {
             Text("Lo que tienes ahora se sustituye. Guarda antes un archivo si quieres conservarlo.")
         }
-        .confirmationDialog("Cargar archivo de perfil", isPresented: $askCloudLoad, titleVisibility: .visible) {
+        .alert("Cargar archivo de perfil", isPresented: $askCloudLoad) {
             Button(cloud.st.rev == 0 ? "Elegir archivo" : "Enviar código", role: .destructive) { cloud.askLoadFile() }
             Button("Cancelar", role: .cancel) {}
         } message: {
             Text(cloud.st.rev == 0 ? "Esto reemplazará los datos de este dispositivo." : "Esto reemplazará los datos de este dispositivo y tu copia en la nube. Primero te enviaremos un código de verificación a tu correo.")
         }
-        .confirmationDialog(wipeHome ? "¿Borrar datos y volver al inicio?" : "¿Borrar todos tus datos?", isPresented: $askCloudWipe, titleVisibility: .visible) {
+        .alert(wipeHome ? "¿Borrar datos y volver al inicio?" : "¿Borrar todos tus datos?", isPresented: $askCloudWipe) {
             Button("Enviar código", role: .destructive) {
                 let home = wipeHome
                 cloud.askWipeLocalToo { try? model.resetProfile(); load(force: true); if home { goHome() } }
@@ -285,7 +285,7 @@ struct AjustesView: View {
         } message: {
             Text("Estás en modo Cloud: se vaciará también tu copia en la nube y en tus otros dispositivos. Primero te enviaremos un código de verificación a tu correo. Guarda tu archivo de perfil antes si quieres conservarlos.")
         }
-        .confirmationDialog("¿Borrar todos tus datos?", isPresented: $confirmWipe, titleVisibility: .visible) {
+        .alert("¿Borrar todos tus datos?", isPresented: $confirmWipe) {
             Button("Borrar datos", role: .destructive) { try? model.resetProfile(); load(force: true); if wipeHome { goHome() } }
             Button("Cancelar", role: .cancel) {}
         } message: {

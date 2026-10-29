@@ -77,7 +77,7 @@ struct PlannedSheet: View {
         .presentationCornerRadius(38)
         .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))
         .onAppear(perform: load)
-        .confirmationDialog("¿Eliminar este gasto simulado?", isPresented: $confirmDelete, titleVisibility: .visible) {
+        .alert("¿Eliminar este gasto simulado?", isPresented: $confirmDelete) {
             Button("Eliminar", role: .destructive) {
                 if let original { try? model.deletePlanned(id: original["id"] ?? .null) }
                 dismiss()

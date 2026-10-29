@@ -110,7 +110,7 @@ struct MovimientosView: View {
         .background(Color(.systemGroupedBackground))
         .navigationBarTitleDisplayMode(.inline)
         .sheet(item: $editing) { ref in TransactionSheet(mode: .edit(ref.tx)) }
-        .confirmationDialog("¿Eliminar este movimiento?", isPresented: Binding(get: { toDelete != nil }, set: { if !$0 { toDelete = nil } }), titleVisibility: .visible) {
+        .alert("¿Eliminar este movimiento?", isPresented: Binding(get: { toDelete != nil }, set: { if !$0 { toDelete = nil } })) {
             Button("Eliminar", role: .destructive) {
                 if let t = toDelete { try? model.deleteTransaction(id: t.tx["id"] ?? .null) }
                 toDelete = nil

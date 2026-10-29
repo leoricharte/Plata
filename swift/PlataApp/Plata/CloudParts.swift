@@ -211,7 +211,7 @@ struct CloudCard: View {
         .background { ZStack { Color(.secondarySystemGroupedBackground); CloudBackdrop() } }
         .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
         .padding(.top, 6).padding(.bottom, 14)
-        .confirmationDialog(Tr.t(ask?.title ?? ""), isPresented: Binding(get: { ask != nil }, set: { if !$0 { ask = nil } }), titleVisibility: .visible, presenting: ask) { a in
+        .alert(Tr.t(ask?.title ?? ""), isPresented: Binding(get: { ask != nil }, set: { if !$0 { ask = nil } }), presenting: ask) { a in
             Button(a.action, role: a.destructive ? .destructive : nil) { run(a) }
             Button("Cancelar", role: .cancel) {}
         } message: { a in Text(a.message) }
@@ -414,7 +414,7 @@ struct LinkRequestCard: View {
         }
         .padding(.horizontal, 14).padding(.vertical, 14)
         .background(Color(hex: "#FF9500").opacity(0.15), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
-        .confirmationDialog("¿Aprobar este dispositivo?", isPresented: $confirming, titleVisibility: .visible) {
+        .alert("¿Aprobar este dispositivo?", isPresented: $confirming) {
             Button(Tr.t("Aprobar") + " " + spaced(req.code)) { Task { await cloud.answerLink(approve: true, seen: req) } }
             Button("Cancelar", role: .cancel) {}
         } message: { Text("Solo apruébalo si fuiste tú y el código es exactamente el mismo que ves en el dispositivo nuevo.") }

@@ -84,7 +84,7 @@ struct SubDetailView: View {
                 Button { model.activeSheet = .sub(id: id) } label: { Image(systemName: "pencil") }.accessibilityLabel("Editar")
             }
         }
-        .confirmationDialog("¿Eliminar esto?", isPresented: $askDelete, titleVisibility: .visible) {
+        .alert("¿Eliminar esto?", isPresented: $askDelete) {
             Button("Eliminar", role: .destructive) { try? model.deleteSub(id: o["id"] ?? .null); dismiss() }
             Button("Cancelar", role: .cancel) {}
         } message: { Text("Dejará de aparecer en tus pagos futuros. Tu historial no cambia.") }

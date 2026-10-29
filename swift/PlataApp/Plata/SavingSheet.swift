@@ -61,7 +61,7 @@ struct SavingSheet: View {
         .presentationCornerRadius(38)
         .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))
         .onAppear(perform: load)
-        .confirmationDialog("¿Eliminar esta meta?", isPresented: $confirmDelete, titleVisibility: .visible) {
+        .alert("¿Eliminar esta meta?", isPresented: $confirmDelete) {
             Button("Eliminar", role: .destructive) {
                 if let original { try? model.deleteSaving(id: original["id"] ?? .null) }
                 dismiss()

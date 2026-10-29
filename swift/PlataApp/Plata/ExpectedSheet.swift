@@ -121,7 +121,7 @@ struct ExpectedSheet: View {
         .presentationCornerRadius(38)
         .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))
         .onAppear(perform: load)
-        .confirmationDialog(isCardPay ? "¿Eliminar este pago previsto?" : "¿Eliminar este \(isIncome ? "ingreso" : "gasto") previsto?", isPresented: $confirmDelete, titleVisibility: .visible) {
+        .alert(isCardPay ? "¿Eliminar este pago previsto?" : "¿Eliminar este \(isIncome ? "ingreso" : "gasto") previsto?", isPresented: $confirmDelete) {
             Button("Eliminar", role: .destructive) {
                 if let original { try? model.deleteExpected(collection: collection, id: original["id"] ?? .null) }
                 dismiss()

@@ -109,7 +109,7 @@ struct TransactionDetailView: View {
         .sheet(item: Binding(get: { postponing.map { Wrapper(tx: $0) } }, set: { postponing = $0?.tx })) { w in
             PostponeSheet(tx: w.tx) {}
         }
-        .confirmationDialog("¿Eliminar este movimiento?", isPresented: $confirmDelete, titleVisibility: .visible) {
+        .alert("¿Eliminar este movimiento?", isPresented: $confirmDelete) {
             Button("Eliminar", role: .destructive) {
                 try? model.deleteTransaction(id: tx["id"] ?? .null)
                 dismiss()

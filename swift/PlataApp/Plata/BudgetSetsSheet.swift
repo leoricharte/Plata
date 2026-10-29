@@ -150,7 +150,7 @@ struct BudgetSetsSheet: View {
             }
             .padding(.horizontal, 16).padding(.top, 16)
         }
-        .confirmationDialog("¿Eliminar este set?", isPresented: $askDelete, titleVisibility: .visible) {
+        .alert("¿Eliminar este set?", isPresented: $askDelete) {
             Button("Eliminar", role: .destructive) {
                 if let id = draft?.id { model.deleteBudgetSet(id: id) }
                 dismiss()

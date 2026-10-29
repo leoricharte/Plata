@@ -77,7 +77,7 @@ private struct ConfirmBody: View {
         .fitSheet().presentationDragIndicator(.visible).presentationCornerRadius(38)
         .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))
         .onAppear { load(e) }
-        .confirmationDialog("Estás pagando más de lo que debes", isPresented: Binding(get: { overpay != nil }, set: { if !$0 { overpay = nil } }), titleVisibility: .visible) {
+        .alert("Estás pagando más de lo que debes", isPresented: Binding(get: { overpay != nil }, set: { if !$0 { overpay = nil } })) {
             if let owed = overpay, let c = card(e) {
                 if owed > 0.005 { Button("Pagar solo " + f.exact(owed, Engine.text(c["cur"]))) { payCard(owed) } }
                 Button(owed > 0.005 ? "Registrar el pago completo" : "Registrar de todos modos") { payCard(num(amountText)) }

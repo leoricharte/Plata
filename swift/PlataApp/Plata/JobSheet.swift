@@ -85,7 +85,7 @@ struct JobSheet: View {
         .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))
         .onAppear(perform: load)
         .onChange(of: mode) { _, m in if id == nil { freq = m == "s" ? "m" : "b" } }
-        .confirmationDialog("¿Eliminar este trabajo?", isPresented: $confirmDelete, titleVisibility: .visible) {
+        .alert("¿Eliminar este trabajo?", isPresented: $confirmDelete) {
             Button("Eliminar", role: .destructive) {
                 if let original { try? model.deleteJob(id: original["id"] ?? .null) }
                 dismiss()

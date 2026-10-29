@@ -44,7 +44,7 @@ struct CategorySheet: View {
         .fitSheet().presentationDragIndicator(.visible).presentationCornerRadius(38)
         .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))
         .onAppear(perform: load)
-        .confirmationDialog("¿Eliminar esto?", isPresented: $askDelete, titleVisibility: .visible) {
+        .alert("¿Eliminar esto?", isPresented: $askDelete) {
             Button("Eliminar", role: .destructive) {
                 if let name { try? model.deleteCategory(name: name) }
                 dismiss()

@@ -72,11 +72,11 @@ struct AccountSheet: View {
         .fitSheet().presentationDragIndicator(.visible).presentationCornerRadius(38)
         .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))
         .onAppear(perform: load)
-        .confirmationDialog("¿Eliminar esto?", isPresented: $askDelete, titleVisibility: .visible) {
+        .alert("¿Eliminar esto?", isPresented: $askDelete) {
             Button("Eliminar", role: .destructive) { remove() }
             Button("Cancelar", role: .cancel) {}
         } message: { Text("Esta acción no se puede deshacer.") }
-        .confirmationDialog("Tiene datos ligados", isPresented: $askLinked, titleVisibility: .visible) {
+        .alert("Tiene datos ligados", isPresented: $askLinked) {
             Button("Ocultar (recomendado)") {
                 if let id { model.setAccountHidden(id: id, hidden: true) }
                 dismiss()
@@ -199,11 +199,11 @@ struct DebtSheet: View {
         .fitSheet().presentationDragIndicator(.visible).presentationCornerRadius(38)
         .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))
         .onAppear(perform: load)
-        .confirmationDialog("¿Eliminar esto?", isPresented: $askDelete, titleVisibility: .visible) {
+        .alert("¿Eliminar esto?", isPresented: $askDelete) {
             Button("Eliminar", role: .destructive) { remove() }
             Button("Cancelar", role: .cancel) {}
         } message: { Text("Esta acción no se puede deshacer.") }
-        .confirmationDialog("Tiene datos ligados", isPresented: $askLinked, titleVisibility: .visible) {
+        .alert("Tiene datos ligados", isPresented: $askLinked) {
             Button("Ocultar (recomendado)") {
                 if let id { model.setAccountHidden(id: id, hidden: true) }
                 dismiss()
@@ -316,7 +316,7 @@ struct SubSheet: View {
         .fitSheet().presentationDragIndicator(.visible).presentationCornerRadius(38)
         .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))
         .onAppear(perform: load)
-        .confirmationDialog("¿Eliminar esto?", isPresented: $askDelete, titleVisibility: .visible) {
+        .alert("¿Eliminar esto?", isPresented: $askDelete) {
             Button("Eliminar", role: .destructive) {
                 if let original { try? model.deleteSub(id: original["id"] ?? .null) }
                 dismiss()
