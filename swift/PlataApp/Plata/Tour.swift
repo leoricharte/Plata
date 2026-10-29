@@ -1,24 +1,30 @@
 import SwiftUI
 import PlataCore
 
-/// El tutorial guiado (`TOUR` / `tourTick` de la web): una tarjeta con una pista breve la primera vez que llegas a cada pantalla.
-/// En la web también resalta el botón con un anillo; aquí la barra de pestañas es la del sistema y no se puede resaltar,
-/// así que la pista se muestra sobre la barra, con el fondo atenuado.
+/// El tutorial guiado (`TOUR` / `tourTick` de la web): una pista breve la primera vez que llegas a cada pantalla.
+/// Igual que la web: el fondo se atenúa con un hueco y un anillo sobre el botón que explica (el hueco deja pulsarlo).
+/// Los botones se miden con `tourAnchor`; la barra de pestañas es la del sistema y no se puede medir, así que
+/// ahí la tarjeta queda sobre la barra con una flecha hacia la pestaña (por su posición, 1/5 del ancho cada una).
 private struct TourTip {
     let id: String
     let title: String
     let text: String
     /// Se marca como vista en cuanto aparece (no hace falta tocar «Entendido»).
     let auto: Bool
+    /// Botón que se resalta (`tourAnchor`); si no está en pantalla, la pista se salta, como en la web.
+    var anchor: String? = nil
+    /// Pestaña a la que apunta la flecha (0 = primera).
+    var tabIndex: Int? = nil
 }
 
 private enum TourStep {
-    static let start = TourTip(id: "start", title: "Empieza por Cuentas", text: "Ahí pones tu saldo real, agregas tarjetas y puedes importar tus estados de cuenta.", auto: false)
-    static let plus = TourTip(id: "plus", title: "Añade desde aquí", text: "Con el + registras un movimiento, algo previsto, una transferencia o tu trabajo.", auto: false)
+    static let start = TourTip(id: "start", title: "Empieza por Cuentas", text: "Ahí pones tu saldo real, agregas tarjetas y puedes importar tus estados de cuenta.", auto: false, tabIndex: 4)
+    static let plus = TourTip(id: "plus", title: "Añade desde aquí", text: "Con el + registras un movimiento, algo previsto, una transferencia o tu trabajo.", auto: false, anchor: "plus")
     static let cuentas = TourTip(id: "deuda", title: "Tus cuentas", text: "Ajusta tu saldo real y añade tus cuentas, tarjetas y préstamos para que Plata cuadre tu mes.", auto: true)
     static let presupuesto = TourTip(id: "presu", title: "Presupuesto", text: "Pon un tope por categoría y mira cuánto llevas gastado este mes.", auto: true)
     static let proyeccion = TourTip(id: "proy", title: "Proyección", text: "Con lo que tienes previsto, aquí ves cómo irá tu saldo en las próximas semanas.", auto: true)
-    static let gear = TourTip(id: "gear", title: "Ajustes", text: "Perfil, idioma, tema y respaldo de tus datos. Aquí también puedes repetir este tutorial.", auto: false)
+    static let importar = TourTip(id: "imp", title: "Importa en vez de escribir", text: "Sube el PDF o CSV de tu banco y Plata lee los movimientos en tu dispositivo. Nada sale de aquí.", auto: false, anchor: "imp")
+    static let gear = TourTip(id: "gear", title: "Ajustes", text: "Perfil, idioma, tema y respaldo de tus datos. Aquí también puedes repetir este tutorial.", auto: false, anchor: "gear")
 }
 
 extension AppModel {
@@ -54,7 +60,10 @@ struct TourOverlay: View {
         switch model.tab {
         case .resumen:
             let root = model.path.isEmpty
-            candidates = [(TourStep.start, root), (TourStep.plus, root), (TourStep.gear, root && model.tourSeen("plus"))]
+            let plusSeen = model.tourSeen("plus")
+            candidates = [(TourStep.start, root), (TourStep.plus, root && model.tourFrames["plus"] != nil),
+                          (TourStep.importar, root && plusSeen && model.tourFrames["imp"] != nil),
+                          (TourStep.gear, root && plusSeen && model.tourFrames["gear"] != nil)]
         case .cuentas: candidates = [(TourStep.cuentas, true)]
         case .presupuesto: candidates = [(TourStep.presupuesto, true)]
         case .proyeccion: candidates = [(TourStep.proyeccion, true)]
@@ -67,12 +76,23 @@ struct TourOverlay: View {
     var body: some View {
         Group {
             if let tip = current {
-                ZStack(alignment: .bottom) {
-                    Color.black.opacity(0.26).ignoresSafeArea().allowsHitTesting(false)
-                    card(tip)
-                        .padding(.horizontal, 14).padding(.bottom, 110)
-                        .transition(.opacity.combined(with: .offset(y: 6)))
+                GeometryReader { geo in
+                    let origin = geo.frame(in: .global).origin
+                    let box = tip.anchor.flatMap { model.tourFrames[$0] }.map { $0.offsetBy(dx: -origin.x, dy: -origin.y).insetBy(dx: -6, dy: -6) }
+                    ZStack(alignment: .topLeading) {
+                        dim(size: geo.size, hole: box).allowsHitTesting(false)
+                        if let box {
+                            RoundedRectangle(cornerRadius: min(22, box.height / 2 + 4), style: .continuous)
+                                .stroke(Brand.accent, lineWidth: 2.5)
+                                .frame(width: box.width, height: box.height)
+                                .offset(x: box.minX, y: box.minY)
+                                .allowsHitTesting(false)
+                        }
+                        place(tip, box: box, size: geo.size, safe: geo.safeAreaInsets)
+                    }
                 }
+                .ignoresSafeArea()
+                .transition(.opacity)
                 .onAppear { show(tip) }
                 .onChange(of: tip.id) { _, _ in show(tip) }
             }
@@ -80,12 +100,46 @@ struct TourOverlay: View {
         .animation(.easeOut(duration: 0.22), value: current?.id)
     }
 
+    /// Fondo atenuado con un hueco redondeado sobre el botón (como `.tourdim.hole` de la web).
+    private func dim(size: CGSize, hole: CGRect?) -> some View {
+        Path { p in
+            p.addRect(CGRect(origin: .zero, size: size))
+            if let h = hole { p.addRoundedRect(in: h, cornerSize: CGSize(width: min(22, h.height / 2 + 4), height: min(22, h.height / 2 + 4)), style: .continuous) }
+        }
+        .fill(Color.black.opacity(0.28), style: FillStyle(eoFill: true))
+    }
+
+    /// La tarjeta va debajo del botón si está en la mitad de arriba, encima si está abajo; sin botón, sobre la barra de pestañas.
+    @ViewBuilder
+    private func place(_ tip: TourTip, box: CGRect?, size: CGSize, safe: EdgeInsets) -> some View {
+        let w = min(300, size.width - 28)
+        if let box {
+            let below = box.midY < size.height * 0.5
+            let x = min(max(14, box.midX - w / 2), size.width - w - 14)
+            card(tip, width: w, arrowX: box.midX - x, arrowUp: below)
+                .offset(x: x, y: below ? box.maxY + 10 : max(safe.top + 8, box.minY - 10 - 190))
+        } else {
+            let tabs = 5.0
+            let x = (size.width - 32) / tabs
+            let center: CGFloat? = tip.tabIndex.map { 16 + x * (CGFloat($0) + 0.5) }
+            let left = min(max(14, (center ?? size.width / 2) - w / 2), size.width - w - 14)
+            VStack(spacing: 0) {
+                Spacer(minLength: 0)
+                card(tip, width: w, arrowX: center.map { $0 - left }, arrowUp: false)
+                    .padding(.leading, left)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.bottom, safe.bottom + 78)
+            }
+            .frame(width: size.width, height: size.height)
+        }
+    }
+
     private func show(_ tip: TourTip) {
         shown = tip.id
         if tip.auto && !model.tourSeen(tip.id) { model.tourMark(tip.id) }
     }
 
-    private func card(_ tip: TourTip) -> some View {
+    private func card(_ tip: TourTip, width: CGFloat, arrowX: CGFloat?, arrowUp: Bool) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(tip.title).font(.inter(15.5, .bold)).padding(.bottom, 3)
             Text(tip.text).font(.inter(14)).lineSpacing(2)
@@ -106,10 +160,40 @@ struct TourOverlay: View {
             .padding(.top, 8)
         }
         .padding(.top, 14).padding(.horizontal, 14).padding(.bottom, 8)
-        .frame(maxWidth: 276, alignment: .leading)
+        .frame(width: width, alignment: .leading)
         .background(Color(light: "#FFFFFF", dark: "#1C1C1E"), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).stroke(Brand.accent.opacity(0.45), lineWidth: 1.5))
         .shadow(color: .black.opacity(0.24), radius: 20, y: 12)
+        .overlay(alignment: arrowUp ? .topLeading : .bottomLeading) {
+            if let ax = arrowX {
+                Triangle().fill(Color(light: "#FFFFFF", dark: "#1C1C1E"))
+                    .overlay(Triangle().stroke(Brand.accent.opacity(0.45), lineWidth: 1.5))
+                    .frame(width: 18, height: 10)
+                    .rotationEffect(.degrees(arrowUp ? 0 : 180))
+                    .offset(x: min(max(18, ax), width - 36) - 9, y: arrowUp ? -9 : 9)
+            }
+        }
         .accessibilityElement(children: .contain)
+    }
+}
+
+private struct Triangle: Shape {
+    func path(in r: CGRect) -> Path {
+        var p = Path(); p.move(to: CGPoint(x: r.midX, y: r.minY)); p.addLine(to: CGPoint(x: r.maxX, y: r.maxY)); p.addLine(to: CGPoint(x: r.minX, y: r.maxY)); p.closeSubpath(); return p
+    }
+}
+
+extension View {
+    /// Marca un botón para que el tutorial lo resalte (guarda su posición en pantalla en `AppModel.tourFrames`).
+    func tourAnchor(_ id: String) -> some View { modifier(TourAnchor(id: id)) }
+}
+
+private struct TourAnchor: ViewModifier {
+    @Environment(AppModel.self) private var model
+    let id: String
+    func body(content: Content) -> some View {
+        content
+            .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { if model.tourFrames[id] != $0 { model.tourFrames[id] = $0 } }
+            .onDisappear { model.tourFrames[id] = nil }
     }
 }

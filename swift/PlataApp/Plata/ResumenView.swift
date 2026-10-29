@@ -71,7 +71,7 @@ struct ResumenView: View {
             ToolbarItem(placement: .topBarLeading) { brand }
         }
         ToolbarItem(placement: .topBarTrailing) {
-            NavigationLink(value: Route.ajustes) { Image(systemName: "gearshape") }
+            NavigationLink(value: Route.ajustes) { Image(systemName: "gearshape").tourAnchor("gear") }
                 .accessibilityLabel("Ajustes")
         }
         ToolbarItem(placement: .topBarTrailing) { AddMenuButton() }
@@ -120,6 +120,7 @@ struct ResumenView: View {
                 .padding(.bottom, 4)
             startRow("plus.circle.fill", "Añadir un movimiento") { model.showAddTransaction = true }
             startRow("folder.badge.plus", "Importar datos de banco") { model.showImport = true }
+                .tourAnchor("imp")
             startRow("folder.fill", "Cargar mi archivo de perfil") { model.path.append(.ajustes) }
             startRow("info.circle.fill", "Ver con datos de ejemplo") { pickingDemo = true }
         }

@@ -29,7 +29,7 @@ struct AddMenuButton: View {
                 Text("Pago por hora, impuestos, frecuencia")
             }
         } label: {
-            Image(systemName: "plus")
+            Image(systemName: "plus").tourAnchor("plus")
         }
         .accessibilityLabel("Añadir")
     }
