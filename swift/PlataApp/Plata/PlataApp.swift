@@ -35,13 +35,13 @@ struct PlataApp: App {
             }
             .environment(model)
                 .environment(cloud)
-                .task { cloud.attach(model); WatchBridge.shared.start(model); WidgetBridge.shared.start(model) }
+                .task { cloud.attach(model); WatchBridge.shared.start(model); WidgetBridge.shared.start(model); Reminders.shared.attach(model) }
                 .preferredColorScheme(Prefs.scheme(theme))
                 .environment(\.locale, Prefs.locale(lang))
                 .onChange(of: scenePhase) { _, phase in
                     if phase == .active { model.refreshToday(); AppLock.shared.sceneActive() }
                     else if phase == .inactive { AppLock.shared.sceneInactive() }
-                    else if phase == .background { AppLock.shared.sceneBackground() }
+                    else if phase == .background { AppLock.shared.sceneBackground(); Reminders.shared.schedule() }
                     cloud.scene(active: phase == .active)
                 }
         }
