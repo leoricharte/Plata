@@ -45,13 +45,12 @@ struct SettingRow<Trailing: View>: View {
     var body: some View {
         VStack(spacing: 0) {
             if !first { RowDivider() }
-            HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 0) {
-                    Text(title).font(.inter(17))
-                    if let note { Text(note).font(.inter(13)).foregroundStyle(.secondary) }
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 12) {
+                    Text(title).font(.inter(17)).frame(maxWidth: .infinity, alignment: .leading)
+                    trailing
                 }
-                Spacer(minLength: 8)
-                trailing
+                if let note { Text(note).font(.inter(13)).foregroundStyle(.secondary) }   // la nota ocupa todo el ancho, bajo el campo (como la web)
             }
             .padding(.vertical, 12)
         }
@@ -193,7 +192,7 @@ struct AjustesView: View {
                     SectionHead("Cuentas ocultas").padding(.top, 30).padding(.bottom, 0)
                     SCard {
                         ForEach(Array(hidden.enumerated()), id: \.offset) { i, a in
-                            SettingRow((Engine.text(a["name"])), first: i == 0) {
+                            SettingRow(Engine.text(a["name"]) + (Engine.text(a["last4"]).isEmpty ? "" : "  ● " + Engine.text(a["last4"])), first: i == 0) {
                                 Toggle("", isOn: Binding(get: { false }, set: { _ in model.setAccountHidden(id: Engine.identifier(a["id"]), hidden: false) }))
                                     .labelsHidden().tint(Brand.accent)
                             }

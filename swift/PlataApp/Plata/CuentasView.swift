@@ -133,9 +133,16 @@ struct CuentasView: View {
         .buttonStyle(.plain)
     }
 
-    private func last4(_ o: JSONValue) -> String {
+    /// «● 1008» como la web (`l4tag`): punto de 6 pt y los dígitos en el color del texto, no en gris.
+    @ViewBuilder private func last4View(_ o: JSONValue) -> some View {
         let l = Engine.text(o["last4"])
-        return l.isEmpty ? "" : "  ● " + l
+        if !l.isEmpty {
+            HStack(spacing: 6) {
+                Circle().fill(Color.primary).frame(width: 6, height: 6).padding(.top, 2)
+                Text(verbatim: l).font(.inter(15))
+            }
+            .padding(.leading, 8)
+        }
     }
 
     private func sorted(_ list: [JSONValue], kind: String, _ e: Engine, _ calc: [String: CardCalc]) -> [JSONValue] {
@@ -203,11 +210,11 @@ struct CuentasView: View {
                         VStack(alignment: .leading, spacing: 2) {
                             HStack(spacing: 0) {
                                 Text(Engine.text(a["name"])).font(.inter(16, .semibold)).tracking(-0.3).lineLimit(1)
-                                Text(last4(a)).font(.inter(15)).foregroundStyle(.secondary)
+                                last4View(a)
                             }
                             Text(sub).font(.inter(13)).foregroundStyle(.secondary)
                         }
-                        Spacer(minLength: 8)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         Text(f.whole(Engine.number(a["balance"]), cur)).font(.inter(16, .medium)).monospacedDigit()
                         Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(.tertiary)
                     }
@@ -215,10 +222,21 @@ struct CuentasView: View {
                 }
                 .buttonStyle(.plain)
             }
-            if !list.isEmpty { RowDivider() }
+            if !list.isEmpty { hiddenNote(e.allAccounts, kind: "acc", e) }
             addRow("Añadir cuenta de débito") { model.activeSheet = .account(id: nil) }
         }
         .padding(.bottom, 14)
+    }
+
+    /// «N ocultas por no estar en uso» (`hiddenNote` de la web); sin ocultas, el separador de siempre.
+    @ViewBuilder private func hiddenNote(_ all: [JSONValue], kind: String, _ e: Engine) -> some View {
+        let pf = kind == "card" ? "card" : "acct"
+        let n = Engine.flag(e.data["settings"]?["\(pf)_hide"])
+            ? all.filter { !Engine.flag($0["hid"]) }.filter { kind == "card" ? !(Engine.number($0["balance"]) > 0) : Engine.number($0["balance"]) == 0 }.count : 0
+        if n > 0 {
+            Text("\(n) \(n == 1 ? "oculta" : "ocultas") por no estar en uso").font(.inter(13)).foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity).padding(.top, 8).padding(.bottom, 2)
+        } else { RowDivider() }
     }
 
     private func creditList(_ e: Engine, _ f: Fmt, _ cards: [JSONValue], _ calc: [String: CardCalc]) -> some View {
@@ -229,7 +247,7 @@ struct CuentasView: View {
                 if i > 0 { RowDivider() }
                 creditRow(e, f, k, i, calc[Engine.identifier(k["id"])])
             }
-            RowDivider()
+            hiddenNote(cards, kind: "card", e)
             addRow("Añadir tarjeta o préstamo") { model.activeSheet = .debt(id: nil) }
         }
         .padding(.bottom, 14)
@@ -255,7 +273,7 @@ struct CuentasView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     HStack(spacing: 0) {
                         Text(Engine.text(k["name"])).font(.inter(16, .semibold)).tracking(-0.3).lineLimit(1)
-                        Text(last4(k)).font(.inter(15)).foregroundStyle(.secondary)
+                        last4View(k)
                     }
                     if isCard && limit > 0 {
                         GeometryReader { geo in
@@ -271,7 +289,7 @@ struct CuentasView: View {
                     if !parts.isEmpty { Text(parts.joined(separator: " · ")).font(.inter(13)).foregroundStyle(.secondary) }
                     ForEach(Array(lines.enumerated()), id: \.offset) { _, l in InsightLineView(line: l) }
                 }
-                Spacer(minLength: 8)
+                .frame(maxWidth: .infinity, alignment: .leading)
                 Text(f.whole(bal, cur)).font(.inter(16, .medium)).monospacedDigit()
                 Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(.tertiary)
             }
