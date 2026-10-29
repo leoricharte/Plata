@@ -322,7 +322,7 @@ struct ResumenView: View {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(ev.name).font(.inter(17, .semibold)).tracking(-0.3).lineLimit(1)
                                 Text((dd <= 0 ? "hoy" : "\(Spanish.dateShort(ev.date)) · en \(Spanish.plural(dd, "día", "días"))") + (accName.isEmpty ? "" : " · " + accName))
-                                    .font(.inter(14)).foregroundStyle(.secondary).lineLimit(1)
+                                    .font(.inter(14)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                             }
                             Spacer(minLength: 8)
                             Text("−" + f.whole(abs(ev.a0), ev.cur ?? f.currency)).font(.inter(16, .semibold)).monospacedDigit()
@@ -359,9 +359,9 @@ struct ResumenView: View {
                     .frame(maxWidth: .infinity).padding(.vertical, 18)
             } else {
                 HStack(spacing: 6) {
-                    stat("Ingresos", f.whole(sums.inc), Brand.gain)
+                    stat("Ingresos", f.whole(sums.inc), Brand.gainText)
                     stat("Gastos", f.whole(sums.exp), .primary)
-                    stat("Neto", (net < 0 ? "−" : "") + f.whole(abs(net)), net < 0 ? Brand.loss : Brand.gain)
+                    stat("Neto", (net < 0 ? "−" : "") + f.whole(abs(net)), net < 0 ? Brand.lossText : Brand.gainText)
                 }
                 .padding(.top, 14).padding(.bottom, 12)
                 ForEach(Array(rows.prefix(5).enumerated()), id: \.offset) { _, tx in
@@ -379,7 +379,7 @@ struct ResumenView: View {
     private func stat(_ title: String, _ value: String, _ color: Color) -> some View {
         VStack(spacing: 2) {
             Text(title).font(.inter(15)).foregroundStyle(.secondary)
-            Text(value).font(.inter(17, .semibold)).monospacedDigit().foregroundStyle(color).lineLimit(1).minimumScaleFactor(0.7)
+            Text(value).font(.inter(20, .bold)).tracking(-0.4).monospacedDigit().foregroundStyle(color).lineLimit(1).minimumScaleFactor(0.7)   // .stats b de la web: 20 px, 700
         }
         .frame(maxWidth: .infinity)
     }
@@ -511,12 +511,20 @@ struct TransactionRow: View {
         return HStack(spacing: 12) {
             if let (name, i) = subPick {
                 SubTile(name: name, fallback: Color(hex: Self.subColors[i % Self.subColors.count]))
-            } else {
-                Tile(symbol: engine.catSymbol(shown), color: color)
+            } else if isTransfer {   // como la web: sin fondo, dos flechas (rojas si sale, verdes si entra)
+                Image(systemName: "arrow.left.arrow.right").font(.system(size: 22, weight: .semibold))
+                    .foregroundStyle(amount < 0 ? Brand.lossText : Brand.accent).frame(width: 46, height: 46).accessibilityHidden(true)
+            } else if isPay {
+                Tile(symbol: "creditcard.fill", color: color)
+            } else if let sym = iconSymbol(Engine.text((engine.data["cats"]?.arrayValue ?? []).first { Engine.text($0["name"]) == shown }?["icon"])) {
+                Tile(symbol: sym, color: color)
+            } else {   // la web: sin icono elegido, la inicial de la categoría
+                LetterTile(letter: String(Tr.t(shown).prefix(1)), color: color)
             }
             VStack(alignment: .leading, spacing: 2) {
-                Text(note.isEmpty ? shown : note).font(.inter(16, .semibold)).tracking(-0.3).lineLimit(1)
-                Text(sub).font(.inter(13)).foregroundStyle(.secondary).lineLimit(1)
+                // Sin límite de una línea (como la web): lo largo pasa a la siguiente línea en vez de cortarse con «…».
+                Text(note.isEmpty ? shown : note).font(.inter(16, .semibold)).tracking(-0.3).fixedSize(horizontal: false, vertical: true)
+                Text(sub).font(.inter(13)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             }
             Spacer(minLength: 8)
             Text(fmt.signed(amount, cur))
