@@ -323,7 +323,7 @@ struct ProyeccionView: View {
                 }
                 Text(sub).font(.inter(13)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             }
-            Spacer(minLength: 8)
+            .frame(maxWidth: .infinity, alignment: .leading)   // el texto usa todo el ancho hasta el monto (como la web)
             trailing
             Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(.tertiary)
         }

@@ -109,7 +109,7 @@ struct AhorroView: View {
                         .font(.inter(13)).foregroundStyle(.secondary).lineLimit(2)
                     if let line { InsightLineView(line: line) }
                 }
-                Spacer(minLength: 8)
+                .frame(maxWidth: .infinity, alignment: .leading)
                 Text(f.whole(bal, cur)).font(.inter(16, .medium)).monospacedDigit()
                 Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(.tertiary)
             }

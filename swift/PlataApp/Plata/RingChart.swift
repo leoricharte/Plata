@@ -50,17 +50,21 @@ struct RingChart<Center: View>: View {
         let r = a.radius * k, tracking = 1.6 * k
         let glyphs: [(GraphicsContext.ResolvedText, CGFloat)] = a.text.map { ch in
             let t = ctx.resolve(Text(verbatim: String(ch)).font(.inter(11 * k, .medium)).foregroundColor(.secondary))
-            return (t, t.measure(in: CGSize(width: 200, height: 200)).width)
+            let w = t.measure(in: CGSize(width: 200, height: 200)).width
+            return (t, ch == " " ? max(w, 3.2 * k) : w)   // un espacio puede medir 0: que nunca se pegue la palabra
         }
         let total = glyphs.reduce(0) { $0 + $1.1 + tracking } - tracking
         var s = -total / 2
         for (t, w) in glyphs {
             let mid = (s + w / 2) / r                       // ángulo del centro de la letra, 0 = arriba (o abajo)
             var g = ctx
+            // La base de la letra va sobre el arco (como `<textPath>`): el recuadro llega a `desc` por debajo de la base.
+            let desc = 11 * k * 0.22
+            let rr = top ? r - desc : r + desc
             if top {
-                g.translateBy(x: c.x + r * sin(mid), y: c.y - r * cos(mid)); g.rotate(by: .radians(mid))
+                g.translateBy(x: c.x + rr * sin(mid), y: c.y - rr * cos(mid)); g.rotate(by: .radians(mid))
             } else {
-                g.translateBy(x: c.x + r * sin(mid), y: c.y + r * cos(mid)); g.rotate(by: .radians(-mid))
+                g.translateBy(x: c.x + rr * sin(mid), y: c.y + rr * cos(mid)); g.rotate(by: .radians(-mid))
             }
             g.draw(t, at: .zero, anchor: .bottom)
             s += w + tracking
