@@ -76,6 +76,11 @@ struct TransactionDetailView: View {
                 .padding(18)
                 .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 26, style: .continuous))
 
+                if Engine.text(tx["src"]) == "watch" {
+                    Label("Anotado desde el Apple Watch", systemImage: "applewatch")
+                        .font(.inter(14)).foregroundStyle(.secondary).padding(.top, 12)
+                }
+
                 if !isTransfer {
                     Button("Editar") { editing = tx }
                         .buttonStyle(SecondaryPillStyle())
