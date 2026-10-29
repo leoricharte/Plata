@@ -504,7 +504,7 @@ struct ProfileSettingsView: View {
         .scrollDismissesKeyboard(.interactively)
         .onAppear(perform: load)
         .onDisappear { applyCustom(); commit() }
-        .confirmationDialog("Cambiar de moneda", isPresented: Binding(get: { pendingCur != nil && !askingRate }, set: { if !$0 && !askingRate { pendingCur = nil } }), titleVisibility: .visible) {
+        .alert("Cambiar de moneda", isPresented: Binding(get: { pendingCur != nil && !askingRate }, set: { if !$0 && !askingRate { pendingCur = nil } })) {
             if let p = pendingCur {
                 Button("Mantener los montos") { finishCurrencies(.keep) }
                 Button(p.plan.assigned > 0 ? Tr.f("Convertir al tipo asignado (1 {0} = {1} {2})", p.plan.lost.joined(separator: ", "), plain(p.plan.assigned), p.primary) : "Convertir al tipo asignado") { finishCurrencies(.assigned) }

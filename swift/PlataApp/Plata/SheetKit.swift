@@ -361,7 +361,7 @@ struct CurrencyPills: View {
                     pending = new; ask = true
                 } else { cur = new; onSwitch(1, new) }
             }))
-        .confirmationDialog("Cambiar de moneda", isPresented: $ask, titleVisibility: .visible) {
+        .alert("Cambiar de moneda", isPresented: $ask) {   // alert (fondo sólido): el diálogo de cristal anclado se leía mal sobre el contenido
             Button("Mantener los montos") { apply(1) }
             Button(Tr.f("Convertir al tipo asignado (1 {0} = {1} {2})", from, Self.text(assigned), to)) { apply(assigned) }
             Button("Usar otro tipo de cambio") { rateText = Self.text(assigned); askRate = true }
