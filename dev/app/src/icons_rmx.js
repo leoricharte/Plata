@@ -108,14 +108,16 @@ const RMX = {
   'error-warning-line': { d: 'M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20ZM11 15H13V17H11V15ZM11 7H13V13H11V7Z', b: [2, 2, 20, 20] }
 };
 /* RMI(nombre, px, color, ajustado): ajustado=true recorta el viewBox a la figura (alto = px) para chevrones/signos pequeños */
+/* en modo Android (móvil, no escritorio) se usa el equivalente Material si existe */
+function RMV(n) { const h = document.documentElement.classList; return h.contains('android') && !h.contains('web') && typeof MATX !== 'undefined' && MATX[n] || null; }
 function RMI(n, px, col, tight) {
-  const v = RMX[n]; if (!v) return '';
+  const v = RMV(n) || RMX[n]; if (!v) return '';
   const c = col || 'currentColor', r = (x) => Math.round(x * 100) / 100;
   if (tight) { const b = v.b, k = px / Math.max(b[2], b[3]); return '<svg width="' + r(b[2] * k) + '" height="' + r(b[3] * k) + '" viewBox="' + b.join(' ') + '" fill="' + c + '" aria-hidden="true"><path d="' + v.d + '"/></svg>'; }
   return '<svg width="' + px + '" height="' + px + '" viewBox="0 0 24 24" fill="' + c + '" aria-hidden="true"><path d="' + v.d + '"/></svg>';
 }
 /* RMC(nombre, ancho, alto, k, color, clase): caja fija w×h px con la figura centrada y escala k px por unidad (conserva el layout de chevrones) */
 function RMC(n, w, h, k, col, cls) {
-  const v = RMX[n]; if (!v) return ''; const b = v.b, r = (x) => Math.round(x * 100) / 100, cx = b[0] + b[2] / 2, cy = b[1] + b[3] / 2, vw = w / k, vh = h / k;
+  const v = RMV(n) || RMX[n]; if (!v) return ''; const b = v.b, r = (x) => Math.round(x * 100) / 100, cx = b[0] + b[2] / 2, cy = b[1] + b[3] / 2, vw = w / k, vh = h / k;
   return '<svg' + (cls ? ' class="' + cls + '"' : '') + ' width="' + w + '" height="' + h + '" viewBox="' + r(cx - vw / 2) + ' ' + r(cy - vh / 2) + ' ' + r(vw) + ' ' + r(vh) + '" fill="' + (col || 'currentColor') + '" aria-hidden="true"><path d="' + v.d + '"/></svg>';
 }
