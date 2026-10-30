@@ -20,6 +20,8 @@ struct ImportFlowView: View {
     @State private var origin: Step = .start
     @State private var reviews: [ImportReview]
     @State private var pasted = ""
+    /// ¿Enviaste o te llegó? Mucha gente guarda la captura de quien envió: Plata no lo puede adivinar. 1 = me llegó, -1 = envié, 0 = sin elegir.
+    @State private var dir = 0
     @State private var shot: PhotosPickerItem?
     @State private var reading = false
     /// `true` si se abrió directo en una revisión (constancias que llegaron desde «Compartir»): «Regresar» cierra.
@@ -379,7 +381,7 @@ struct ImportFlowView: View {
         notice = nil
         switch step {
         case .start: dismiss()
-        case .paste: step = .start; pasted = ""; shot = nil
+        case .paste: step = .start; pasted = ""; shot = nil; dir = 0
         case .how, .country: step = .start; keyText = ""; pend = nil
         case .banks: step = .country; keyText = ""; pend = nil
         case .bank: step = .banks; keyText = ""; pend = nil
@@ -392,6 +394,12 @@ struct ImportFlowView: View {
 
     private var pasteBody: some View {
         VStack(spacing: 12) {
+            Text("¿Enviaste dinero o te llegó? Mucha gente guarda la captura de quien envió, así que Plata no lo puede adivinar.")
+                .font(.inter(16)).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 4)
+            SCard {
+                dirRow(-1, "Envié dinero", "Pagaste o transferiste a alguien.")
+                dirRow(1, "Me llegó dinero", "Alguien te yapeó, te plineó o te transfirió.")
+            }
             TextEditor(text: $pasted)
                 .font(.inter(16)).scrollContentBackground(.hidden)
                 .frame(minHeight: 180)
@@ -404,15 +412,30 @@ struct ImportFlowView: View {
                 PhotosPicker(selection: $shot, matching: .images) {
                     Label(Tr.t("Elegir captura"), systemImage: "photo")
                 }
-                .buttonStyle(.bordered).buttonBorderShape(.capsule)
+                .buttonStyle(.bordered).buttonBorderShape(.capsule).disabled(dir == 0)
                 Spacer()
             }
             .onChange(of: shot) { _, item in if let item { Task { await readShot(item) } } }
             Button { readPasted(pasted) } label: { Text(reading ? "Leyendo…" : "Leer constancia") }
                 .buttonStyle(PrimaryPillStyle())
-                .disabled(reading || pasted.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .disabled(reading || dir == 0 || pasted.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             Text("Todo se lee en este dispositivo.").font(.inter(13)).foregroundStyle(.secondary)
         }
+    }
+
+    private func dirRow(_ v: Int, _ title: String, _ sub: String) -> some View {
+        Button { dir = v } label: {
+            HStack(spacing: 12) {
+                Image(systemName: dir == v ? "largecircle.fill.circle" : "circle").font(.system(size: 22)).foregroundStyle(dir == v ? Brand.accent : Color.secondary)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(Tr.t(title)).font(.inter(17)).foregroundStyle(.primary)
+                    Text(Tr.t(sub)).font(.inter(14)).foregroundStyle(.secondary)
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(.vertical, 10).contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     private func readShot(_ item: PhotosPickerItem) async {
@@ -425,7 +448,7 @@ struct ImportFlowView: View {
 
     private func readPasted(_ text: String) {
         notice = nil
-        guard NazcaConstancia.detect(text) > 0, let r = NazcaConstancia.read(text, today: model.today.iso),
+        guard NazcaConstancia.detect(text) > 0, let r = NazcaConstancia.read(text, today: model.today.iso, sign: dir),
               let rev = ImportReview(name: "Constancia", statement: r.statement, engine: model.engine) else {
             notice = Notice(title: Tr.t("Esto no parece una constancia"), message: Tr.t("Pega el texto de la constancia de Yape o Plin, con el monto y la fecha."))
             return

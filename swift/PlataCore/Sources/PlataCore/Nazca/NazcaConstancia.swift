@@ -150,7 +150,7 @@ public enum NazcaConstancia {
         let order = sign > 0 ? [labelFrom, labelTo] : [labelTo, labelFrom]
         for L in order {
             for i in lines.indices {
-                if let m = L.groups(ns[i]) { let v = cleanWho(after(lines, ns, i, m[2])); if !v.isEmpty { return v } }
+                if let m = L.groups(ns[i]) { let v = cleanWho(after(lines, ns, i, m[2])); if !v.isEmpty && v.lowercased() != "yape" && v.lowercased() != "plin" { return v } }
             }
         }
         for i in lines.indices {
@@ -166,11 +166,17 @@ public enum NazcaConstancia {
         return ""
     }
 
-    static func msgOf(_ lines: [String], _ ns: [String]) -> String {
+    static let msgBad = Rx(#"yape|plin|compartir|datos|transaccion|seguridad|operacion|n°|nº"#), alphaMsg = Rx(#"[a-z]{3}"#, ci: true), adsRx = Rx(#"^mas en (yape|plin)\b"#)
+    static func msgOf(_ lines: [String], _ ns: [String], _ di: Int) -> String {
         for i in lines.indices {
             guard let m = labelMsg.groups(ns[i]) else { continue }
             let v = wsRuns.replace(after(lines, ns, i, m[2]), " ").jsTrimmed
             if !v.isEmpty && !msgEmpty.test(v) { return v.jsSlice(0, 60) }
+        }
+        // Yape pone el mensaje sin etiqueta, en una burbuja justo debajo de la fecha.
+        let j = di + 1
+        if di >= 0 && j < lines.count && lines[j].jsLength >= 3 && lines[j].jsLength <= 60 && alphaMsg.test(lines[j]) && !labelish.test(ns[j]) && !msgBad.test(ns[j]) && dateIn(ns[j]).isEmpty {
+            return wsRuns.replace(lines[j], " ").jsTrimmed
         }
         return ""
     }
@@ -197,25 +203,26 @@ public enum NazcaConstancia {
 
     // MARK: lectura
 
-    static func parse(_ text: String?, today: String) -> Parsed? {
+    static func parse(_ text: String?, today: String, forced: Int = 0) -> Parsed? {
         let raw = (text ?? "").jsSlice(0, maxChars).replacingOccurrences(of: "\r\n", with: "\n")
-        let lines = Array(raw.components(separatedBy: "\n").map { wsRuns.replace($0, " ").jsTrimmed }.filter { !$0.isEmpty }.prefix(maxLines))
+        var lines = Array(raw.components(separatedBy: "\n").map { wsRuns.replace($0, " ").jsTrimmed }.filter { !$0.isEmpty }.prefix(maxLines))
+        if let cut = lines.firstIndex(where: { adsRx.test(norm($0)) }), cut > 0 { lines = Array(lines[0..<cut]) }   // lo de abajo son anuncios, con montos que no son del pago
         if lines.isEmpty { return nil }
         let ns = lines.map { norm($0) }, n = ns.joined(separator: "\n"), flat = ns.joined(separator: " ")
         guard let amount = amountOf(lines, ns) else { return nil }
-        var date = "", time = ""
+        var date = "", time = "", di = -1
         var i = 0
         while i < ns.count && date.isEmpty {
             let d = dateIn(ns[i])
             if !d.isEmpty {
-                date = d
+                date = d; di = i
                 let t0 = timeIn(ns[i])
                 time = !t0.isEmpty ? t0 : (i + 1 < ns.count ? timeIn(ns[i + 1]) : "")
             }
             i += 1
         }
         let isNeg = neg.test(n), isPos = pos.test(n)
-        var sign = isPos && !isNeg ? 1 : isNeg && !isPos ? -1 : 0
+        var sign = forced != 0 ? (forced > 0 ? 1 : -1) : (isPos && !isNeg ? 1 : isNeg && !isPos ? -1 : 0)
         if sign == 0 {
             let hasTo = ns.contains { labelTo.test($0) }, hasFrom = ns.contains { labelFrom.test($0) }
             sign = hasFrom && !hasTo ? 1 : hasTo ? -1 : 0
@@ -226,10 +233,13 @@ public enum NazcaConstancia {
         if amount.amb { flags.append("amount") }
         var brand = brandOf(n)
         if originRx.test(n) && !viaOf(n).isEmpty && !yapeOnly2.test(n) { brand = "plin" }   // constancia del banco (BBVA…): el dinero salió de esa cuenta
-        let op = opOf(flat), who = { let w = whoOf(lines, ns, sign); return w.isEmpty && sign <= 0 ? headWho(lines, ns, amount.i) : w }()
-        if who.isEmpty { flags.append("who") }
+        let op = opOf(flat)
+        // Si la persona dice que recibió pero la captura es de quien envió (o al revés), el nombre que sale es el suyo, no el de la otra parte.
+        let other = forced != 0 && ((forced > 0 && isNeg && !isPos) || (forced < 0 && isPos && !isNeg))
+        let who: String = { if other { return "" }; let w = whoOf(lines, ns, sign); return w.isEmpty && sign <= 0 ? headWho(lines, ns, amount.i) : w }()
+        if who.isEmpty && !other { flags.append("who") }
         return Parsed(amount: amount.v, cur: amount.cur, amb: amount.amb, date: date.isEmpty ? today : date, time: time, hadDate: !date.isEmpty,
-                      sign: sign == 0 ? -1 : Double(sign), flags: flags, brand: brand, op: op, who: who, msg: msgOf(lines, ns),
+                      sign: sign == 0 ? -1 : Double(sign), flags: flags, brand: brand, op: op, who: who, msg: msgOf(lines, ns, di),
                       via: brand == "plin" ? viaOf(n) : "")
     }
 
@@ -240,8 +250,9 @@ public enum NazcaConstancia {
     }
 
     /// `nil` si no hay ningún monto. `today` (AAAA-MM-DD) es la fecha que se usa si el texto no trae una.
-    public static func read(_ text: String?, today: String = "") -> Result? {
-        guard let p = parse(text, today: today) else { return nil }
+    /// `sign`: 1 = me llegó dinero, -1 = envié, 0 = que lo decida el texto de la constancia.
+    public static func read(_ text: String?, today: String = "", sign: Int = 0) -> Result? {
+        guard let p = parse(text, today: today, forced: sign) else { return nil }
         let name = p.brand == "yape" ? "Yape" : p.brand == "plin" ? "Plin" : ""
         let base = !p.who.isEmpty ? p.who : (!name.isEmpty ? (p.sign < 0 ? name : name + " (recibido)") : "Constancia")
         let desc = (base + (p.msg.isEmpty ? "" : " · " + p.msg)).jsSlice(0, 90)

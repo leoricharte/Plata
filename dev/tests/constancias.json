@@ -319,7 +319,9 @@
     "date": "2025-04-01",
     "desc": "Yape",
     "ref": "t0901",
-    "flags": [],
+    "flags": [
+     "who"
+    ],
     "auto": false
    }
   },
@@ -431,6 +433,38 @@
     "date": "2026-09-14",
     "desc": "Carla Elena Ramos Soto",
     "ref": "11223344",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "real-yape-nombre-y-mensaje",
+   "text": "¡Yapeaste!\nCompartir\nS/ 180\nAna Mar*\n09 may. 2026 | 8:55 p.m.\nfeliz día mamá\nCÓDIGO DE SEGURIDAD 5 5 4\nDATOS DE LA TRANSACCIÓN\nNro. de celular *** *** 000\nDestino Yape\nNro. de operación 12345001\nMás en Yape Nuevo\nYAPEA TUS SERVICIOS\ndesde donde estés",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": -180,
+    "cur": "PEN",
+    "date": "2026-05-09",
+    "desc": "Ana Mar* · feliz día mamá",
+    "ref": "12345001",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "real-yape-con-anuncio",
+   "text": "¡Yapeaste!\nCompartir\nS/ 0.10\nRosa L. Soto C.\n18 jun. 2025 | 11:25 p.m.\nCÓDIGO DE SEGURIDAD 7 3 1\nDATOS DE LA TRANSACCIÓN\nNro. de celular *** *** 000\nDestino Yape\nNro. de operación 00406000\nMás en Yape Nuevo\nDisfruta de un COMBO Completo Reg.\nA solo S/ 10.90\nIr a Promos",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": -0.1,
+    "cur": "PEN",
+    "date": "2025-06-18",
+    "desc": "Rosa L. Soto C.",
+    "ref": "00406000",
     "flags": [],
     "auto": true
    }

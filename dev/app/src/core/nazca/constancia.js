@@ -69,7 +69,7 @@ const NazcaConstancia = (() => {
   }
   function whoOf(lines, ns, sign) {
     const order = sign > 0 ? [LABEL_FROM, LABEL_TO] : [LABEL_TO, LABEL_FROM];
-    for (const L of order) for (let i = 0; i < lines.length; i++) { const m = L.exec(ns[i]); if (m) { const v = cleanWho(after(lines, ns, i, m)); if (v) return v; } }
+    for (const L of order) for (let i = 0; i < lines.length; i++) { const m = L.exec(ns[i]); if (m) { const v = cleanWho(after(lines, ns, i, m)); if (v && !/^(yape|plin)$/i.test(v)) return v; } }
     for (let i = 0; i < lines.length; i++) {
       if (sign <= 0) { const m = INLINE_NEG.exec(ns[i]); if (m) { const v = cleanWho(ns[i].length === lines[i].length ? lines[i].slice(lines[i].length - m[1].length) : m[1]); if (v) return v; } }
       if (sign >= 0) { const m = INLINE_POS.exec(ns[i]); if (m) { const v = cleanWho(ns[i].length === lines[i].length ? lines[i].slice(0, m[1].length) : m[1]); if (v) return v; } }
@@ -83,12 +83,15 @@ const NazcaConstancia = (() => {
     if (l.length < 3 || l.length > 60 || /\d/.test(l) || !/[a-z]{3}/i.test(l) || LABELISH.test(ns[j]) || /yape|plin|operacion|transaccion|seguridad|gracias|compartir/.test(ns[j])) return '';
     return cleanWho(l);
   }
-  function msgOf(lines, ns) {
+  function msgOf(lines, ns, di) {
     for (let i = 0; i < lines.length; i++) {
       const m = LABEL_MSG.exec(ns[i]); if (!m) continue;
       const v = String(after(lines, ns, i, m) || '').replace(/\s+/g, ' ').trim();
       if (v && !/^(-+|sin mensaje|ninguno|n\/a)$/i.test(v)) return v.slice(0, 60);
     }
+    /* Yape pone el mensaje sin etiqueta, en una burbuja justo debajo de la fecha. */
+    const j = di + 1;
+    if (di >= 0 && j < lines.length && lines[j].length >= 3 && lines[j].length <= 60 && /[a-z]{3}/i.test(lines[j]) && !LABELISH.test(ns[j]) && !/yape|plin|compartir|datos|transaccion|seguridad|operacion|n°|nº/.test(ns[j]) && !dateIn(ns[j])) return lines[j].replace(/\s+/g, ' ').trim();
     return '';
   }
   function amountOf(lines, ns) {
@@ -120,15 +123,16 @@ const NazcaConstancia = (() => {
     while ((m = re.exec(n))) if (/\d/.test(m[1])) return m[1].toUpperCase();
     return '';
   }
-  function parse(text, today) {
-    const lines = String(text || '').slice(0, MAX_CHARS).split(/\r?\n/).map((l) => l.replace(/\s+/g, ' ').trim()).filter(Boolean).slice(0, MAX_LINES);
+  function parse(text, today, forced) {
+    let lines = String(text || '').slice(0, MAX_CHARS).split(/\r?\n/).map((l) => l.replace(/\s+/g, ' ').trim()).filter(Boolean).slice(0, MAX_LINES);
+    const cut = lines.findIndex((l) => /^mas en (yape|plin)\b/.test(norm(l))); if (cut > 0) lines = lines.slice(0, cut);   /* lo de abajo son anuncios, con montos que no son del pago */
     if (!lines.length) return null;
     const ns = lines.map(norm), n = ns.join('\n'), flat = ns.join(' ');
     const amt = amountOf(lines, ns); if (!amt) return null;
-    let date = '', time = '';
-    for (let i = 0; i < ns.length && !date; i++) { const d = dateIn(ns[i]); if (d) { date = d; time = timeIn(ns[i]) || (i + 1 < ns.length ? timeIn(ns[i + 1]) : ''); } }
+    let date = '', time = '', di = -1;
+    for (let i = 0; i < ns.length && !date; i++) { const d = dateIn(ns[i]); if (d) { date = d; di = i; time = timeIn(ns[i]) || (i + 1 < ns.length ? timeIn(ns[i + 1]) : ''); } }
     const neg = NEG.test(n), pos = POS.test(n);
-    let sign = pos && !neg ? 1 : neg && !pos ? -1 : 0;
+    let sign = forced ? (forced > 0 ? 1 : -1) : pos && !neg ? 1 : neg && !pos ? -1 : 0;
     if (!sign) { const hasTo = ns.some((l) => LABEL_TO.test(l)), hasFrom = ns.some((l) => LABEL_FROM.test(l)); sign = hasFrom && !hasTo ? 1 : hasTo ? -1 : 0; }
     const flags = [];
     if (!sign) flags.push('direction');
@@ -136,17 +140,20 @@ const NazcaConstancia = (() => {
     if (amt.amb) flags.push('amount');
     let brand = brandOf(n);
     if (/cuenta de (origen|cargo)/.test(n) && viaOf(n) && !/yapeaste|te yapeo|te yapearon/.test(n)) brand = 'plin';   /* constancia del banco (BBVA…): el dinero salió de esa cuenta */
-    const op = opOf(flat), who = whoOf(lines, ns, sign) || (sign <= 0 ? headWho(lines, ns, amt.i) : '');
-    if (!who) flags.push('who');
-    return { lines, amt, date: date || String(today || ''), time, sign: sign || -1, flags, brand, op, who, msg: msgOf(lines, ns), via: brand === 'plin' ? viaOf(n) : '', hadDate: !!date };
+    const op = opOf(flat);
+    /* Si la persona dice que recibió pero la captura es de quien envió (o al revés), el nombre que sale es el suyo, no el de la otra parte. */
+    const other = forced && ((forced > 0 && neg && !pos) || (forced < 0 && pos && !neg));
+    const who = other ? '' : whoOf(lines, ns, sign) || (sign <= 0 ? headWho(lines, ns, amt.i) : '');
+    if (!who && !other) flags.push('who');
+    return { lines, amt, date: date || String(today || ''), time, sign: sign || -1, flags, brand, op, who, msg: msgOf(lines, ns, di), via: brand === 'plin' ? viaOf(n) : '', hadDate: !!date };
   }
   /* 0 = no es una constancia · 2 = Yape o Plin con monto · 1 = parece constancia de otro banco (monto + fecha + número de operación) */
   function detect(text) {
-    const p = parse(text, ''); if (!p) return 0;
+    const p = parse(text, '', 0); if (!p) return 0;
     return p.brand ? 2 : p.op && p.hadDate ? 1 : 0;
   }
   function read(text, opts) {
-    const p = parse(text, opts && opts.today); if (!p) return { error: 'no_amount' };
+    const p = parse(text, opts && opts.today, opts && opts.sign); if (!p) return { error: 'no_amount' };
     const name = p.brand === 'yape' ? 'Yape' : p.brand === 'plin' ? 'Plin' : '';
     const base = p.who || (name ? (p.sign < 0 ? name : name + ' (recibido)') : 'Constancia');
     const desc = (base + (p.msg ? ' · ' + p.msg : '')).slice(0, 90);

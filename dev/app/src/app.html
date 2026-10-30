@@ -5971,7 +5971,8 @@ async function impClip() {
 }
 /* Captura de la constancia: el OCR (core/nazca/ocr.js) corre en este dispositivo y se descarga solo ahora (~6 MB). */
 async function impShot(f) {
-  if (!f) return; ui.impErr = null; ui.impAt = 'paste'; impSendF = null; impShow('busy', 'tab');
+  if (!f) return; if (!ui.impDir) { toast('Primero elige si enviaste dinero o te llegó.'); return; }
+  ui.impErr = null; ui.impAt = 'paste'; impSendF = null; impShow('busy', 'tab');
   let text = '';
   try { text = await NazcaOCR.read(f, new URL('nazca/ocr/', location.href).href, (s) => NazcaConstancia.detect(s) > 0); }
   catch (e) {
@@ -5985,7 +5986,7 @@ async function impShot(f) {
 }
 function impConstancia(text, fromShot) {
   const t = String(text || '').slice(0, NazcaConstancia.MAX_CHARS); ui.impAt = 'paste';
-  const r = NazcaConstancia.detect(t) ? NazcaConstancia.read(t, { today: iso(getToday()) }) : null;
+  const r = NazcaConstancia.detect(t) ? NazcaConstancia.read(t, { today: iso(getToday()), sign: ui.impDir === 'in' ? 1 : -1 }) : null;
   if (!r || r.error) { impFail('Esto no parece una constancia', fromShot ? 'No encontramos un monto en la captura. Prueba con una captura más clara que muestre el monto y la fecha.' : 'No encontramos un monto. Copia todo el texto de la constancia de Yape o Plin y vuélvelo a pegar.'); return; }
   impFromPdf(r.label, r);
   if (r.flags.indexOf('date') >= 0) toast('No encontré la fecha: puse la de hoy. Revísala.');
@@ -6173,11 +6174,16 @@ function impFromPdf(name, r) {
   /* Sugerencia, nunca obligación: la cuenta de ese banco con los mismos últimos 4, o una de ese banco en la misma moneda que no tenga otros últimos 4. Si no hay, se crea una nueva. */
   const card = r.kind === 'tarjeta', pool = card ? data.cards.filter((o) => o.kind === 'card') : data.accounts;
   const hit = pool.find((o) => bankIs(o) && last4 && o.last4 === last4) || pool.find((o) => bankIs(o) && o.cur === r.cur && !o.last4);
+  let hit2 = hit;   /* constancia de Plin (aunque salga de BBVA, Interbank…): la cuenta que se sugiere es la de Yape o Plin que más se use, si la persona la tiene; si no, la del banco */
+  if (!card && r.name === 'Plin') {
+    const used = (o) => data.transactions.filter((t) => t.acc === o.id).length, w = pool.filter((o) => o.cur === r.cur && /yape|plin/i.test(o.name || '')).sort((x, y) => used(y) - used(x));
+    if (w.length) hit2 = w[0];
+  }
   const cd = (card && r.card) || {};
   const nueva = card ? { id: '__new', kind: 'card', name: own || 'Tarjeta', cur: r.cur, limit: cd.limit || 0, balance: 0, apr: cd.apr != null ? cd.apr : 20, payment: cd.minPayment || 0, due_day: cd.dueDay ? Math.max(1, Math.min(31, cd.dueDay)) : 1, color: '', icon: '', last4: last4 }
     : { id: '__new', name: (r.bank ? impBankShort(r.bank) : (r.name || 'Cuenta')) + (r.cur === 'USD' ? ' Dólares' : r.cur === 'CLP' ? ' Pesos' : ' Soles'), type: r.kind === 'ahorro' ? 'savings' : 'checking', cur: r.cur, apy: r.kind === 'ahorro' && r.apy > 0 && r.apy < 100 ? Math.round(r.apy * 100) / 100 : 0, balance: 0, color: '', icon: '', last4: last4 };
   ui.imp = { src: 'pdf', label: r.label, check: r.check, period: r.period || null, names: [name], mdup: 0, name: name, a: { headers: [], width: 0, cols: {}, truncated: false }, x: { items: r.items, skipped: { unreadable: r.skipped.unreadable, blank: 0, total: 0 } },
-    cardInfo: cd, card: card, stmtEnd: r.check && r.check.end != null ? { balance: r.check.end, date: r.period ? r.period.to : '' } : null, cols: null, bank: r.bank, mark: r.bank || (r.name === 'Plin' ? 'plin' : ''), mergeId: hit ? hit.id : null, acc: hit ? hit.id : '__new', newAcc: nueva, flip: null, bal: null, sel: {}, cat: {}, all: false };
+    cardInfo: cd, card: card, stmtEnd: r.check && r.check.end != null ? { balance: r.check.end, date: r.period ? r.period.to : '' } : null, cols: null, bank: r.bank, mark: r.bank || (r.name === 'Plin' ? 'plin' : ''), mergeId: hit2 ? hit2.id : null, acc: hit2 ? hit2.id : '__new', newAcc: nueva, flip: null, bal: null, sel: {}, cat: {}, all: false };
   impBuild(); impReady();
 }
 const impBankShort = (id) => (id === 'bcp' ? 'BCP' : impBankName(id));
@@ -6298,7 +6304,9 @@ function impBodyHTML(st) {
   if (st === 'bank') return (IMP_STEPS[ui.impBank] ? '<div class="scard imsteps">' + IMP_STEPS[ui.impBank].map((t, i) => '<div class="imstep"><span class="imn" data-notr>' + (i + 1) + '</span><span class="grow">' + t + '</span></div>').join('') + '</div>' : '<p class="imlead">Descarga tu estado de cuenta de ahorros desde Interbank APP o la banca por internet de Interbank.</p>') +
     (IMP_KEY[ui.impBank] ? keyField('impKey', IMP_KEY[ui.impBank]) : '') +
     '<div class="imbar"><button class="primary" id="impPickBtn" data-act="imp:pdf"' + (!IMP_KEY[ui.impBank] || impKeyOk() ? '' : ' disabled') + '>' + (ui.impBank === 'yape' ? 'Subir reporte de movimientos' : 'Subir estado de cuenta') + '</button></div>';
-  if (st === 'paste') return '<p class="imlead">Elige la captura de la constancia de Yape o Plin. Se lee en este dispositivo: no se sube a ningún servidor.</p>' +
+  if (st === 'paste') return '<p class="imlead">¿Enviaste dinero o te llegó? Mucha gente guarda la captura de quien envió, así que Plata no lo puede adivinar.</p>' +
+    '<div class="scard">' + [['out', 'Envié dinero', 'Pagaste o transferiste a alguien.'], ['in', 'Me llegó dinero', 'Alguien te yapeó, te plineó o te transfirió.']].map((o) => '<button class="imopt' + (ui.impDir === o[0] ? ' on' : '') + '" data-act="imp:dir:' + o[0] + '"><span class="imrad"></span><span class="grow"><span class="imt">' + o[1] + '</span><span class="sub">' + o[2] + '</span></span></button>').join('') + '</div>' +
+    '<p class="imlead" style="margin-top:14px">Elige la captura de la constancia de Yape o Plin. Se lee en este dispositivo: no se sube a ningún servidor.</p>' +
     '<div class="scard"><button class="linkrow" data-act="imp:shot" style="width:100%">' + RMI('camera-line', 22, '#1A9D63') + 'Elegir captura</button></div>' +
     '<p class="imlead" style="margin-top:14px">O copia todo el texto de la constancia y pégalo aquí.</p>' +
     '<div class="scard"><label class="srow" style="padding:12px 0"><span class="grow"><textarea class="sinput imtext" id="impText" maxlength="' + NazcaConstancia.MAX_CHARS + '" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Pega aquí el texto de la constancia"></textarea></span></label></div>' +
@@ -6448,10 +6456,11 @@ function impAct(arg) {
   if (p[0] === 'sendgo') { impSendGo(); return; }
   if (p[0] === 'start') { impOpen(); return; }
   if (p[0] === 'how') { impShow('how', 'push'); return; }
-  if (p[0] === 'paste') { impShow('paste', 'push'); return; }
+  if (p[0] === 'paste') { ui.impDir = null; impShow('paste', 'push'); return; }
+  if (p[0] === 'dir') { ui.impDir = p[1] === 'in' ? 'in' : 'out'; document.querySelectorAll('[data-act^="imp:dir:"]').forEach((b) => b.classList.toggle('on', b.getAttribute('data-act') === 'imp:dir:' + ui.impDir)); return; }
   if (p[0] === 'clip') { impClip(); return; }
-  if (p[0] === 'shot') { $('#impshot').click(); return; }
-  if (p[0] === 'read') { const t = $('#impText'); impConstancia(t ? t.value : ''); return; }
+  if (p[0] === 'shot') { if (!ui.impDir) { toast('Primero elige si enviaste dinero o te llegó.'); return; } $('#impshot').click(); return; }
+  if (p[0] === 'read') { if (!ui.impDir) { toast('Primero elige si enviaste dinero o te llegó.'); return; } const t = $('#impText'); impConstancia(t ? t.value : ''); return; }
   if (p[0] === 'csv') { ui.impBank = null; ui.impAt = ui.impStep || null; impPick(); return; }
   if (p[0] === 'country') { impShow('country', 'push'); return; }
   if (p[0] === 'banks') { if (p[1]) ui.impCountry = p[1]; impShow('banks', 'push'); return; }

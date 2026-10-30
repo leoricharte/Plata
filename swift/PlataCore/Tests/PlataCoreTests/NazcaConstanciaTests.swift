@@ -15,7 +15,7 @@ final class NazcaConstanciaTests: XCTestCase {
             let tag = "caso \(n): \(text.prefix(60).replacingOccurrences(of: "\n", with: " ⏎ "))"
             XCTAssertEqual(NazcaConstancia.detect(text), c["detect"]!.intValue, tag + " · detect")
             let want = c["read"]!
-            let got = NazcaConstancia.read(text, today: today)
+            let got = NazcaConstancia.read(text, today: today, sign: c["sign"]?.intValue ?? 0)
             if let e = want["error"], !e.isNull { XCTAssertNil(got, tag + " · debía ser nil"); continue }
             guard let r = got else { XCTFail(tag + " · devolvió nil"); continue }
             let st = r.statement

@@ -48,7 +48,7 @@ const extras = ['', '   ', '\n\n', 'S/', 'S/ 5', 'Yape S/ 5', 'yape\r\nYapeaste 
   'Comisión S/ 0.50\nSaldo S/ 120.00\nPlin enviado S/ 20.00\n04/05/2026', 'x'.repeat(7000) + '\nYapeaste S/ 5', 'Yapeaste S/ 5\n' + 'línea\n'.repeat(100) + '10/10/2026 Operación 12345678'];
 const all = texts.concat(combos, extras);
 const R = (r) => r.error ? { error: r.error } : { bank: r.bank || '', kind: r.kind, label: r.label, name: r.name, cur: r.cur, period: r.period, items: r.items.map((i) => ({ line: i.line, date: i.date, desc: i.desc, amount: i.amount, cur: i.cur, ref: i.ref || '' })), brand: r.brand, op: r.op, time: r.time, flags: r.flags, auto: r.auto };
-const cases = all.map((text) => ({ text, detect: K.detect(text), read: R(K.read(text, { today })) }));
+const cases = all.flatMap((text) => [0, 1, -1].map((sign) => ({ text, sign, detect: K.detect(text), read: R(K.read(text, { today, sign })) })));
 const fx = join(root, 'swift/PlataCore/Tests/PlataCoreTests/Fixtures');
 mkdirSync(fx, { recursive: true });
 writeFileSync(join(fx, 'nazca_constancia.json'), JSON.stringify({ today, cases }));

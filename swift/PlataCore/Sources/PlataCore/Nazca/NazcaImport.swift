@@ -115,8 +115,15 @@ public struct ImportReview {
         }
         let card = r.kind == "tarjeta"
         let pool = card ? e.allCards.filter { Engine.str($0["kind"]) == "card" } : e.allAccounts
-        let hit = pool.first { bankIs($0) && !last4.isEmpty && Engine.str($0["last4"]) == last4 }
+        var hit = pool.first { bankIs($0) && !last4.isEmpty && Engine.str($0["last4"]) == last4 }
             ?? pool.first { bankIs($0) && Engine.str($0["cur"]) == r.cur && Engine.str($0["last4"]).isEmpty }
+        // Constancia de Plin (aunque salga de BBVA, Interbank…): se sugiere la cuenta de Yape o Plin que más se use, si la persona la tiene; si no, la del banco.
+        if !card && r.name == "Plin" {
+            let txs = e.data["transactions"]?.arrayValue ?? []
+            func used(_ o: JSONValue) -> Int { txs.filter { Engine.identifier($0["acc"]) == Engine.identifier(o["id"]) }.count }
+            let w = pool.filter { Engine.str($0["cur"]) == r.cur && (Engine.str($0["name"]).lowercased().contains("yape") || Engine.str($0["name"]).lowercased().contains("plin")) }
+            if let best = w.enumerated().max(by: { (used($0.element), -$0.offset) < (used($1.element), -$1.offset) })?.element { hit = best }
+        }
         let cd = (card ? r.card : nil) ?? Nazca.StatementResult.CardInfo()
         let nueva: JSONValue
         if card {
