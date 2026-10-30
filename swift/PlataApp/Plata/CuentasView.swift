@@ -113,7 +113,7 @@ struct CuentasView: View {
             } label: {
                 Image(systemName: "line.3.horizontal.decrease").font(.system(size: 14, weight: .semibold)).foregroundStyle(on ? Color.white : Color.secondary)
                     .frame(width: 30, height: 30)
-                    .background(on ? AnyShapeStyle(Brand.accent) : AnyShapeStyle(Color(.tertiarySystemFill)), in: Circle())
+                    .background(on ? AnyShapeStyle(Brand.accent) : AnyShapeStyle(Color.primary.opacity(0.12)), in: Circle())
             }
             .accessibilityLabel("Ordenar")
         }
@@ -388,7 +388,7 @@ struct CuentasView: View {
             Image(systemName: "line.3.horizontal.decrease").font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(rk != "all" ? Color.white : Color.secondary)
                 .frame(width: 30, height: 30)
-                .background(rk != "all" ? AnyShapeStyle(Brand.accent) : AnyShapeStyle(Color(.tertiarySystemFill)), in: Circle())
+                .background(rk != "all" ? AnyShapeStyle(Brand.accent) : AnyShapeStyle(Color.primary.opacity(0.12)), in: Circle())
         }
         .accessibilityLabel("Filtrar")
     }
