@@ -354,6 +354,86 @@
     "flags": [],
     "auto": false
    }
+  },
+  {
+   "name": "real-bbva-envio-a-contactos",
+   "text": "Envío a contactos\nOperación exitosa\n28 octubre 2026, 13:05\nImporte enviado\nS/ 300.00\nEntidad de destino Yape\nComisión S/ 0.00\nNúmero de operación 9A41234567BC\nTipo de operación Envío a contactos\nContacto Mario p lopez r ·1234\nCuenta de origen Cuenta independencia BBVA\n00110800000000000000",
+   "expect": {
+    "detect": 2,
+    "bank": "bbva",
+    "brand": "plin",
+    "amount": -300,
+    "cur": "PEN",
+    "date": "2026-10-28",
+    "desc": "Mario p lopez r ·1234",
+    "ref": "9A41234567BC",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "real-bbva-envio-30",
+   "text": "Envío a contactos\nOperación exitosa\n25 octubre 2026, 21:26\nImporte enviado\nS/ 30.00\nEntidad de destino Yape\nComisión S/ 0.00\nNúmero de operación 5C12345678DE\nTipo de operación Envío a contactos\nContacto Mario p lopez r ·1234\nCuenta de origen Cuenta independencia BBVA\n00110800000000000000",
+   "expect": {
+    "detect": 2,
+    "bank": "bbva",
+    "brand": "plin",
+    "amount": -30,
+    "cur": "PEN",
+    "date": "2026-10-25",
+    "desc": "Mario p lopez r ·1234",
+    "ref": "5C12345678DE",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "real-plin-enviado-a-yape",
+   "text": "¡Pago exitoso!\ns/9.67\nEnviado a:\nAna M Torres P\n987 000 000 - Yape\nComisión:\nGRATIS\nFecha y hora:\n18 Ago 2026 06:30 PM\nCódigo de operación:\n12345678\nEnviar constancia\nVolver a Plin",
+   "expect": {
+    "detect": 2,
+    "bank": "",
+    "brand": "plin",
+    "amount": -9.67,
+    "cur": "PEN",
+    "date": "2026-08-18",
+    "desc": "Ana M Torres P",
+    "ref": "12345678",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "real-plin-enviado-a-yape-2",
+   "text": "¡Pago exitoso!\ns/5.60\nEnviado a:\nRosa N Quispe C\n920 000 000 - Yape\nComisión:\nGRATIS\nFecha y hora:\n16 Ago 2026 03:15 PM\nCódigo de operación:\n87654321\nEnviar constancia\nVolver a Plin",
+   "expect": {
+    "detect": 2,
+    "bank": "",
+    "brand": "plin",
+    "amount": -5.6,
+    "cur": "PEN",
+    "date": "2026-08-16",
+    "desc": "Rosa N Quispe C",
+    "ref": "87654321",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "real-plin-enviado-a-plin",
+   "text": "¡Pago exitoso!\ns/80.00\nEnviado a:\nCarla Elena Ramos Soto\n989 000 000 - Plin\nComisión:\nGRATIS\nFecha y hora:\n14 Sep 2026 01:21 PM\nCódigo de operación:\n11223344\nVolver a Plin",
+   "expect": {
+    "detect": 2,
+    "bank": "",
+    "brand": "plin",
+    "amount": -80,
+    "cur": "PEN",
+    "date": "2026-09-14",
+    "desc": "Carla Elena Ramos Soto",
+    "ref": "11223344",
+    "flags": [],
+    "auto": true
+   }
   }
  ]
 }

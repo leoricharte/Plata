@@ -177,11 +177,12 @@ public enum NazcaConstancia {
 
     // MARK: marca, banco y operación
 
-    static let viaInter = Rx(#"\binterbank\b"#), viaBbva = Rx(#"\bbbva\b"#), viaBcp = Rx(#"\bbcp\b|banco de credito"#), plinWords = Rx(#"plineaste|plin enviado|plineo"#)
+    static let viaInter = Rx(#"\binterbank\b"#), viaBbva = Rx(#"\bbbva\b"#), viaBcp = Rx(#"\bbcp\b|banco de credito"#), plinWords = Rx(#"plineaste|plin enviado|plineo|te plinearon|volver a plin"#), yapeOnly = Rx(#"yapeaste|te yapeo|te yapearon|yapeo realizado|codigo de seguridad"#), originRx = Rx(#"cuenta de (origen|cargo)"#), yapeOnly2 = Rx(#"yapeaste|te yapeo|te yapearon"#)
 
     static let shopRx = Rx(#"ventana del comercio|finalizar tu compra"#)
     static func brandOf(_ n: String) -> String {
         let y = n.contains("yape"), p = n.contains("plin")
+        if y && yapeOnly.test(n) { return "yape" }
         if !y && !p && shopRx.test(n) { return "plin" }   // pago en un comercio: el logo de Plin es una imagen y el OCR no lo lee
         if y && p { return plinWords.test(n) ? "plin" : "yape" }
         return y ? "yape" : p ? "plin" : ""
@@ -223,7 +224,9 @@ public enum NazcaConstancia {
         if sign == 0 { flags.append("direction") }
         if date.isEmpty { flags.append("date") }
         if amount.amb { flags.append("amount") }
-        let brand = brandOf(n), op = opOf(flat), who = { let w = whoOf(lines, ns, sign); return w.isEmpty && sign <= 0 ? headWho(lines, ns, amount.i) : w }()
+        var brand = brandOf(n)
+        if originRx.test(n) && !viaOf(n).isEmpty && !yapeOnly2.test(n) { brand = "plin" }   // constancia del banco (BBVA…): el dinero salió de esa cuenta
+        let op = opOf(flat), who = { let w = whoOf(lines, ns, sign); return w.isEmpty && sign <= 0 ? headWho(lines, ns, amount.i) : w }()
         if who.isEmpty { flags.append("who") }
         return Parsed(amount: amount.v, cur: amount.cur, amb: amount.amb, date: date.isEmpty ? today : date, time: time, hadDate: !date.isEmpty,
                       sign: sign == 0 ? -1 : Double(sign), flags: flags, brand: brand, op: op, who: who, msg: msgOf(lines, ns),

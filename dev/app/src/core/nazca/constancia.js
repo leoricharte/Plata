@@ -14,13 +14,13 @@ const NazcaConstancia = (() => {
   const MAX_CHARS = 6000, MAX_LINES = 80;
   const MONTHS = { ene: 1, jan: 1, feb: 2, mar: 3, abr: 4, apr: 4, may: 5, jun: 6, jul: 7, ago: 8, aug: 8, set: 9, sep: 9, oct: 10, nov: 11, dic: 12, dec: 12 };
 
-  const NEG = /\b(yapeaste|plineaste|enviaste|pagaste|transferiste|enviado a|enviado con exito|envio realizado|pago realizado|yapeo realizado)\b/;
+  const NEG = /\b(yapeaste|plineaste|enviaste|pagaste|transferiste|enviado a|enviado con exito|envio realizado|pago realizado|yapeo realizado|importe enviado|envio a contactos?)\b/;
   const POS = /\b(te yapearon|te yapeo|te plinearon|te plineo|te enviaron|te envio|te pago|te transfirieron|te transfirio|te devolvieron|recibiste|recibido de)\b/;
   const KEY = /(yapeaste|plineaste|enviaste|pagaste|transferiste|te yapearon|te yapeo|te plinearon|te plineo|te enviaron|te envio|te pago|recibiste|monto|importe|total)/;
   const BAD = /(comision|saldo|limite|disponible|itf|cargo|costo)/;
   /* Monto: "S/ 18", "S/. 18.50", "S/1,234.50", "PEN 20", "US$ 5". El OCR a veces lee "S/" como "5/": solo se acepta si no sigue otro dígito (no es una fecha). */
   const AMT = /(?:^|[^A-Za-z0-9])(?:(S[ \t]*\/[ \t]*\.?|PEN|US[ \t]*\$|USD|\$)|(5[ \t]*\/[ \t]*\.?)(?:(?!\d)|(?=\d+[.,]\d{2}(?![.,]?\d))))[ \t]*(\d{1,3}(?:[. ]\d{3})+(?:[.,]\d{1,2})?|\d{1,3}(?:,\d{3})+(?:[.]\d{1,2})?|\d+(?:[.,]\d{1,2})?)(?![.,]?\d|[ \t]*\/[ \t]*\d)/gi;
-  const LABEL_TO = /^(nombre del destinatario|nombre de destinatario|destinatario|destino|enviado a|enviaste a|pagaste a|yapeaste a|plineaste a|transferiste a|beneficiario|nombre del beneficiario|pagado a|comercio|para(?=[ ]*:))\b[ ]*[:\-]?[ ]*(.*)$/;
+  const LABEL_TO = /^(nombre del destinatario|nombre de destinatario|destinatario|destino|enviado a|enviaste a|pagaste a|yapeaste a|plineaste a|transferiste a|beneficiario|nombre del beneficiario|pagado a|comercio|contacto|para(?=[ ]*:))\b[ ]*[:\-]?[ ]*(.*)$/;
   const LABEL_FROM = /^(nombre del remitente|remitente|origen|enviado por|de parte de|recibido de|de)\b[ ]*[:\-]?[ ]*(.*)$/;
   const LABEL_MSG = /^(mensaje|detalle|concepto|motivo|descripcion|referencia|servicio)\b[ ]*[:\-]?[ ]*(.*)$/;
   const LABELISH = /^(nombre|celular|telefono|numero|nro|cuenta|monto|importe|total|fecha|hora|mensaje|detalle|concepto|motivo|operacion|codigo|destino|origen|destinatario|remitente|enviado|recibido|banco|comision|saldo|referencia|servicio|datos|id)\b/;
@@ -109,8 +109,9 @@ const NazcaConstancia = (() => {
   }
   function brandOf(n) {
     const y = /yape/.test(n), p = /plin/.test(n);
+    if (y && /yapeaste|te yapeo|te yapearon|yapeo realizado|codigo de seguridad/.test(n)) return 'yape';
     if (!y && !p && /ventana del comercio|finalizar tu compra/.test(n)) return 'plin';   /* pago en un comercio: el logo de Plin es una imagen y el OCR no lo lee */
-    if (y && p) return /plineaste|plin enviado|plineo/.test(n) ? 'plin' : 'yape';
+    if (y && p) return /plineaste|plin enviado|plineo|te plinearon|volver a plin/.test(n) ? 'plin' : 'yape';   /* «987 440 228 - Yape» es el destino, no la app */
     return y ? 'yape' : p ? 'plin' : '';
   }
   function viaOf(n) { return /\binterbank\b/.test(n) ? 'interbank' : /\bbbva\b/.test(n) ? 'bbva' : /\bbcp\b|banco de credito/.test(n) ? 'bcp' : ''; }
@@ -133,7 +134,9 @@ const NazcaConstancia = (() => {
     if (!sign) flags.push('direction');
     if (!date) flags.push('date');
     if (amt.amb) flags.push('amount');
-    const brand = brandOf(n), op = opOf(flat), who = whoOf(lines, ns, sign) || (sign <= 0 ? headWho(lines, ns, amt.i) : '');
+    let brand = brandOf(n);
+    if (/cuenta de (origen|cargo)/.test(n) && viaOf(n) && !/yapeaste|te yapeo|te yapearon/.test(n)) brand = 'plin';   /* constancia del banco (BBVA…): el dinero salió de esa cuenta */
+    const op = opOf(flat), who = whoOf(lines, ns, sign) || (sign <= 0 ? headWho(lines, ns, amt.i) : '');
     if (!who) flags.push('who');
     return { lines, amt, date: date || String(today || ''), time, sign: sign || -1, flags, brand, op, who, msg: msgOf(lines, ns), via: brand === 'plin' ? viaOf(n) : '', hadDate: !!date };
   }
