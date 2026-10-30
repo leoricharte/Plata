@@ -42,9 +42,9 @@ private struct SwipeRowModifier: ViewModifier {
                 }
             }
             .opacity(offset < -8 ? 1 : 0)
+            .mask(alignment: .trailing) { Rectangle().frame(width: max(0, -offset)) }   // solo se ven las acciones ya reveladas: la fila no necesita fondo propio
 
             content
-                .background(Color(.secondarySystemGroupedBackground))
                 .offset(x: offset)
                 .overlay { if offset < 0 && !dragging { Color.clear.contentShape(Rectangle()).onTapGesture { close() } } }
         }

@@ -290,7 +290,7 @@ struct PrimaryPillStyle: ButtonStyle {
 
 extension Brand {
     /// Relleno de respaldo para iOS < 26: blanco translúcido en claro, verde-blanco tenue en oscuro.
-    static let glassFill = Color(UIColor { $0.userInterfaceStyle == .dark ? UIColor(white: 1, alpha: 0.07) : UIColor(white: 1, alpha: 0.62) })
+    static let glassFill = Color(UIColor { $0.userInterfaceStyle == .dark ? UIColor(red: 0.02, green: 0.10, blue: 0.06, alpha: 0.55) : UIColor(white: 1, alpha: 0.62) })
 }
 
 /// El degradado de fondo: menta en claro, verde bosque en oscuro.
@@ -307,9 +307,11 @@ struct PlataBackdrop: View {
 
 struct PlataGlass<S: Shape>: ViewModifier {
     let shape: S
+    @Environment(\.colorScheme) private var scheme
     func body(content: Content) -> some View {
         if #available(iOS 26.0, *) {
-            content.glassEffect(.regular, in: shape)
+            // en oscuro, un tinte verde muy oscuro para que las ventanas no se vean grises
+            content.glassEffect(scheme == .dark ? .regular.tint(Color(red: 0.0, green: 0.09, blue: 0.05).opacity(0.5)) : .regular, in: shape)
         } else {
             content.background(Brand.glassFill, in: shape)
         }
