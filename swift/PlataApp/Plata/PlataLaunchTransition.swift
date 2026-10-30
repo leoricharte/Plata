@@ -61,6 +61,24 @@ struct PlataLaunchTransition<Content: View>: View {
                             }
                         }
 
+                    if !finished {
+                        // Aviso de beta: sube sobre el borde inferior y se apaga antes del zoom
+                        VStack(spacing: 8) {
+                            Spacer()
+                            Text("Beta 4").font(.system(size: 13, weight: .medium)).tracking(0.5)
+                            HStack(spacing: 8) {
+                                Image(systemName: "info.circle.fill").font(.system(size: 14))
+                                Text("Aún en fase de pruebas. Podrían haber errores.").font(.system(size: 12))
+                            }
+                        }
+                        .foregroundStyle(.white.opacity(0.75))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 28).padding(.bottom, 96)
+                        .frame(width: geo.size.width, height: geo.size.height)
+                        .opacity(reduceMotion ? 1 : 1 - PlataTimeline.smooth(PlataTimeline.clamp((t - (tTotal - 0.25)) / 0.3)))
+                        .allowsHitTesting(false)
+                    }
+
                     if !finished && !reduceMotion {
                         if t < tTotal {
                             // Construcción del logo (flecha, punta, letras con pop)
