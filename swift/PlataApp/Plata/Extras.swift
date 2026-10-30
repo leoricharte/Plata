@@ -139,6 +139,12 @@ struct HistorySheet: View {
     }
 }
 
+/// La fase de la beta y la compilación que se muestran en la app (la fase se sube a mano aquí cuando cambia, igual que `APP_VERSION` en la web).
+enum AppInfo {
+    static let phase = "Beta 5"
+    static var build: String { (Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String) ?? "" }
+}
+
 // MARK: - Novedades (historias de la Beta 4)
 
 private struct NewsSlide {
@@ -394,8 +400,8 @@ struct CreditsView: View {
 
                 Button { model.showHistory = true } label: {
                     VStack(spacing: 2) {
-                        Text("Plata · Beta 4")
-                        Text("Compilación 464")
+                        Text(verbatim: "Plata · " + AppInfo.phase)
+                        Text(verbatim: Tr.f("Compilación {0}", AppInfo.build))
                         Text("Móvil")
                     }
                     .font(.inter(13)).foregroundStyle(.secondary)
