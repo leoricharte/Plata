@@ -25,7 +25,7 @@ struct PresupuestoView: View {
                 setCard(set, active: set == act)
                 ringCard(e, c, f, bt, left, dl, preview: set != act)
 
-                SectionHead("Límites por categoría")
+                SectionHead("Límites por categoría").padding(.top, 14)
                 ListCard {
                     ForEach(Array(e.categoryNames.enumerated()), id: \.offset) { i, k in
                         if i > 0 { RowDivider() }
@@ -35,7 +35,7 @@ struct PresupuestoView: View {
                     addRow("Añadir categoría") { model.activeSheet = .category(name: nil) }
                 }
 
-                SectionHead("Servicios y suscripciones")
+                SectionHead("Servicios y suscripciones").padding(.top, 14)
                 subsCard(e, c, f)
             }
             .padding(.horizontal, 16)
