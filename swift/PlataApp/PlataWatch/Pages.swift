@@ -62,12 +62,15 @@ struct CurvedLabel: View {
     var text: String
     var radius: CGFloat
     var size: CGFloat
+    var gap: Double = 3        // grados que quedan libres antes de las 12
+    /// Grados que ocupa un texto de `n` letras en un arco de ese radio.
+    static func span(_ n: Int, radius: CGFloat, size: CGFloat) -> Double { Double(n) * Double(size * 0.78 / radius) * 180 / .pi }
     var body: some View {
         let chars = Array(text.uppercased())
         let step = Double(size * 0.78 / radius) * 180 / .pi   // grados por letra
         ZStack {
             ForEach(Array(chars.enumerated()), id: \.offset) { i, ch in
-                let angle = -Double(chars.count - i) * step - 3
+                let angle = -Double(chars.count - i) * step - gap
                 Text(String(ch))
                     .font(.system(size: size, weight: .heavy, design: .rounded))
                     .foregroundStyle(.white)
@@ -128,9 +131,38 @@ struct BudgetPage: View {
         }
     }
 
+    /// Con categorías que tienen tope: hasta 3 aros concéntricos (los de más gasto), cada uno con el icono de su categoría en la punta
+    /// y su nombre curvado. Sin categorías: un solo aro grande (lo gastado hoy contra el tope del día).
+    /// Si ya te pasaste del presupuesto del mes, el centro dice cuánto en rojo (igual que el iPhone).
+    @ViewBuilder private func rings(_ s: WatchSnapshot) -> some View {
+        let top = Array(s.cats.prefix(3))
+        if top.isEmpty { singleRing(s) } else { multiRing(s, top) }
+    }
+
+    private func multiRing(_ s: WatchSnapshot, _ top: [WatchCat]) -> some View {
+        let exhausted = s.allowance <= 0 && (s.monthBudget ?? 0) > 0
+        let over = max(0, -(s.monthLeft ?? 0))
+        let width: CGFloat = 15, gap: CGFloat = 3, outer: CGFloat = 80
+        return ZStack {
+            ForEach(Array(top.enumerated()), id: \.offset) { i, c in
+                let radius = outer - width / 2 - CGFloat(i) * (width + gap)
+                CategoryRing(cat: c, symbol: s.catInfo?.first { $0.label == c.name }?.symbol ?? "circle.fill", width: width, radius: radius)
+                    .frame(width: radius * 2, height: radius * 2)
+            }
+            VStack(spacing: 0) {
+                Amount(text: s.fmt(exhausted ? over : s.spentToday)).font(.system(size: 14, weight: .bold, design: .rounded)).minimumScaleFactor(0.5).lineLimit(1)
+                    .foregroundStyle(exhausted ? .red : .primary)
+                Text(exhausted ? "te pasaste" : "hoy").textCase(.uppercase)
+                    .font(.system(size: 8, weight: .semibold)).tracking(0.3).foregroundStyle(.secondary).lineLimit(1).minimumScaleFactor(0.6)
+            }
+            .frame(width: 50)
+        }
+        .frame(width: 160, height: 160)
+        .contentShape(Circle())
+    }
+
     /// Un solo aro grande y grueso, como el de Actividad: lo gastado hoy al centro y, debajo, de cuánto es el tope del día.
-    /// Si ya te pasaste del presupuesto del mes, el aro va completo en rojo con lo que te pasaste (igual que el iPhone).
-    private func rings(_ s: WatchSnapshot) -> some View {
+    private func singleRing(_ s: WatchSnapshot) -> some View {
         let exhausted = s.allowance <= 0 && (s.monthBudget ?? 0) > 0
         let over = max(0, -(s.monthLeft ?? 0))
         let frac = exhausted ? 1 : (s.allowance > 0 ? s.spentToday / s.allowance : 0)
@@ -151,6 +183,29 @@ struct BudgetPage: View {
     }
 }
 
+/// Un aro de categoría: su avance, el icono en la punta y el nombre curvado (se oculta si taparía el icono).
+struct CategoryRing: View {
+    var cat: WatchCat
+    var symbol: String
+    var width: CGFloat
+    var radius: CGFloat
+
+    var body: some View {
+        let frac = cat.limit > 0 ? cat.spent / cat.limit : 0
+        let size: CGFloat = 8
+        let gap = Double(6 / radius) * 180 / .pi + 2                  // deja sitio al icono cuando el aro está casi vacío
+        let maxChars = max(3, Int((130 - gap) / CurvedLabel.span(1, radius: radius, size: size)))
+        let name = cat.name.count > maxChars ? String(cat.name.prefix(maxChars - 1)) + "…" : cat.name
+        let span = CurvedLabel.span(name.count, radius: radius, size: size)
+        let tip = 360 * (frac > 1 ? min(1, frac - 1) : min(1, frac))
+        let hideName = tip > 360 - span - gap - 8
+        return ZStack {
+            ActivityRing(frac: frac, color: Color(watchHex: cat.color), width: width, radius: radius, symbol: symbol, iconSize: width * 0.62)
+            if !hideName { CurvedLabel(text: name, radius: radius, size: size, gap: gap) }
+        }
+    }
+}
+
 /// Un anillo como los de Actividad: la pista tenue, el progreso con degradado y, si pasas del 100 %, una segunda vuelta con sombra.
 struct ActivityRing: View {
     var frac: Double
@@ -158,6 +213,8 @@ struct ActivityRing: View {
     var width: CGFloat
     var radius: CGFloat
     var arrow = false
+    var symbol: String? = nil          // icono de la categoría en la punta (en vez de la flecha)
+    var iconSize: CGFloat = 9
     var body: some View {
         let lap = min(1, max(0.004, frac))
         let extra = min(1, max(0, frac - 1))
@@ -173,7 +230,11 @@ struct ActivityRing: View {
                     .rotationEffect(.degrees(-90))
                     .shadow(color: .black.opacity(0.55), radius: 3)
             }
-            if arrow && frac > 0.02 {
+            if let symbol {
+                let deg = frac > 0.02 ? 360 * (extra > 0 ? extra : lap) : 0
+                Image(systemName: symbol).font(.system(size: iconSize, weight: .heavy)).foregroundStyle(.black.opacity(0.75))
+                    .offset(x: radius * CGFloat(sin(deg * .pi / 180)), y: -radius * CGFloat(cos(deg * .pi / 180)))
+            } else if arrow && frac > 0.02 {
                 let deg = 360 * (extra > 0 ? extra : lap)
                 Image(systemName: "arrow.right").font(.system(size: width * 0.6, weight: .heavy)).foregroundStyle(.black.opacity(0.7))
                     .rotationEffect(.degrees(deg))
