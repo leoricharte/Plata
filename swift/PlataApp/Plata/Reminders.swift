@@ -20,17 +20,38 @@ final class Reminders {
     /// Texto en el idioma de la app (los avisos los arma el sistema, no pasan por `Tr`).
     private static func L(_ es: String, _ en: String) -> String { Tr.isEnglish ? en : es }
 
-    private static var tiers: [(days: Int, title: String, body: String)] {[
-        (2, L("Tu plata no se anota sola", "Your money won't log itself"),
-            L("Dos días de silencio. Son 30 segundos, no una tesis.", "Two days of silence. It takes 30 seconds, not a thesis.")),
-        (5, L("Tu mes sigue corriendo", "Your month keeps moving"),
-            L("5 días sin anotar. Lo que no registras hoy, mañana ya no lo recuerdas.", "5 days with no entries. What you don't log today, you won't remember tomorrow.")),
-        (9, L("Plata te extraña (enserio)", "Plata misses you (seriously)"),
-            L("9 días sin pasar por aquí. Tu saldo también quiere saber de ti.", "9 days gone. Your balance wants to hear from you too.")),
-        (16, L("Sin datos no hay nota", "No data, no grade"),
-             L("16 días a ciegas. Así no hay evaluación que valga.", "16 days flying blind. No grade can survive that.")),
-        (23, L("Casi un mes de misterio", "Almost a month of mystery"),
-             L("Ponte al día en un minuto antes del cierre. Tú sabrás.", "Catch up in a minute before month-end. Your call.")),
+    /// Cada escalón tiene 3 versiones; se elige una según el día para que no suene siempre igual.
+    private static var tiers: [(days: Int, texts: [(String, String)])] {[
+        (2, [(L("Tu plata no se anota sola", "Your money won't log itself"),
+              L("Dos días de silencio. Son 30 segundos, no una tesis.", "Two days of silence. It takes 30 seconds, not a thesis.")),
+             (L("Psst. ¿Y los gastos de hoy?", "Psst. What about today's spending?"),
+              L("Dos días sin anotar. Tu yo del viernes te lo va a agradecer.", "Two days without logging. Future you will say thanks.")),
+             (L("Tu plata está sola en casa", "Your money is home alone"),
+              L("Pasa a anotar algo antes de que haga una fiesta.", "Log something before it throws a party."))]),
+        (5, [(L("Tu mes sigue corriendo", "Your month keeps moving"),
+              L("5 días sin anotar. Lo que no registras hoy, mañana ya no lo recuerdas.", "5 days with no entries. What you don't log today, you won't remember tomorrow.")),
+             (L("Cinco días. Cinco. Cuéntame.", "Five days. Five. Talk to me."),
+              L("Anota lo que pasó, aunque sea lo del café.", "Log what happened, even if it's just the coffee.")),
+             (L("Tu presupuesto está preocupado", "Your budget is worried"),
+              L("No sabe de ti hace 5 días. Dale una señal de vida.", "No word from you in 5 days. Give it a sign of life."))]),
+        (9, [(L("Plata te extraña (enserio)", "Plata misses you (seriously)"),
+              L("9 días sin pasar por aquí. Tu saldo también quiere saber de ti.", "9 days gone. Your balance wants to hear from you too.")),
+             (L("¿Seguimos juntos?", "Are we still a thing?"),
+              L("9 días sin una sola anotación. Plata necesita que hablemos.", "9 days without a single entry. Plata needs us to talk.")),
+             (L("Tus gastos siguen pasando", "Your spending keeps happening"),
+              L("Con o sin que los anotes. Ya son 9 días de datos perdidos.", "Whether you log it or not. That's 9 days of lost data."))]),
+        (16, [(L("Sin datos no hay nota", "No data, no grade"),
+               L("16 días a ciegas. Así no hay evaluación que valga.", "16 days flying blind. No grade can survive that.")),
+              (L("Tu nota del mes está en coma", "Your monthly grade is in a coma"),
+               L("16 días sin datos. Un minuto y la reanimas.", "16 days without data. One minute and you revive it.")),
+              (L("Plata no adivina", "Plata can't guess"),
+               L("16 días sin anotar. Sin datos, la nota se la inventa cualquiera.", "16 days without entries. Without data, any grade is made up."))]),
+        (23, [(L("Casi un mes de misterio", "Almost a month of mystery"),
+               L("Ponte al día en un minuto antes del cierre. Tú sabrás.", "Catch up in a minute before month-end. Your call.")),
+              (L("Casi un mes sin ti", "Almost a month without you"),
+               L("Ponte al día antes de que el cierre te agarre desprevenido.", "Catch up before month-end catches you off guard.")),
+              (L("El cierre de mes no perdona", "Month-end doesn't forgive"),
+               L("Un minuto hoy te ahorra un dolor de cabeza después.", "One minute today saves a headache later."))]),
     ]}
 
     private init() {
@@ -114,7 +135,8 @@ final class Reminders {
                 let when = at(day, hour: 19)
                 guard when > now, n < 3 else { continue }
                 n += 1
-                add("inact\(i)", tier.title, tier.body, at: when)
+                let t = tier.texts[(Int(day.timeIntervalSince1970 / 86_400) + i) % tier.texts.count]
+                add("inact\(i)", t.0, t.1, at: when)
             }
         }
 
@@ -132,23 +154,41 @@ final class Reminders {
                 let L = Self.L
                 let eve: (String, String), today: (String, String)
                 let pre = tag.isEmpty ? "" : tag + ". "
+                // una de 3 versiones, estable para el mismo evento
+                let v = (ev.date.days + name.utf8.reduce(0) { $0 + Int($1) }) % 3
                 switch ev.type {
                 case "card":
-                    eve = (L("Mañana toca pagar la tarjeta", "Card payment due tomorrow"), pre + L("Que los intereses no se coman tu mes.", "Don't let interest eat your month."))
-                    today = (L("Hoy se paga la tarjeta", "Card payment due today"), pre + L("Hoy no hay excusas. Págala y respira.", "No excuses today. Pay it and breathe."))
+                    let e3: [(String, String)] = [(L("Mañana toca pagar la tarjeta", "Card payment due tomorrow"), L("Que los intereses no se coman tu mes.", "Don't let interest eat your month.")),
+                              (L("La tarjeta cobra mañana", "Your card is due tomorrow"), L("Págala a tiempo y los intereses se quedan con hambre.", "Pay on time and interest goes hungry.")),
+                              (L("Mañana vence tu tarjeta", "Your card is due tomorrow"), L("Un recordatorio con cariño: que no te cobren de más.", "A friendly nudge: don't pay a cent more than you owe."))]
+                    let t3: [(String, String)] = [(L("Hoy se paga la tarjeta", "Card payment due today"), L("Hoy no hay excusas. Págala y respira.", "No excuses today. Pay it and breathe.")),
+                              (L("Hoy vence la tarjeta", "Card due today"), L("Hoy es el día. Págala y duerme tranquilo.", "Today's the day. Pay it and sleep easy.")),
+                              (L("Tu tarjeta no espera", "Your card won't wait"), L("Vence hoy. Un par de toques y listo.", "Due today. A couple of taps and done."))]
+                    eve = (e3[v].0, pre + e3[v].1); today = (t3[v].0, pre + t3[v].1)
                 case "sub":
                     let amt = amount.isEmpty ? "" : amount + ". "
-                    let hint = L("¿Todavía la usas o solo la mantienes viva? Piénsalo.", "Do you still use it, or just keep it on life support? Think about it.")
-                    eve = (name.isEmpty ? L("Mañana se cobra una suscripción", "A subscription charges you tomorrow") : L("Mañana se cobra \(name)", "\(name) charges you tomorrow"), amt + hint)
-                    today = (name.isEmpty ? L("Hoy se cobra una suscripción", "A subscription charges you today") : L("Hoy se cobra \(name)", "\(name) charges you today"), amt + hint)
+                    let hints: [String] = [L("¿Todavía la usas o solo la mantienes viva? Piénsalo.", "Do you still use it, or just keep it on life support? Think about it."),
+                                 L("¿Te sirve o solo te cobra? Decide antes de que lo haga por ti.", "Useful or just charging you? Decide before it decides for you."),
+                                 L("Otro cobro automático. ¿Sigue valiendo la pena?", "Another automatic charge. Still worth it?")]
+                    eve = (name.isEmpty ? L("Mañana se cobra una suscripción", "A subscription charges you tomorrow") : L("Mañana se cobra \(name)", "\(name) charges you tomorrow"), amt + hints[v])
+                    today = (name.isEmpty ? L("Hoy se cobra una suscripción", "A subscription charges you today") : L("Hoy se cobra \(name)", "\(name) charges you today"), amt + hints[v])
                 default:
                     if ev.amt > 0 {
-                        let hint = L("Cuando llegue, confírmala. Disfrútala un minuto antes de gastarla.", "Confirm it when it lands. Enjoy it for a minute before spending it.")
-                        eve = (L("Mañana te cae plata", "Money lands tomorrow"), pre + hint)
-                        today = (L("Hoy te cae plata", "Money lands today"), pre + hint)
+                        let e3: [(String, String)] = [(L("Mañana te cae plata", "Money lands tomorrow"), L("Cuando llegue, confírmala. Disfrútala un minuto antes de gastarla.", "Confirm it when it lands. Enjoy it for a minute before spending it.")),
+                                  (L("Mañana llega tu plata", "Your money arrives tomorrow"), L("Confírmala al llegar. Gastarla viene después.", "Confirm it when it arrives. Spending it comes later.")),
+                                  (L("Se viene un ingreso", "Income incoming"), L("Que no se quede sin registrar, ¿eh?", "Don't leave it unlogged, okay?"))]
+                        let t3: [(String, String)] = [(L("Hoy te cae plata", "Money lands today"), e3[0].1),
+                                  (L("Hoy llega tu plata", "Your money arrives today"), e3[1].1),
+                                  (L("Hoy llega un ingreso", "Income lands today"), e3[2].1)]
+                        eve = (e3[v].0, pre + e3[v].1); today = (t3[v].0, pre + t3[v].1)
                     } else {
-                        eve = (L("Mañana vence un pago", "A payment is due tomorrow"), pre + L("Que no te agarre de sorpresa.", "Don't get caught off guard."))
-                        today = (L("Hoy vence un pago", "A payment is due today"), pre + L("Que no se te pase hoy.", "Don't let it slip today."))
+                        let e3: [(String, String)] = [(L("Mañana vence un pago", "A payment is due tomorrow"), L("Que no te agarre de sorpresa.", "Don't get caught off guard.")),
+                                  (L("Mañana toca pagar", "Payment day tomorrow"), L("Mejor que lo recuerdes tú y no el banco.", "Better you remember than the bank.")),
+                                  (L("Un pago te espera mañana", "A payment awaits tomorrow"), L("Sin sustos: ya lo sabes con tiempo.", "No surprises: you know ahead of time."))]
+                        let t3: [(String, String)] = [(L("Hoy vence un pago", "A payment is due today"), L("Que no se te pase hoy.", "Don't let it slip today.")),
+                                  (L("Hoy toca pagar", "Payment day"), L("Hazlo ahora y quítatelo de encima.", "Do it now and get it off your plate.")),
+                                  (L("Hoy te espera un pago", "A payment awaits today"), L("Pagarlo hoy es gratis; olvidarlo, no.", "Paying today is free; forgetting isn't."))]
+                        eve = (e3[v].0, pre + e3[v].1); today = (t3[v].0, pre + t3[v].1)
                     }
                 }
                 guard let before = cal.date(byAdding: .day, value: -1, to: day) else { continue }
