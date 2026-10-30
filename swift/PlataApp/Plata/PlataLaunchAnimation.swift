@@ -24,6 +24,8 @@ import SwiftUI
 enum PlataGeometry {
     static let size = CGSize(width: 532.49, height: 211.4)
     static let green = Color(red: 34.0 / 255.0, green: 181.0 / 255.0, blue: 115.0 / 255.0) // #22B573
+    /// Fondo del splash: el verde de marca en claro y un verde bosque (el del modo oscuro de la app) en oscuro. Debe coincidir con `SplashGreen` del launch screen.
+    static let splash = Color(UIColor { $0.userInterfaceStyle == .dark ? UIColor(red: 0.039, green: 0.176, blue: 0.122, alpha: 1) : UIColor(red: 34.0 / 255.0, green: 181.0 / 255.0, blue: 115.0 / 255.0, alpha: 1) })
 
     /// Logo final (flecha + letras fusionadas). Es el hero: el estado final de la animación.
     static let logo: Path = {

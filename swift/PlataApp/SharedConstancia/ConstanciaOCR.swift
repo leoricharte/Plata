@@ -13,14 +13,17 @@ enum ConstanciaOCR {
     /// Las extensiones tienen poca memoria: se reduce la imagen antes de leerla.
     static let maxPixel = 2400
 
-    static func text(fromImageData data: Data) async throws -> String {
+    /// Una lectura más: con `strict` se usa la corrección de idioma (mejor para palabras); sin ella, las cifras y los códigos salen tal cual (mejor para montos sobre fondos con confeti o degradados).
+    static func text(fromImageData data: Data, strict: Bool) async throws -> String {
         guard let src = CGImageSourceCreateWithData(data as CFData, nil),
               let cg = CGImageSourceCreateThumbnailAtIndex(src, 0, [kCGImageSourceCreateThumbnailFromImageAlways: true,
                                                                     kCGImageSourceCreateThumbnailWithTransform: true,
                                                                     kCGImageSourceThumbnailMaxPixelSize: maxPixel] as CFDictionary)
         else { throw Failure.unreadable }
-        return try await text(from: cg)
+        return try await text(from: cg, strict: strict)
     }
+
+    static func text(fromImageData data: Data) async throws -> String { try await text(fromImageData: data, strict: true) }
 
     static func text(fromPDFData data: Data) async throws -> String {
         guard let doc = PDFDocument(data: data), let page = doc.page(at: 0) else { throw Failure.unreadable }
@@ -32,13 +35,13 @@ enum ConstanciaOCR {
         return try await text(from: cg)
     }
 
-    static func text(from cg: CGImage) async throws -> String {
+    static func text(from cg: CGImage, strict: Bool = true) async throws -> String {
         try await withCheckedThrowingContinuation { cont in
             DispatchQueue.global(qos: .userInitiated).async {
                 let req = VNRecognizeTextRequest()
                 req.recognitionLevel = .accurate
-                req.usesLanguageCorrection = true
-                if let supported = try? req.supportedRecognitionLanguages() {
+                req.usesLanguageCorrection = strict
+                if strict, let supported = try? req.supportedRecognitionLanguages() {
                     let want = ["es-ES", "en-US"].filter { supported.contains($0) }
                     if !want.isEmpty { req.recognitionLanguages = want }
                 }

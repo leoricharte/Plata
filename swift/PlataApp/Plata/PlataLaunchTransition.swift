@@ -11,7 +11,7 @@ import SwiftUI
 //   }
 //
 // Requiere PlataLaunchAnimation.swift en el mismo target (geometría, tablas y PlataFrame).
-// LaunchScreen.storyboard: solo color de fondo #22B573 (sin imagen), así el primer frame es idéntico.
+// Launch screen: solo el color `SplashGreen` (verde en claro, verde bosque en oscuro; sin imagen), así el primer frame es idéntico.
 
 struct PlataLaunchTransition<Content: View>: View {
     /// Ancho del logo en pantalla (pt) y desplazamiento vertical respecto al centro.
@@ -21,6 +21,7 @@ struct PlataLaunchTransition<Content: View>: View {
     @ViewBuilder var content: () -> Content
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var scheme
     @State private var startDate: Date?
     @State private var finished = false
 
@@ -34,6 +35,9 @@ struct PlataLaunchTransition<Content: View>: View {
     // para que crezca hasta llenar la pantalla y no queden pedazos.
     private let origin = CGPoint(x: 481.2, y: 79.9)
 
+    /// Logo del splash: blanco sobre el verde de marca (claro); verde de marca sobre verde bosque (oscuro).
+    private var ink: Color { scheme == .dark ? PlataGeometry.green : .white }
+
     private var tTotal: Double { PlataTimeline.total }
     private var tZoomStart: Double { tTotal + hold }
     private var tEnd: Double { tTotal + hold + ant + zd }
@@ -46,7 +50,7 @@ struct PlataLaunchTransition<Content: View>: View {
                 let xf = transform(size: geo.size, sx: st.sx, sy: st.sy)
 
                 ZStack {
-                    if !finished { PlataGeometry.green }
+                    if !finished { PlataGeometry.splash }
 
                     if !finished {
                         // Aviso de beta: va debajo de la app, así que desaparece solo cuando la máscara lo cubre
@@ -81,13 +85,13 @@ struct PlataLaunchTransition<Content: View>: View {
                     if !finished && !reduceMotion {
                         if t < tTotal {
                             // Construcción del logo (flecha, punta, letras con pop)
-                            LogoCanvas { PlataFrame(t: t, ink: .white) }
+                            LogoCanvas { PlataFrame(t: t, ink: ink) }
                                 .frame(width: logoWidth)
                                 .position(x: geo.size.width / 2, y: geo.size.height / 2 + yOffset)
                         } else {
                             // Logo blanco: tensión elástica y eyección (mismo transform que la máscara)
                             Canvas { gc, _ in
-                                gc.fill(PlataGeometry.logo.applying(xf), with: .color(.white.opacity(st.logoOpacity)))
+                                gc.fill(PlataGeometry.logo.applying(xf), with: .color(ink.opacity(st.logoOpacity)))
                             }
                         }
                     }

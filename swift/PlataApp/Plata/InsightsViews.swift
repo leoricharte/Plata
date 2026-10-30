@@ -15,6 +15,7 @@ private func nickOf(_ e: Engine) -> String {
 /// Los banners de Insights en Resumen (`insightsBanner`): half‑time, cierre del mes o «¿Buscas tus insights?».
 struct InsightsBanner: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.colorScheme) private var scheme
     let bottom: Bool
 
     var body: some View {
@@ -64,7 +65,7 @@ struct InsightsBanner: View {
                 } else { Spacer().frame(height: 8) }
                 ReportPill(color: g[1])
             }
-            .foregroundStyle(.white)
+            .foregroundStyle(scheme == .dark ? Color.black : Color.white)   // en oscuro todo el texto es negro, como el botón
             .padding(18).frame(maxWidth: .infinity)
             .background(GradeFill(g: g))
             .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))

@@ -279,7 +279,7 @@ Leyendo la constancia… ¦ Reading the receipt…
 Añadir a Plata ¦ Add to Plata
 Guardada. Plata la añade al abrirse. ¦ Saved. Plata adds it when it opens.
 No pude leer esta constancia ¦ I couldn’t read this receipt
-Copia el texto y pégalo en Plata: Importar → Pegar constancia. ¦ Copy the text and paste it in Plata: Import → Paste receipt.
+No encontré un monto en la captura. Prueba con la captura completa de la constancia, o añádela desde Plata: Importar. ¦ I couldn't find an amount in the screenshot. Try the full receipt screenshot, or add it from Plata: Import.
 Elegir captura ¦ Choose screenshot
 Pega el texto de la constancia de Yape o Plin, con el monto y la fecha. ¦ Paste the text of the Yape or Plin receipt, with the amount and date.
 Pega el texto o elige la captura de la constancia. Plata la lee en tu dispositivo. ¦ Paste the text or choose the receipt screenshot. Plata reads it on your device.

@@ -63,7 +63,7 @@ struct ShareView: View {
         VStack(spacing: 12) {
             Image(systemName: "questionmark.circle").font(.system(size: 40)).foregroundStyle(.secondary)
             Text(verbatim: Tr.t("No pude leer esta constancia")).font(.system(size: 17, weight: .semibold))
-            Text(verbatim: Tr.t("Copia el texto y pégalo en Plata: Importar → Pegar constancia.")).font(.system(size: 14)).foregroundStyle(.secondary).multilineTextAlignment(.center)
+            Text(verbatim: Tr.t("No encontré un monto en la captura. Prueba con la captura completa de la constancia, o añádela desde Plata: Importar.")).font(.system(size: 14)).foregroundStyle(.secondary).multilineTextAlignment(.center)
             Button { model.cancel() } label: {
                 Text(verbatim: Tr.t("Cerrar")).font(.system(size: 17, weight: .semibold)).frame(maxWidth: .infinity).frame(height: 50)
                     .background(Color.primary.opacity(0.08), in: Capsule())
