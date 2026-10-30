@@ -65,7 +65,7 @@ struct PlataLaunchTransition<Content: View>: View {
                         // Aviso de beta: sube sobre el borde inferior y se apaga antes del zoom
                         VStack(spacing: 8) {
                             Spacer()
-                            Text("Beta 4").font(.system(size: 13, weight: .medium)).tracking(0.5)
+                            Text("Beta 5").font(.system(size: 13, weight: .medium)).tracking(0.5)
                             HStack(spacing: 8) {
                                 Image(systemName: "info.circle.fill").font(.system(size: 14))
                                 Text("Aún en fase de pruebas. Podrían haber errores.").font(.system(size: 12))
