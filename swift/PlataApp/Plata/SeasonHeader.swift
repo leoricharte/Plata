@@ -274,9 +274,9 @@ struct MonthHeader: View {
                 .overlay(alignment: .trailing) { SeasonArt(season: season).padding(.trailing, -8) }
                 .clipped()
             VStack(spacing: 0) {
-                Text("\(season.name) \(String(year))").font(.inter(15, .semibold)).tracking(-0.1).foregroundStyle(s1)
+                Text("\(season.name) \(String(year))").font(.inter(18, .semibold)).tracking(-0.2).foregroundStyle(s1)
                 Text(name)
-                    .font(.inter(40, .heavy, relativeTo: .largeTitle))
+                    .font(.inter(42, .heavy, relativeTo: .largeTitle))
                     .tracking(-1.4)
                     .foregroundStyle(LinearGradient(colors: [s1, s2], startPoint: .leading, endPoint: .trailing))
                     .lineLimit(1)
@@ -293,7 +293,7 @@ struct MonthHeader: View {
                 .overlay(alignment: .leading) { SeasonArt(season: season, right: true).padding(.leading, -8) }
                 .clipped()
         }
-        .padding(.top, 16).padding(.bottom, 2)
+        .padding(.top, 16).padding(.bottom, 14)
         .accessibilityElement(children: .combine)
         .onScrollVisibilityChange(threshold: 0.6) { seen = $0 }
         .onChange(of: year * 12 + month0) { _, _ in
