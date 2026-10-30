@@ -61,8 +61,10 @@ public enum Nazca {
         public var amount: Double
         public var cur: String
         public var balance: Double?
-        public init(line: Int = 0, date: String, desc: String, amount: Double, cur: String = "", balance: Double? = nil) {
-            self.line = line; self.date = date; self.desc = desc; self.amount = amount; self.cur = cur; self.balance = balance
+        /// Un dato propio del movimiento que lo distingue de otro igual (hoy: el número de operación de una constancia de Yape/Plin). Entra en la huella.
+        public var ref: String?
+        public init(line: Int = 0, date: String, desc: String, amount: Double, cur: String = "", balance: Double? = nil, ref: String? = nil) {
+            self.line = line; self.date = date; self.desc = desc; self.amount = amount; self.cur = cur; self.balance = balance; self.ref = ref
         }
     }
 

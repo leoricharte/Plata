@@ -71,7 +71,7 @@ extension Nazca {
     public static func fingerprints(_ items: [Item]) -> [String] {
         var seen: [String: Int] = [:]
         return items.map { it in
-            let base = it.date + "|" + String(format: "%.2f", it.amount) + "|" + norm(it.desc)
+            let base = it.date + "|" + String(format: "%.2f", it.amount) + "|" + norm(it.desc) + ((it.ref ?? "").isEmpty ? "" : "|" + it.ref!)
             seen[base, default: 0] += 1
             return fnv(base + "|" + String(seen[base]!))
         }

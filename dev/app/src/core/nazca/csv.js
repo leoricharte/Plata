@@ -265,7 +265,7 @@ const Nazca = (() => {
 
   /* --- Repetidos: huella exacta (si ya importaste este archivo) o mismo monto y fecha cercana (si lo anotaste a mano) --- */
   function fnv(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(36); }
-  function fingerprints(items) { const seen = {}; return items.map((it) => { const base = it.date + '|' + it.amount.toFixed(2) + '|' + norm(it.desc); seen[base] = (seen[base] || 0) + 1; return fnv(base + '|' + seen[base]); }); }
+  function fingerprints(items) { const seen = {}; return items.map((it) => { const base = it.date + '|' + it.amount.toFixed(2) + '|' + norm(it.desc) + (it.ref ? '|' + it.ref : ''); seen[base] = (seen[base] || 0) + 1; return fnv(base + '|' + seen[base]); }); }
   function markDuplicates(items, existing, acc) {
     const prints = fingerprints(items), mine = (existing || []).filter((t) => t && t.acc === acc), used = new Set(), byPrint = new Set();
     mine.forEach((t) => { if (t.imp) byPrint.add(t.imp); });

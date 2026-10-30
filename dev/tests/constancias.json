@@ -1,0 +1,295 @@
+{
+ "nota": "Constancias INVENTADAS (no son de nadie). Cuando haya capturas reales (con los datos cambiados), se agregan aquí. today = el día que se usa si el texto no trae fecha.",
+ "today": "2026-10-29",
+ "cases": [
+  {
+   "name": "yape-enviado",
+   "text": "¡Yapeaste S/ 18!\n29 oct. 2026 - 02:15 p. m.\nNombre del destinatario\nJuan Pérez V.\nCelular del destinatario\n*** *** 123\nNro. de operación\n01234567",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": -18,
+    "cur": "PEN",
+    "date": "2026-10-29",
+    "desc": "Juan Pérez V.",
+    "ref": "01234567",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "yape-recibido",
+   "text": "Sara Ron* te yapeó S/ 25.50\n28 oct. 2026 - 09:05 a. m.\nMensaje\nalmuerzo\nNº de operación: 998877",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": 25.5,
+    "cur": "PEN",
+    "date": "2026-10-28",
+    "desc": "Sara Ron* · almuerzo",
+    "ref": "998877",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "plin-interbank",
+   "text": "Plin enviado con éxito\nMonto S/ 20.00\nEnviado a: MARIA LOPEZ R.\nInterbank\nFecha y hora: 29/10/2026 14:15\nCódigo de operación: 000123456",
+   "expect": {
+    "detect": 2,
+    "bank": "interbank",
+    "brand": "plin",
+    "amount": -20,
+    "cur": "PEN",
+    "date": "2026-10-29",
+    "desc": "Maria Lopez R.",
+    "ref": "000123456",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "ocr-5-por-s",
+   "text": "Yapeaste 5/ 12.50\n29 de octubre de 2026\nDestino\nTienda Lupe\nOperacion N° 5566778",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": -12.5,
+    "cur": "PEN",
+    "date": "2026-10-29",
+    "desc": "Tienda Lupe",
+    "ref": "5566778",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "sin-fecha",
+   "text": "Yape\nYapeaste S/ 7\nDestino\nCarlos Q.\nN de operacion 1234567",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": -7,
+    "cur": "PEN",
+    "date": "2026-10-29",
+    "desc": "Carlos Q.",
+    "ref": "1234567",
+    "flags": [
+     "date"
+    ],
+    "auto": false
+   }
+  },
+  {
+   "name": "sin-marca-ni-verbo",
+   "text": "Constancia\nS/ 30.00\n2026-10-20\nNúmero de operación 4455667",
+   "expect": {
+    "detect": 1,
+    "bank": "",
+    "brand": "",
+    "amount": -30,
+    "cur": "PEN",
+    "date": "2026-10-20",
+    "desc": "Constancia",
+    "ref": "4455667",
+    "flags": [
+     "direction",
+     "who"
+    ],
+    "auto": false
+   }
+  },
+  {
+   "name": "miles",
+   "text": "Yapeaste S/ 1,234.50\n15/10/2026\nDestino\nInmobiliaria Sol\nNro de operacion 77777777",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": -1234.5,
+    "cur": "PEN",
+    "date": "2026-10-15",
+    "desc": "Inmobiliaria Sol",
+    "ref": "77777777",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "comision",
+   "text": "Plin enviado\nMonto: S/ 50.00\nComisión: S/ 0.00\nEnviado a Ana\n01/10/2026 10:00 am\nCódigo de operación 99887766",
+   "expect": {
+    "detect": 2,
+    "bank": "",
+    "brand": "plin",
+    "amount": -50,
+    "cur": "PEN",
+    "date": "2026-10-01",
+    "desc": "Ana",
+    "ref": "99887766",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "no-es-constancia",
+   "text": "hola esto no es una constancia 12 de mayo",
+   "expect": {
+    "detect": 0,
+    "error": "no_amount"
+   }
+  },
+  {
+   "name": "operacion-sin-n",
+   "text": "Yapeaste S/ 9\n5/10/2026\nDestino\nPepe\nOperación 1234567",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": -9,
+    "cur": "PEN",
+    "date": "2026-10-05",
+    "desc": "Pepe",
+    "ref": "1234567",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "dolares",
+   "text": "Plin enviado\nMonto US$ 5.00\nEnviado a: Pedro Gil\nBBVA\n3 nov. 2026 08:30\nCódigo de operación AB123456",
+   "expect": {
+    "detect": 2,
+    "bank": "bbva",
+    "brand": "plin",
+    "amount": -5,
+    "cur": "USD",
+    "date": "2026-11-03",
+    "desc": "Pedro Gil",
+    "ref": "AB123456",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "mayusculas",
+   "text": "YAPEASTE S/ 15\n12 SET 2026 06:40 PM\nDESTINO\nLUIS RAMIREZ\nNRO. DE OPERACION 33221100",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": -15,
+    "cur": "PEN",
+    "date": "2026-09-12",
+    "desc": "Luis Ramirez",
+    "ref": "33221100",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "monto-en-linea-aparte",
+   "text": "Yape\nYapeaste\nMonto\nS/ 40.00\n2026-09-30 19:20\nDestino: Cafe Central\nN° de operación 10101010",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": -40,
+    "cur": "PEN",
+    "date": "2026-09-30",
+    "desc": "Cafe Central",
+    "ref": "10101010",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "remitente-sin-verbo",
+   "text": "Yape\nRemitente\nAna Z.\nMonto S/ 10\nFecha 01/10/2026 11:00 am\nOperación 55667788",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": 10,
+    "cur": "PEN",
+    "date": "2026-10-01",
+    "desc": "Ana Z.",
+    "ref": "55667788",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "mensaje-guion",
+   "text": "Yapeaste S/ 3\nDestino\nBodega Rosa\nMensaje\n-\n02/10/2026 12:00\nN° de operación 12121212",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": -3,
+    "cur": "PEN",
+    "date": "2026-10-02",
+    "desc": "Bodega Rosa",
+    "ref": "12121212",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "dos-montos",
+   "text": "Yape\nS/ 10.00\nS/ 12.00\n04/10/2026\nDestino\nNico\nOperación 11112222",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": -10,
+    "cur": "PEN",
+    "date": "2026-10-04",
+    "desc": "Nico",
+    "ref": "11112222",
+    "flags": [
+     "amount"
+    ],
+    "auto": false
+   }
+  },
+  {
+   "name": "fecha-invalida",
+   "text": "Yapeaste S/ 8\n31/02/2026\nDestino\nTere\nOperación 90909090",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": -8,
+    "cur": "PEN",
+    "date": "2026-10-29",
+    "desc": "Tere",
+    "ref": "90909090",
+    "flags": [
+     "date"
+    ],
+    "auto": false
+   }
+  },
+  {
+   "name": "te-pago",
+   "text": "Te pagó S/ 60\nde Rocío M.\n05/10/2026 3:10 p. m.\nOperación 70707070 Yape",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": 60,
+    "cur": "PEN",
+    "date": "2026-10-05",
+    "desc": "Rocío M.",
+    "ref": "70707070",
+    "flags": [],
+    "auto": true
+   }
+  }
+ ]
+}

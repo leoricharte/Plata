@@ -19,3 +19,4 @@ swift/PlataCore/.swiftpm/
 !swift/PlataApp/**/Contents.json
 !swift/PlataApp/Plata/Resources/Demos/*.json
 swift/PlataApp/Plata.xcodeproj/
+!dev/tests/constancias.json
