@@ -141,8 +141,8 @@ struct TourOverlay: View {
 
     private func card(_ tip: TourTip, width: CGFloat, arrowX: CGFloat?, arrowUp: Bool) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(tip.title).font(.inter(15.5, .bold)).padding(.bottom, 3)
-            Text(tip.text).font(.inter(14)).lineSpacing(2)
+            Text(tip.title).font(.inter(17, .bold)).tracking(-0.3).padding(.bottom, 4)
+            Text(tip.text).font(.inter(15)).lineSpacing(3).foregroundStyle(.primary.opacity(0.78))
             HStack(spacing: 8) {
                 Button("Omitir tutorial") { shown = ""; model.tourEnd() }
                     .font(.inter(14, .medium)).foregroundStyle(.secondary)
@@ -154,19 +154,19 @@ struct TourOverlay: View {
                     if !model.tourSeen(id) { model.tourMark(id) }
                 }
                 .font(.inter(14, .semibold)).foregroundStyle(.white)
-                .padding(.horizontal, 12).frame(minHeight: 40)
-                .background(Brand.accent, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .padding(.horizontal, 20).frame(minHeight: 40)
+                .background(Brand.accent, in: Capsule())
             }
-            .padding(.top, 8)
+            .padding(.top, 12)
         }
-        .padding(.top, 14).padding(.horizontal, 14).padding(.bottom, 8)
+        .padding(.top, 18).padding(.horizontal, 18).padding(.bottom, 12)
         .frame(width: width, alignment: .leading)
-        .background(Color(light: "#FFFFFF", dark: "#1C1C1E"), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).stroke(Brand.accent.opacity(0.45), lineWidth: 1.5))
+        .background(Color(light: "#FFFFFF", dark: "#0D2A1D"), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(Brand.accent.opacity(0.45), lineWidth: 1))
         .shadow(color: .black.opacity(0.24), radius: 20, y: 12)
         .overlay(alignment: arrowUp ? .topLeading : .bottomLeading) {
             if let ax = arrowX {
-                Triangle().fill(Color(light: "#FFFFFF", dark: "#1C1C1E"))
+                Triangle().fill(Color(light: "#FFFFFF", dark: "#0D2A1D"))
                     .overlay(Triangle().stroke(Brand.accent.opacity(0.45), lineWidth: 1.5))
                     .frame(width: 18, height: 10)
                     .rotationEffect(.degrees(arrowUp ? 0 : 180))
@@ -242,25 +242,25 @@ private struct TourSheetTip: ViewModifier {
 
     private func tipCard(w: CGFloat, arrowX: CGFloat) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(tip.title).font(.inter(15.5, .bold)).padding(.bottom, 3)
-            Text(tip.text).font(.inter(14)).lineSpacing(2)
+            Text(tip.title).font(.inter(17, .bold)).tracking(-0.3).padding(.bottom, 4)
+            Text(tip.text).font(.inter(15)).lineSpacing(3).foregroundStyle(.primary.opacity(0.78))
             HStack(spacing: 8) {
                 Button("Omitir tutorial") { shown = false; model.tourEnd() }
                     .font(.inter(14, .medium)).foregroundStyle(.secondary).frame(minHeight: 40)
                 Spacer(minLength: 0)
                 Button("Entendido") { shown = false }
                     .font(.inter(14, .semibold)).foregroundStyle(.white)
-                    .padding(.horizontal, 12).frame(minHeight: 40)
-                    .background(Brand.accent, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .padding(.horizontal, 20).frame(minHeight: 40)
+                    .background(Brand.accent, in: Capsule())
             }
-            .padding(.top, 8)
+            .padding(.top, 12)
         }
-        .padding(.top, 14).padding(.horizontal, 14).padding(.bottom, 8)
+        .padding(.top, 18).padding(.horizontal, 18).padding(.bottom, 12)
         .frame(width: w, alignment: .leading)
-        .background(Color(light: "#FFFFFF", dark: "#1C1C1E"), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).stroke(Brand.accent.opacity(0.45), lineWidth: 1.5))
+        .background(Color(light: "#FFFFFF", dark: "#0D2A1D"), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(Brand.accent.opacity(0.45), lineWidth: 1.5))
         .overlay(alignment: .topLeading) {
-            Triangle().fill(Color(light: "#FFFFFF", dark: "#1C1C1E"))
+            Triangle().fill(Color(light: "#FFFFFF", dark: "#0D2A1D"))
                 .overlay(Triangle().stroke(Brand.accent.opacity(0.45), lineWidth: 1.5))
                 .frame(width: 18, height: 10)
                 .offset(x: min(max(18, arrowX), w - 36) - 9, y: -9)
