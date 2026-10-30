@@ -25,7 +25,7 @@ final class Reminders {
             L("Dos días de silencio. Son 30 segundos, no una tesis.", "Two days of silence. It takes 30 seconds, not a thesis.")),
         (5, L("Tu mes sigue corriendo", "Your month keeps moving"),
             L("5 días sin anotar. Lo que no registras hoy, mañana ya no lo recuerdas.", "5 days with no entries. What you don't log today, you won't remember tomorrow.")),
-        (9, L("Plata te extraña (en serio)", "Plata misses you (seriously)"),
+        (9, L("Plata te extraña (enserio)", "Plata misses you (seriously)"),
             L("9 días sin pasar por aquí. Tu saldo también quiere saber de ti.", "9 days gone. Your balance wants to hear from you too.")),
         (16, L("Sin datos no hay nota", "No data, no grade"),
              L("16 días a ciegas. Así no hay evaluación que valga.", "16 days flying blind. No grade can survive that.")),
