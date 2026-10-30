@@ -30,6 +30,8 @@ final class AppModel {
     var showHistory = false
     /// «Importar datos de banco» (Nazca): pantalla completa que presenta `RootView`.
     var showImport = false
+    /// Abrir el importador directo en «Importar captura» (desde Nuevo movimiento).
+    var importAtCapture = false
     /// Constancias compartidas desde Yape/Plin que necesitan que la persona las revise.
     var inboxReviews: [ImportReview] = []
     var showInboxReview = false

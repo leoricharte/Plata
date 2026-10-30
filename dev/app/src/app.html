@@ -1100,7 +1100,6 @@ html.web .imlogo,html.web .imav,html.web .imbk:not(.dis) .imglyph{color:#22B573}
 .imsteps{padding:6px 16px}.imstep{display:flex;align-items:center;gap:14px;padding:11px 0;border-top:1px solid var(--line);font-size:16px;line-height:1.3}.imstep:first-child{border-top:0}.imstep .imn{width:26px;height:26px;font-size:14px}
 .imnote{font-size:13px;line-height:1.4;color:var(--mute);text-align:center;padding:4px 14px 14px}.imnote a{color:inherit;font-weight:600;text-decoration:underline;text-underline-offset:2px}
 .imbar{position:sticky;bottom:calc(10px + env(safe-area-inset-bottom,0px) - var(--sab) - 116px);z-index:5;padding-top:12px}.imbar::before{content:'';position:absolute;left:-16px;right:-16px;top:0;bottom:calc(-10px - env(safe-area-inset-bottom,0px));background:linear-gradient(to top,var(--bg) 70%,transparent);z-index:-1;pointer-events:none}html.web .imbar::before{background:linear-gradient(to top,var(--wtile) 70%,transparent)}
-.imtext{width:100%;min-height:150px;resize:none;font-size:16px;line-height:1.4;padding-top:2px;font-family:inherit}.imeye{flex:none;width:44px;height:44px;margin:-6px -8px -6px 0;border:0;background:none;color:var(--sec);display:grid;place-items:center;cursor:pointer;border-radius:12px}.imdni{font-size:24px;font-weight:600;letter-spacing:.08em;padding-top:2px}.imdni::placeholder{color:var(--mute);opacity:.45;font-weight:500;letter-spacing:.04em}.imspin{width:36px;height:36px;border-radius:50%;border:3px solid var(--fill);border-top-color:var(--accent);animation:imspin .8s linear infinite;margin:44px auto 18px}@keyframes imspin{to{transform:rotate(360deg)}}@media (prefers-reduced-motion:reduce){.imspin{animation-duration:2.4s}}
 .imdone{display:grid;place-items:center;width:72px;height:72px;border-radius:50%;background:var(--accent);box-shadow:0 10px 28px -8px rgba(34,181,115,.6)}
 .imn{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:13px;font-weight:700;display:grid;place-items:center}
 .imok{display:flex;gap:10px;align-items:flex-start;border-radius:14px;padding:10px 12px;margin:0 0 12px;font-size:14.5px;background:rgba(34,181,115,.14);color:var(--gt)}.imok .sub{color:inherit;opacity:.85;font-size:13px}.imok svg{flex:none;margin-top:1px}.imok.warn{background:var(--obg);color:var(--ot)}
@@ -4477,7 +4476,8 @@ function sheetHTML(keep) {
     '<label class="srow">' + fico(['#22B573', 'pen']) + '<span class="grow"><span class="slabel">Nota</span><input class="sinput" id="fNote" placeholder="Opcional" autocomplete="off" value="' + esc(k.note || '') + '"></span></label>' +
     '<div class="nsug" id="nsug">' + noteSugHTML(k.note || '') + '</div>' +
     '<label class="srow">' + fico(['#FF9F0A', 'cal']) + '<span class="grow"><span class="slabel">Fecha</span><input class="sinput" id="fDate" type="date" max="' + iso(getToday()) + '" value="' + esc(k.date || iso(getToday())) + '"></span></label></div>' +
-    '<button class="primary" data-act="submit">Añadir</button>';
+    '<button class="primary" data-act="submit">Añadir</button>' +
+    (nazcaOn() && !ui.sheetCard ? '<button class="linkrow" data-act="imp:cap" style="justify-content:center;width:100%;margin-top:6px">' + RMI('camera-line', 22, '#1A9D63') + 'Importar captura de Yape o Plin</button>' : '');
 }
 const HISTORY = [
   { n: 'Beta 4', d: '27 oct 2026', t: 'Nazca lee tus estados de cuenta en tu dispositivo, Revisión con sugerencias en tarjetas y detección de recurrentes, historial de cada suscripción e infraestructura blindada.', big: 1 },
@@ -5964,22 +5964,17 @@ async function impXlsx(f) {
   impFromPdf(name, r);
 }
 /* Constancia de Yape o Plin pegada como texto (Nazca: core/nazca/constancia.js). Se lee aquí mismo y se revisa igual que un estado de cuenta, con un solo movimiento. */
-async function impClip() {
-  let t = ''; try { t = await navigator.clipboard.readText(); } catch (e) { t = ''; }
-  const el = $('#impText'); if (!t) { toast('No pude leer el portapapeles. Pega el texto en el recuadro.'); if (el) el.focus(); return; }
-  if (el) el.value = String(t).slice(0, NazcaConstancia.MAX_CHARS);
-}
 /* Captura de la constancia: el OCR (core/nazca/ocr.js) corre en este dispositivo y se descarga solo ahora (~6 MB). */
 async function impShot(f) {
-  if (!f) return; if (!ui.impDir) { toast('Primero elige si enviaste dinero o te llegó.'); return; }
+  if (!f) return; if (!ui.impDir) { toast('Primero elige si fue un gasto o un ingreso.'); return; }
   ui.impErr = null; ui.impAt = 'paste'; impSendF = null; impShow('busy', 'tab');
   let text = '';
   try { text = await NazcaOCR.read(f, new URL('nazca/ocr/', location.href).href, (s) => NazcaConstancia.detect(s) > 0); }
   catch (e) {
     const c = e && e.code;
-    if (c === 'unavailable') impFail('No pude abrir el lector de capturas', 'Revisa tu conexión y vuelve a intentarlo, o pega el texto de la constancia.');
+    if (c === 'unavailable') impFail('No pude abrir el lector de capturas', 'Revisa tu conexión y vuelve a intentarlo.');
     else if (c === 'too_big' || c === 'not_image') impFail('No pude abrir esa captura', 'Elige una captura de pantalla de la constancia (imagen de hasta 12 MB).');
-    else impFail('No pude leer texto en la captura', 'Prueba con una captura más clara y completa, o pega el texto de la constancia.');
+    else impFail('No pude leer texto en la captura', 'Prueba con una captura más clara y completa.');
     return;
   }
   impConstancia(text, true);
@@ -5987,7 +5982,7 @@ async function impShot(f) {
 function impConstancia(text, fromShot) {
   const t = String(text || '').slice(0, NazcaConstancia.MAX_CHARS); ui.impAt = 'paste';
   const r = NazcaConstancia.detect(t) ? NazcaConstancia.read(t, { today: iso(getToday()), sign: ui.impDir === 'in' ? 1 : -1 }) : null;
-  if (!r || r.error) { impFail('Esto no parece una constancia', fromShot ? 'No encontramos un monto en la captura. Prueba con una captura más clara que muestre el monto y la fecha.' : 'No encontramos un monto. Copia todo el texto de la constancia de Yape o Plin y vuélvelo a pegar.'); return; }
+  if (!r || r.error) { impFail('Esto no parece una constancia', 'No encontramos un monto en la captura. Prueba con una captura más clara que muestre el monto y la fecha.'); return; }
   impFromPdf(r.label, r);
   if (r.flags.indexOf('date') >= 0) toast('No encontré la fecha: puse la de hoy. Revísala.');
   else if (r.flags.indexOf('direction') >= 0) toast('No sé si fue un pago o un ingreso. Revísalo.');
@@ -6304,15 +6299,10 @@ function impBodyHTML(st) {
   if (st === 'bank') return (IMP_STEPS[ui.impBank] ? '<div class="scard imsteps">' + IMP_STEPS[ui.impBank].map((t, i) => '<div class="imstep"><span class="imn" data-notr>' + (i + 1) + '</span><span class="grow">' + t + '</span></div>').join('') + '</div>' : '<p class="imlead">Descarga tu estado de cuenta de ahorros desde Interbank APP o la banca por internet de Interbank.</p>') +
     (IMP_KEY[ui.impBank] ? keyField('impKey', IMP_KEY[ui.impBank]) : '') +
     '<div class="imbar"><button class="primary" id="impPickBtn" data-act="imp:pdf"' + (!IMP_KEY[ui.impBank] || impKeyOk() ? '' : ' disabled') + '>' + (ui.impBank === 'yape' ? 'Subir reporte de movimientos' : 'Subir estado de cuenta') + '</button></div>';
-  if (st === 'paste') return '<p class="imlead">¿Enviaste dinero o te llegó? Mucha gente guarda la captura de quien envió, así que Plata no lo puede adivinar.</p>' +
-    '<div class="scard">' + [['out', 'Envié dinero', 'Pagaste o transferiste a alguien.'], ['in', 'Me llegó dinero', 'Alguien te yapeó, te plineó o te transfirió.']].map((o) => '<button class="imopt' + (ui.impDir === o[0] ? ' on' : '') + '" data-act="imp:dir:' + o[0] + '"><span class="imrad"></span><span class="grow"><span class="imt">' + o[1] + '</span><span class="sub">' + o[2] + '</span></span></button>').join('') + '</div>' +
-    '<p class="imlead" style="margin-top:14px">Elige la captura de la constancia de Yape o Plin. Se lee en este dispositivo: no se sube a ningún servidor.</p>' +
-    '<div class="scard"><button class="linkrow" data-act="imp:shot" style="width:100%">' + RMI('camera-line', 22, '#1A9D63') + 'Elegir captura</button></div>' +
-    '<p class="imlead" style="margin-top:14px">O copia todo el texto de la constancia y pégalo aquí.</p>' +
-    '<div class="scard"><label class="srow" style="padding:12px 0"><span class="grow"><textarea class="sinput imtext" id="impText" maxlength="' + NazcaConstancia.MAX_CHARS + '" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Pega aquí el texto de la constancia"></textarea></span></label></div>' +
-    '<button class="linkrow" data-act="imp:clip" style="justify-content:center;width:100%">' + RMI('clipboard-line', 22, '#1A9D63') + 'Pegar del portapapeles</button>' +
-    impNote('Revisa el monto, la fecha y si fue un pago o un ingreso antes de importar.') +
-    '<div class="imbar"><button class="primary" data-act="imp:read">Leer constancia</button></div>';
+  if (st === 'paste') return '<p class="imlead">¿Fue un gasto o un ingreso? Mucha gente guarda la captura de quien envió, así que Plata no lo puede adivinar.</p>' +
+    '<div class="scard">' + [['out', 'Gasto', 'Pagaste o transferiste a alguien.'], ['in', 'Ingreso', 'Alguien te yapeó, te plineó o te transfirió.']].map((o) => '<button class="imopt' + (ui.impDir === o[0] ? ' on' : '') + '" data-act="imp:dir:' + o[0] + '"><span class="imrad"></span><span class="grow"><span class="imt">' + o[1] + '</span><span class="sub">' + o[2] + '</span></span></button>').join('') + '</div>' +
+    impNote('Sube la captura de la constancia de Yape o Plin. Se lee en este dispositivo: no se sube a ningún servidor.') +
+    '<div class="imbar"><button class="primary" id="impShotBtn" style="display:flex;align-items:center;justify-content:center;gap:8px" data-act="imp:shot"' + (ui.impDir ? '' : ' disabled') + '>' + RMI('camera-line', 22, 'currentColor') + ' Subir captura</button></div>';
   if (st === 'busy') return '<div class="imspin" role="status" aria-label="Leyendo"></div><div class="imlead" style="text-align:center">Nazca está leyendo tu estado de cuenta en este dispositivo.</div>';
   if (st === 'done') {
     const D = ui.impDone || { n: 0, parts: [] }, parts = D.parts && D.parts.length ? D.parts : [{ n: D.n, acc: D.acc, bal: D.bal, cur: D.cur || 'PEN', credit: D.credit }];
@@ -6328,7 +6318,7 @@ function impBodyHTML(st) {
     '<div class="scard"><button class="imgo" data-act="imp:csv">' + RMI('folder-chart-line', 24, '#22B573') + '<span class="grow"><span class="imt">Importar archivo</span><span class="sub">Importa un archivo CSV o un estado de cuenta de tu banco. Plata usará Nazca para interpretarlo.</span></span>' + impChev() + '</button>' +
     '<button class="linkrow" data-act="imp:how" style="padding:0 0 12px 38px;min-height:0">Ver cómo funciona…</button>' +
     '<button class="imgo" data-act="imp:country">' + RMI('bank-line', 24, '#22B573') + '<span class="grow"><span class="imt">Elegir banco</span><span class="sub">Revisa una lista de bancos donde Nazca tiene funciones de interpretación avanzada.</span></span>' + impChev() + '</button>' +
-    '<button class="imgo" data-act="imp:paste">' + RMI('smartphone-line', 24, '#22B573') + '<span class="grow"><span class="imt">Pegar constancia de Yape o Plin</span><span class="sub">Pega el texto de la constancia que compartes al pagar. Plata lo lee en este dispositivo.</span></span>' + impChev() + '</button></div>' +
+    '<button class="imgo" data-act="imp:paste">' + RMI('smartphone-line', 24, '#22B573') + '<span class="grow"><span class="imt">Importar captura de Yape o Plin</span><span class="sub">Sube la captura de la constancia. Plata la lee en este dispositivo.</span></span>' + impChev() + '</button></div>' +
     impNote('<span style="display:inline-block;vertical-align:-2px;margin-right:4px">' + RMI('shield-check-line', 14, 'currentColor') + '</span><span>Todo se lee en este dispositivo. Plata no se conecta a tu banco ni te pide las claves de tu banca por internet.</span>');
 }
 function impBuild() {
@@ -6393,7 +6383,7 @@ function impReviewHTML() {
   const list = shown.map((r) => '<div class="imrow' + (r.on ? '' : ' off') + '"><button class="imck' + (r.on ? ' on' : '') + '" data-act="imp:t:' + r.i + '" role="checkbox" aria-checked="' + r.on + '" aria-label="Importar este movimiento">' + (r.on ? RMI('check-line', 16, '#fff') : '') + '</button>' +
     '<div class="grow" style="min-width:0"><div class="imd" data-notr>' + esc(r.desc || '—') + '</div><div class="sub" style="font-size:12.5px">' + dshort(pd(r.date)) + (r.why ? ' · <span class="imwhy">' + IMP_WHY[r.why] + '</span>' : '') + (r.orig ? ' · <span data-notr>' + fmtC2(Math.abs(r.orig.amount), r.orig.cur) + '</span>' : '') + '</div></div>' +
     '<div class="imr"><div class="amt" style="font-size:15px;font-weight:600;color:' + (r.amount > 0 ? 'var(--gt)' : 'var(--ink)') + '">' + fmtSC2(r.amount, r.dc || acc.cur) + '</div>' + catSel(r) + '</div></div>').join('');
-  const pdf = I.src === 'pdf', bk = pdf && I.bank ? impBankName(I.bank) : '', title = bk ? impBankShort(I.bank) : (I.label && pdf ? I.label : I.guess ? I.guess : I.gen ? 'Archivo PDF' : 'Archivo CSV');
+  const pdf = I.src === 'pdf', bk = pdf && I.bank ? impBankName(I.bank) : (pdf && I.mark === 'plin' ? 'Plin' : ''), title = bk ? (I.bank ? impBankShort(I.bank) : bk) : (I.label && pdf ? I.label : I.guess ? I.guess : I.gen ? 'Archivo PDF' : 'Archivo CSV');
   const ci = I.cardInfo || {}, cmeta = (ci.dueDate ? '<span>' + RMI('calendar-line', 16, 'currentColor') + 'Pagar antes del ' + dshort(pd(ci.dueDate)) + '</span>' : '') + (ci.apr != null ? '<span>' + RMI('percent-line', 16, 'currentColor') + '<span data-notr>' + ci.apr + ' %</span> de tasa anual</span>' : '');
   const meta = '<div class="immeta"><span>' + RMI('arrow-left-right-line', 16, 'currentColor') + plural(rows.length, 'movimiento', 'movimientos') + '</span>' + (span ? '<span>' + RMI('calendar-line', 16, 'currentColor') + span + '</span>' : '') + cmeta + '</div>';
   const profile = '<div class="scard improf"><div class="imtop"><span class="imav">' + (pdf && (I.mark || I.bank) ? impMark(I.mark || I.bank, 'glyph') : RMI('file-chart-line', 30, 'currentColor')) + '</span><div style="min-width:0;flex:1"><div class="imname"><span data-notr>' + esc(title) + '</span>' +
@@ -6457,10 +6447,9 @@ function impAct(arg) {
   if (p[0] === 'start') { impOpen(); return; }
   if (p[0] === 'how') { impShow('how', 'push'); return; }
   if (p[0] === 'paste') { ui.impDir = null; impShow('paste', 'push'); return; }
-  if (p[0] === 'dir') { ui.impDir = p[1] === 'in' ? 'in' : 'out'; document.querySelectorAll('[data-act^="imp:dir:"]').forEach((b) => b.classList.toggle('on', b.getAttribute('data-act') === 'imp:dir:' + ui.impDir)); return; }
-  if (p[0] === 'clip') { impClip(); return; }
-  if (p[0] === 'shot') { if (!ui.impDir) { toast('Primero elige si enviaste dinero o te llegó.'); return; } $('#impshot').click(); return; }
-  if (p[0] === 'read') { if (!ui.impDir) { toast('Primero elige si enviaste dinero o te llegó.'); return; } const t = $('#impText'); impConstancia(t ? t.value : ''); return; }
+  if (p[0] === 'cap') { closeSheet(); impOpen(); ui.impDir = null; impShow('paste', 'push'); return; }
+  if (p[0] === 'dir') { ui.impDir = p[1] === 'in' ? 'in' : 'out'; document.querySelectorAll('[data-act^="imp:dir:"]').forEach((b) => b.classList.toggle('on', b.getAttribute('data-act') === 'imp:dir:' + ui.impDir)); const sb = $('#impShotBtn'); if (sb) sb.disabled = false; return; }
+  if (p[0] === 'shot') { if (!ui.impDir) { toast('Primero elige si fue un gasto o un ingreso.'); return; } $('#impshot').click(); return; }
   if (p[0] === 'csv') { ui.impBank = null; ui.impAt = ui.impStep || null; impPick(); return; }
   if (p[0] === 'country') { impShow('country', 'push'); return; }
   if (p[0] === 'banks') { if (p[1]) ui.impCountry = p[1]; impShow('banks', 'push'); return; }
@@ -6558,11 +6547,6 @@ function impUndo() {
 document.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target && e.target.id === 'impKey') { e.preventDefault(); if (!impKeyOk()) return; if (ui.impStep === 'key') { if (impPend) { ui.impAt = 'key'; ui.impErr = null; impPdf(impPend); } } else impPick(); } });
 document.addEventListener('input', (e) => { const el = e.target; if (el && el.id === 'impKey') { impKey = el.value; const b = $('#impPickBtn'); if (b) b.disabled = !impKeyOk(); } });
 $('#impshot').addEventListener('change', (e) => { const f = (e.target.files || [])[0]; e.target.value = ''; impShot(f); });
-document.addEventListener('paste', (e) => {   /* una captura copiada y pegada en el recuadro de la constancia */
-  if (!e.target || e.target.id !== 'impText') return;
-  const it = Array.prototype.slice.call((e.clipboardData && e.clipboardData.items) || []).find((x) => /^image\//.test(x.type)); if (!it) return;
-  e.preventDefault(); impShot(it.getAsFile());
-});
 $('#impfile').addEventListener('change', (e) => { const fs = Array.prototype.slice.call(e.target.files || []); e.target.value = ''; impFiles(fs); });
 document.addEventListener('change', (e) => {
   const el = e.target, I = ui.imp; if (!I || !el || !el.matches) return;

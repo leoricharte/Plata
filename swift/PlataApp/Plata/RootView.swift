@@ -39,7 +39,7 @@ struct RootView: View {
         }
         .fullScreenCover(isPresented: $model.showWelcome) { WelcomeView().interactiveDismissDisabled() }
         .fullScreenCover(isPresented: $model.showNews) { NewsStoryView() }
-        .fullScreenCover(isPresented: $model.showImport) { ImportFlowView() }
+        .fullScreenCover(isPresented: $model.showImport, onDismiss: { model.importAtCapture = false }) { ImportFlowView(startAtCapture: model.importAtCapture) }
         .fullScreenCover(isPresented: $model.showInboxReview) { ImportFlowView(preloaded: model.inboxReviews) }
         .overlay(alignment: .bottom) {
             if let d = model.inboxDone {

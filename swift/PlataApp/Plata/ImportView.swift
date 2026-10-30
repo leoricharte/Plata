@@ -19,18 +19,16 @@ struct ImportFlowView: View {
     @State private var step: Step
     @State private var origin: Step = .start
     @State private var reviews: [ImportReview]
-    @State private var pasted = ""
     /// ¿Enviaste o te llegó? Mucha gente guarda la captura de quien envió: Plata no lo puede adivinar. 1 = me llegó, -1 = envié, 0 = sin elegir.
     @State private var dir = 0
     @State private var shot: PhotosPickerItem?
-    @State private var reading = false
     /// `true` si se abrió directo en una revisión (constancias que llegaron desde «Compartir»): «Regresar» cierra.
     private let preloaded: Bool
 
-    init(preloaded: [ImportReview] = []) {
+    init(preloaded: [ImportReview] = [], startAtCapture: Bool = false) {
         self.preloaded = !preloaded.isEmpty
         _reviews = State(initialValue: preloaded)
-        _step = State(initialValue: preloaded.isEmpty ? .start : .review)
+        _step = State(initialValue: preloaded.isEmpty ? (startAtCapture ? .paste : .start) : .review)
     }
     @State private var idx = 0
     @State private var notice: Notice?
@@ -126,8 +124,8 @@ struct ImportFlowView: View {
                         .padding(.leading, 38).padding(.bottom, 12)
                 }
                 .buttonStyle(.plain)
-                GoRow(symbol: "iphone", title: "Pegar constancia de Yape o Plin",
-                      sub: "Pega el texto o elige la captura de la constancia. Plata la lee en tu dispositivo.") { step = .paste; notice = nil }
+                GoRow(symbol: "camera", title: "Importar captura de Yape o Plin",
+                      sub: "Sube la captura de la constancia. Plata la lee en este dispositivo.") { step = .paste; notice = nil; dir = 0 }
                 GoRow(symbol: "building.columns", title: "Elegir banco",
                       sub: "Revisa una lista de bancos donde Nazca tiene funciones de interpretación avanzada.") { step = .country; notice = nil }
             }
@@ -381,7 +379,7 @@ struct ImportFlowView: View {
         notice = nil
         switch step {
         case .start: dismiss()
-        case .paste: step = .start; pasted = ""; shot = nil; dir = 0
+        case .paste: step = .start; shot = nil; dir = 0
         case .how, .country: step = .start; keyText = ""; pend = nil
         case .banks: step = .country; keyText = ""; pend = nil
         case .bank: step = .banks; keyText = ""; pend = nil
@@ -394,32 +392,23 @@ struct ImportFlowView: View {
 
     private var pasteBody: some View {
         VStack(spacing: 12) {
-            Text("¿Enviaste dinero o te llegó? Mucha gente guarda la captura de quien envió, así que Plata no lo puede adivinar.")
+            Text("¿Fue un gasto o un ingreso? Mucha gente guarda la captura de quien envió, así que Plata no lo puede adivinar.")
                 .font(.inter(16)).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 4)
             SCard {
-                dirRow(-1, "Envié dinero", "Pagaste o transferiste a alguien.")
-                dirRow(1, "Me llegó dinero", "Alguien te yapeó, te plineó o te transfirió.")
+                dirRow(-1, "Gasto", "Pagaste o transferiste a alguien.")
+                dirRow(1, "Ingreso", "Alguien te yapeó, te plineó o te transfirió.")
             }
-            TextEditor(text: $pasted)
-                .font(.inter(16)).scrollContentBackground(.hidden)
-                .frame(minHeight: 180)
-                .padding(10)
-                .background(Brand.fieldBg, in: RoundedRectangle(cornerRadius: 14))
-                .onChange(of: pasted) { _, v in if v.count > NazcaConstancia.maxLength { pasted = String(v.prefix(NazcaConstancia.maxLength)) } }
-            HStack(spacing: 10) {
-                PasteButton(payloadType: String.self) { pasted = $0.first ?? pasted }
-                    .labelStyle(.titleAndIcon).buttonBorderShape(.capsule)
-                PhotosPicker(selection: $shot, matching: .images) {
-                    Label(Tr.t("Elegir captura"), systemImage: "photo")
-                }
-                .buttonStyle(.bordered).buttonBorderShape(.capsule).disabled(dir == 0)
-                Spacer()
+            Text("Sube la captura de la constancia de Yape o Plin. Se lee en este dispositivo: no se sube a ningún servidor.")
+                .font(.inter(13)).foregroundStyle(.secondary).multilineTextAlignment(.center).padding(.horizontal, 14)
+            PhotosPicker(selection: $shot, matching: .images) {
+                Label(Tr.t("Subir captura"), systemImage: "camera")
+                    .font(.inter(18, .semibold)).foregroundStyle(.white)
+                    .frame(maxWidth: .infinity).frame(height: 54)
+                    .background(Brand.ink, in: Capsule())
+                    .opacity(dir == 0 ? 0.4 : 1)
             }
+            .disabled(dir == 0)
             .onChange(of: shot) { _, item in if let item { Task { await readShot(item) } } }
-            Button { readPasted(pasted) } label: { Text(reading ? "Leyendo…" : "Leer constancia") }
-                .buttonStyle(PrimaryPillStyle())
-                .disabled(reading || dir == 0 || pasted.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            Text("Todo se lee en este dispositivo.").font(.inter(13)).foregroundStyle(.secondary)
         }
     }
 
@@ -439,18 +428,17 @@ struct ImportFlowView: View {
     }
 
     private func readShot(_ item: PhotosPickerItem) async {
-        reading = true; defer { reading = false; shot = nil }
-        guard let data = try? await item.loadTransferable(type: Data.self) else { return }
-        let text = try? await ConstanciaOCR.text(fromImageData: data)
-        if let text, !text.isEmpty { pasted = text; readPasted(text) }
-        else { notice = Notice(title: Tr.t("No pude leer esta constancia"), message: Tr.t("Copia el texto y pégalo en Plata: Importar → Pegar constancia.")) }
-    }
-
-    private func readPasted(_ text: String) {
-        notice = nil
+        notice = nil; step = .busy
+        defer { shot = nil }
+        guard let data = try? await item.loadTransferable(type: Data.self), let text = try? await ConstanciaOCR.text(fromImageData: data), !text.isEmpty else {
+            step = .paste
+            notice = Notice(title: Tr.t("No pude leer texto en la captura"), message: Tr.t("Prueba con una captura más clara y completa."))
+            return
+        }
         guard NazcaConstancia.detect(text) > 0, let r = NazcaConstancia.read(text, today: model.today.iso, sign: dir),
               let rev = ImportReview(name: "Constancia", statement: r.statement, engine: model.engine) else {
-            notice = Notice(title: Tr.t("Esto no parece una constancia"), message: Tr.t("Pega el texto de la constancia de Yape o Plin, con el monto y la fecha."))
+            step = .paste
+            notice = Notice(title: Tr.t("Esto no parece una constancia"), message: Tr.t("No encontramos un monto en la captura. Prueba con una captura más clara que muestre el monto y la fecha."))
             return
         }
         origin = .paste

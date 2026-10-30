@@ -134,6 +134,16 @@ struct TransactionSheet: View {
                 Button(editedTx == nil ? "Añadir" : "Guardar") { save(e) }
                     .buttonStyle(PrimaryPillStyle())
                     .padding(.bottom, 8)
+                if editedTx == nil {
+                    Button {
+                        dismiss()
+                        Task { try? await Task.sleep(for: .milliseconds(400)); model.importAtCapture = true; model.showImport = true }
+                    } label: {
+                        Label(Tr.t("Importar captura de Yape o Plin"), systemImage: "camera")
+                            .font(.inter(17)).foregroundStyle(Brand.green).frame(maxWidth: .infinity).padding(.vertical, 10)
+                    }
+                    .buttonStyle(.plain).padding(.bottom, 8)
+                }
             }
             .padding(.horizontal, 16)
             .padding(.top, 16)
