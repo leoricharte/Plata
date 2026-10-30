@@ -163,16 +163,16 @@ struct TourOverlay: View {
         .frame(width: width, alignment: .leading)
         .background(Color(light: "#FFFFFF", dark: "#0D2A1D"), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(Brand.accent.opacity(0.45), lineWidth: 1))
-        .shadow(color: .black.opacity(0.24), radius: 20, y: 12)
         .overlay(alignment: arrowUp ? .topLeading : .bottomLeading) {
             if let ax = arrowX {
                 Triangle().fill(Color(light: "#FFFFFF", dark: "#0D2A1D"))
-                    .overlay(TriangleSides().stroke(Brand.accent.opacity(0.45), lineWidth: 1))
-                    .frame(width: 18, height: 10)
+                    .overlay(TriangleSides().stroke(Brand.accent.opacity(0.45), style: StrokeStyle(lineWidth: 1, lineCap: .round, lineJoin: .round)))
+                    .frame(width: 22, height: 11)
                     .rotationEffect(.degrees(arrowUp ? 0 : 180))
-                    .offset(x: min(max(18, ax), width - 36) - 9, y: arrowUp ? -8 : 8)
+                    .offset(x: min(max(18, ax), width - 36) - 11, y: arrowUp ? -9 : 9)
             }
         }
+        .shadow(color: .black.opacity(0.24), radius: 20, y: 12)   // sombra de globo + punta juntos
         .accessibilityElement(children: .contain)
     }
 }
@@ -268,9 +268,9 @@ private struct TourSheetTip: ViewModifier {
         .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(Brand.accent.opacity(0.45), lineWidth: 1.5))
         .overlay(alignment: .topLeading) {
             Triangle().fill(Color(light: "#FFFFFF", dark: "#0D2A1D"))
-                .overlay(TriangleSides().stroke(Brand.accent.opacity(0.45), lineWidth: 1))
-                .frame(width: 18, height: 10)
-                .offset(x: min(max(18, arrowX), w - 36) - 9, y: -8)
+                .overlay(TriangleSides().stroke(Brand.accent.opacity(0.45), style: StrokeStyle(lineWidth: 1, lineCap: .round, lineJoin: .round)))
+                .frame(width: 22, height: 11)
+                .offset(x: min(max(18, arrowX), w - 36) - 11, y: -9)
         }
         .shadow(color: .black.opacity(0.24), radius: 20, y: 12)
     }
