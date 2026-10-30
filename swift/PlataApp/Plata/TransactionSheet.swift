@@ -137,9 +137,9 @@ struct TransactionSheet: View {
                 if editedTx == nil {
                     Button {
                         dismiss()
-                        Task { try? await Task.sleep(for: .milliseconds(400)); model.importAtCapture = true; model.showImport = true }
+                        Task { try? await Task.sleep(for: .milliseconds(400)); model.importAtCapture = false; model.showImport = true }
                     } label: {
-                        Label(Tr.t("Importar captura de Yape o Plin"), systemImage: "camera")
+                        Label(Tr.t("Importar datos"), systemImage: "square.and.arrow.down")
                             .font(.inter(17)).foregroundStyle(Brand.green).frame(maxWidth: .infinity).padding(.vertical, 10)
                     }
                     .buttonStyle(.plain).padding(.bottom, 8)
