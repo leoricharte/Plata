@@ -12,17 +12,22 @@ b64 = lambda p: base64.b64encode(p.read_bytes()).decode()
 
 html = (src / "app.html").read_text(encoding="utf-8")
 rows = []
-for f in sorted((src / "tr").glob("*.txt")):
-    for ln in f.read_text(encoding="utf-8").split("\n"):
-        ln = ln.strip()
-        if not ln or ln.startswith("#"): continue
-        parts = [x.strip() for x in ln.split(" ¦ ")]
-        if len(parts) < 6: parts += [""] * (6 - len(parts))
-        rows.append(parts[:6])  # es ¦ en ¦ ja ¦ it ¦ fr ¦ hr
+import re as _re
+_ph = lambda t: sorted(_re.findall(r"\{\d+\}|<[^>]+>", t))
+for f in sorted((src / "tr").glob("*.json")):  # cada fila: [es, en, ja, it, fr, hr] y, opcional, una 7.ª con la nota para quien traduce (no entra a la app)
+    data = json.loads(f.read_text(encoding="utf-8"))
+    if not isinstance(data, list): continue  # _guia.json: instrucciones, no traducciones
+    for r in data:
+        if not isinstance(r, list): continue  # {"nota": "..."}: comentario suelto
+        r = [str(x).strip() for x in r[:6]]
+        if len(r) < 6: r += [""] * (6 - len(r))
+        for k in range(1, 6):  # aviso (no rompe): marcadores {0} o etiquetas que no coinciden con el español
+            if r[k] and _ph(r[k]) != _ph(r[0]): print("AVISO traducción: marcadores distintos en %s (col %d): %s" % (f.name, k + 1, r[0][:50]))
+        rows.append(r)
 i18n = (src / "i18n.js").read_text(encoding="utf-8").replace("__TR_DATA__", json.dumps(rows, ensure_ascii=False))
 i18n += "\n" + (src / "i18n_phr.js").read_text(encoding="utf-8") + "\n" + (src / "i18n_demo.js").read_text(encoding="utf-8")
 html = html.replace("__BUILD__", re.search(r"const APP_BUILD = (\d+)", html).group(1))  # el número de la pantalla de inicio sale de APP_BUILD
-for key, name in (("I18N", None), ("SF", "icons_sf.js"), ("DEMOS", "demo_profiles.js"), ("WORLD", "worldmap.js"), ("RMX", "icons_rmx.js"), ("NAZCA", None)):
+for key, name in (("I18N", None), ("SF", "icons_sf.js"), ("DEMOS", "demo_profiles.js"), ("WORLD", "worldmap.js"), ("RMX", "icons_rmx.js"), ("MATX", "icons_mat.js"), ("NAZCA", None)):
     if key == "NAZCA":  # Nazca: lector de CSV + lector de PDF + un lector por banco (core/nazca/); el orden importa: los bancos usan lo anterior
         html = html.replace("/*__NAZCA__*/", "\n".join((src / "core/nazca" / n).read_text(encoding="utf-8") for n in ("csv.js", "pdf.js", "pdf-generico.js", "xlsx.js", "constancia.js", "ocr.js", "bancos/bcp-ahorros.js", "bancos/interbank-ahorros.js", "bancos/capitalone-tarjeta.js", "bancos/capitalone-cuenta.js", "bancos/chime-checking.js", "bancos/seen-tarjeta.js", "bancos/bofa-cheques.js", "bancos/applecard-tarjeta.js", "bancos/communitybank-cuenta.js", "bancos/io-tarjeta.js", "bancos/yape-movimientos.js", "bancos/bbva-cuenta.js", "bancos/interbank-tarjeta.js", "bancos/bcp-tarjeta.js", "bancos/mercadopago-cuenta.js", "bancos/tjx-tarjeta.js", "bancos/milestone-tarjeta.js", "bancos/index.js")))
         continue

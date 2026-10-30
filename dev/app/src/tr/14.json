@@ -1,0 +1,10 @@
+[
+["Ocultar", "Hide", "非表示", "Nascondi", "Masquer", "Sakrij"],
+["Mostrar", "Show", "表示", "Mostra", "Afficher", "Prikaži"],
+["Salir del demo", "Exit demo", "デモを終了", "Esci dalla demo", "Quitter la démo", "Izađi iz demo načina"],
+["Estás viendo datos de ejemplo. Tus datos reales siguen guardados aparte y vuelven cuando salgas del demo.", "You're viewing sample data. Your real data stays saved separately and comes back when you exit the demo.", "サンプルデータを表示中です。実際のデータは別に保存されており、デモを終了すると戻ります。", "Stai vedendo dati di esempio. I tuoi dati reali restano salvati a parte e tornano quando esci dalla demo.", "Vous voyez des données d'exemple. Vos vraies données restent enregistrées à part et reviennent à la sortie de la démo.", "Gledaš primjer podataka. Tvoji stvarni podaci ostaju spremljeni zasebno i vraćaju se kad izađeš iz dema."],
+["Tus datos reales se guardan aparte y los recuperas al salir del demo.", "Your real data is saved separately and you get it back when you exit the demo.", "実際のデータは別に保存され、デモを終了すると元に戻ります。", "I tuoi dati reali vengono salvati a parte e li recuperi uscendo dalla demo.", "Vos vraies données sont enregistrées à part et vous les retrouvez en quittant la démo.", "Tvoji stvarni podaci spremaju se zasebno i vraćaju se kad izađeš iz demo načina."],
+["Datos restaurados", "Data restored", "データを復元しました", "Dati ripristinati", "Données restaurées", "Podaci vraćeni"],
+["Demo cerrado", "Demo closed", "デモを閉じました", "Demo chiusa", "Démo fermée", "Demo zatvoren"],
+["Estudio 22 y Plata no recopilan tus datos financieros.", "Estudio 22 and Plata don’t collect your financial data.", "Estudio 22とPlataはあなたの財務データを収集しません。", "Estudio 22 e Plata non raccolgono i tuoi dati finanziari.", "Estudio 22 et Plata ne collectent pas vos données financières.", "Estudio 22 i Plata ne prikupljaju tvoje financijske podatke."]
+]
