@@ -52,6 +52,18 @@ final class Reminders {
         schedule()
     }
 
+    // DEBUG-AVISOS (quitar antes de publicar): dispara un aviso de prueba a los 8 s.
+    func debugFire(_ title: String, _ body: String) async {
+        let center = UNUserNotificationCenter.current()
+        let ok = (try? await center.requestAuthorization(options: [.alert, .sound, .badge])) ?? false
+        refreshStatus()
+        guard ok else { return }
+        let c = UNMutableNotificationContent()
+        c.title = title; c.body = body; c.sound = .default
+        try? await center.add(UNNotificationRequest(identifier: "plata.debug." + UUID().uuidString, content: c,
+                                                    trigger: UNTimeIntervalNotificationTrigger(timeInterval: 8, repeats: false)))
+    }
+
     // MARK: programación
 
     /// Se llama cuando cambian los datos o la app pasa a segundo plano (con una pequeña espera para juntar cambios).
@@ -157,6 +169,17 @@ struct NotificationsSheet: View {
                 .padding(.top, 20)
                 Text("Si lo dejas apagado, los avisos dicen qué vence pero no cuánto, para que nadie lo lea en tu pantalla bloqueada.")
                     .font(.inter(13)).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 8).padding(.top, 8)
+                // DEBUG-AVISOS (quitar antes de publicar)
+                SCard {
+                    debugRow("¿Sigues ahí?", "No has ingresado movimientos desde hace 2 días.", "Probar: recordatorio")
+                    RowDivider()
+                    debugRow("Pago de crédito programado", "Mañana: Tarjeta · $120", "Probar: pago previsto")
+                    RowDivider()
+                    debugRow("Suscripción por cobrarse", "Mañana: Netflix · $15.99", "Probar: suscripción")
+                }
+                .padding(.top, 20)
+                Text("DEBUG · Llega a los 8 segundos. Cierra la app o bloquea el iPhone para verla.")
+                    .font(.inter(13)).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 8).padding(.top, 8)
                 if r.denied {
                     Button { if let u = URL(string: UIApplication.openSettingsURLString) { openURL(u) } } label: {
                         Text("Activar permiso en Configuración").font(.inter(16, .semibold)).foregroundStyle(Brand.green).frame(maxWidth: .infinity).frame(height: 50)
@@ -170,6 +193,19 @@ struct NotificationsSheet: View {
         .presentationDragIndicator(.visible).presentationCornerRadius(38)
         .presentationBackground(Brand.sheetBg)
         .onAppear { r.refreshStatus() }
+    }
+
+    // DEBUG-AVISOS (quitar antes de publicar)
+    private func debugRow(_ title: String, _ body: String, _ label: String) -> some View {
+        Button { Task { await r.debugFire(title, body) } } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "paperplane").frame(width: 26).foregroundStyle(Brand.accent)
+                Text(label).font(.inter(17)).foregroundStyle(.primary)
+                Spacer(minLength: 0)
+            }
+            .padding(.vertical, 8).frame(minHeight: 44)
+        }
+        .buttonStyle(.plain)
     }
 
     private func row(_ symbol: String, _ title: String, _ on: Binding<Bool>) -> some View {
