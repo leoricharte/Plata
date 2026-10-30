@@ -328,11 +328,13 @@ struct ScoreView: View {
     var s: PhoneSnapshot?
     var body: some View {
         if let s, !s.letter.isEmpty {
-            VStack(spacing: 0) {
+            VStack(spacing: 6) {
                 Head(title: "Nota del mes")
-                Text(s.letter).font(.system(size: 54, weight: .bold, design: .rounded)).foregroundStyle(pal.accent)
-                Text(verbatim: Tr.t(s.adjective)).font(.system(size: 13, weight: .semibold))
-            }
+                Spacer(minLength: 0)
+                GradeMark(letter: s.letter, tier: s.tier, size: 62)
+                Text(verbatim: Tr.t(s.adjective)).font(.system(size: 13, weight: .semibold)).lineLimit(1)
+                Spacer(minLength: 0)
+            }.frame(maxWidth: .infinity, maxHeight: .infinity)
         } else { Empty(title: "Nota del mes") }
     }
 }

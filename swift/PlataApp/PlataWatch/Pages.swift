@@ -88,9 +88,6 @@ struct BudgetPage: View {
             ScrollViewReader { proxy in
                 ScrollView {
                     VStack(spacing: 8) {
-                        if !s.letter.isEmpty {
-                            Text("\(s.letter) • \(s.adjective)").font(.system(size: 14, weight: .semibold)).foregroundStyle(WatchTheme.accent)
-                        }
                         rings(s)
                             .onTapGesture {
                                 withAnimation { expanded.toggle() }

@@ -101,7 +101,7 @@ final class WatchBridge: NSObject, WCSessionDelegate {
             stamp: Date().timeIntervalSince1970 * 1000, sym: model.fmt.symbol(cur), dec: Money.decimals(cur),
             spentToday: spentToday, allowance: allowance, daysLeft: dl, cats: Array(cats.prefix(12)), days: days,
             accounts: accounts, categories: e.categoryNames.filter { $0 != "Ingreso" }, catInfo: catInfo, letter: im.letter,
-            adjective: Tr.t(InsightsText.adjective[im.letter] ?? ""),
+            adjective: Tr.t(InsightsText.adjective[im.letter] ?? ""), tier: im.plus == .diamond ? "diamond" : (im.plus == .plus ? "plus" : "none"),
             nextName: next?.0 ?? "", nextAmt: next?.1 ?? 0, nextIn: next?.2 ?? -1, hasCredit: creditLimit > 0)
     }
 

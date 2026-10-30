@@ -64,13 +64,16 @@ struct InsightsWidgetView: View {
         if let s = e.snap, !s.letter.isEmpty {
             switch family {
             case .accessoryCircular:
-                ZStack { AccessoryWidgetBackground(); Text(s.letter).font(.system(size: 28, weight: .bold, design: .rounded)).foregroundStyle(accent) }
+                ZStack { AccessoryWidgetBackground(); GradeMark(letter: s.letter, tier: s.tier, size: 34) }
             case .accessoryInline:
                 Text("\(s.letter) • \(s.adjective)")
             default:
-                VStack(alignment: .leading, spacing: 0) {
-                    Text("Nota del mes").font(.system(size: 12, weight: .semibold)).foregroundStyle(accent)
-                    Text("\(s.letter) • \(s.adjective)").font(.system(size: 20, weight: .bold, design: .rounded))
+                HStack(spacing: 8) {
+                    GradeMark(letter: s.letter, tier: s.tier, size: 38)
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text("Nota del mes").font(.system(size: 12, weight: .semibold)).foregroundStyle(accent)
+                        Text(s.adjective).font(.system(size: 17, weight: .bold, design: .rounded)).lineLimit(1).minimumScaleFactor(0.7)
+                    }
                 }
             }
         } else {

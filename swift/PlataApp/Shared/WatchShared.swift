@@ -54,6 +54,7 @@ struct WatchSnapshot: Codable {
     var catInfo: [WatchCategory]? = nil
     var letter: String                  // nota de Insights (S, A, B…)
     var adjective: String
+    var tier: String? = nil             // racha de la nota: none / plus / diamond
     var nextName: String
     var nextAmt: Double
     var nextIn: Int                     // días hasta el próximo cobro o pago (-1 = no hay)

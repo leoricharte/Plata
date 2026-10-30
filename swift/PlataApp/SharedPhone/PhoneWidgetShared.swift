@@ -43,6 +43,7 @@ struct PhoneSnapshot: Codable {
     var weekday: [Double]    // gasto por día de la semana (domingo primero)
     var flow: [PBar]
     var lang: String? = nil  // idioma efectivo de la app (es/en)
+    var tier: String? = nil  // racha de la nota: none / plus / diamond
 }
 
 enum PhoneShare {
