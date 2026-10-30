@@ -50,6 +50,10 @@ jobs:
         run: |
           brew install xcodegen
           cd swift/PlataApp && xcodegen
+          # los esquemas compartidos deben existir (si no, Xcode solo muestra el de PlataCore)
+          ls Plata.xcodeproj/xcshareddata/xcschemes
+          test -f Plata.xcodeproj/xcshareddata/xcschemes/Plata.xcscheme
+          test -f Plata.xcodeproj/xcshareddata/xcschemes/PlataWatch.xcscheme
 
       - name: Compilar la app (simulador)
         if: always()
