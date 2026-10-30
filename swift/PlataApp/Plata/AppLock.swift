@@ -146,7 +146,7 @@ final class AppLock {
         let c = LAContext(); var e: NSError?
         guard c.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &e) else { return false }
         guard (try? await c.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: "Activa \(Self.bioName) para abrir Plata")) == true else { return false }
-        if let st = c.evaluatedPolicyDomainState { Self.kcSet(st, Acct.bioState) }
+        if let st = c.domainState.biometry.stateHash { Self.kcSet(st, Acct.bioState) }
         UserDefaults.standard.set(true, forKey: Self.bioKey)
         bioOn = true
         return true
@@ -164,7 +164,7 @@ final class AppLock {
         c.localizedCancelTitle = "Usar PIN"
         guard c.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &e) else { return false }
         // si cambiaron las caras o huellas registradas, se vuelve a pedir el PIN
-        if let saved = Self.kcGet(Acct.bioState), let now = c.evaluatedPolicyDomainState, saved != now { disableBio(); return false }
+        if let saved = Self.kcGet(Acct.bioState), let now = c.domainState.biometry.stateHash, saved != now { disableBio(); return false }
         guard (try? await c.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: "Abre Plata")) == true else { return false }
         locked = false; leftAt = nil; sync()
         return true
