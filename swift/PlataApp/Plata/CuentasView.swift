@@ -201,6 +201,7 @@ struct CuentasView: View {
     private func debitList(_ e: Engine, _ f: Fmt) -> some View {
         let list = sorted(e.allAccounts, kind: "acc", e, [:])
         return ListCard {
+            if !list.isEmpty { Color.clear.frame(height: 6) }
             ForEach(Array(list.enumerated()), id: \.offset) { i, a in
                 if i > 0 { RowDivider() }
                 let cur = Engine.text(a["cur"])
@@ -245,6 +246,7 @@ struct CuentasView: View {
         let list = sorted(cards, kind: "card", e, calc)
         return ListCard {
             if list.isEmpty { Text("Aún no hay tarjetas ni préstamos").font(.inter(15)).foregroundStyle(.secondary).frame(maxWidth: .infinity).padding(.vertical, 18) }
+            else { Color.clear.frame(height: 6) }
             ForEach(Array(list.enumerated()), id: \.offset) { i, k in
                 if i > 0 { RowDivider() }
                 creditRow(e, f, k, i, calc[Engine.identifier(k["id"])])

@@ -57,26 +57,49 @@ extension Color {
     }
 }
 
-/// Texto pegado a un arco: termina justo arriba (a las 12) y se lee hacia ahí, como en un anillo de Actividad.
+extension Color {
+    /// El mismo tono, muy oscuro: para el texto y el icono que van encima de un aro de ese color.
+    init(watchDark h: String?) {
+        let t = (h ?? "").replacingOccurrences(of: "#", with: "")
+        guard t.count == 6, let v = UInt32(t, radix: 16) else { self = Color(white: 0.08); return }
+        let k = 0.30
+        self = Color(red: Double((v >> 16) & 255) / 255 * k, green: Double((v >> 8) & 255) / 255 * k, blue: Double(v & 255) / 255 * k)
+    }
+}
+
+/// Texto pegado a un arco, en el sentido del reloj desde `start` (grados desde las 12), con letras espaciadas.
 struct CurvedLabel: View {
     var text: String
     var radius: CGFloat
     var size: CGFloat
-    var gap: Double = 3        // grados que quedan libres antes de las 12
-    /// Grados que ocupa un texto de `n` letras en un arco de ese radio.
-    static func span(_ n: Int, radius: CGFloat, size: CGFloat) -> Double { Double(n) * Double(size * 0.78 / radius) * 180 / .pi }
+    var start: Double = 4
+    var color: Color = .black
+
+    private static func weight(_ ch: Character) -> Double {
+        switch ch {
+        case "I", "·", " ", "1", ".", ",": return 0.55
+        case "M", "W", "%": return 1.2
+        default: return 1
+        }
+    }
+    private static func step(_ ch: Character, radius: CGFloat, size: CGFloat) -> Double { Double(size * 0.98) * weight(ch) / Double(radius) * 180 / .pi }
+    /// Grados que ocupa un texto en un arco de ese radio.
+    static func span(_ text: String, radius: CGFloat, size: CGFloat) -> Double { text.uppercased().reduce(0) { $0 + step($1, radius: radius, size: size) } }
+
     var body: some View {
         let chars = Array(text.uppercased())
-        let step = Double(size * 0.78 / radius) * 180 / .pi   // grados por letra
+        let angles: [Double] = {
+            var a = start, out: [Double] = []
+            for ch in chars { let st = Self.step(ch, radius: radius, size: size); out.append(a + st / 2); a += st }
+            return out
+        }()
         ZStack {
             ForEach(Array(chars.enumerated()), id: \.offset) { i, ch in
-                let angle = -Double(chars.count - i) * step - gap
                 Text(String(ch))
                     .font(.system(size: size, weight: .heavy, design: .rounded))
-                    .foregroundStyle(.white)
-                    .shadow(color: .black.opacity(0.45), radius: 0.6)
+                    .foregroundStyle(color)
                     .offset(y: -radius)
-                    .rotationEffect(.degrees(angle))
+                    .rotationEffect(.degrees(angles[i]))
             }
         }
     }
@@ -92,11 +115,6 @@ struct BudgetPage: View {
                 ScrollView {
                     VStack(spacing: 8) {
                         rings(s)
-                            .onTapGesture {
-                                withAnimation { expanded.toggle() }
-                                WKInterfaceDevice.current().play(.click)
-                                if !expanded { DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { withAnimation { proxy.scrollTo("lista", anchor: .top) } } }
-                            }
                         if s.allowance > 0 {
                             let left = s.allowance - s.spentToday
                             VStack(spacing: 0) {
@@ -106,7 +124,7 @@ struct BudgetPage: View {
                         } else {
                             Text(s.cats.isEmpty ? "Sin presupuesto este mes" : "Presupuesto del mes agotado").font(.system(size: 14)).foregroundStyle(.secondary).multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
                         }
-                        if !s.cats.isEmpty && !expanded {
+                        if !s.cats.isEmpty && !expanded && !hidden {
                             Text("Toca el círculo para ver todos").font(.system(size: 11)).foregroundStyle(.tertiary)
                         }
                         if expanded {
@@ -121,9 +139,16 @@ struct BudgetPage: View {
                             }
                             .id("lista")
                         }
-                        SyncNote().padding(.top, 4)
+                        if !hidden { SyncNote().padding(.top, 4) }
                     }
                     .padding(.horizontal, 6)
+                    .frame(maxWidth: .infinity)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        withAnimation { expanded.toggle() }
+                        WKInterfaceDevice.current().play(.click)
+                        if !expanded { DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { withAnimation { proxy.scrollTo("lista", anchor: .top) } } }
+                    }
                 }
             }
         } else {
@@ -131,31 +156,44 @@ struct BudgetPage: View {
         }
     }
 
+    /// Con el presupuesto del mes agotado solo se ven los aros y «Presupuesto del mes agotado»; el resto aparece al tocar la pantalla.
+    private var hidden: Bool {
+        guard let s = store.snapshot else { return false }
+        return s.allowance <= 0 && (s.monthBudget ?? 0) > 0 && !s.cats.isEmpty && !expanded
+    }
+
     /// Con categorías que tienen tope: hasta 3 aros concéntricos (los de más gasto), cada uno con el icono de su categoría en la punta
     /// y su nombre curvado. Sin categorías: un solo aro grande (lo gastado hoy contra el tope del día).
     /// Si ya te pasaste del presupuesto del mes, el centro dice cuánto en rojo (igual que el iPhone).
     @ViewBuilder private func rings(_ s: WatchSnapshot) -> some View {
         let top = Array(s.cats.prefix(3))
-        if top.isEmpty { singleRing(s) } else { multiRing(s, top) }
+        // el dibujo se compone en 160 pt y se escala para llenar el ancho del reloj
+        let d = min(WKInterfaceDevice.current().screenBounds.width - 8, 190)
+        let k = max(1, d / 160)
+        Group { if top.isEmpty { singleRing(s) } else { multiRing(s, top) } }
+            .scaleEffect(k)
+            .frame(width: 160 * k, height: 160 * k)
     }
 
     private func multiRing(_ s: WatchSnapshot, _ top: [WatchCat]) -> some View {
         let exhausted = s.allowance <= 0 && (s.monthBudget ?? 0) > 0
         let over = max(0, -(s.monthLeft ?? 0))
-        let width: CGFloat = 15, gap: CGFloat = 3, outer: CGFloat = 80
+        let width: CGFloat = 16, gap: CGFloat = 3, outer: CGFloat = 80
         return ZStack {
             ForEach(Array(top.enumerated()), id: \.offset) { i, c in
                 let radius = outer - width / 2 - CGFloat(i) * (width + gap)
                 CategoryRing(cat: c, symbol: s.catInfo?.first { $0.label == c.name }?.symbol ?? "circle.fill", width: width, radius: radius)
                     .frame(width: radius * 2, height: radius * 2)
             }
-            VStack(spacing: 0) {
-                Amount(text: s.fmt(exhausted ? over : s.spentToday)).font(.system(size: 14, weight: .bold, design: .rounded)).minimumScaleFactor(0.5).lineLimit(1)
-                    .foregroundStyle(exhausted ? .red : .primary)
-                Text(exhausted ? "te pasaste" : "hoy").textCase(.uppercase)
-                    .font(.system(size: 8, weight: .semibold)).tracking(0.3).foregroundStyle(.secondary).lineLimit(1).minimumScaleFactor(0.6)
+            if !hidden {
+                VStack(spacing: 0) {
+                    Amount(text: s.fmt(exhausted ? over : s.spentToday)).font(.system(size: 14, weight: .bold, design: .rounded)).minimumScaleFactor(0.5).lineLimit(1)
+                        .foregroundStyle(exhausted ? .red : .primary)
+                    Text(exhausted ? "te pasaste" : "hoy").textCase(.uppercase)
+                        .font(.system(size: 8, weight: .semibold)).tracking(0.3).foregroundStyle(.secondary).lineLimit(1).minimumScaleFactor(0.6)
+                }
+                .frame(width: 54)
             }
-            .frame(width: 50)
         }
         .frame(width: 160, height: 160)
         .contentShape(Circle())
@@ -183,7 +221,7 @@ struct BudgetPage: View {
     }
 }
 
-/// Un aro de categoría: su avance, el icono en la punta y el nombre curvado (se oculta si taparía el icono).
+/// Un aro de categoría: su avance (como mucho una vuelta), el icono en la punta y, sobre el color, el nombre y el porcentaje curvados en un tono oscuro.
 struct CategoryRing: View {
     var cat: WatchCat
     var symbol: String
@@ -192,21 +230,45 @@ struct CategoryRing: View {
 
     var body: some View {
         let frac = cat.limit > 0 ? cat.spent / cat.limit : 0
-        let size: CGFloat = 8
-        let gap = Double(6 / radius) * 180 / .pi + 2                  // deja sitio al icono cuando el aro está casi vacío
-        let maxChars = max(3, Int((130 - gap) / CurvedLabel.span(1, radius: radius, size: size)))
-        let name = cat.name.count > maxChars ? String(cat.name.prefix(maxChars - 1)) + "…" : cat.name
-        let span = CurvedLabel.span(name.count, radius: radius, size: size)
-        let tip = 360 * (frac > 1 ? min(1, frac - 1) : min(1, frac))
-        let hideName = tip > 360 - span - gap - 8
+        let size: CGFloat = 9.5
+        let iconSize = width * 0.62
+        let dark = Color(watchDark: cat.color)
+        let toDeg = 180 / Double.pi
+        let iconHalf = Double((iconSize / 2 + 1) / radius) * toDeg
+        let tip = 360 * min(1, max(0, frac))
+        let start = Double(width * 0.35 / radius) * toDeg + 3          // pasada la tapa redonda del arranque
+        let end = (frac >= 1 ? 360 : tip) - iconHalf - 3               // antes del icono
+        let avail = end - (frac >= 1 ? max(start, iconHalf + 3) : start)
+        let begin = frac >= 1 ? max(start, iconHalf + 3) : start
+        let pct = " · " + String(Int((frac * 100).rounded())) + "%"
+        let label = Self.fit(cat.name, pct, avail: avail, radius: radius, size: size)
         return ZStack {
-            ActivityRing(frac: frac, color: Color(watchHex: cat.color), width: width, radius: radius, symbol: symbol, iconSize: width * 0.62)
-            if !hideName { CurvedLabel(text: name, radius: radius, size: size, gap: gap) }
+            ActivityRing(frac: frac, color: Color(watchHex: cat.color), width: width, radius: radius, symbol: symbol, iconSize: iconSize, iconColor: dark)
+            if let label { CurvedLabel(text: label, radius: radius, size: size, start: begin, color: dark) }
         }
+    }
+
+    /// El texto más completo que cabe: «Nombre · 12 %», luego el nombre recortado con «…», luego solo el nombre.
+    private static func fit(_ name: String, _ pct: String, avail: Double, radius: CGFloat, size: CGFloat) -> String? {
+        guard avail > 0 else { return nil }
+        func ok(_ t: String) -> Bool { CurvedLabel.span(t, radius: radius, size: size) <= avail }
+        var n = name.count
+        while n >= 3 {
+            let nm = n == name.count ? name : String(name.prefix(n - 1)) + "…"
+            if ok(nm + pct) { return nm + pct }
+            n -= 1
+        }
+        n = name.count
+        while n >= 3 {
+            let nm = n == name.count ? name : String(name.prefix(n - 1)) + "…"
+            if ok(nm) { return nm }
+            n -= 1
+        }
+        return nil
     }
 }
 
-/// Un anillo como los de Actividad: la pista tenue, el progreso con degradado y, si pasas del 100 %, una segunda vuelta con sombra.
+/// Un anillo como los de Actividad: la pista tenue y el progreso con degradado. Se queda en una sola vuelta aunque te pases.
 struct ActivityRing: View {
     var frac: Double
     var color: Color
@@ -215,27 +277,21 @@ struct ActivityRing: View {
     var arrow = false
     var symbol: String? = nil          // icono de la categoría en la punta (en vez de la flecha)
     var iconSize: CGFloat = 9
+    var iconColor: Color = .black.opacity(0.75)
     var body: some View {
         let lap = min(1, max(0.004, frac))
-        let extra = min(1, max(0, frac - 1))
         ZStack {
             Circle().stroke(color.opacity(0.25), lineWidth: width)
             Circle().trim(from: 0, to: lap)
                 .stroke(AngularGradient(colors: [color.opacity(0.65), color], center: .center, startAngle: .degrees(0), endAngle: .degrees(max(1, 360 * lap))),
                         style: StrokeStyle(lineWidth: width, lineCap: .round))
                 .rotationEffect(.degrees(-90))
-            if extra > 0 {
-                Circle().trim(from: 0, to: extra)
-                    .stroke(color, style: StrokeStyle(lineWidth: width, lineCap: .round))
-                    .rotationEffect(.degrees(-90))
-                    .shadow(color: .black.opacity(0.55), radius: 3)
-            }
             if let symbol {
-                let deg = frac > 0.02 ? 360 * (extra > 0 ? extra : lap) : 0
-                Image(systemName: symbol).font(.system(size: iconSize, weight: .heavy)).foregroundStyle(.black.opacity(0.75))
+                let deg = frac > 0.02 ? 360 * lap : 0
+                Image(systemName: symbol).font(.system(size: iconSize, weight: .heavy)).foregroundStyle(iconColor)
                     .offset(x: radius * CGFloat(sin(deg * .pi / 180)), y: -radius * CGFloat(cos(deg * .pi / 180)))
             } else if arrow && frac > 0.02 {
-                let deg = 360 * (extra > 0 ? extra : lap)
+                let deg = 360 * lap
                 Image(systemName: "arrow.right").font(.system(size: width * 0.6, weight: .heavy)).foregroundStyle(.black.opacity(0.7))
                     .rotationEffect(.degrees(deg))
                     .offset(x: radius * CGFloat(sin(deg * .pi / 180)), y: -radius * CGFloat(cos(deg * .pi / 180)))
