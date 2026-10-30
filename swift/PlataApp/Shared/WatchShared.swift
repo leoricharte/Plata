@@ -60,6 +60,8 @@ struct WatchSnapshot: Codable {
     var nextIn: Int                     // días hasta el próximo cobro o pago (-1 = no hay)
     var hasCredit: Bool                 // hay tarjetas con límite
     var lang: String? = nil             // idioma de la app (es / en) para textos del reloj
+    var monthBudget: Double? = nil      // tope total del mes (suma de límites); nil/0 = sin presupuesto
+    var monthLeft: Double? = nil        // tope − gastado del mes; negativo = te pasaste
 }
 
 /// Un movimiento anotado en el reloj, pendiente de guardarse en el iPhone.

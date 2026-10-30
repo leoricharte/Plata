@@ -101,7 +101,7 @@ struct BudgetPage: View {
                                 Text(left < 0 ? "pasado hoy" : "te quedan hoy").font(.system(size: 13)).foregroundStyle(.secondary)
                             }
                         } else {
-                            Text(s.cats.isEmpty ? "Sin presupuesto este mes" : "Presupuesto del mes agotado").font(.system(size: 14)).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                            Text(s.cats.isEmpty ? "Sin presupuesto este mes" : "Presupuesto del mes agotado").font(.system(size: 14)).foregroundStyle(.secondary).multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
                         }
                         if !s.cats.isEmpty && !expanded {
                             Text("Toca el círculo para ver todos").font(.system(size: 11)).foregroundStyle(.tertiary)
@@ -129,15 +129,19 @@ struct BudgetPage: View {
     }
 
     /// Un solo aro grande y grueso, como el de Actividad: lo gastado hoy al centro y, debajo, de cuánto es el tope del día.
+    /// Si ya te pasaste del presupuesto del mes, el aro va completo en rojo con lo que te pasaste (igual que el iPhone).
     private func rings(_ s: WatchSnapshot) -> some View {
-        let frac = s.allowance > 0 ? s.spentToday / s.allowance : 0
-        let color: Color = frac > 1 ? .red : WatchTheme.accent
+        let exhausted = s.allowance <= 0 && (s.monthBudget ?? 0) > 0
+        let over = max(0, -(s.monthLeft ?? 0))
+        let frac = exhausted ? 1 : (s.allowance > 0 ? s.spentToday / s.allowance : 0)
+        let color: Color = (exhausted || frac > 1) ? .red : WatchTheme.accent
         return ZStack {
-            ActivityRing(frac: frac, color: color, width: 20, radius: 68, arrow: true)
+            ActivityRing(frac: frac, color: color, width: 20, radius: 68, arrow: !exhausted)
                 .frame(width: 136, height: 136)
             VStack(spacing: 0) {
-                Amount(text: s.fmt(s.spentToday)).font(.system(size: 32, weight: .semibold, design: .rounded)).minimumScaleFactor(0.5).lineLimit(1)
-                Text(s.allowance > 0 ? "de \(s.fmt(s.allowance))" : "hoy").textCase(.uppercase)
+                Amount(text: s.fmt(exhausted ? over : s.spentToday)).font(.system(size: 32, weight: .semibold, design: .rounded)).minimumScaleFactor(0.5).lineLimit(1)
+                    .foregroundStyle(exhausted ? .red : .primary)
+                Text(exhausted ? "te pasaste" : (s.allowance > 0 ? "de \(s.fmt(s.allowance))" : "hoy")).textCase(.uppercase)
                     .font(.system(size: 11, weight: .semibold)).tracking(0.4).foregroundStyle(.secondary).lineLimit(1).minimumScaleFactor(0.6)
             }
             .frame(width: 96)
