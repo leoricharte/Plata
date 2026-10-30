@@ -1,5 +1,12 @@
 # Registro de cambios
 
+## Beta 5
+
+- **Plata nativa en iPhone y Apple Watch** (SwiftUI): Face ID o PIN, modo claro y oscuro, widgets y Bentos.
+- **Constancias de Yape y Plin**: comparte la captura y Nazca la lee en tu dispositivo; queda en Revisión.
+- **Presupuesto en aros** (hasta 4 categorías) y encabezado que cambia con la estación.
+- **Apple Watch**: aros por categoría con ✓ / – / ✕, texto «Te pasaste» y la corona para anotar gastos.
+
 ## Beta 4
 
 - **Demos renovadas (461):** los perfiles de demostración de adultos (Shawn, Brenda, Alessandro y Andrea) muestran cada función con datos naturales: sugerencias pendientes de todos los tipos en Revisión, recurrentes por crear y suscripciones con historial (cambio de cuenta, subida de precio, mes sin cobro, quiebre y cancelación). Los cobros de una suscripción ya no se corren de día al ubicar la demo en la fecha de hoy.
