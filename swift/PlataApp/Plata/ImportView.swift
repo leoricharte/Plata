@@ -1,5 +1,6 @@
 import SwiftUI
 import UniformTypeIdentifiers
+import PhotosUI
 import PlataCore
 
 /// «Importar datos de banco» (la pasarela de importación de la web, `imp*`): elegir el archivo, revisar lo que Nazca leyó y confirmar.
@@ -8,16 +9,27 @@ struct ImportFlowView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
 
-    enum Step { case start, how, country, banks, bank, key, busy, review, done }
+    enum Step { case start, how, country, banks, bank, key, busy, review, done, paste }
 
     struct Notice: Equatable { var title: String; var message: String; var asBank: String? = nil }
     /// Un PDF protegido que está esperando su clave.
     struct Locked: Identifiable { let id = UUID(); var file: Picked; var name: String; var bad: Bool }
     struct AsDoc { var doc: PdfDoc; var name: String; var size: Int; var bank: String }
 
-    @State private var step: Step = .start
+    @State private var step: Step
     @State private var origin: Step = .start
-    @State private var reviews: [ImportReview] = []
+    @State private var reviews: [ImportReview]
+    @State private var pasted = ""
+    @State private var shot: PhotosPickerItem?
+    @State private var reading = false
+    /// `true` si se abrió directo en una revisión (constancias que llegaron desde «Compartir»): «Regresar» cierra.
+    private let preloaded: Bool
+
+    init(preloaded: [ImportReview] = []) {
+        self.preloaded = !preloaded.isEmpty
+        _reviews = State(initialValue: preloaded)
+        _step = State(initialValue: preloaded.isEmpty ? .start : .review)
+    }
     @State private var idx = 0
     @State private var notice: Notice?
     @State private var applied: ImportReview.Applied?
@@ -43,6 +55,7 @@ struct ImportFlowView: View {
         case .key: return ("Estado de cuenta", "Contraseña")
         case .busy: return ("Datos de banco", "Leyendo…")
         case .done: return ("Listo", "Importado")
+        case .paste: return ("Constancia", "Yape o Plin")
         case .review:
             let label = reviews.indices.contains(idx) ? reviews[idx].source?.label ?? "" : ""
             let gen = reviews.indices.contains(idx) && reviews[idx].gen
@@ -93,6 +106,7 @@ struct ImportFlowView: View {
         case .busy: busyBody
         case .review: reviewBody
         case .done: doneBody
+        case .paste: pasteBody
         }
     }
 
@@ -110,6 +124,8 @@ struct ImportFlowView: View {
                         .padding(.leading, 38).padding(.bottom, 12)
                 }
                 .buttonStyle(.plain)
+                GoRow(symbol: "iphone", title: "Pegar constancia de Yape o Plin",
+                      sub: "Pega el texto o elige la captura de la constancia. Plata la lee en tu dispositivo.") { step = .paste; notice = nil }
                 GoRow(symbol: "building.columns", title: "Elegir banco",
                       sub: "Revisa una lista de bancos donde Nazca tiene funciones de interpretación avanzada.") { step = .country; notice = nil }
             }
@@ -363,13 +379,60 @@ struct ImportFlowView: View {
         notice = nil
         switch step {
         case .start: dismiss()
+        case .paste: step = .start; pasted = ; shot = nil
         case .how, .country: step = .start; keyText = ""; pend = nil
         case .banks: step = .country; keyText = ""; pend = nil
         case .bank: step = .banks; keyText = ""; pend = nil
         case .key: step = .start; keyText = ""; pend = nil
+        case .review where preloaded: dismiss()
         case .review: reviews = []; seen = []; locked = []; asDoc = nil; step = origin == .key ? .start : origin
         default: break
         }
+    }
+
+    private var pasteBody: some View {
+        VStack(spacing: 12) {
+            TextEditor(text: $pasted)
+                .font(.inter(16)).scrollContentBackground(.hidden)
+                .frame(minHeight: 180)
+                .padding(10)
+                .background(Brand.fieldBg, in: RoundedRectangle(cornerRadius: 14))
+                .onChange(of: pasted) { _, v in if v.count > NazcaConstancia.maxLength { pasted = String(v.prefix(NazcaConstancia.maxLength)) } }
+            HStack(spacing: 10) {
+                PasteButton(payloadType: String.self) { pasted = $0.first ?? pasted }
+                    .labelStyle(.titleAndIcon).buttonBorderShape(.capsule)
+                PhotosPicker(selection: $shot, matching: .images) {
+                    Label(Tr.t("Elegir captura"), systemImage: "photo")
+                }
+                .buttonStyle(.bordered).buttonBorderShape(.capsule)
+                Spacer()
+            }
+            .onChange(of: shot) { _, item in if let item { Task { await readShot(item) } } }
+            Button { readPasted(pasted) } label: { Text(reading ? "Leyendo…" : "Leer constancia") }
+                .buttonStyle(PrimaryPillStyle())
+                .disabled(reading || pasted.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            Text("Todo se lee en este dispositivo.").font(.inter(13)).foregroundStyle(.secondary)
+        }
+    }
+
+    private func readShot(_ item: PhotosPickerItem) async {
+        reading = true; defer { reading = false; shot = nil }
+        guard let data = try? await item.loadTransferable(type: Data.self) else { return }
+        let text = try? await ConstanciaOCR.text(fromImageData: data)
+        if let text, !text.isEmpty { pasted = text; readPasted(text) }
+        else { notice = Notice(title: Tr.t("No pude leer esta constancia"), message: Tr.t("Copia el texto y pégalo en Plata: Importar → Pegar constancia.")) }
+    }
+
+    private func readPasted(_ text: String) {
+        notice = nil
+        guard NazcaConstancia.detect(text) > 0, let r = NazcaConstancia.read(text, today: model.today.iso),
+              let rev = ImportReview(name: "Constancia", statement: r.statement, engine: model.engine) else {
+            notice = Notice(title: Tr.t("Esto no parece una constancia"), message: Tr.t("Pega el texto de la constancia de Yape o Plin, con el monto y la fecha."))
+            return
+        }
+        origin = .paste
+        reviews = [rev]; idx = 0; step = .review
+        if r.flags.contains("amount") { notice = Notice(title: Tr.t("Revisa el monto"), message: Tr.t("Había más de un monto en la constancia.")) }
     }
 
     private func pick(from: Step) {

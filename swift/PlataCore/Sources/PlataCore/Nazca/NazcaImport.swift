@@ -125,7 +125,7 @@ public struct ImportReview {
                              "due_day": .number(Double(cd.dueDay.map { max(1, min(31, $0)) } ?? 1)), "color": .string(""), "icon": .string(""), "last4": .string(last4)])
         } else {
             let apy = r.kind == "ahorro" && (r.apy ?? 0) > 0 && (r.apy ?? 0) < 100 ? Nazca.jsRound((r.apy ?? 0) * 100) / 100 : 0
-            nueva = .object(["id": .string(Self.newId), "name": .string(Nazca.bankShort(r.bank) + (r.cur == "USD" ? " Dólares" : r.cur == "CLP" ? " Pesos" : " Soles")),
+            nueva = .object(["id": .string(Self.newId), "name": .string((r.bank == nil ? (own.isEmpty ? "Cuenta" : own) : Nazca.bankShort(r.bank)) + (r.cur == "USD" ? " Dólares" : r.cur == "CLP" ? " Pesos" : " Soles")),
                              "type": .string(r.kind == "ahorro" ? "savings" : "checking"), "cur": .string(r.cur), "apy": .number(apy), "balance": .number(0),
                              "color": .string(""), "icon": .string(""), "last4": .string(last4)])
         }

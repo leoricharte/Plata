@@ -7,6 +7,9 @@ import Foundation
 /// `flags`: `date` (sin fecha: se usó hoy) · `direction` (no dice si pagaste o te pagaron) · `who` (sin nombre) · `amount` (varios montos posibles).
 /// `auto`: reconoce Yape/Plin, trae número de operación y no hay banderas → es seguro guardarla sin preguntar.
 public enum NazcaConstancia {
+    /// Largo máximo del texto que se lee (el mismo tope de la web).
+    public static var maxLength: Int { maxChars }
+
     public struct Result: Sendable {
         /// Un movimiento (`items[0]`), con la misma forma que los estados de cuenta, listo para el flujo de revisión.
         public var statement: Nazca.StatementResult

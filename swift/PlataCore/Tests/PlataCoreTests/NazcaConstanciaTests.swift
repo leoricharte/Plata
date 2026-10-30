@@ -59,4 +59,30 @@ final class NazcaConstanciaTests: XCTestCase {
         XCTAssertEqual(Nazca.markDuplicates(a, existing: [known], acc: "x")[0].dup, Nazca.Duplicate.exact)
         XCTAssertEqual(Nazca.markDuplicates(b, existing: [known], acc: "x")[0].dup, Nazca.Duplicate.none)
     }
+
+    // MARK: revisión (lo mismo que impFromPdf en la web)
+
+    private func engine() -> Engine {
+        var p = Profile.empty.raw
+        p["settings"] = .object(["currency": .string("PEN"), "currency2": .string(""), "fx": .number(3.5), "nick": .string(""), "first": .string(""), "last": .string(""), "gender": .string("n"), "cushion": .number(0), "variable_weekly": .number(0)])
+        p["accounts"] = .array([.object(["id": .string("a1"), "name": .string("Banco"), "cur": .string("PEN"), "balance": .number(1000), "last4": .string("1234")])])
+        p["cats"] = .array(["Comida", "Proyectos", "Alquiler", "Ocio", "Transporte", "Otros"].map { .object(["name": .string($0), "color": .string("#C9CBD1")]) })
+        p["transactions"] = .array([])
+        return Engine(profile: Profile(raw: p), today: LocalDate(iso: "2026-10-29")!)
+    }
+
+    func testYapeAndPlinReviewNewAccountNames() throws {
+        let yape = try XCTUnwrap(NazcaConstancia.read("Yapeaste S/ 18\nDestino\nJuan Pérez V.\n29/10/2026 14:15\nN° de operación 01234567", today: "2026-10-29"))
+        let ry = try XCTUnwrap(ImportReview(name: "Constancia", statement: yape.statement, engine: engine()))
+        XCTAssertEqual(ry.source?.newAcc["name"]?.stringValue, "Yape Soles")
+        XCTAssertEqual(ry.rows.count, 1)
+        XCTAssertEqual(ry.rows[0].amount, -18)
+        let plin = try XCTUnwrap(NazcaConstancia.read("Plin enviado\nMonto S/ 20.00\nEnviado a: Ana\n29/10/2026 14:15\nCódigo de operación 000123456", today: "2026-10-29"))
+        XCTAssertNil(plin.statement.bank)
+        let rp = try XCTUnwrap(ImportReview(name: "Constancia", statement: plin.statement, engine: engine()))
+        XCTAssertEqual(rp.source?.newAcc["name"]?.stringValue, "Plin Soles")
+        let bcp = try XCTUnwrap(NazcaConstancia.read("Plin enviado BCP\nMonto S/ 20.00\nEnviado a: Ana\n29/10/2026\nCódigo de operación 000123457", today: "2026-10-29"))
+        let rb = try XCTUnwrap(ImportReview(name: "Constancia", statement: bcp.statement, engine: engine()))
+        XCTAssertEqual(rb.source?.newAcc["name"]?.stringValue, "BCP Soles")
+    }
 }

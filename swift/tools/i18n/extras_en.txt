@@ -275,3 +275,15 @@ Movimiento eliminado ¦ Transaction deleted
 Suscripción creada ¦ Subscription created
 Gasto fijo creado ¦ Fixed expense created
 Trabajo creado ¦ Job created
+Leyendo la constancia… ¦ Reading the receipt…
+Añadir a Plata ¦ Add to Plata
+Guardada. Plata la añade al abrirse. ¦ Saved. Plata adds it when it opens.
+No pude leer esta constancia ¦ I couldn’t read this receipt
+Copia el texto y pégalo en Plata: Importar → Pegar constancia. ¦ Copy the text and paste it in Plata: Import → Paste receipt.
+Elegir captura ¦ Choose screenshot
+Pega el texto de la constancia de Yape o Plin, con el monto y la fecha. ¦ Paste the text of the Yape or Plin receipt, with the amount and date.
+Pega el texto o elige la captura de la constancia. Plata la lee en tu dispositivo. ¦ Paste the text or choose the receipt screenshot. Plata reads it on your device.
+Revisa el monto ¦ Check the amount
+Había más de un monto en la constancia. ¦ There was more than one amount in the receipt.
+Constancia añadida: {0} ¦ Receipt added: {0}
+No encontré el nombre. ¦ I couldn’t find the name.

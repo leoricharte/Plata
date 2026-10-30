@@ -3,6 +3,7 @@ import SwiftUI
 struct RootView: View {
     @Environment(AppModel.self) private var model
     @Environment(CloudModel.self) private var cloud
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         @Bindable var model = model
@@ -39,6 +40,22 @@ struct RootView: View {
         .fullScreenCover(isPresented: $model.showWelcome) { WelcomeView().interactiveDismissDisabled() }
         .fullScreenCover(isPresented: $model.showNews) { NewsStoryView() }
         .fullScreenCover(isPresented: $model.showImport) { ImportFlowView() }
+        .fullScreenCover(isPresented: $model.showInboxReview) { ImportFlowView(preloaded: model.inboxReviews) }
+        .overlay(alignment: .bottom) {
+            if let d = model.inboxDone {
+                HStack {
+                    Text(d.text).font(.inter(15)).lineLimit(2)
+                    Spacer(minLength: 8)
+                    Button("Deshacer") { model.importUndo(d.applied); model.inboxDone = nil }.font(.inter(15, .semibold))
+                }
+                .padding(14).background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+                .padding(.horizontal, 16).padding(.bottom, 12)
+                .task { try? await Task.sleep(for: .seconds(6)); model.inboxDone = nil }
+            }
+        }
+        .onChange(of: scenePhase) { _, p in
+            if p == .active { Task { while model.splashDone == false || AppLock.shared.locked { try? await Task.sleep(for: .milliseconds(100)) }; model.processConstanciaInbox() } }
+        }
         .sheet(isPresented: $model.showHistory) { HistorySheet() }
         .fullScreenCover(isPresented: Binding(get: { cloud.flow != nil && !model.showWelcome }, set: { if !$0 { cloud.flow = nil } })) { CloudFlowHost().interactiveDismissDisabled() }
         .alert("¿Cargar la copia local como la de la nube?", isPresented: $cloud.askLocalUp) {
@@ -54,6 +71,7 @@ struct RootView: View {
         .task {
             // los avisos esperan a que termine el splash
             while !model.splashDone || AppLock.shared.locked { try? await Task.sleep(for: .milliseconds(100)) }
+            model.processConstanciaInbox()
             model.checkPending()
             try? await Task.sleep(for: .milliseconds(700))
             if Nudges.shouldShowNews(model) { model.showNews = true }

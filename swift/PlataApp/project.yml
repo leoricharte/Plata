@@ -11,7 +11,7 @@ settings:
   base:
     SWIFT_VERSION: "5.0"
     MARKETING_VERSION: "5.0"
-    CURRENT_PROJECT_VERSION: "39"
+    CURRENT_PROJECT_VERSION: "40"
 packages:
   PlataCore:
     path: ../PlataCore
@@ -24,10 +24,12 @@ targets:
       - path: Plata
       - path: Shared
       - path: SharedPhone
+      - path: SharedConstancia
     dependencies:
       - package: PlataCore
       - target: PlataWatch
       - target: PlataWidgets
+      - target: PlataShare
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: net.plataapp.plata   # CÁMBIALO si tu App ID en Apple Developer es otro
@@ -96,6 +98,35 @@ targets:
         CODE_SIGN_STYLE: Automatic
         TARGETED_DEVICE_FAMILY: "4"
         CODE_SIGN_ENTITLEMENTS: PlataWatchWidgets/PlataWatchWidgets.entitlements
+        SKIP_INSTALL: YES
+
+  PlataShare:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "18.0"
+    sources:
+      - path: PlataShare
+      - path: SharedConstancia
+      - path: Plata/Tr.swift
+      - path: Plata/Resources/tr_en.json
+    dependencies:
+      - package: PlataCore
+    info:
+      path: PlataShare/Info.plist
+      properties:
+        CFBundleDisplayName: Plata
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.share-services
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ShareViewController
+          NSExtensionAttributes:
+            NSExtensionActivationRule: SUBQUERY (extensionItems, $extensionItem, SUBQUERY ($extensionItem.attachments, $attachment, ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.image" || ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.plain-text" || ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "com.adobe.pdf").@count == 1).@count == 1
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: net.plataapp.plata.share
+        DEVELOPMENT_TEAM: "8YMVGT4T6Q"
+        CODE_SIGN_STYLE: Automatic
+        TARGETED_DEVICE_FAMILY: "1"
+        CODE_SIGN_ENTITLEMENTS: PlataShare/PlataShare.entitlements
         SKIP_INSTALL: YES
 
   PlataWidgets:
