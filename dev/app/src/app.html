@@ -469,6 +469,27 @@ html.web .wland .wright .wcloud{order:1;flex-basis:100%;margin-top:2px;height:54
 .mhead .ma:not(.r) svg{margin-right:-8px}
 .mhead .ma.r svg{margin-left:-8px}.mhead .ma.r svg{transform:scaleX(-1)}
 .mhead .ma.r svg.nm{transform:none;margin-left:2px}
+.mhead .ma svg g.m{transform-box:fill-box;transform-origin:center}
+.mhead .gh{opacity:0}
+.mhead.play .flk{animation:flk var(--dur,2s) ease-in-out var(--del,0s) backwards}
+@keyframes flk{0%,100%{transform:scale(1) rotate(0deg);opacity:1}45%{transform:scale(var(--k,1.35)) rotate(24deg);opacity:.28}}
+.mhead.play .sway{transform-origin:50% 0%;animation:sway 2.2s ease-in-out var(--del,0s) backwards}
+@keyframes sway{0%,100%{transform:rotate(0deg)}40%{transform:rotate(8deg)}70%{transform:rotate(-5deg)}}
+.mhead.play .gh{animation:fall var(--dur,2.6s) cubic-bezier(.3,.1,.5,1) var(--del,0s) backwards}
+@keyframes fall{0%{transform:translate(0,-10px) rotate(var(--r,0deg)) scale(var(--s,.8));opacity:0}14%{opacity:.95}55%{transform:translate(var(--sx,6px),20px) rotate(calc(var(--r,0deg) + 38deg)) scale(var(--s,.8));opacity:.8}100%{transform:translate(calc(var(--sx,6px) * -.5),44px) rotate(calc(var(--r,0deg) + 80deg)) scale(var(--s,.8));opacity:0}}
+.mhead.play .gh.soft{animation-name:drift}
+@keyframes drift{0%{transform:translate(0,-8px) rotate(var(--r,0deg)) scale(var(--s,.7));opacity:0}16%{opacity:.9}50%{transform:translate(var(--sx,8px),16px) rotate(calc(var(--r,0deg) + 50deg)) scale(var(--s,.7));opacity:.75}100%{transform:translate(calc(var(--sx,8px) * -.7),36px) rotate(calc(var(--r,0deg) - 30deg)) scale(var(--s,.7));opacity:0}}
+.mhead.play .flut{animation:flut 2.2s ease-in-out var(--del,0s) backwards}
+@keyframes flut{0%,100%{transform:translate(0,0) rotate(0deg)}30%{transform:translate(2px,3px) rotate(14deg)}65%{transform:translate(-1.5px,1px) rotate(-10deg)}}
+.mhead.play .sun{animation:sunp 1.15s ease-in-out .25s 2 backwards}
+@keyframes sunp{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+.mhead.play .rays{animation:rays 2.3s ease-in-out .25s backwards}
+@keyframes rays{0%,100%{transform:rotate(0deg) scale(1);opacity:1}50%{transform:rotate(20deg) scale(1.12);opacity:.75}}
+.mhead.play .tw{animation:tw 1.4s ease-in-out var(--del,0s) 2 backwards}
+@keyframes tw{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.55);opacity:.35}}
+.mhead.play .wv{animation:wv 2.6s ease-in-out var(--del,0s) backwards}
+@keyframes wv{0%,100%{transform:translate(0,0)}50%{transform:translate(-5px,1.6px)}}
+@media (prefers-reduced-motion:reduce){.mhead.play *{animation:none!important}}
 .mpick{margin-left:auto;position:relative;display:inline-flex;align-items:center;gap:4px;height:44px;padding:0 14px 0 18px;border-radius:22px;background:var(--card);box-shadow:0 2px 10px rgba(0,0,0,.08);font-size:16px;font-weight:700;color:var(--ink);cursor:pointer}
 .mpick select{position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:16px;cursor:pointer}
 html[data-theme=dark] .mhead .msm{color:var(--d1)}html[data-theme=dark] .mhead .mbig{background:linear-gradient(100deg,var(--d1),var(--d2));-webkit-background-clip:text;background-clip:text}
@@ -3954,18 +3975,46 @@ function swWrap(t, html, pay, xf) {
   return '<div class="swrow" style="--swn:' + n + '"><div class="swacts">' + (xf ? '' : SW_BTN('swedit', t.id, '#4F94F7', 'edit-line', 'Editar')) + (pay ? '' : SW_BTN('swpost', t.id, '#FF9F0A', 'calendar-event-line', 'Posponer')) + SW_BTN('swdel', t.id, '#EB5757', 'delete-bin-line', 'Eliminar') + '</div><div class="swc">' + html + '</div></div>';
 }
 function seasonSide(k, g, right) {
-  const L = (d, tr, f, o) => '<path d="' + d + '" transform="' + tr + '" fill="' + f + '"' + (o ? ' opacity="' + o + '"' : '') + '/>';
-  const leaf = 'M0 -14 C10 -8 12 6 0 16 C-12 6 -10 -8 0 -14Z';
-  const flake = (tr, c) => '<g transform="' + tr + '" stroke="' + c + '" stroke-width="2.2" stroke-linecap="round" fill="none"><path d="M0 -9V9M-7.8 -4.5L7.8 4.5M-7.8 4.5L7.8 -4.5"/></g>';
-  const petal = (tr, f, o) => '<ellipse rx="11" ry="5.5" transform="' + tr + '" fill="' + f + '" opacity="' + o + '"/>';
+  /* Cada pieza va en <g class="m ..."> para poder moverla una vez al abrir (ver `seasonPlay`); en reposo se ve igual que siempre. */
+  const M = (cls, inner, st) => '<g class="m ' + cls + '"' + (st ? ' style="' + st + '"' : '') + '>' + inner + '</g>';
+  const AT = (tr, inner) => '<g transform="' + tr + '">' + inner + '</g>';
+  const leafD = 'M0 -14 C10 -8 12 6 0 16 C-12 6 -10 -8 0 -14Z', sparkD = 'M0 -9 Q1 -1 9 0 Q1 1 0 9 Q-1 1 -9 0 Q-1 -1 0 -9Z';
+  const P = (d, f, o) => '<path d="' + d + '" fill="' + f + '"' + (o ? ' opacity="' + o + '"' : '') + '/>';
+  const flake = (tr, c, st) => AT(tr, M('flk', '<g stroke="' + c + '" stroke-width="2.2" stroke-linecap="round" fill="none"><path d="M0 -9V9M-7.8 -4.5L7.8 4.5M-7.8 4.5L7.8 -4.5"/></g>', st));
+  const petal = (f, o) => '<ellipse rx="11" ry="5.5" fill="' + f + '" opacity="' + o + '"/>';
+  const tw = (tr, f, o, del) => AT(tr, M('tw', P(sparkD, f, o), '--del:' + del + 's'));
   const art = {
-    autumn: L(leaf, 'translate(18 22) rotate(-25) scale(1.15)', g[1], .95) + L(leaf, 'translate(46 38) rotate(32) scale(.85)', g[0]) + L(leaf, 'translate(60 12) rotate(62) scale(.6)', g[2], .75),
-    winter: flake('translate(18 24) scale(1.3)', g[1]) + flake('translate(46 40) scale(.9)', g[0]) + flake('translate(60 14) scale(.65)', g[2]),
-    spring: petal('translate(20 24) rotate(-35)', g[0], .95) + petal('translate(46 38) rotate(28)', g[1], .9) + petal('translate(60 14) rotate(-10) scale(.7)', g[3] || g[0], .9),
-    summer: '<circle cx="20" cy="24" r="8.5" fill="' + g[0] + '"/><g stroke="' + g[0] + '" stroke-width="2.4" stroke-linecap="round"><path d="M20 8V11M20 37V40M4 24H7M33 24H36M8.5 12.5L10.6 14.6M31.5 35.5L29.4 33.4M8.5 35.5L10.6 33.4M31.5 12.5L29.4 14.6"/></g>' + L('M0 -9 Q1 -1 9 0 Q1 1 0 9 Q-1 1 -9 0 Q-1 -1 0 -9Z', 'translate(48 40)', g[1], .95) + L('M0 -9 Q1 -1 9 0 Q1 1 0 9 Q-1 1 -9 0 Q-1 -1 0 -9Z', 'translate(60 14) scale(.65)', g[3])
+    autumn: AT('translate(18 22) rotate(-25) scale(1.15)', M('sway', P(leafD, g[1], .95), '--del:.2s')) + AT('translate(46 38) rotate(32) scale(.85)', M('sway', P(leafD, g[0]), '--del:.5s')) + AT('translate(60 12) rotate(62) scale(.6)', M('sway', P(leafD, g[2], .75), '--del:.8s')) +
+      AT('translate(30 2)', M('gh', P(leafD, g[0], .9), '--r:-20deg;--s:.62;--sx:7px;--del:.5s;--dur:2.5s')) + AT('translate(54 -2)', M('gh', P(leafD, g[1], .9), '--r:35deg;--s:.5;--sx:-6px;--del:1.3s;--dur:2.7s')) + AT('translate(8 4)', M('gh', P(leafD, g[3] || g[0], .9), '--r:10deg;--s:.45;--sx:8px;--del:2s;--dur:2.3s')),
+    winter: flake('translate(18 24) scale(1.3)', g[1], '--k:1.4;--del:.25s;--dur:2s') + flake('translate(46 40) scale(.9)', g[0], '--k:1.45;--del:.9s;--dur:1.9s') + flake('translate(60 14) scale(.65)', g[2], '--k:1.5;--del:1.5s;--dur:1.8s'),
+    spring: AT('translate(20 24) rotate(-35)', M('flut', petal(g[0], .95), '--del:.2s')) + AT('translate(46 38) rotate(28)', M('flut', petal(g[1], .9), '--del:.55s')) + AT('translate(60 14) rotate(-10) scale(.7)', M('flut', petal(g[3] || g[0], .9), '--del:.9s')) +
+      AT('translate(34 0) rotate(-20)', M('gh soft', petal(g[0], .9), '--r:-20deg;--s:.55;--sx:9px;--del:.6s;--dur:3s')) + AT('translate(56 -2) rotate(15)', M('gh soft', petal(g[3] || g[0], .9), '--r:15deg;--s:.45;--sx:-8px;--del:1.6s;--dur:3s')),
+    summer: M('sun', '<circle cx="20" cy="24" r="8.5" fill="' + g[0] + '"/>') + M('rays', '<g stroke="' + g[0] + '" stroke-width="2.4" stroke-linecap="round"><path d="M20 8V11M20 37V40M4 24H7M33 24H36M8.5 12.5L10.6 14.6M31.5 35.5L29.4 33.4M8.5 35.5L10.6 33.4M31.5 12.5L29.4 14.6"/></g>') + tw('translate(48 40)', g[1], .95, .3) + AT('translate(60 14) scale(.65)', M('tw', P(sparkD, g[3]), '--del:.7s'))
   };
-  if (k === 'summer' && right) { const sp = (tr, f) => L('M0 -9 Q1 -1 9 0 Q1 1 0 9 Q-1 1 -9 0 Q-1 -1 0 -9Z', tr, f); art.summer = ['M4 14 q4.5 -6 9 0 t9 0 t9 0 t9 0', 'M4 25 q4.5 -6 9 0 t9 0 t9 0 t9 0', 'M4 36 q4.5 -6 9 0 t9 0 t9 0 t9 0'].map((d, n) => '<path d="' + d + '" fill="none" stroke="' + (n === 1 ? g[1] : g[0]) + '" stroke-width="2.4" stroke-linecap="round" opacity="' + (n === 1 ? 1 : .7) + '"/>').join('') + sp('translate(48 40)', g[1]) + sp('translate(60 14) scale(.65)', g[3]); }
+  if (k === 'summer' && right) art.summer = ['M4 14 q4.5 -6 9 0 t9 0 t9 0 t9 0', 'M4 25 q4.5 -6 9 0 t9 0 t9 0 t9 0', 'M4 36 q4.5 -6 9 0 t9 0 t9 0 t9 0'].map((d, n) => M('wv', '<path d="' + d + '" fill="none" stroke="' + (n === 1 ? g[1] : g[0]) + '" stroke-width="2.4" stroke-linecap="round" opacity="' + (n === 1 ? 1 : .7) + '"/>', '--del:' + (n * .22) + 's')).join('') + tw('translate(48 40)', g[1], .95, .3) + AT('translate(60 14) scale(.65)', M('tw', P(sparkD, g[3]), '--del:.7s'));
   return '<svg aria-hidden="true"' + '' + ' viewBox="0 0 72 56" width="64" height="50">' + art[k] + '</svg>';
+}
+/* Una sola vez por apertura, cuando el encabezado del mes ya se ve (después del splash): le pone .play y las piezas se mueven ~4 s y vuelven. */
+let seasonPlayed = false;
+function seasonPlay() {
+  if (seasonPlayed) return;
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) { seasonPlayed = true; return; }
+  const iv = setInterval(() => {
+    if (seasonPlayed) { clearInterval(iv); return; }
+    if (document.hidden || document.getElementById('splash') || document.querySelector('.welcome')) return;
+    const hs = document.querySelectorAll('.mhead');
+    for (let i = 0; i < hs.length; i++) {
+      const r = hs[i].getBoundingClientRect(), vh = window.innerHeight || document.documentElement.clientHeight;
+      if (!r.height || !hs[i].offsetParent) continue;
+      const vis = Math.min(r.bottom, vh) - Math.max(r.top, 0);
+      if (vis >= r.height * .6) {
+        seasonPlayed = true; clearInterval(iv);
+        document.querySelectorAll('.mhead').forEach(h => h.classList.add('play'));
+        setTimeout(() => document.querySelectorAll('.mhead.play').forEach(h => h.classList.remove('play')), 5200);
+        return;
+      }
+    }
+  }, 400);
 }
 const SEASON_ES = { autumn: 'Otoño', winter: 'Invierno', spring: 'Primavera', summer: 'Verano' };
 function monthHead(T, small) {
@@ -4766,7 +4815,7 @@ document.addEventListener('change', (e) => { const el = e.target; if (el && el.m
 })();
 const APP_VERSION = 'Beta 4';
 const WSOC = '<div class="wsoc"><span class="wver">' + APP_VERSION + '</span><a href="https://instagram.com/plataapp" target="_blank" rel="noopener" data-notr>' + RMI('instagram-line', 20, 'currentColor') + 'plataapp</a><a href="https://plataapp.net" target="_blank" rel="noopener" data-notr>' + RMI('link', 20, 'currentColor') + 'plataapp.net</a></div>';
-const APP_BUILD = 484;
+const APP_BUILD = 485;
 const ALPHA_TESTERS = ['Rodrigo Espinoza', 'Mariana Richarte', 'Jeny Surichaqui', 'Carlos Flores'];
 const BETA_TESTERS = ['Bastián Guajardo', 'Sara Rondón']; // los testers de la beta se añaden aquí
 const E22_LOGO = 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 1900.3 316.3%27%3E%3Cg fill=%27%233C3C43%27 fill-opacity=%27.6%27%3E%3Cpath d=%27M0,311.8V4.1h205.9v52.2H63v74.3h132.2v51.4H63v77.4h143.3v52.2H0Z%27/%3E%3Cpath d=%27M315.1,316.3c-24.6,0-46.1-3.8-64.3-11.4-18.2-7.6-32.5-18.8-42.6-33.7-10.2-14.9-15.6-33.2-16.1-54.9h61.3c.8,10.3,3.9,19,9.3,25.9,5.4,7,12.5,12.2,21.5,15.6,8.9,3.4,19.1,5.2,30.4,5.2s21.1-1.6,29.4-4.9c8.3-3.2,14.8-7.8,19.5-13.7,4.7-5.9,7-12.8,7-20.6s-2.1-12.9-6.3-17.7c-4.2-4.7-10.2-8.8-18.1-12.3-7.8-3.4-17.4-6.5-28.7-9.1l-33.9-8.5c-26-6.3-46.4-16.3-61.1-29.8-14.7-13.6-22.1-31.5-22.1-53.8s5-34.8,15-48.7c10-13.9,23.7-24.7,41.1-32.4,17.4-7.7,37.3-11.6,59.6-11.6s42.5,3.9,59.5,11.7c16.9,7.8,30.1,18.6,39.6,32.4,9.5,13.8,14.4,29.8,14.7,47.8h-60.9c-1.1-12.4-6.4-22-15.8-28.7-9.4-6.7-22-10.1-37.7-10.1s-19.7,1.5-27.3,4.5c-7.6,3-13.3,7.2-17.2,12.6-3.9,5.4-5.9,11.5-5.9,18.4s2.3,13.9,6.8,18.9c4.5,5,10.6,9.1,18.2,12.2,7.6,3.1,15.6,5.7,24.2,7.7l27.9,6.8c12.9,2.9,25,6.8,36.1,11.8,11.2,5,20.9,11,29.3,18.3,8.4,7.2,14.9,15.8,19.5,25.7,4.6,9.9,6.9,21.3,6.9,34.3,0,18.6-4.7,34.8-14,48.6-9.4,13.8-22.9,24.5-40.7,32.1-17.8,7.6-39.1,11.4-64,11.4Z%27/%3E%3Cpath d=%27M409.2,56.4V4.1h251.3v52.2h-94v255.4h-63.2V56.4h-94.2Z%27/%3E%3Cpath d=%27M776.1,316.1c-25.3,0-47.5-4.7-66.6-14.1-19.1-9.4-33.9-22.5-44.4-39.3-10.5-16.8-15.8-36.4-15.8-58.8V4.1h63v194.5c0,12,2.6,22.6,8,31.9,5.3,9.3,12.7,16.6,22.3,21.9,9.6,5.3,20.8,7.9,33.6,7.9s24.2-2.6,33.8-7.9c9.6-5.3,17-12.6,22.3-21.9,5.3-9.3,8-19.9,8-31.9V4.1h63.2v199.7c0,22.4-5.3,42.1-15.9,58.8-10.6,16.8-25.4,29.9-44.5,39.3-19.1,9.4-41.3,14.1-66.8,14.1Z%27/%3E%3Cpath d=%27M967.2,4.1v307.7h-63V4.1h63ZM1012.4,311.8h-79.7v-54.3h76.6c19.8,0,36.4-3.5,49.9-10.5,13.4-7,23.5-17.9,30.3-32.6,6.7-14.7,10.1-33.6,10.1-56.6s-3.4-41.6-10.2-56.3c-6.8-14.7-16.9-25.5-30.1-32.5-13.3-7-29.8-10.5-49.5-10.5h-78.5V4.1h82.2c30.8,0,57.4,6.2,79.6,18.5,22.2,12.3,39.3,29.9,51.3,52.9s18,50.4,18,82.3-6,59.6-18,82.6c-12,23-29.2,40.6-51.5,53-22.4,12.3-49.2,18.5-80.4,18.5Z%27/%3E%3Cpath d=%27M1218.1,4.1v307.7h-63V4.1h63Z%27/%3E%3Cpath d=%27M1354.3,315.9c-27.1,0-51.5-6.2-73.2-18.6-21.7-12.4-38.8-30.4-51.4-53.9s-18.9-52-18.9-85.3,6.3-62,18.9-85.6c12.6-23.6,29.7-41.6,51.4-54,21.7-12.4,46.1-18.6,73.2-18.6s51.7,6.2,73.3,18.6c21.6,12.4,38.7,30.4,51.3,54,12.6,23.6,18.9,52.1,18.9,85.6s-6.3,61.7-18.9,85.3-29.7,41.5-51.3,53.9c-21.6,12.4-46,18.6-73.3,18.6ZM1354.3,260c16,0,29.9-3.9,41.8-11.7,11.9-7.8,21.2-19.3,27.8-34.5,6.6-15.2,9.9-33.8,9.9-55.6s-3.3-40.8-9.9-56.1c-6.6-15.2-15.9-26.7-27.8-34.5-11.9-7.8-25.8-11.7-41.8-11.7s-29.7,3.9-41.7,11.8c-12,7.8-21.3,19.4-27.9,34.6-6.6,15.2-9.9,33.8-9.9,55.9s3.3,40.4,9.9,55.5c6.6,15.1,15.9,26.6,27.9,34.5,12,7.8,25.9,11.8,41.7,11.8Z%27/%3E%3Cpath d=%27M1533.9,311.8v-45.4l109-102.2c9.4-9.1,17.2-17.3,23.6-24.7,6.4-7.4,11.3-14.6,14.7-21.7,3.4-7.1,5.1-14.8,5.1-23s-2.1-17.1-6.2-23.7c-4.1-6.6-9.8-11.7-16.9-15.3-7.2-3.6-15.4-5.4-24.6-5.4s-17.8,1.9-25,5.8c-7.2,3.9-12.7,9.4-16.5,16.5-3.9,7.2-5.8,15.8-5.8,25.8h-60.3c0-20,4.6-37.3,13.7-52.1,9.2-14.8,21.9-26.2,38.1-34.3,16.2-8.1,35-12.1,56.2-12.1s40.7,3.9,57,11.7c16.2,7.8,28.9,18.5,37.9,32.1,9,13.6,13.5,29.3,13.5,47.1s-2.2,22.7-6.7,33.9c-4.5,11.2-12.5,23.6-24,37.5-11.5,13.8-27.8,30.4-48.8,49.7l-46.5,45.8v2.3h130.1v51.8h-217.6Z%27/%3E%3Cpath d=%27M1755.5,207.4v-30.2l72.5-68c6.2-6,11.5-11.5,15.7-16.4,4.3-4.9,7.5-9.7,9.7-14.4,2.2-4.7,3.4-9.8,3.4-15.3s-1.4-11.4-4.1-15.8c-2.7-4.4-6.5-7.8-11.3-10.2-4.8-2.4-10.2-3.6-16.3-3.6s-11.9,1.3-16.6,3.8c-4.8,2.6-8.4,6.2-11,11-2.6,4.8-3.8,10.5-3.8,17.2h-40.1c0-13.3,3-24.8,9.1-34.7,6.1-9.8,14.5-17.4,25.3-22.8,10.8-5.4,23.3-8,37.4-8s27.1,2.6,37.9,7.8c10.8,5.2,19.2,12.3,25.2,21.4,6,9.1,9,19.5,9,31.3s-1.5,15.1-4.5,22.5c-3,7.4-8.3,15.7-15.9,24.9-7.6,9.2-18.5,20.2-32.5,33l-30.9,30.5v1.5h86.5v34.5h-144.7Z%27/%3E%3C/g%3E%3C/svg%3E';
@@ -8613,6 +8662,7 @@ function bentoAct0(a, arg) {
 })();
 applyLang(); renderAll(); setTab('resumen'); movePill(true);
 if (!hasData() && !wSeen() && (!/[?&]nosplash/.test(location.search) || /[?&]welcome/.test(location.search))) { showWelcome(); } else setTimeout(checkPending, 2300);
+seasonPlay();
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { ui.skipPending = false; updatePendingDot(); checkPending(); } });
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => movePill(true));
 
