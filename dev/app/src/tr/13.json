@@ -1,0 +1,20 @@
+[
+["Bentos al deslizar", "Bentos on scroll", "スクロールでBento", "Bento allo scorrimento", "Bentos au défilement", "Bentoi pri pomicanju"],
+["Después del Resumen", "After Summary", "サマリーの後", "Dopo il Riepilogo", "Après le Résumé", "Nakon Pregleda"],
+["Antes del Resumen", "Before Summary", "サマリーの前", "Prima del Riepilogo", "Avant le Résumé", "Prije Pregleda"],
+["Desactivado", "Off", "オフ", "Disattivato", "Désactivé", "Isključeno"],
+["Desliza en el Resumen para ver tus dos primeros Bentos.", "Scroll on Summary to reveal your first two Bentos.", "サマリーでスクロールすると最初の2つのBentoが現れます。", "Scorri nel Riepilogo per vedere i tuoi primi due Bento.", "Faites défiler le Résumé pour voir vos deux premiers Bentos.", "Pomakni se u Pregledu da vidiš prva dva Bentoa."],
+["Desliza hacia abajo para ver tu Bento", "Scroll down to see your Bento", "下にスクロールしてBentoを見る", "Scorri verso il basso per vedere il tuo Bento", "Faites défiler vers le bas pour voir votre Bento", "Pomakni se prema dolje za svoj Bento"],
+["Desliza hacia arriba para ver tu Bento", "Scroll up to see your Bento", "上にスクロールしてBentoを見る", "Scorri verso l'alto per vedere il tuo Bento", "Faites défiler vers le haut pour voir votre Bento", "Pomakni se prema gore za svoj Bento"],
+["Sigue deslizando", "Keep scrolling", "そのままスクロール", "Continua a scorrere", "Continuez à défiler", "Nastavi pomicati"],
+["Dos más", "Two more", "あと2回", "Altri due", "Encore deux", "Još dva"],
+["Una más", "One more", "あと1回", "Un altro", "Encore un", "Još jedan"],
+["Plata Cloud", "Plata Cloud", "Plata Cloud", "Plata Cloud", "Plata Cloud", "Plata Cloud"],
+["Sincroniza tus datos entre dispositivos, cifrados. Apúntate a la marcha blanca gratuita de un mes.", "Sync your data across devices, encrypted. Join the free one-month trial run.", "データを暗号化して端末間で同期。1か月の無料テスト運用に参加しましょう。", "Sincronizza i tuoi dati tra dispositivi, cifrati. Iscriviti alla prova gratuita di un mese.", "Synchronisez vos données entre appareils, chiffrées. Rejoignez la période d'essai gratuite d'un mois.", "Sinkroniziraj podatke među uređajima, šifrirane. Prijavi se na besplatno probno razdoblje od mjesec dana."],
+["Unirme a la lista", "Join the list", "リストに参加", "Unisciti alla lista", "Rejoindre la liste", "Pridruži se popisu"],
+["Estás en la lista. Te avisaremos cuando abramos cupos.", "You're on the list. We'll let you know when spots open.", "リストに登録されました。空きが出たらお知らせします。", "Sei in lista. Ti avviseremo quando si apriranno posti.", "Vous êtes sur la liste. Nous vous préviendrons à l'ouverture des places.", "Na popisu si. Javit ćemo ti kad se otvore mjesta."],
+["Usaremos tu correo solo para invitarte a Plata Cloud.", "We'll only use your email to invite you to Plata Cloud.", "メールアドレスはPlata Cloudへのご招待にのみ使用します。", "Useremo la tua email solo per invitarti a Plata Cloud.", "Nous n'utiliserons votre e-mail que pour vous inviter à Plata Cloud.", "Tvoju e-poštu koristit ćemo samo za poziv na Plata Cloud."],
+["Escribe un correo válido", "Enter a valid email", "有効なメールアドレスを入力", "Inserisci un'email valida", "Saisissez un e-mail valide", "Unesi ispravnu e-poštu"],
+["No pudimos conectar. Inténtalo más tarde.", "Couldn't connect. Try again later.", "接続できませんでした。後でもう一度お試しください。", "Impossibile connettersi. Riprova più tardi.", "Connexion impossible. Réessayez plus tard.", "Povezivanje nije uspjelo. Pokušaj kasnije."],
+["Demasiados intentos. Prueba en una hora.", "Too many attempts. Try again in an hour.", "試行回数が多すぎます。1時間後にお試しください。", "Troppi tentativi. Riprova tra un'ora.", "Trop de tentatives. Réessayez dans une heure.", "Previše pokušaja. Pokušaj za sat vremena."]
+]

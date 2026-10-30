@@ -9,4 +9,4 @@ __pycache__/
 *.bak
 dist-web/
 !dev/tests/constancias.json
-!dev/app/src/tr/constancias.json
+!dev/app/src/tr/*.json
