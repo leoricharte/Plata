@@ -276,13 +276,11 @@ public enum NazcaExample {
                         guard ls.indices.contains(k) else { continue }
                         for c in ls[k].boxes where c != b && parseDate(c.text, today: today) == ex.date { dateDy = dy; break outer }
                     }
-                    if dateDy == nil {
-                        var k = li - 1
-                        while k >= 0 && k >= li - 14 {
-                            let l = ls[k]
-                            if !l.boxes.contains(where: isMoneyLike), l.boxes.contains(where: { parseDate($0.text, today: today) == ex.date }) { header = true; break }
-                            k -= 1
-                        }
+                    var k = li - 1
+                    while k >= 0 && k >= li - 14 {
+                        let l = ls[k]
+                        if !l.boxes.contains(where: isMoneyLike), l.boxes.contains(where: { parseDate($0.text, today: today) == ex.date }) { header = true; break }
+                        k -= 1
                     }
                 }
                 let f = Found(line: li, box: b, descDy: descDy, descBox: descBox, dateDy: dateDy, header: header, score: score)
@@ -313,7 +311,17 @@ public enum NazcaExample {
         let descLeft = min(a.descBox?.x ?? 1, b.descBox?.x ?? 1)
         // fecha
         let dateMode: DateMode
-        if let da = a.dateDy, let db = b.dateDy, da == db { dateMode = .row(da); agree += 1 }
+        // ¿La fecha está en el mismo lugar relativo en TODAS las filas con monto? Si no, es un encabezado que vale para varias filas.
+        func coverage(_ d: Int) -> Double {
+            let rows = ls.indices.filter { ls[$0].boxes.contains(where: isMoneyLike) }
+            guard !rows.isEmpty else { return 0 }
+            let hit = rows.filter { i in
+                let k = i + d
+                return ls.indices.contains(k) && ls[k].boxes.contains { parseDate($0.text, today: today) != nil }
+            }.count
+            return Double(hit) / Double(rows.count)
+        }
+        if let da = a.dateDy, let db = b.dateDy, da == db, !(a.header && b.header && coverage(da) < 0.8) { dateMode = .row(da); agree += 1 }
         else if a.header && b.header { dateMode = .header; agree += 1 }
         else if let da = a.dateDy ?? b.dateDy, a.dateDy != nil || b.dateDy != nil, !(a.header || b.header) { dateMode = .row(da); agree += 0.5 }
         else if a.header || b.header { dateMode = .header; agree += 0.5 }

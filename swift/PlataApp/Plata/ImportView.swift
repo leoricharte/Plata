@@ -426,7 +426,7 @@ struct ImportFlowView: View {
 
     /// Los movimientos más recientes de la persona, para que elija dos que SÍ salgan en la captura.
     private var exCandidates: [JSONValue] {
-        let all = model.engine.allTransactions.filter { !Engine.identifier($0["id"]).isEmpty && Engine.num($0["amount"]) != 0 }
+        let all = model.engine.allTransactions.filter { !Engine.identifier($0["id"]).isEmpty && Engine.number($0["amount"]) != 0 }
         return Array(all.sorted { Engine.text($0["date"]) > Engine.text($1["date"]) }.prefix(60))
     }
 
@@ -510,7 +510,7 @@ struct ImportFlowView: View {
         defer { exShot = nil }
         let picked = model.engine.allTransactions.filter { exPicks.contains(Engine.identifier($0["id"])) }
         let examples = exPicks.compactMap { id in picked.first { Engine.identifier($0["id"]) == id } }.map {
-            NazcaExample.Example(desc: Engine.text($0["note"]), amount: Engine.num($0["amount"]), date: Engine.text($0["date"]))
+            NazcaExample.Example(desc: Engine.text($0["note"]), amount: Engine.number($0["amount"]), date: Engine.text($0["date"]))
         }
         guard examples.count == 2, let data = try? await item.loadTransferable(type: Data.self),
               let boxes = try? await CaptureBoxes.read(imageData: data), !boxes.isEmpty else {
