@@ -75,7 +75,7 @@ private struct ConfirmBody: View {
         }
         .scrollDismissesKeyboard(.interactively)
         .fitSheet().presentationDragIndicator(.visible).presentationCornerRadius(38)
-        .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))
+        .presentationBackground(Brand.sheetBg)
         .onAppear { load(e) }
         .alert("Estás pagando más de lo que debes", isPresented: Binding(get: { overpay != nil }, set: { if !$0 { overpay = nil } })) {
             if let owed = overpay, let c = card(e) {

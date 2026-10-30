@@ -127,8 +127,8 @@ struct ReviewView: View {
             .padding(.top, 16).padding(.bottom, 28)
             .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { cw = $0 }
         }
-        .fitSheet().presentationDragIndicator(.visible).presentationCornerRadius(38)
-        .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))
+        .presentationDetents([.large]).presentationDragIndicator(.visible).presentationCornerRadius(38)
+        .presentationBackground(Brand.sheetBg)
         .sheet(item: $editing) { w in TransactionSheet(mode: .edit(w.tx)) }
         .onChange(of: model.reviewTab) { page = nil }
     }
@@ -142,7 +142,7 @@ struct ReviewView: View {
             }
             .foregroundStyle(on ? Color.white : Color.primary)
             .padding(.horizontal, 14).frame(height: 38)
-            .background(on ? Color(hex: "#111111") : Color(.secondarySystemGroupedBackground), in: Capsule())
+            .background(on ? Brand.ink : Brand.glassFill, in: Capsule())
         }
         .buttonStyle(.plain)
     }
@@ -169,7 +169,7 @@ struct ReviewView: View {
             Button { accept(r, byId) } label: {
                 Text(Self.button[key] ?? "Aceptar").font(.inter(17, .semibold)).foregroundStyle(.white)
                     .frame(maxWidth: .infinity).frame(height: 54)
-                    .background(Color(hex: "#111111"), in: Capsule())
+                    .background(Brand.ink, in: Capsule())
             }
             .buttonStyle(.plain).padding(.top, 20)
             Button { model.reviewDismiss(r); notice = nil } label: {

@@ -119,7 +119,7 @@ struct ExpectedSheet: View {
         .fitSheet()
         .presentationDragIndicator(.visible)
         .presentationCornerRadius(38)
-        .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))
+        .presentationBackground(Brand.sheetBg)
         .onAppear(perform: load)
         .alert(isCardPay ? "¿Eliminar este pago previsto?" : "¿Eliminar este \(isIncome ? "ingreso" : "gasto") previsto?", isPresented: $confirmDelete) {
             Button("Eliminar", role: .destructive) {

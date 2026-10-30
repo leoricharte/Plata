@@ -75,7 +75,7 @@ struct PlannedSheet: View {
         .fitSheet()
         .presentationDragIndicator(.visible)
         .presentationCornerRadius(38)
-        .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))
+        .presentationBackground(Brand.sheetBg)
         .onAppear(perform: load)
         .alert("¿Eliminar este gasto simulado?", isPresented: $confirmDelete) {
             Button("Eliminar", role: .destructive) {

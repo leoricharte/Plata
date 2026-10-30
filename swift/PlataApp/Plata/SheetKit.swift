@@ -134,7 +134,7 @@ struct ChipRow: View {
                             .foregroundStyle(on ? Color(light: "#FFFFFF", dark: "#000000") : Color.primary)
                             .padding(.horizontal, 16)
                             .frame(height: 40)
-                            .background(on ? Color(light: "#1C1C1E", dark: "#F2F2F7") : Brand.glassFill, in: Capsule())
+                            .background(on ? Color(light: "#1C1C1E", dark: "#1F4332") : Brand.glassFill, in: Capsule())
                     }
                     .buttonStyle(.plain)
                 }

@@ -168,7 +168,7 @@ struct NotificationsSheet: View {
             .padding(.horizontal, 16).padding(.top, 16).padding(.bottom, 30)
         }
         .presentationDragIndicator(.visible).presentationCornerRadius(38)
-        .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))
+        .presentationBackground(Brand.sheetBg)
         .onAppear { r.refreshStatus() }
     }
 

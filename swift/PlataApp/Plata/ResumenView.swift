@@ -179,6 +179,7 @@ struct ResumenView: View {
                     }
                     Spacer(minLength: 8)
                     Text("+" + f.whole(next.amount, cur)).font(.inter(16, .semibold)).monospacedDigit().foregroundStyle(Brand.gainText)
+                    Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(Color(.tertiaryLabel))
                 }
                 .padding(.top, 2)
                 if pending { confirmButton("Confirmar ingreso") { model.activeSheet = .confirm(kind: "in", id: next.id, pick: true) } }
@@ -193,7 +194,7 @@ struct ResumenView: View {
         Button(action: action) {
             Text(title).font(.inter(16, .semibold)).foregroundStyle(.white)
                 .frame(maxWidth: .infinity).frame(height: 48)
-                .background(Color(hex: "#111111"), in: Capsule())
+                .background(Brand.ink, in: Capsule())
         }
         .buttonStyle(.plain)
         .padding(.top, 12)
@@ -267,6 +268,7 @@ struct ResumenView: View {
                     }
                     Spacer(minLength: 8)
                     Text("−" + f.whole(Engine.number(x["amount"]), cur)).font(.inter(16, .semibold)).monospacedDigit()
+                    Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(Color(.tertiaryLabel))
                 }
                 .padding(.top, 2)
                 if due { confirmButton("Confirmar gasto") { model.activeSheet = .confirm(kind: "out", id: Engine.identifier(x["id"]), pick: true) } }

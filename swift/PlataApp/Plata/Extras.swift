@@ -182,7 +182,7 @@ struct NewsStoryView: View {
                             go(v.location.x < geo.size.width * 0.32 ? cur - 1 : cur + 1)
                         })
                 VStack(spacing: 0) {
-                    bars.padding(.horizontal, 16).padding(.top, 12)
+                    bars.padding(.horizontal, 28).padding(.top, 12)
                     HStack {
                         BetaPill(label: "B E T A  4").environment(\.colorScheme, .dark)
                             .background(.white.opacity(0.2), in: Capsule())
@@ -192,9 +192,9 @@ struct NewsStoryView: View {
                         }
                         .accessibilityLabel("Cerrar")
                     }
-                    .padding(.leading, 16).padding(.trailing, 4).padding(.top, 4)
+                    .padding(.leading, 28).padding(.trailing, 16).padding(.top, 4)
                     Spacer()
-                    if cur == newsSlides.count - 1 { ending.padding(.horizontal, 28).padding(.bottom, 30) }
+                    if cur == newsSlides.count - 1 { ending.padding(.horizontal, 38).padding(.bottom, 36) }
                 }
             }
         }
@@ -266,13 +266,13 @@ struct NewsStoryView: View {
                 .frame(maxHeight: .infinity)
             if k % 2 == 0 { body } else { head }
         }
-        .padding(.top, 78).padding(.horizontal, 28).padding(.bottom, 30)
+        .padding(.top, 84).padding(.horizontal, 38).padding(.bottom, 36)
     }
 
     @ViewBuilder
     private func art(_ s: NewsSlide, slot: CGSize, screen: CGSize) -> some View {
         if let img = s.image {
-            let h = max(120, min(360, slot.height)), w = min(min(310, screen.width * 0.8), h * 310 / 360)
+            let h = max(120, min(360, slot.height)), w = min(min(290, screen.width * 0.7), h * 310 / 360)
             Image(img).resizable().scaledToFill()
                 .frame(width: w, height: h, alignment: .top)
                 .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))

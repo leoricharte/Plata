@@ -78,7 +78,7 @@ struct MiniField: View {
             .font(.inter(17))
             .padding(.horizontal, 12)
             .frame(width: width, height: 40)
-            .background(Color(.systemGroupedBackground), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .background(Brand.fieldBg, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 }
 

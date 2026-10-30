@@ -82,7 +82,7 @@ struct JobSheet: View {
         .fitSheet()
         .presentationDragIndicator(.visible)
         .presentationCornerRadius(38)
-        .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))
+        .presentationBackground(Brand.sheetBg)
         .onAppear(perform: load)
         .onChange(of: mode) { _, m in if id == nil { freq = m == "s" ? "m" : "b" } }
         .alert("¿Eliminar este trabajo?", isPresented: $confirmDelete) {

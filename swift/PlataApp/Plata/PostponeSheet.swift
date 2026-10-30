@@ -47,7 +47,7 @@ struct PostponeSheet: View {
             .padding(.horizontal, 16).padding(.top, 16)
         }
         .fitSheet().presentationDragIndicator(.visible).presentationCornerRadius(38)
-        .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))
+        .presentationBackground(Brand.sheetBg)
     }
 
     private var tomorrow: Date {
@@ -60,7 +60,7 @@ struct PostponeSheet: View {
         } label: {
             Text(title).font(.inter(14, .medium)).foregroundStyle(.primary)
                 .padding(.horizontal, 12).padding(.vertical, 8)
-                .background(Color(light: "#E5E5EA", dark: "#2C2C2E"), in: Capsule())
+                .background(Color(light: "#E5E5EA", dark: "#12301F"), in: Capsule())
         }
         .buttonStyle(.plain)
     }

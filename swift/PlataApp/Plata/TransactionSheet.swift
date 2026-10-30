@@ -99,7 +99,7 @@ struct TransactionSheet: View {
                                             Text(s.name).font(.inter(14, .medium)).foregroundStyle(.primary)
                                                 .lineLimit(1)
                                                 .padding(.horizontal, 12).padding(.vertical, 6)
-                                                .background(Color(light: "#E5E5EA", dark: "#2C2C2E"), in: Capsule())
+                                                .background(Color(light: "#E5E5EA", dark: "#12301F"), in: Capsule())
                                         }
                                         .buttonStyle(.plain)
                                     }
@@ -142,7 +142,7 @@ struct TransactionSheet: View {
         .fitSheet()
         .presentationDragIndicator(.visible)
         .presentationCornerRadius(38)
-        .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))
+        .presentationBackground(Brand.sheetBg)
         .onAppear(perform: load)
         .tourSheetTip(active: editedTx == nil)
         .alert("Estás pagando más de lo que debes", isPresented: Binding(get: { overpay != nil }, set: { if !$0 { overpay = nil } })) {

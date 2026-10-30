@@ -51,7 +51,7 @@ struct EventSheet: View {
         }
         .scrollDismissesKeyboard(.interactively)
         .fitSheet().presentationDragIndicator(.visible).presentationCornerRadius(38)
-        .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))
+        .presentationBackground(Brand.sheetBg)
         .onAppear(perform: load)
     }
 

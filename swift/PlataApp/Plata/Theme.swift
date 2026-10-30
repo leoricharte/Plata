@@ -26,6 +26,10 @@ extension Color {
 /// Los colores de la marca, los mismos de la web.
 enum Brand {
     static let accent = Color(hex: "#22B573")
+    /// Fondo de las hojas (verde oscuro entintado en modo oscuro) y botón principal oscuro.
+    static let sheetBg = Color(light: "#F4F4F8", dark: "#0A2218")
+    static let ink = Color(light: "#111111", dark: "#1F4332")
+    static let fieldBg = Color(light: "#EDEDF2", dark: "#12301F")
     static let green = Color(hex: "#1A9D63")
     static let gain = Color(hex: "#1A9D63")
     static let loss = Color(hex: "#E5322D")
@@ -242,7 +246,7 @@ struct BetaPill: View {
             .fixedSize()
             .padding(.horizontal, 10)
             .frame(height: 20)
-            .background(Color(hex: "#1C1C1E"), in: Capsule())
+            .background(Brand.ink, in: Capsule())
             .accessibilityLabel("Beta")
     }
 }
@@ -281,7 +285,7 @@ struct PrimaryPillStyle: ButtonStyle {
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
             .frame(height: 54)
-            .background(Color(hex: "#111111"), in: Capsule())
+            .background(Brand.ink, in: Capsule())
             .opacity(enabled ? (configuration.isPressed ? 0.8 : 1) : 0.4)
     }
 }

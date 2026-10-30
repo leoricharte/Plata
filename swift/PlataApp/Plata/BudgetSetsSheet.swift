@@ -26,7 +26,7 @@ struct BudgetSetsSheet: View {
             if draft != nil { editor } else { list }
         }
         .presentationDetents([.large]).presentationDragIndicator(.visible).presentationCornerRadius(38)
-        .presentationBackground(Color(light: "#F4F4F8", dark: "#1C1C1E"))
+        .presentationBackground(Brand.sheetBg)
     }
 
     private func iso(_ d: Date) -> String { LocalDate.today(now: d).iso }
