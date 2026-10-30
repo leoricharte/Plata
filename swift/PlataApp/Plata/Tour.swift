@@ -167,13 +167,20 @@ struct TourOverlay: View {
         .overlay(alignment: arrowUp ? .topLeading : .bottomLeading) {
             if let ax = arrowX {
                 Triangle().fill(Color(light: "#FFFFFF", dark: "#0D2A1D"))
-                    .overlay(Triangle().stroke(Brand.accent.opacity(0.45), lineWidth: 1.5))
+                    .overlay(TriangleSides().stroke(Brand.accent.opacity(0.45), lineWidth: 1))
                     .frame(width: 18, height: 10)
                     .rotationEffect(.degrees(arrowUp ? 0 : 180))
-                    .offset(x: min(max(18, ax), width - 36) - 9, y: arrowUp ? -9 : 9)
+                    .offset(x: min(max(18, ax), width - 36) - 9, y: arrowUp ? -8 : 8)
             }
         }
         .accessibilityElement(children: .contain)
+    }
+}
+
+/// Solo los dos lados inclinados: la base queda abierta para que la punta se funda con el borde del globo.
+private struct TriangleSides: Shape {
+    func path(in r: CGRect) -> Path {
+        var p = Path(); p.move(to: CGPoint(x: r.minX, y: r.maxY)); p.addLine(to: CGPoint(x: r.midX, y: r.minY)); p.addLine(to: CGPoint(x: r.maxX, y: r.maxY)); return p
     }
 }
 
@@ -261,9 +268,9 @@ private struct TourSheetTip: ViewModifier {
         .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(Brand.accent.opacity(0.45), lineWidth: 1.5))
         .overlay(alignment: .topLeading) {
             Triangle().fill(Color(light: "#FFFFFF", dark: "#0D2A1D"))
-                .overlay(Triangle().stroke(Brand.accent.opacity(0.45), lineWidth: 1.5))
+                .overlay(TriangleSides().stroke(Brand.accent.opacity(0.45), lineWidth: 1))
                 .frame(width: 18, height: 10)
-                .offset(x: min(max(18, arrowX), w - 36) - 9, y: -9)
+                .offset(x: min(max(18, arrowX), w - 36) - 9, y: -8)
         }
         .shadow(color: .black.opacity(0.24), radius: 20, y: 12)
     }
