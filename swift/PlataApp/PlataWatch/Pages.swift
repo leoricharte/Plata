@@ -128,27 +128,19 @@ struct BudgetPage: View {
         }
     }
 
-    /// Hasta 4 anillos concéntricos (las categorías con más uso), cada uno de su color y con su nombre curvado.
+    /// Un solo aro grande y grueso, como el de Actividad: lo gastado hoy al centro y, debajo, de cuánto es el tope del día.
     private func rings(_ s: WatchSnapshot) -> some View {
-        let top = Array(s.cats.prefix(4))
-        let width: CGFloat = 12, gap: CGFloat = 2, outer: CGFloat = 78
-        let items: [(name: String, frac: Double, color: Color)] = top.isEmpty
-            ? [("Hoy", s.allowance > 0 ? s.spentToday / s.allowance : 0, WatchTheme.accent)]
-            : top.map { ($0.name, $0.limit > 0 ? $0.spent / $0.limit : 0, Color(watchHex: $0.color)) }
+        let frac = s.allowance > 0 ? s.spentToday / s.allowance : 0
+        let color: Color = frac > 1 ? .red : WatchTheme.accent
         return ZStack {
-            ForEach(Array(items.enumerated()), id: \.offset) { i, it in
-                let radius = outer - CGFloat(i) * (width + gap) - width / 2
-                ZStack {
-                    ActivityRing(frac: it.frac, color: it.color, width: width, radius: radius)
-                    CurvedLabel(text: String(it.name.prefix(12)), radius: radius, size: 8.5)
-                }
-                .frame(width: radius * 2, height: radius * 2)
-            }
+            ActivityRing(frac: frac, color: color, width: 20, radius: 68, arrow: true)
+                .frame(width: 136, height: 136)
             VStack(spacing: 0) {
-                Amount(text: s.fmt(s.spentToday)).font(.system(size: 14, weight: .bold, design: .rounded)).minimumScaleFactor(0.5).lineLimit(1)
-                Text("hoy").font(.system(size: 10)).foregroundStyle(.secondary)
+                Amount(text: s.fmt(s.spentToday)).font(.system(size: 32, weight: .semibold, design: .rounded)).minimumScaleFactor(0.5).lineLimit(1)
+                Text(s.allowance > 0 ? "de \(s.fmt(s.allowance))" : "hoy").textCase(.uppercase)
+                    .font(.system(size: 11, weight: .semibold)).tracking(0.4).foregroundStyle(.secondary).lineLimit(1).minimumScaleFactor(0.6)
             }
-            .frame(width: 46)
+            .frame(width: 96)
         }
         .frame(width: 160, height: 160)
         .contentShape(Circle())
@@ -161,6 +153,7 @@ struct ActivityRing: View {
     var color: Color
     var width: CGFloat
     var radius: CGFloat
+    var arrow = false
     var body: some View {
         let lap = min(1, max(0.004, frac))
         let extra = min(1, max(0, frac - 1))
@@ -175,6 +168,12 @@ struct ActivityRing: View {
                     .stroke(color, style: StrokeStyle(lineWidth: width, lineCap: .round))
                     .rotationEffect(.degrees(-90))
                     .shadow(color: .black.opacity(0.55), radius: 3)
+            }
+            if arrow && frac > 0.02 {
+                let deg = 360 * (extra > 0 ? extra : lap)
+                Image(systemName: "arrow.right").font(.system(size: width * 0.6, weight: .heavy)).foregroundStyle(.black.opacity(0.7))
+                    .rotationEffect(.degrees(deg))
+                    .offset(x: radius * CGFloat(sin(deg * .pi / 180)), y: -radius * CGFloat(cos(deg * .pi / 180)))
             }
         }
     }
