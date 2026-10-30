@@ -44,6 +44,8 @@ struct ReviewView: View {
     private static let cadence = ["w": "cada semana", "b": "cada 2 semanas", "m": "cada mes", "q": "cada quincena"]
 
     @State private var fitH: CGFloat = 0
+    @State private var detent: PresentationDetent = .large
+    @State private var fitted = false
     @State private var cw: CGFloat = UIScreen.main.bounds.width
 
     var body: some View {
@@ -130,7 +132,13 @@ struct ReviewView: View {
             .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { cw = $0 }
         }
         .onScrollGeometryChange(for: CGFloat.self) { $0.contentSize.height } action: { _, h in fitH = h }
-        .presentationDetents(fitH > 0 && fitH + 60 < UIScreen.main.bounds.height * 0.8 ? [.height(fitH + 60), .large] : [.large])
+        .presentationDetents(fitH > 0 && fitH + 60 < UIScreen.main.bounds.height * 0.8 ? [.height(fitH + 60), .large] : [.large], selection: $detent)
+        .onChange(of: fitH) { _, h in
+            // Al abrir el popup ya está en .large: hay que mover la selección al detent ajustado.
+            let ok = h > 0 && h + 60 < UIScreen.main.bounds.height * 0.8
+            if ok { if detent != .large || !fitted { detent = .height(h + 60); fitted = true } }
+            else { detent = .large }
+        }
         .presentationDragIndicator(.visible).presentationCornerRadius(38)
         .presentationBackground(Brand.sheetBg)
         .sheet(item: $editing) { w in TransactionSheet(mode: .edit(w.tx)) }
