@@ -48,21 +48,8 @@ struct PlataLaunchTransition<Content: View>: View {
                 ZStack {
                     if !finished { PlataGeometry.green }
 
-                    content()
-                        .opacity(finished || t >= tZoomStart + ant ? 1 : 0)
-                        .allowsHitTesting(finished || reduceMotion)
-                        .mask {
-                            if finished || reduceMotion {
-                                Rectangle()
-                            } else {
-                                Canvas { gc, _ in
-                                    gc.fill(PlataGeometry.logo.applying(xf), with: .color(.white))
-                                }
-                            }
-                        }
-
                     if !finished {
-                        // Aviso de beta: sube sobre el borde inferior y se apaga antes del zoom
+                        // Aviso de beta: va debajo de la app, así que desaparece solo cuando la máscara lo cubre
                         VStack(spacing: 8) {
                             Spacer()
                             Text("Beta 5").font(.system(size: 13, weight: .medium)).tracking(0.5)
@@ -75,9 +62,21 @@ struct PlataLaunchTransition<Content: View>: View {
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 28).padding(.bottom, 96)
                         .frame(width: geo.size.width, height: geo.size.height)
-                        .opacity(reduceMotion ? 1 : 1 - PlataTimeline.smooth(PlataTimeline.clamp((t - (tTotal - 0.25)) / 0.3)))
                         .allowsHitTesting(false)
                     }
+
+                    content()
+                        .opacity(finished || t >= tZoomStart + ant ? 1 : 0)
+                        .allowsHitTesting(finished || reduceMotion)
+                        .mask {
+                            if finished || reduceMotion {
+                                Rectangle()
+                            } else {
+                                Canvas { gc, _ in
+                                    gc.fill(PlataGeometry.logo.applying(xf), with: .color(.white))
+                                }
+                            }
+                        }
 
                     if !finished && !reduceMotion {
                         if t < tTotal {

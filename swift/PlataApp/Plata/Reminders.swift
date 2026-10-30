@@ -17,8 +17,12 @@ final class Reminders {
 
     private enum K { static let inact = "plata.notif.inactivity", up = "plata.notif.upcoming", amt = "plata.notif.amounts", since = "plata.notif.since" }
     private static let prefix = "plata."
-    private static let tiers: [(days: Int, title: String)] = [
-        (2, "¿Sigues ahí?"), (5, "Esperamos que estés bien."), (9, "¡¿HOLAAAA?!"), (16, "¡¿HOLAAAA?!"), (23, "¡¿HOLAAAA?!"),
+    private static let tiers: [(days: Int, title: String, body: String)] = [
+        (2, "¿Se te pasó algo?", "Llevas 2 días sin anotar. Son 30 segundos y quedas al día."),
+        (5, "Tu mes sigue corriendo", "5 días sin movimientos: lo que no anotas hoy se te olvida mañana."),
+        (9, "Plata te extraña", "9 días sin pasar por aquí. Entra y mira cómo vas este mes."),
+        (16, "Sin datos no hay evaluación", "16 días sin movimientos. Anota lo que falta y tu nota del mes se calcula bien."),
+        (23, "Todavía estás a tiempo", "Casi un mes sin anotar. Ponte al día en un minuto antes del cierre."),
     ]
 
     private init() {
@@ -50,18 +54,6 @@ final class Reminders {
         if let u { upcoming = u; d.set(u, forKey: K.up) }
         if let a { showAmounts = a; d.set(a, forKey: K.amt) }
         schedule()
-    }
-
-    // DEBUG-AVISOS (quitar antes de publicar): dispara un aviso de prueba a los 8 s.
-    func debugFire(_ title: String, _ body: String) async {
-        let center = UNUserNotificationCenter.current()
-        let ok = (try? await center.requestAuthorization(options: [.alert, .sound, .badge])) ?? false
-        refreshStatus()
-        guard ok else { return }
-        let c = UNMutableNotificationContent()
-        c.title = title; c.body = body; c.sound = .default
-        try? await center.add(UNNotificationRequest(identifier: "plata.debug." + UUID().uuidString, content: c,
-                                                    trigger: UNTimeIntervalNotificationTrigger(timeInterval: 8, repeats: false)))
     }
 
     // MARK: programación
@@ -114,7 +106,7 @@ final class Reminders {
                 let when = at(day, hour: 19)
                 guard when > now, n < 3 else { continue }
                 n += 1
-                add("inact\(i)", tier.title, "No has ingresado movimientos desde hace \(tier.days) días.", at: when)
+                add("inact\(i)", tier.title, tier.body, at: when)
             }
         }
 
@@ -125,20 +117,32 @@ final class Reminders {
                 guard count < 40 else { break }
                 let day = ev.date.date()
                 guard day > now.addingTimeInterval(-86_400), ev.date.days - model.today.days <= 21 else { continue }
-                let title: String, verb: String
-                switch ev.type {
-                case "card": title = "Pago de crédito programado"; verb = "Mañana"
-                case "in": title = "Ingreso previsto"; verb = "Mañana"
-                case "sub": title = "Suscripción por cobrarse"; verb = "Mañana"
-                default: title = ev.amt > 0 ? "Ingreso previsto" : "Pago previsto"; verb = "Mañana"
-                }
-                let amount = showAmounts ? " · " + f.whole(abs(ev.amt), f.currency) : ""
+                let amount = showAmounts ? f.whole(abs(ev.amt), f.currency) : ""
                 let name = ev.name.isEmpty ? "" : ev.name
+                let tag = [name, amount].filter { !$0.isEmpty }.joined(separator: " · ")
+                // título y texto para «mañana» (9:00 del día anterior) y para «hoy» (8:00)
+                let eve: (String, String), today: (String, String)
+                switch ev.type {
+                case "card":
+                    eve = ("Mañana se paga tu tarjeta", (tag.isEmpty ? "" : tag + ". ") + "Revisa que tengas saldo y evita intereses.")
+                    today = ("Hoy se paga tu tarjeta", (tag.isEmpty ? "" : tag + ". ") + "Págala hoy y evita intereses.")
+                case "sub":
+                    eve = (name.isEmpty ? "Mañana se cobra una suscripción" : "Mañana se cobra \(name)", (amount.isEmpty ? "" : amount + ". ") + "¿Todavía la usas? Revísala.")
+                    today = (name.isEmpty ? "Hoy se cobra una suscripción" : "Hoy se cobra \(name)", (amount.isEmpty ? "" : amount + ". ") + "¿Todavía la usas? Revísala.")
+                default:
+                    if ev.amt > 0 {
+                        eve = ("Mañana te llega plata", (tag.isEmpty ? "" : tag + ". ") + "Confírmalo cuando llegue.")
+                        today = ("Hoy te llega plata", (tag.isEmpty ? "" : tag + ". ") + "Confírmalo cuando llegue.")
+                    } else {
+                        eve = ("Mañana vence un pago", (tag.isEmpty ? "" : tag + ". ") + "Que no te agarre de sorpresa.")
+                        today = ("Hoy vence un pago", (tag.isEmpty ? "" : tag + ". ") + "Que no se te pase.")
+                    }
+                }
                 guard let before = cal.date(byAdding: .day, value: -1, to: day) else { continue }
                 let id = "ev\(ev.date.iso)-\(abs(ev.name.hashValue) % 100000)"
                 // el día anterior a las 9:00; si ya pasó, el mismo día a las 8:00
-                if at(before, hour: 9) > now { add(id + "a", title, "\(verb): \(name)\(amount)", at: at(before, hour: 9)); count += 1 }
-                else if at(day, hour: 8) > now { add(id + "b", title, "Hoy: \(name)\(amount)", at: at(day, hour: 8)); count += 1 }
+                if at(before, hour: 9) > now { add(id + "a", eve.0, eve.1, at: at(before, hour: 9)); count += 1 }
+                else if at(day, hour: 8) > now { add(id + "b", today.0, today.1, at: at(day, hour: 8)); count += 1 }
             }
         }
     }
@@ -169,17 +173,6 @@ struct NotificationsSheet: View {
                 .padding(.top, 20)
                 Text("Si lo dejas apagado, los avisos dicen qué vence pero no cuánto, para que nadie lo lea en tu pantalla bloqueada.")
                     .font(.inter(13)).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 8).padding(.top, 8)
-                // DEBUG-AVISOS (quitar antes de publicar)
-                SCard {
-                    debugRow("¿Sigues ahí?", "No has ingresado movimientos desde hace 2 días.", "Probar: recordatorio")
-                    RowDivider()
-                    debugRow("Pago de crédito programado", "Mañana: Tarjeta · $120", "Probar: pago previsto")
-                    RowDivider()
-                    debugRow("Suscripción por cobrarse", "Mañana: Netflix · $15.99", "Probar: suscripción")
-                }
-                .padding(.top, 20)
-                Text("DEBUG · Llega a los 8 segundos. Cierra la app o bloquea el iPhone para verla.")
-                    .font(.inter(13)).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 8).padding(.top, 8)
                 if r.denied {
                     Button { if let u = URL(string: UIApplication.openSettingsURLString) { openURL(u) } } label: {
                         Text("Activar permiso en Configuración").font(.inter(16, .semibold)).foregroundStyle(Brand.green).frame(maxWidth: .infinity).frame(height: 50)
@@ -193,19 +186,6 @@ struct NotificationsSheet: View {
         .presentationDragIndicator(.visible).presentationCornerRadius(38)
         .presentationBackground(Brand.sheetBg)
         .onAppear { r.refreshStatus() }
-    }
-
-    // DEBUG-AVISOS (quitar antes de publicar)
-    private func debugRow(_ title: String, _ body: String, _ label: String) -> some View {
-        Button { Task { await r.debugFire(title, body) } } label: {
-            HStack(spacing: 12) {
-                Image(systemName: "paperplane").frame(width: 26).foregroundStyle(Brand.accent)
-                Text(label).font(.inter(17)).foregroundStyle(.primary)
-                Spacer(minLength: 0)
-            }
-            .padding(.vertical, 8).frame(minHeight: 44)
-        }
-        .buttonStyle(.plain)
     }
 
     private func row(_ symbol: String, _ title: String, _ on: Binding<Bool>) -> some View {
