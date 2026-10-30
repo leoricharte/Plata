@@ -1173,6 +1173,7 @@ html.tauri-win.web #tbar{background:radial-gradient(ellipse 125vw calc((100vh - 
 </div>
 <input type="file" id="file" accept=".json,application/json" hidden>
 <input type="file" id="clfile" accept=".json,application/json" hidden>
+<input type="file" id="impshot" accept="image/*" hidden>
 <input type="file" id="impfile" multiple accept=".csv,.tsv,.txt,.pdf,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv,text/plain,text/tab-separated-values,application/pdf" hidden>
 
 <script>
@@ -5968,10 +5969,24 @@ async function impClip() {
   const el = $('#impText'); if (!t) { toast('No pude leer el portapapeles. Pega el texto en el recuadro.'); if (el) el.focus(); return; }
   if (el) el.value = String(t).slice(0, NazcaConstancia.MAX_CHARS);
 }
-function impConstancia(text) {
+/* Captura de la constancia: el OCR (core/nazca/ocr.js) corre en este dispositivo y se descarga solo ahora (~6 MB). */
+async function impShot(f) {
+  if (!f) return; ui.impErr = null; ui.impAt = 'paste'; impSendF = null; impShow('busy', 'tab');
+  let text = '';
+  try { text = await NazcaOCR.read(f, new URL('nazca/ocr/', location.href).href, (s) => NazcaConstancia.detect(s) > 0); }
+  catch (e) {
+    const c = e && e.code;
+    if (c === 'unavailable') impFail('No pude abrir el lector de capturas', 'Revisa tu conexión y vuelve a intentarlo, o pega el texto de la constancia.');
+    else if (c === 'too_big' || c === 'not_image') impFail('No pude abrir esa captura', 'Elige una captura de pantalla de la constancia (imagen de hasta 12 MB).');
+    else impFail('No pude leer texto en la captura', 'Prueba con una captura más clara y completa, o pega el texto de la constancia.');
+    return;
+  }
+  impConstancia(text, true);
+}
+function impConstancia(text, fromShot) {
   const t = String(text || '').slice(0, NazcaConstancia.MAX_CHARS); ui.impAt = 'paste';
   const r = NazcaConstancia.detect(t) ? NazcaConstancia.read(t, { today: iso(getToday()) }) : null;
-  if (!r || r.error) { impFail('Esto no parece una constancia', 'No encontramos un monto. Copia todo el texto de la constancia de Yape o Plin y vuélvelo a pegar.'); return; }
+  if (!r || r.error) { impFail('Esto no parece una constancia', fromShot ? 'No encontramos un monto en la captura. Prueba con una captura más clara que muestre el monto y la fecha.' : 'No encontramos un monto. Copia todo el texto de la constancia de Yape o Plin y vuélvelo a pegar.'); return; }
   impFromPdf(r.label, r);
   if (r.flags.indexOf('date') >= 0) toast('No encontré la fecha: puse la de hoy. Revísala.');
   else if (r.flags.indexOf('direction') >= 0) toast('No sé si fue un pago o un ingreso. Revísalo.');
@@ -6283,8 +6298,10 @@ function impBodyHTML(st) {
   if (st === 'bank') return (IMP_STEPS[ui.impBank] ? '<div class="scard imsteps">' + IMP_STEPS[ui.impBank].map((t, i) => '<div class="imstep"><span class="imn" data-notr>' + (i + 1) + '</span><span class="grow">' + t + '</span></div>').join('') + '</div>' : '<p class="imlead">Descarga tu estado de cuenta de ahorros desde Interbank APP o la banca por internet de Interbank.</p>') +
     (IMP_KEY[ui.impBank] ? keyField('impKey', IMP_KEY[ui.impBank]) : '') +
     '<div class="imbar"><button class="primary" id="impPickBtn" data-act="imp:pdf"' + (!IMP_KEY[ui.impBank] || impKeyOk() ? '' : ' disabled') + '>' + (ui.impBank === 'yape' ? 'Subir reporte de movimientos' : 'Subir estado de cuenta') + '</button></div>';
-  if (st === 'paste') return '<p class="imlead">Copia todo el texto de la constancia y pégalo aquí. No se sube a ningún servidor.</p>' +
-    '<div class="scard"><label class="srow" style="padding:12px 0"><span class="grow"><textarea class="sinput imtext" id="impText" maxlength="' + NazcaConstancia.MAX_CHARS + '" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Pega aquí el texto de la constancia" data-notr></textarea></span></label></div>' +
+  if (st === 'paste') return '<p class="imlead">Elige la captura de la constancia de Yape o Plin. Se lee en este dispositivo: no se sube a ningún servidor.</p>' +
+    '<div class="scard"><button class="linkrow" data-act="imp:shot" style="width:100%">' + RMI('camera-line', 22, '#1A9D63') + 'Elegir captura</button></div>' +
+    '<p class="imlead" style="margin-top:14px">O copia todo el texto de la constancia y pégalo aquí.</p>' +
+    '<div class="scard"><label class="srow" style="padding:12px 0"><span class="grow"><textarea class="sinput imtext" id="impText" maxlength="' + NazcaConstancia.MAX_CHARS + '" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Pega aquí el texto de la constancia"></textarea></span></label></div>' +
     '<button class="linkrow" data-act="imp:clip" style="justify-content:center;width:100%">' + RMI('clipboard-line', 22, '#1A9D63') + 'Pegar del portapapeles</button>' +
     impNote('Revisa el monto, la fecha y si fue un pago o un ingreso antes de importar.') +
     '<div class="imbar"><button class="primary" data-act="imp:read">Leer constancia</button></div>';
@@ -6433,6 +6450,7 @@ function impAct(arg) {
   if (p[0] === 'how') { impShow('how', 'push'); return; }
   if (p[0] === 'paste') { impShow('paste', 'push'); return; }
   if (p[0] === 'clip') { impClip(); return; }
+  if (p[0] === 'shot') { $('#impshot').click(); return; }
   if (p[0] === 'read') { const t = $('#impText'); impConstancia(t ? t.value : ''); return; }
   if (p[0] === 'csv') { ui.impBank = null; ui.impAt = ui.impStep || null; impPick(); return; }
   if (p[0] === 'country') { impShow('country', 'push'); return; }
@@ -6530,6 +6548,12 @@ function impUndo() {
 }
 document.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target && e.target.id === 'impKey') { e.preventDefault(); if (!impKeyOk()) return; if (ui.impStep === 'key') { if (impPend) { ui.impAt = 'key'; ui.impErr = null; impPdf(impPend); } } else impPick(); } });
 document.addEventListener('input', (e) => { const el = e.target; if (el && el.id === 'impKey') { impKey = el.value; const b = $('#impPickBtn'); if (b) b.disabled = !impKeyOk(); } });
+$('#impshot').addEventListener('change', (e) => { const f = (e.target.files || [])[0]; e.target.value = ''; impShot(f); });
+document.addEventListener('paste', (e) => {   /* una captura copiada y pegada en el recuadro de la constancia */
+  if (!e.target || e.target.id !== 'impText') return;
+  const it = Array.prototype.slice.call((e.clipboardData && e.clipboardData.items) || []).find((x) => /^image\//.test(x.type)); if (!it) return;
+  e.preventDefault(); impShot(it.getAsFile());
+});
 $('#impfile').addEventListener('change', (e) => { const fs = Array.prototype.slice.call(e.target.files || []); e.target.value = ''; impFiles(fs); });
 document.addEventListener('change', (e) => {
   const el = e.target, I = ui.imp; if (!I || !el || !el.matches) return;

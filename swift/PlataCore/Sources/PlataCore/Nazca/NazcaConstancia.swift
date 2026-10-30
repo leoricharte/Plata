@@ -91,8 +91,8 @@ public enum NazcaConstancia {
 
     static let usdRx = Rx(#"^(US|USD|\$)"#, ci: true), sRx = Rx(#"^S"#, ci: true)
 
-    static func amountOf(_ lines: [String], _ ns: [String]) -> (v: Double, cur: String, amb: Bool)? {
-        struct Cand { var v: Double; var cur: String; var sc: Int }
+    static func amountOf(_ lines: [String], _ ns: [String]) -> (v: Double, cur: String, amb: Bool, i: Int)? {
+        struct Cand { var v: Double; var cur: String; var sc: Int; var i: Int }
         var c: [Cand] = []
         for (i, ln) in lines.enumerated() {
             for m in amt.all(ln) {
@@ -105,13 +105,23 @@ public enum NazcaConstancia {
                 var rest = ln
                 if let r = rest.range(of: m[0]) { rest.removeSubrange(r) }
                 if bad.test(ns[i]) || (i > 0 && bad.test(ns[i - 1]) && rest.jsTrimmed.isEmpty) { sc -= 5 }
-                c.append(Cand(v: v, cur: usd ? "USD" : "PEN", sc: sc))
+                c.append(Cand(v: v, cur: usd ? "USD" : "PEN", sc: sc, i: i))
             }
         }
         guard var best = c.first else { return nil }
         for x in c where x.sc > best.sc { best = x }
         let amb = c.contains { $0.sc == best.sc && $0.v != best.v }
-        return (best.v, best.cur, amb)
+        return (best.v, best.cur, amb, best.i)
+    }
+
+    static let headBad = Rx(#"yape|plin|operacion|transaccion|seguridad|gracias|compartir"#), digitRx = Rx(#"\d"#), alpha3 = Rx(#"[a-z]{3}"#, ci: true)
+    /// Pagos de servicios y comercios: sin «Destino», el nombre es la línea que sigue al monto.
+    static func headWho(_ lines: [String], _ ns: [String], _ i: Int) -> String {
+        let j = i + 1
+        if j >= lines.count { return "" }
+        let l = wsRuns.replace(lines[j], " ").jsTrimmed
+        if l.jsLength < 3 || l.jsLength > 60 || digitRx.test(l) || !alpha3.test(l) || labelish.test(ns[j]) || headBad.test(ns[j]) { return "" }
+        return cleanWho(l)
     }
 
     // MARK: nombre y mensaje
@@ -169,8 +179,10 @@ public enum NazcaConstancia {
 
     static let viaInter = Rx(#"\binterbank\b"#), viaBbva = Rx(#"\bbbva\b"#), viaBcp = Rx(#"\bbcp\b|banco de credito"#), plinWords = Rx(#"plineaste|plin enviado|plineo"#)
 
+    static let shopRx = Rx(#"ventana del comercio|finalizar tu compra"#)
     static func brandOf(_ n: String) -> String {
         let y = n.contains("yape"), p = n.contains("plin")
+        if !y && !p && shopRx.test(n) { return "plin" }   // pago en un comercio: el logo de Plin es una imagen y el OCR no lo lee
         if y && p { return plinWords.test(n) ? "plin" : "yape" }
         return y ? "yape" : p ? "plin" : ""
     }
@@ -211,7 +223,7 @@ public enum NazcaConstancia {
         if sign == 0 { flags.append("direction") }
         if date.isEmpty { flags.append("date") }
         if amount.amb { flags.append("amount") }
-        let brand = brandOf(n), op = opOf(flat), who = whoOf(lines, ns, sign)
+        let brand = brandOf(n), op = opOf(flat), who = { let w = whoOf(lines, ns, sign); return w.isEmpty && sign <= 0 ? headWho(lines, ns, amount.i) : w }()
         if who.isEmpty { flags.append("who") }
         return Parsed(amount: amount.v, cur: amount.cur, amb: amount.amb, date: date.isEmpty ? today : date, time: time, hadDate: !date.isEmpty,
                       sign: sign == 0 ? -1 : Double(sign), flags: flags, brand: brand, op: op, who: who, msg: msgOf(lines, ns),

@@ -1,5 +1,5 @@
 {
- "nota": "Constancias INVENTADAS (no son de nadie). Cuando haya capturas reales (con los datos cambiados), se agregan aquí. today = el día que se usa si el texto no trae fecha.",
+ "nota": "Casos inventados y tres basados en capturas reales de Yape y Plin (con datos de ejemplo). Cuando haya más capturas reales se agregan aquí. today = el día que se usa si el texto no trae fecha.",
  "today": "2026-10-29",
  "cases": [
   {
@@ -287,6 +287,54 @@
     "date": "2026-10-05",
     "desc": "Rocío M.",
     "ref": "70707070",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "real-yape-servicio",
+   "text": "¡Yapeaste el servicio!\nS/10\nMetropolitano y Corredores\n05 ene. 2026 | 11:31 a. m.\nCÓDIGO DE SEGURIDAD\n4 8 5\nDATOS DE LA TRANSACCIÓN\nServicio Recarga de Tarjetas\nCódigo de cliente 1234567890\nNro. de operación 26101992",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": -10,
+    "cur": "PEN",
+    "date": "2026-01-05",
+    "desc": "Metropolitano y Corredores · Recarga de Tarjetas",
+    "ref": "26101992",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "real-yape-sin-operacion",
+   "text": "¡Yapeaste!\nS/ 7.90\n01 abr. 2025 | 09:01 a. m.\nCÓDIGO DE SEGURIDAD 1 6 9\nDATOS DE LA TRANSACCIÓN\nNro. de celular\nDestino Yape\nNro. de operación",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": -7.9,
+    "cur": "PEN",
+    "date": "2025-04-01",
+    "desc": "Yape",
+    "ref": "t0901",
+    "flags": [],
+    "auto": false
+   }
+  },
+  {
+   "name": "real-plin-comercio",
+   "text": "¡Pago exitoso!\nS/250.00\nRegresa a la ventana del comercio\npara finalizar tu compra\nComercio:\nShopstar\n#123456789012345678\nComisión:\nGRATIS\nFecha y hora:\n01 Mar 2022 10:34 AM\nCódigo de Operación:\n00051136547657787543\nEnviar constancia\nIr al inicio",
+   "expect": {
+    "detect": 2,
+    "bank": "",
+    "brand": "plin",
+    "amount": -250,
+    "cur": "PEN",
+    "date": "2022-03-01",
+    "desc": "Shopstar",
+    "ref": "00051136547657787543",
     "flags": [],
     "auto": true
    }

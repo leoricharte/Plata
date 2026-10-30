@@ -20,10 +20,10 @@ const NazcaConstancia = (() => {
   const BAD = /(comision|saldo|limite|disponible|itf|cargo|costo)/;
   /* Monto: "S/ 18", "S/. 18.50", "S/1,234.50", "PEN 20", "US$ 5". El OCR a veces lee "S/" como "5/": solo se acepta si no sigue otro dígito (no es una fecha). */
   const AMT = /(?:^|[^A-Za-z0-9])(?:(S[ \t]*\/[ \t]*\.?|PEN|US[ \t]*\$|USD|\$)|(5[ \t]*\/[ \t]*\.?)(?!\d))[ \t]*(\d{1,3}(?:[. ]\d{3})+(?:[.,]\d{1,2})?|\d{1,3}(?:,\d{3})+(?:[.]\d{1,2})?|\d+(?:[.,]\d{1,2})?)(?![.,]?\d|[ \t]*\/[ \t]*\d)/gi;
-  const LABEL_TO = /^(nombre del destinatario|nombre de destinatario|destinatario|destino|enviado a|enviaste a|pagaste a|yapeaste a|plineaste a|transferiste a|beneficiario|nombre del beneficiario|pagado a|comercio|para)\b[ ]*[:\-]?[ ]*(.*)$/;
+  const LABEL_TO = /^(nombre del destinatario|nombre de destinatario|destinatario|destino|enviado a|enviaste a|pagaste a|yapeaste a|plineaste a|transferiste a|beneficiario|nombre del beneficiario|pagado a|comercio|para(?=[ ]*:))\b[ ]*[:\-]?[ ]*(.*)$/;
   const LABEL_FROM = /^(nombre del remitente|remitente|origen|enviado por|de parte de|recibido de|de)\b[ ]*[:\-]?[ ]*(.*)$/;
-  const LABEL_MSG = /^(mensaje|detalle|concepto|motivo|descripcion|referencia)\b[ ]*[:\-]?[ ]*(.*)$/;
-  const LABELISH = /^(nombre|celular|telefono|numero|nro|cuenta|monto|importe|total|fecha|hora|mensaje|detalle|concepto|motivo|operacion|codigo|destino|origen|destinatario|remitente|enviado|recibido|banco|comision|saldo|referencia|id)\b/;
+  const LABEL_MSG = /^(mensaje|detalle|concepto|motivo|descripcion|referencia|servicio)\b[ ]*[:\-]?[ ]*(.*)$/;
+  const LABELISH = /^(nombre|celular|telefono|numero|nro|cuenta|monto|importe|total|fecha|hora|mensaje|detalle|concepto|motivo|operacion|codigo|destino|origen|destinatario|remitente|enviado|recibido|banco|comision|saldo|referencia|servicio|datos|id)\b/;
   const INLINE_NEG = /(?:yapeaste|plineaste|enviaste|pagaste|transferiste)[ ]+(?:(?:s\/|5\/)[ ]*[\d.,]+[ ]+)?a[ ]+(.+)$/;
   const INLINE_POS = /^(.+?)[ ]+te[ ]+(?:yapeo|plineo|envio|pago|transfirio)\b/;
   const DATE_ISO = /(\d{4})-(\d{2})-(\d{2})/, DATE_WORDS = /(\d{1,2})[ ]*(?:de[ ]+)?([a-z]{3,10})\.?,?[ ]*(?:de[ ]+)?(\d{4})/g, DATE_NUM = /(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4}|\d{2})(?![\d])/, TIME_RE = /(\d{1,2}):(\d{2})(?::\d{2})?[ ]*(?:([ap])\.?[ ]?m\b\.?)?/;
@@ -76,6 +76,13 @@ const NazcaConstancia = (() => {
     }
     return '';
   }
+  /* Pagos de servicios y comercios: sin «Destino», el nombre es la línea que sigue al monto («S/10» → «Metropolitano y Corredores»). */
+  function headWho(lines, ns, i) {
+    const j = i + 1; if (j >= lines.length) return '';
+    const l = lines[j].replace(/\s+/g, ' ').trim();
+    if (l.length < 3 || l.length > 60 || /\d/.test(l) || !/[a-z]{3}/i.test(l) || LABELISH.test(ns[j]) || /yape|plin|operacion|transaccion|seguridad|gracias|compartir/.test(ns[j])) return '';
+    return cleanWho(l);
+  }
   function msgOf(lines, ns) {
     for (let i = 0; i < lines.length; i++) {
       const m = LABEL_MSG.exec(ns[i]); if (!m) continue;
@@ -98,10 +105,11 @@ const NazcaConstancia = (() => {
     if (!c.length) return null;
     let best = c[0]; c.forEach((x) => { if (x.sc > best.sc) best = x; });
     const ties = c.filter((x) => x.sc === best.sc && x.v !== best.v);
-    return { v: best.v, cur: best.cur, amb: ties.length > 0 };
+    return { v: best.v, cur: best.cur, amb: ties.length > 0, i: best.i };
   }
   function brandOf(n) {
     const y = /yape/.test(n), p = /plin/.test(n);
+    if (!y && !p && /ventana del comercio|finalizar tu compra/.test(n)) return 'plin';   /* pago en un comercio: el logo de Plin es una imagen y el OCR no lo lee */
     if (y && p) return /plineaste|plin enviado|plineo/.test(n) ? 'plin' : 'yape';
     return y ? 'yape' : p ? 'plin' : '';
   }
@@ -125,7 +133,7 @@ const NazcaConstancia = (() => {
     if (!sign) flags.push('direction');
     if (!date) flags.push('date');
     if (amt.amb) flags.push('amount');
-    const brand = brandOf(n), op = opOf(flat), who = whoOf(lines, ns, sign);
+    const brand = brandOf(n), op = opOf(flat), who = whoOf(lines, ns, sign) || (sign <= 0 ? headWho(lines, ns, amt.i) : '');
     if (!who) flags.push('who');
     return { lines, amt, date: date || String(today || ''), time, sign: sign || -1, flags, brand, op, who, msg: msgOf(lines, ns), via: brand === 'plin' ? viaOf(n) : '', hadDate: !!date };
   }
