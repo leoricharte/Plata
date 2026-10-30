@@ -123,6 +123,10 @@ struct BudgetPage: View {
                                 Text(left < 0 ? "pasado hoy" : "te quedan hoy").font(.system(size: 13)).foregroundStyle(.secondary)
                             }
                         } else if !hidden {
+                            if !s.cats.isEmpty && (s.monthBudget ?? 0) > 0 {
+                                Amount(text: s.fmt(max(0, -(s.monthLeft ?? 0)))).font(.system(size: 26, weight: .bold, design: .rounded)).foregroundStyle(.red)
+                                    .minimumScaleFactor(0.6).lineLimit(1)
+                            }
                             Text(s.cats.isEmpty ? "Sin presupuesto este mes" : "Presupuesto del mes agotado").font(.system(size: 14)).foregroundStyle(.secondary).multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
                         }
                         if !s.cats.isEmpty && !expanded && !hidden {
@@ -178,23 +182,12 @@ struct BudgetPage: View {
     }
 
     private func multiRing(_ s: WatchSnapshot, _ top: [WatchCat]) -> some View {
-        let exhausted = s.allowance <= 0 && (s.monthBudget ?? 0) > 0
-        let over = max(0, -(s.monthLeft ?? 0))
         let width: CGFloat = 16, gap: CGFloat = 3, outer: CGFloat = 80
         return ZStack {
             ForEach(Array(top.enumerated()), id: \.offset) { i, c in
                 let radius = outer - width / 2 - CGFloat(i) * (width + gap)
                 CategoryRing(cat: c, symbol: s.catInfo?.first { $0.label == c.name }?.symbol ?? "circle.fill", width: width, radius: radius)
                     .frame(width: radius * 2, height: radius * 2)
-            }
-            if !hidden {
-                VStack(spacing: 0) {
-                    Amount(text: s.fmt(exhausted ? over : s.spentToday)).font(.system(size: 14, weight: .bold, design: .rounded)).minimumScaleFactor(0.5).lineLimit(1)
-                        .foregroundStyle(exhausted ? .red : .primary)
-                    Text(exhausted ? "te pasaste" : "hoy").textCase(.uppercase)
-                        .font(.system(size: 8, weight: .semibold)).tracking(0.3).foregroundStyle(.secondary).lineLimit(1).minimumScaleFactor(0.6)
-                }
-                .frame(width: 54)
             }
         }
         .frame(width: 160, height: 160)
