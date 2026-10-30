@@ -95,6 +95,7 @@ struct MovimientosView: View {
                         Button(role: .destructive) { toDelete = TxRef(id: Engine.identifier(tx["id"]), tx: tx) } label: {
                             Label("Eliminar", systemImage: "trash")
                         }
+                        .tint(Color(hex: "#EB5757"))   // rojo explícito: sin esto toma el verde de la app
                         if !isTransfer(tx) {
                             Button { editing = TxRef(id: Engine.identifier(tx["id"]), tx: tx) } label: {
                                 Label("Editar", systemImage: "pencil")

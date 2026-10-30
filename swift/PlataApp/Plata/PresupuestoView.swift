@@ -85,7 +85,25 @@ struct PresupuestoView: View {
 
     private func ringCard(_ e: Engine, _ c: CalcResult, _ f: Fmt, _ bt: Double, _ left: Double, _ dl: Int, preview: Bool = false) -> some View {
         let items = c.cats.map { RingChart<AnyView>.Item(value: $0.v, color: Color(hex: $0.color)) }
+        // con presupuesto activo: los aros del Apple Watch (hasta 4 categorías, las de más gasto)
+        let limits = e.budgetLimits(model.viewSet)
+        let rings: [WatchCat] = e.categoryNames.compactMap { k in
+            guard let lim = limits[k], lim > 0 else { return nil }
+            return WatchCat(name: Tr.t(k), spent: c.catTot[k] ?? 0, limit: lim, color: e.categoryColor(k))
+        }.sorted { $0.spent > $1.spent }.prefix(4).map { $0 }
+        let symbols = Dictionary(e.categoryNames.map { (Tr.t($0), e.catSymbol($0)) }, uniquingKeysWith: { a, _ in a })
         return VStack(spacing: 0) {
+            if !preview && bt > 0 && !rings.isEmpty {
+                BudgetRings(cats: rings, symbols: symbols) {
+                    VStack(spacing: 0) {
+                        Text(left >= 0 ? "Quedan" : "Te pasaste").font(.inter(12)).foregroundStyle(.secondary)
+                        Text(f.whole(abs(left))).font(.inter(24, .bold)).tracking(-0.7)
+                            .foregroundStyle(left >= 0 ? Color.primary : Brand.lossText).lineLimit(1).minimumScaleFactor(0.5)
+                        Text("de \(f.whole(bt))").font(.inter(11)).foregroundStyle(.secondary).lineLimit(1).minimumScaleFactor(0.6)
+                    }
+                }
+                .frame(maxWidth: 280)
+            } else {
             RingChart(items: items) {
                 AnyView(
                     VStack(spacing: 0) {
@@ -106,6 +124,7 @@ struct PresupuestoView: View {
                 )
             }
             .frame(maxWidth: 240)
+            }
             if bt > 0 && left > 0 {
                 (Text("Puedes gastar unos ") + Text(f.whole(left / Double(max(dl, 1)))).bold().foregroundColor(.primary) + Text(" al día"))
                     .font(.inter(15)).foregroundStyle(.secondary)
@@ -217,5 +236,35 @@ struct PresupuestoView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+    }
+}
+
+/// Los aros concéntricos del Apple Watch, más grandes: hasta 4 categorías (las de más gasto), cada una con su icono en la punta y su nombre curvado.
+/// El centro queda libre para el «Quedan …». Se dibuja en 280 pt y se escala al ancho disponible.
+struct BudgetRings<Center: View>: View {
+    let cats: [WatchCat]
+    let symbols: [String: String]
+    @ViewBuilder var center: () -> Center
+
+    private let canvas: CGFloat = 280, width: CGFloat = 19, gap: CGFloat = 3
+
+    var body: some View {
+        let outer = canvas / 2
+        let hole = (outer - CGFloat(cats.count) * (width + gap) + gap) * 2
+        GeometryReader { geo in
+            let k = min(1, geo.size.width / canvas)
+            ZStack {
+                ForEach(Array(cats.enumerated()), id: \.offset) { i, c in
+                    let radius = outer - width / 2 - CGFloat(i) * (width + gap)
+                    CategoryRing(cat: c, symbol: symbols[c.name] ?? "circle.fill", width: width, radius: radius, fontSize: 10.5)
+                        .frame(width: radius * 2, height: radius * 2)
+                }
+                center().frame(width: max(60, hole - 14))
+            }
+            .frame(width: canvas, height: canvas)
+            .scaleEffect(k)
+            .frame(width: geo.size.width, height: canvas * k)
+        }
+        .aspectRatio(1, contentMode: .fit)
     }
 }
