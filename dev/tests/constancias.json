@@ -338,6 +338,22 @@
     "flags": [],
     "auto": true
    }
+  },
+  {
+   "name": "plin-comercio-ocr-5",
+   "text": "¡Pago exitoso!\n5/250.00\nComercio:\nShopstar\nFecha y hora:\n01 Mar 2022 10:34 AM\nCódigo de Operación:\n000511365476057787543",
+   "expect": {
+    "detect": 1,
+    "bank": "",
+    "brand": "",
+    "amount": -250,
+    "cur": "PEN",
+    "date": "2022-03-01",
+    "desc": "Shopstar",
+    "ref": "000511365476057787543",
+    "flags": [],
+    "auto": false
+   }
   }
  ]
 }

@@ -67,7 +67,7 @@ struct ImportFlowView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 0) {
-                    PageHead(eyebrow: head.0, title: head.1, bankMark: step == .bank ? bank : nil)
+                    PageHead(eyebrow: head.0, title: head.1, bankMark: step == .bank ? bank : nil, bankMarks: step == .paste ? ["yape", "plin"] : [])
                     if let notice { NoticeCard(notice: notice, onAs: asGo) }
                     content
                 }
@@ -1010,7 +1010,7 @@ struct ImportReviewBody: View {
         return SCard {
             HStack(spacing: 14) {
                 Group {
-                    if let b = bank, BankMarks.all[b] != nil { BankMarkView(id: b, size: 32).foregroundStyle(Color(red: 0.133, green: 0.710, blue: 0.451)) }
+                    if let b = bank ?? (src?.label.hasPrefix("Plin") == true ? "plin" : nil), BankMarks.all[b] != nil { BankMarkView(id: b, size: 32).foregroundStyle(Color(red: 0.133, green: 0.710, blue: 0.451)) }
                     else { Image(systemName: bank != nil ? "building.columns" : "doc.text").font(.system(size: 30)) }
                 }
                 .foregroundStyle(Color.primary.opacity(0.46)).frame(width: 52, height: 52)

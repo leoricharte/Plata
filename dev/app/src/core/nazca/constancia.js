@@ -19,7 +19,7 @@ const NazcaConstancia = (() => {
   const KEY = /(yapeaste|plineaste|enviaste|pagaste|transferiste|te yapearon|te yapeo|te plinearon|te plineo|te enviaron|te envio|te pago|recibiste|monto|importe|total)/;
   const BAD = /(comision|saldo|limite|disponible|itf|cargo|costo)/;
   /* Monto: "S/ 18", "S/. 18.50", "S/1,234.50", "PEN 20", "US$ 5". El OCR a veces lee "S/" como "5/": solo se acepta si no sigue otro dígito (no es una fecha). */
-  const AMT = /(?:^|[^A-Za-z0-9])(?:(S[ \t]*\/[ \t]*\.?|PEN|US[ \t]*\$|USD|\$)|(5[ \t]*\/[ \t]*\.?)(?!\d))[ \t]*(\d{1,3}(?:[. ]\d{3})+(?:[.,]\d{1,2})?|\d{1,3}(?:,\d{3})+(?:[.]\d{1,2})?|\d+(?:[.,]\d{1,2})?)(?![.,]?\d|[ \t]*\/[ \t]*\d)/gi;
+  const AMT = /(?:^|[^A-Za-z0-9])(?:(S[ \t]*\/[ \t]*\.?|PEN|US[ \t]*\$|USD|\$)|(5[ \t]*\/[ \t]*\.?)(?:(?!\d)|(?=\d+[.,]\d{2}(?![.,]?\d))))[ \t]*(\d{1,3}(?:[. ]\d{3})+(?:[.,]\d{1,2})?|\d{1,3}(?:,\d{3})+(?:[.]\d{1,2})?|\d+(?:[.,]\d{1,2})?)(?![.,]?\d|[ \t]*\/[ \t]*\d)/gi;
   const LABEL_TO = /^(nombre del destinatario|nombre de destinatario|destinatario|destino|enviado a|enviaste a|pagaste a|yapeaste a|plineaste a|transferiste a|beneficiario|nombre del beneficiario|pagado a|comercio|para(?=[ ]*:))\b[ ]*[:\-]?[ ]*(.*)$/;
   const LABEL_FROM = /^(nombre del remitente|remitente|origen|enviado por|de parte de|recibido de|de)\b[ ]*[:\-]?[ ]*(.*)$/;
   const LABEL_MSG = /^(mensaje|detalle|concepto|motivo|descripcion|referencia|servicio)\b[ ]*[:\-]?[ ]*(.*)$/;

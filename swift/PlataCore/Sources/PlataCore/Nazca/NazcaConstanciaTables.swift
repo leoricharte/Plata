@@ -6,7 +6,7 @@ extension NazcaConstancia {
     static let pos = Rx(#"\b(te yapearon|te yapeo|te plinearon|te plineo|te enviaron|te envio|te pago|te transfirieron|te transfirio|te devolvieron|recibiste|recibido de)\b"#)
     static let key = Rx(#"(yapeaste|plineaste|enviaste|pagaste|transferiste|te yapearon|te yapeo|te plinearon|te plineo|te enviaron|te envio|te pago|recibiste|monto|importe|total)"#)
     static let bad = Rx(#"(comision|saldo|limite|disponible|itf|cargo|costo)"#)
-    static let amt = Rx(#"(?:^|[^A-Za-z0-9])(?:(S[ \t]*\/[ \t]*\.?|PEN|US[ \t]*\$|USD|\$)|(5[ \t]*\/[ \t]*\.?)(?!\d))[ \t]*(\d{1,3}(?:[. ]\d{3})+(?:[.,]\d{1,2})?|\d{1,3}(?:,\d{3})+(?:[.]\d{1,2})?|\d+(?:[.,]\d{1,2})?)(?![.,]?\d|[ \t]*\/[ \t]*\d)"#, ci: true)
+    static let amt = Rx(#"(?:^|[^A-Za-z0-9])(?:(S[ \t]*\/[ \t]*\.?|PEN|US[ \t]*\$|USD|\$)|(5[ \t]*\/[ \t]*\.?)(?:(?!\d)|(?=\d+[.,]\d{2}(?![.,]?\d))))[ \t]*(\d{1,3}(?:[. ]\d{3})+(?:[.,]\d{1,2})?|\d{1,3}(?:,\d{3})+(?:[.]\d{1,2})?|\d+(?:[.,]\d{1,2})?)(?![.,]?\d|[ \t]*\/[ \t]*\d)"#, ci: true)
     static let labelTo = Rx(#"^(nombre del destinatario|nombre de destinatario|destinatario|destino|enviado a|enviaste a|pagaste a|yapeaste a|plineaste a|transferiste a|beneficiario|nombre del beneficiario|pagado a|comercio|para(?=[ ]*:))\b[ ]*[:\-]?[ ]*(.*)$"#)
     static let labelFrom = Rx(#"^(nombre del remitente|remitente|origen|enviado por|de parte de|recibido de|de)\b[ ]*[:\-]?[ ]*(.*)$"#)
     static let labelMsg = Rx(#"^(mensaje|detalle|concepto|motivo|descripcion|referencia|servicio)\b[ ]*[:\-]?[ ]*(.*)$"#)

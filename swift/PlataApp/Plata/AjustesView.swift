@@ -8,10 +8,16 @@ struct PageHead: View {
     let title: String
     /// El banco cuyo logo reemplaza al título (pantalla de cada banco al importar).
     var bankMark: String? = nil
+    /// Varios logos juntos, del mismo alto (Yape y Plin en la pantalla de la constancia).
+    var bankMarks: [String] = []
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(eyebrow).font(.inter(15)).foregroundStyle(.secondary)
-            if let id = bankMark, BankMarks.all[id] != nil {
+            if !bankMarks.isEmpty {
+                HStack(spacing: 22) { ForEach(bankMarks, id: \.self) { BankMarkView(id: $0, logo: true) } }
+                    .foregroundStyle(Color(red: 0.133, green: 0.710, blue: 0.451)).padding(.top, 8).padding(.bottom, 4)
+                    .accessibilityElement(children: .ignore).accessibilityLabel(title).accessibilityAddTraits(.isHeader)
+            } else if let id = bankMark, BankMarks.all[id] != nil {
                 BankMarkView(id: id, logo: true).foregroundStyle(Color(red: 0.133, green: 0.710, blue: 0.451)).padding(.top, 8).padding(.bottom, 4)
                     .accessibilityElement(children: .ignore).accessibilityLabel(title).accessibilityAddTraits(.isHeader)
             } else {
