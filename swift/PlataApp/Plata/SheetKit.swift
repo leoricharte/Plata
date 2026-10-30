@@ -134,7 +134,7 @@ struct ChipRow: View {
                             .foregroundStyle(on ? Color(light: "#FFFFFF", dark: "#000000") : Color.primary)
                             .padding(.horizontal, 16)
                             .frame(height: 40)
-                            .background(on ? Color(light: "#1C1C1E", dark: "#F2F2F7") : Color(.secondarySystemGroupedBackground), in: Capsule())
+                            .background(on ? Color(light: "#1C1C1E", dark: "#F2F2F7") : Brand.glassFill, in: Capsule())
                     }
                     .buttonStyle(.plain)
                 }
@@ -168,7 +168,7 @@ struct PillSegmented<Value: Hashable>: View {
                         .background {
                             if selection == item.0 {
                                 Capsule()
-                                    .fill(Color(.secondarySystemGroupedBackground))
+                                    .fill(Color(light: "#FFFFFF", dark: "#1F4332"))
                                     .shadow(color: .black.opacity(0.14), radius: 2, y: 1)
                                     .shadow(color: .black.opacity(0.06), radius: 6, y: 4)
                                     .matchedGeometryEffect(id: "thumb", in: ns)
@@ -181,7 +181,7 @@ struct PillSegmented<Value: Hashable>: View {
             }
         }
         .padding(3)
-        .background(Color(light: "#E5E5EA", dark: "#2C2C2E"), in: Capsule())
+        .background(Color(light: "#E5E5EA", dark: "#0A2218"), in: Capsule())
     }
 }
 
