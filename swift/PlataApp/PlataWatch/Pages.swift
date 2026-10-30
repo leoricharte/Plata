@@ -191,6 +191,8 @@ struct AddPage: View {
     @State private var lastCrown = 500.0
     @State private var lastTick = Date.distantPast
     @State private var streakStart = Date.distantPast
+    @State private var lastDir = 1.0
+    @State private var crownAcc = 0.0
     @State private var value = 0.0
     @State private var isOut = true
     @State private var category = ""
@@ -207,29 +209,33 @@ struct AddPage: View {
         }
     }
 
-    /// Corona con tres velocidades: lento = de a 0.01 (preciso); normal = de a 0.25; rápido y sostenido = acelera (1, 5, 25).
+    /// Corona estable: cada muesca suma o resta de a 0.25. Si el usuario sigue girando sin pausa en el mismo sentido,
+    /// el paso crece poco a poco (0.25 → 0.5 → 1 → 2 → 5 → 10 → 25); al pausar o cambiar de sentido vuelve a 0.25.
+    private static let ladder: [Double] = [0.25, 0.5, 1, 2, 5, 10, 25]
     private func turned(to new: Double) {
         let now = Date()
         let d0 = new - lastCrown
         lastCrown = new
         if abs(new - 500) > 400 { crown = 500; lastCrown = 500; return }   // recentra sin saltos
         guard d0 != 0 else { return }
-        let dt = max(0.016, now.timeIntervalSince(lastTick))
-        if dt > 0.35 { streakStart = now }
+        let dir: Double = d0 < 0 ? -1 : 1
+        if now.timeIntervalSince(lastTick) > 0.35 || dir != lastDir { streakStart = now; crownAcc = 0 }   // pausa o giro inverso: otra vez a 0.25
         lastTick = now
-        let rate = abs(d0) / dt                       // vueltas por segundo
+        lastDir = dir
+        crownAcc += abs(d0) * 24                       // 24 muescas por vuelta
         let sustained = now.timeIntervalSince(streakStart)
-        let unit: Double
-        switch rate {
-        case ..<0.45: unit = 0.01
-        case ..<1.3: unit = 0.25
-        case ..<2.6: unit = sustained > 0.8 ? 1 : 0.25
-        default: unit = sustained > 1.6 ? 25 : sustained > 0.8 ? 5 : 1
+        let rung = min(Self.ladder.count - 1, Int(sustained / 0.9))   // un escalón cada ~0.9 s seguidos
+        let unit = Self.ladder[rung]
+        var moved = false
+        while crownAcc >= 1 {
+            crownAcc -= 1
+            var v = value
+            if v.truncatingRemainder(dividingBy: 0.25) != 0 { v = dir > 0 ? (v / 0.25).rounded(.up) * 0.25 : (v / 0.25).rounded(.down) * 0.25 }
+            else { v += dir * unit }
+            value = max(0, (v * 100).rounded() / 100)
+            moved = true
         }
-        let before = value
-        value = max(0, ((value + (d0 < 0 ? -1 : 1) * abs(d0) * 24 * unit) * 100).rounded() / 100)
-        let q = max(unit, 0.25)
-        if (before / q).rounded(.down) != (value / q).rounded(.down) { WKInterfaceDevice.current().play(.click) }
+        if moved { WKInterfaceDevice.current().play(.click) }
     }
 
     private func done(_ s: WatchSnapshot) -> some View {
