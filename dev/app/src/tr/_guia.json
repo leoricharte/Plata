@@ -1,0 +1,12 @@
+{
+ "guia": [
+  "Cada archivo es una lista de filas: [es, en, ja, it, fr, hr] y, si hace falta, una 7.ª posición con una nota para quien traduce. La nota no llega a la app.",
+  "La frase en español (columna 1) es la clave: la app busca ese texto exacto para cambiarlo. Si cambias el español, cambia la clave; hazlo a propósito.",
+  "Marcadores como {0}, {1}, {m}, {d}, {y}: se mantienen idénticos en todos los idiomas (misma cantidad y mismas llaves). Pueden cambiar de posición.",
+  "Nombres propios y de producto (Plata, Plata Cloud, Nazca, Estudio 22, bancos y tarjetas) no se traducen.",
+  "Tono: tuteo («tú») en español, directo y corto. Los textos de botones y pestañas deben ser breves (idealmente no más largos que el original, pues la barra y los botones tienen poco espacio).",
+  "Conserva la puntuación final del original (punto, signos de apertura ¿ ¡, puntos suspensivos) y las mayúsculas de títulos.",
+  "Dinero y fechas los da la app (formato según moneda e idioma): no escribas cifras ni nombres de mes dentro de la frase salvo que sean un marcador.",
+  "Para añadir una nota a una fila, agrega un 7.º elemento de texto. Para dejar un comentario general en un archivo, usa un objeto suelto {\"nota\": \"...\"} entre las filas."
+ ]
+}
