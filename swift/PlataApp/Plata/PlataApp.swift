@@ -7,32 +7,19 @@ struct PlataApp: App {
     @State private var cloud = CloudModel()
     @AppStorage(Prefs.themeKey) private var theme = "auto"
     @AppStorage(Prefs.langKey) private var lang = "auto"
-    @State private var showSplash = true
-    @State private var opening = false
-    @State private var footerGone = false
     @Environment(\.scenePhase) private var scenePhase
 
     init() { PlataFont.register() }
 
     var body: some Scene {
         WindowGroup {
-            ZStack {
-                RootView().id(Tr.resolve(lang))
-                if !showSplash { TourOverlay() }
-                if showSplash {
-                    SplashView(opening: opening, footerGone: footerGone).zIndex(1)
+            PlataLaunchTransition(onFinished: { model.splashDone = true }) {
+                ZStack {
+                    RootView().id(Tr.resolve(lang))
+                    if model.splashDone { TourOverlay() }
                 }
-            }
-            .onAppear { AppLock.shared.attach() }
-            .onChange(of: lang) { _, _ in WidgetBridge.shared.push() }
-            .task {
-                try? await Task.sleep(for: .seconds(0.9))
-                footerGone = true
-                try? await Task.sleep(for: .seconds(0.5))
-                withAnimation(.easeInOut(duration: 0.75)) { opening = true }
-                try? await Task.sleep(for: .seconds(0.85))
-                showSplash = false
-                model.splashDone = true
+                .onAppear { AppLock.shared.attach() }
+                .onChange(of: lang) { _, _ in WidgetBridge.shared.push() }
             }
             .environment(model)
                 .environment(cloud)
