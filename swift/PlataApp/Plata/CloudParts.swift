@@ -87,7 +87,6 @@ struct CloudPriceLine: View {
     }
 }
 
-/// Nubes verdes de fondo de las tarjetas de Plata Cloud.
 // MARK: texto de estado
 
 extension CloudModel {
