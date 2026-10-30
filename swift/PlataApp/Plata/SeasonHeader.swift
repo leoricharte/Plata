@@ -237,11 +237,19 @@ struct SeasonArt: View {
     static let shared = SeasonMotion()
     var start: Date?
     var done = false
+    private var run = 0
     func begin(reduceMotion: Bool) {
         guard start == nil, !done else { return }
+        play(reduceMotion: reduceMotion)
+    }
+    /// Arranca (o vuelve a arrancar) el movimiento: al abrir la app y cada vez que cambias de mes.
+    func play(reduceMotion: Bool) {
         if reduceMotion { done = true; return }
+        run += 1
+        let mine = run
+        done = false
         start = Date()
-        Task { try? await Task.sleep(for: .seconds(SeasonArt.total + 0.3)); self.done = true }
+        Task { try? await Task.sleep(for: .seconds(SeasonArt.total + 0.3)); if mine == self.run { self.done = true } }
     }
 }
 
@@ -288,6 +296,10 @@ struct MonthHeader: View {
         .padding(.top, 16).padding(.bottom, 2)
         .accessibilityElement(children: .combine)
         .onScrollVisibilityChange(threshold: 0.6) { seen = $0 }
+        .onChange(of: year * 12 + month0) { _, _ in
+            // al cambiar de mes en el selector, el dibujo vuelve a moverse una vez
+            if SeasonMotion.shared.start != nil || SeasonMotion.shared.done { SeasonMotion.shared.play(reduceMotion: reduceMotion) }
+        }
         .task(id: seen) {
             guard seen else { return }
             while !model.splashDone || AppLock.shared.locked { try? await Task.sleep(for: .milliseconds(100)); if Task.isCancelled { return } }
