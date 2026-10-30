@@ -87,6 +87,18 @@ struct CloudPriceLine: View {
     }
 }
 
+/// Nubecita verde de fondo de las tarjetas de Plata Cloud.
+private struct CloudBackdrop: View {
+    var body: some View {
+        ZStack(alignment: .topTrailing) {
+            CloudMark(kind: .cloud, height: 40).opacity(0.10).offset(x: 24, y: -4).foregroundStyle(Brand.accent)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+}
+
 // MARK: texto de estado
 
 extension CloudModel {
@@ -197,6 +209,7 @@ struct CloudCard: View {
         .padding(.horizontal, 16).padding(.top, 12).padding(.bottom, 14)
         .frame(maxWidth: .infinity, alignment: .leading)
         .plataGlass(in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .overlay { CloudBackdrop().clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous)) }
         .padding(.top, 6).padding(.bottom, 14)
         .alert(Tr.t(ask?.title ?? ""), isPresented: Binding(get: { ask != nil }, set: { if !$0 { ask = nil } }), presenting: ask) { a in
             Button(a.action, role: a.destructive ? .destructive : nil) { run(a) }
