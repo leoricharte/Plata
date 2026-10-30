@@ -62,14 +62,15 @@ struct InsightsBanner: View {
                     Text(InsightsText.phrase(m, nick: nickOf(e), gender: Engine.text(e.data["settings"]?["gender"])))
                         .font(.inter(15)).opacity(0.95).multilineTextAlignment(.center).padding(.horizontal, 6).padding(.bottom, 14)
                 } else { Spacer().frame(height: 8) }
-                Text("Ver informe").font(.inter(17, .semibold)).foregroundStyle(g[1])
+                Text("Ver informe").font(.inter(17, .semibold)).foregroundStyle(.white)
                     .frame(maxWidth: .infinity).frame(height: 50)
-                    .plataGlass(in: Capsule())
+                    .background(.white.opacity(0.14), in: Capsule())
             }
             .foregroundStyle(.white)
             .padding(18).frame(maxWidth: .infinity)
-            .background(GradeFill(g: g))
+            .background(LinearGradient(colors: [Color(hex: "#2C2C2E"), Color(hex: "#0B0B0C")], startPoint: .top, endPoint: .bottom))
             .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 26, style: .continuous).strokeBorder(.white.opacity(0.1), lineWidth: 1))
             .shadow(color: .black.opacity(0.12), radius: 12, y: 8)
         }
         .buttonStyle(.plain)
@@ -95,7 +96,7 @@ struct InsightsBanner: View {
                 }
                 Text("Ver informe hasta ahora").font(.inter(16, .semibold)).foregroundStyle(.white)
                     .frame(maxWidth: .infinity).frame(height: 42)
-                    .background(LinearGradient(colors: [Color(hex: "#2C2C2E"), Color(hex: "#0B0B0C")], startPoint: .top, endPoint: .bottom), in: Capsule())
+                    .background(Brand.ink, in: Capsule())
             }
             .padding(.horizontal, 16).padding(.vertical, 14)
             .plataGlass(in: RoundedRectangle(cornerRadius: 24, style: .continuous))
