@@ -111,6 +111,7 @@ struct BudgetPage: View {
 
     var body: some View {
         if let s = store.snapshot {
+            GeometryReader { geo in
             ScrollViewReader { proxy in
                 ScrollView {
                     VStack(spacing: 8) {
@@ -121,7 +122,7 @@ struct BudgetPage: View {
                                 Amount(text: s.fmt(abs(left))).font(.system(size: 26, weight: .bold, design: .rounded)).foregroundStyle(left < 0 ? .red : .primary)
                                 Text(left < 0 ? "pasado hoy" : "te quedan hoy").font(.system(size: 13)).foregroundStyle(.secondary)
                             }
-                        } else {
+                        } else if !hidden {
                             Text(s.cats.isEmpty ? "Sin presupuesto este mes" : "Presupuesto del mes agotado").font(.system(size: 14)).foregroundStyle(.secondary).multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
                         }
                         if !s.cats.isEmpty && !expanded && !hidden {
@@ -142,7 +143,7 @@ struct BudgetPage: View {
                         if !hidden { SyncNote().padding(.top, 4) }
                     }
                     .padding(.horizontal, 6)
-                    .frame(maxWidth: .infinity)
+                    .frame(maxWidth: .infinity, minHeight: geo.size.height)   // sin lo demás, el aro queda centrado en la pantalla
                     .contentShape(Rectangle())
                     .onTapGesture {
                         withAnimation { expanded.toggle() }
@@ -150,6 +151,7 @@ struct BudgetPage: View {
                         if !expanded { DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { withAnimation { proxy.scrollTo("lista", anchor: .top) } } }
                     }
                 }
+            }
             }
         } else {
             VStack { SyncNote() }
@@ -168,8 +170,8 @@ struct BudgetPage: View {
     @ViewBuilder private func rings(_ s: WatchSnapshot) -> some View {
         let top = Array(s.cats.prefix(3))
         // el dibujo se compone en 160 pt y se escala para llenar el ancho del reloj
-        let d = min(WKInterfaceDevice.current().screenBounds.width - 8, 190)
-        let k = max(1, d / 160)
+        let d = min(WKInterfaceDevice.current().screenBounds.width * 0.84, 180)
+        let k = d / 160
         Group { if top.isEmpty { singleRing(s) } else { multiRing(s, top) } }
             .scaleEffect(k)
             .frame(width: 160 * k, height: 160 * k)
