@@ -55,7 +55,7 @@ struct ShareView: View {
         VStack(spacing: 12) {
             Image(systemName: "checkmark.circle.fill").font(.system(size: 44)).foregroundStyle(green)
             summary(r)
-            Text(verbatim: Tr.t("Guardada. Plata la añade al abrirse.")).font(.system(size: 14)).foregroundStyle(.secondary).multilineTextAlignment(.center)
+            Text(verbatim: Tr.t("Guardada. Queda en Revisión para que la confirmes.")).font(.system(size: 14)).foregroundStyle(.secondary).multilineTextAlignment(.center)
         }
     }
 

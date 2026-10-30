@@ -50,7 +50,9 @@ struct ReviewView: View {
 
     var body: some View {
         let cards = model.reviewCards
+        let consts = model.pendingConstancias
         let tabs = Self.groups.filter { g in cards.contains { g.kinds.contains($0.kind) } }
+            + (consts.isEmpty ? [] : [Kind(id: "const", name: "Constancias", symbol: "doc.text.viewfinder", kinds: [])])
         let sel = tabs.first { $0.id == model.reviewTab } ?? tabs.first
         let list = sel.map { g in cards.filter { g.kinds.contains($0.kind) } } ?? []
         let likely = cards.filter { $0.kind == "xfer" && $0.hi }
@@ -69,7 +71,7 @@ struct ReviewView: View {
                     .plataGlass(in: RoundedRectangle(cornerRadius: 22, style: .continuous))
                     .padding(.horizontal, 16).padding(.bottom, 12)
                 }
-                if cards.isEmpty {
+                if cards.isEmpty && consts.isEmpty {
                     VStack(spacing: 4) {
                         Text("Todo en orden").font(.inter(17, .bold))
                         Text("Plata no encontró movimientos que parezcan mal clasificados.").font(.inter(13.5)).foregroundStyle(.secondary).multilineTextAlignment(.center)
@@ -80,10 +82,13 @@ struct ReviewView: View {
                 } else if let sel {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
-                            ForEach(tabs, id: \.id) { g in tab(g, count: cards.filter { g.kinds.contains($0.kind) }.count, on: g.id == sel.id) }
+                            ForEach(tabs, id: \.id) { g in tab(g, count: g.id == "const" ? consts.count : cards.filter { g.kinds.contains($0.kind) }.count, on: g.id == sel.id) }
                         }.padding(.horizontal, 16)
                     }
                     .padding(.bottom, 12)
+                    if sel.id == "const" {
+                        VStack(spacing: 12) { ForEach(consts) { constanciaCard($0) } }.padding(.horizontal, 16)
+                    } else {
                     if sel.id == "transf" && likely.count >= 3 {
                         Button { notice = Tr.t("Transferencia registrada"); model.reviewAcceptAllLikely() } label: {
                             HStack(spacing: 8) {
@@ -121,6 +126,7 @@ struct ReviewView: View {
                             }
                         }
                         .font(.inter(13)).foregroundStyle(.secondary).padding(.top, 12)
+                    }
                     }
                 }
                 if model.reviewOffCount > 0 {
@@ -191,6 +197,49 @@ struct ReviewView: View {
         }
         .padding(22)
         .frame(minHeight: 380, alignment: .top)
+        .plataGlass(in: RoundedRectangle(cornerRadius: 28, style: .continuous))
+    }
+
+    /// Una constancia de Yape/Plin compartida, esperando que la revises (no es un movimiento hasta que la importes).
+    private func constanciaCard(_ c: ConstanciaInbox.Entry) -> some View {
+        let f = model.fmt
+        let brand = c.brand.lowercased()
+        let date = LocalDate(iso: c.date).map { Spanish.dateShort($0) } ?? c.date
+        return VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 12) {
+                Group {
+                    if BankMarks.all[brand] != nil { BankMarkView(id: brand, size: 30).foregroundStyle(Color(red: 0.133, green: 0.710, blue: 0.451)) }
+                    else { Image(systemName: "doc.text").font(.system(size: 26)) }
+                }.frame(width: 44, height: 44)
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 6) {
+                        Text(verbatim: c.brand.capitalized).font(.inter(18, .bold)).tracking(-0.4)
+                        Image(systemName: "checkmark.seal.fill").font(.system(size: 16)).foregroundStyle(Brand.accent)
+                            .accessibilityLabel(Tr.t(c.brand.capitalized + " verificado"))
+                    }
+                    Text(verbatim: c.name.isEmpty ? c.desc : c.name).font(.inter(14.5)).foregroundStyle(.secondary).lineLimit(1)
+                }
+                Spacer(minLength: 8)
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text((c.amount < 0 ? "−" : "+") + f.exact(abs(c.amount), c.cur)).font(.inter(16, .semibold)).monospacedDigit()
+                    Text(verbatim: date).font(.inter(12.5)).foregroundStyle(.secondary)
+                }
+            }
+            Text("Constancia compartida. Revísala para elegir la cuenta y añadirla como movimiento.").font(.inter(13.5)).foregroundStyle(.secondary).padding(.top, 10)
+            Button {
+                let id = c.id
+                dismiss()
+                Task { try? await Task.sleep(for: .milliseconds(400)); model.reviewConstancias([id]) }
+            } label: {
+                Text("Revisar").font(.inter(17, .semibold)).foregroundStyle(.white).frame(maxWidth: .infinity).frame(height: 50).background(Brand.ink, in: Capsule())
+            }
+            .buttonStyle(.plain).padding(.top, 14)
+            Button { model.discardConstancia(c.id) } label: {
+                Text("Descartar").font(.inter(16)).foregroundStyle(Brand.green).frame(maxWidth: .infinity).frame(height: 44)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(18)
         .plataGlass(in: RoundedRectangle(cornerRadius: 28, style: .continuous))
     }
 

@@ -40,19 +40,7 @@ struct RootView: View {
         .fullScreenCover(isPresented: $model.showWelcome) { WelcomeView().interactiveDismissDisabled() }
         .fullScreenCover(isPresented: $model.showNews) { NewsStoryView() }
         .fullScreenCover(isPresented: $model.showImport, onDismiss: { model.importAtCapture = false }) { ImportFlowView(startAtCapture: model.importAtCapture) }
-        .fullScreenCover(isPresented: $model.showInboxReview) { ImportFlowView(preloaded: model.inboxReviews) }
-        .overlay(alignment: .bottom) {
-            if let d = model.inboxDone {
-                HStack {
-                    Text(d.text).font(.inter(15)).lineLimit(2)
-                    Spacer(minLength: 8)
-                    Button("Deshacer") { model.importUndo(d.applied); model.inboxDone = nil }.font(.inter(15, .semibold))
-                }
-                .padding(14).background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
-                .padding(.horizontal, 16).padding(.bottom, 12)
-                .task { try? await Task.sleep(for: .seconds(6)); model.inboxDone = nil }
-            }
-        }
+        .fullScreenCover(isPresented: $model.showInboxReview, onDismiss: { model.processConstanciaInbox() }) { ImportFlowView(preloaded: model.inboxReviews) }
         .onChange(of: scenePhase) { _, p in
             if p == .active { Task { while model.splashDone == false || AppLock.shared.locked { try? await Task.sleep(for: .milliseconds(100)) }; model.processConstanciaInbox() } }
         }

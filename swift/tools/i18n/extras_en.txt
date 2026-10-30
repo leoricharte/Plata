@@ -287,3 +287,11 @@ Revisa el monto ¦ Check the amount
 Había más de un monto en la constancia. ¦ There was more than one amount in the receipt.
 Constancia añadida: {0} ¦ Receipt added: {0}
 No encontré el nombre. ¦ I couldn’t find the name.
+Constancias ¦ Receipts
+Yape verificado ¦ Yape verified
+Plin verificado ¦ Plin verified
+Tienes 1 constancia de {0} por revisar ¦ You have 1 {0} receipt to review
+Tienes {0} constancias de {1} por revisar ¦ You have {0} {1} receipts to review
+Constancia compartida. Revísala para elegir la cuenta y añadirla como movimiento. ¦ Shared receipt. Review it to pick the account and add it as a transaction.
+Descartar ¦ Dismiss
+Guardada. Queda en Revisión para que la confirmes. ¦ Saved. It waits in Review for you to confirm.

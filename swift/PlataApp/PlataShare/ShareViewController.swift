@@ -2,7 +2,7 @@ import UIKit
 import SwiftUI
 
 /// La extensión «Compartir» de Plata: aparece en la hoja de compartir de Yape, Plin, Fotos o Archivos cuando lo que se comparte es una imagen, un PDF o texto.
-/// Lee la constancia EN EL DISPOSITIVO (Vision + Nazca) y la deja en la bandeja compartida; la app la añade al abrirse.
+/// Lee la constancia EN EL DISPOSITIVO (Vision + Nazca) y la deja en la bandeja compartida; la app NO la añade sola: queda en espera (banner del Resumen y «Constancias» en Revisión).
 final class ShareViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()

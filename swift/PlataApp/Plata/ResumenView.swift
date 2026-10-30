@@ -33,6 +33,7 @@ struct ResumenView: View {
                     reviewBanner(e)
                     if !hasData(e) { startCard }
                     KPIGrid(items: kpis(e, c, f))
+                    constanciaBanner
                     nextIncomeCard(e, f)
                     nextExpenseCard(e, f)
                     payCard(e)
@@ -204,6 +205,26 @@ struct ResumenView: View {
         if pending { return days < 0 ? "esperado hace \(-days) \(days == -1 ? "día" : "días")" : "esperado hoy" }
         let label = Spanish.dateShort(day)
         return days > 0 ? "\(label) · en \(days) \(days == 1 ? "día" : "días")" : label
+    }
+
+    /// Constancias de Yape/Plin compartidas que esperan revisión (arriba del próximo ingreso).
+    @ViewBuilder
+    private var constanciaBanner: some View {
+        let n = model.pendingConstancias.count
+        if n > 0 {
+            Button { model.reviewConstancias() } label: {
+                HStack(spacing: 10) {
+                    Text(verbatim: n == 1 ? Tr.f("Tienes 1 constancia de {0} por revisar", model.constanciaBrands) : Tr.f("Tienes {0} constancias de {1} por revisar", String(n), model.constanciaBrands))
+                        .font(.inter(14)).foregroundStyle(Brand.warnText).multilineTextAlignment(.leading)
+                    Spacer(minLength: 0)
+                    Text("Revisar").font(.inter(14, .bold)).foregroundStyle(Brand.warnText)
+                }
+                .padding(.horizontal, 14).padding(.vertical, 10)
+                .background(Brand.warn.opacity(0.16), in: Capsule())
+                .contentShape(Capsule())
+            }
+            .buttonStyle(.plain)
+        }
     }
 
     private func reviewBanner(_ e: Engine) -> some View {
@@ -454,7 +475,7 @@ struct ResumenView: View {
             .buttonStyle(.plain)
             RowDivider()
             Button { model.activeSheet = .review } label: {
-                let n = model.reviewCards.count
+                let n = model.reviewCards.count + model.pendingConstancias.count
                 MoreRow(title: "Revisión", detail: n > 0 ? "\(n) " + Tr.t("por revisar") : Tr.t("Todo en orden"), detailColor: n > 0 ? Brand.warn : .secondary)
             }
             .buttonStyle(.plain)

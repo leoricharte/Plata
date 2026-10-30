@@ -85,6 +85,25 @@ enum ConstanciaInbox {
         return out
     }
 
+    /// Todo lo que hay esperando, sin vaciar la bandeja (la app lo guarda aquí hasta que la persona lo revise o lo descarte).
+    static func all() -> [Entry] {
+        guard let u = url, FileManager.default.fileExists(atPath: u.path) else { return [] }
+        var out: [Entry] = []
+        _ = coordinated(u) { out = read($0) }
+        return out.sorted { $0.added < $1.added }
+    }
+
+    /// Quita de la bandeja las constancias ya revisadas o descartadas.
+    static func remove(ids: Set<String>) {
+        guard !ids.isEmpty, let u = url, FileManager.default.fileExists(atPath: u.path) else { return }
+        _ = coordinated(u) { target in
+            let left = read(target).filter { !ids.contains($0.id) }
+            if left.isEmpty { try? FileManager.default.removeItem(at: target); return }
+            guard let d = try? JSONEncoder().encode(left) else { return }
+            try? d.write(to: target, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
+        }
+    }
+
     /// Cuántas hay esperando (sin tocarlas).
     static var count: Int { url.map { read($0).count } ?? 0 }
 }

@@ -1015,7 +1015,9 @@ struct ImportReviewBody: View {
         }()
         let src = review.source
         let bank = src?.bank
-        let title: String = bank.map { Nazca.bankShort($0) } ?? ((src?.label).flatMap { $0.isEmpty ? nil : $0 } ?? (review.guess.isEmpty ? Tr.t(review.gen ? "Archivo PDF" : "Archivo CSV") : review.guess))
+        let plin = src?.label.hasPrefix("Plin") == true
+        let constBrand: String? = bank == "yape" ? "Yape" : plin ? "Plin" : nil
+        let title: String = constBrand ?? bank.map { Nazca.bankShort($0) } ?? ((src?.label).flatMap { $0.isEmpty ? nil : $0 } ?? (review.guess.isEmpty ? Tr.t(review.gen ? "Archivo PDF" : "Archivo CSV") : review.guess))
         let ci = src?.cardInfo
         let due = ci?.dueDate.flatMap { LocalDate(iso: $0) }
         return SCard {
@@ -1028,9 +1030,9 @@ struct ImportReviewBody: View {
                 VStack(alignment: .leading, spacing: 5) {
                     HStack(spacing: 6) {
                         Text(verbatim: title).font(.inter(19, .bold))
-                        if bank != nil {
+                        if bank != nil || plin {
                             Image(systemName: "checkmark.seal.fill").font(.system(size: 18)).foregroundStyle(Brand.accent)
-                                .accessibilityLabel("Banco verificado")
+                                .accessibilityLabel(constBrand.map { Tr.t($0 + " verificado") } ?? Tr.t("Banco verificado"))
                         }
                     }
                     VStack(alignment: .leading, spacing: 3) {

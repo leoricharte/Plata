@@ -35,8 +35,8 @@ final class AppModel {
     /// Constancias compartidas desde Yape/Plin que necesitan que la persona las revise.
     var inboxReviews: [ImportReview] = []
     var showInboxReview = false
-    /// Lo que se añadió solo desde «Compartir», con su «Deshacer».
-    var inboxDone: (text: String, applied: ImportReview.Applied)?
+    /// Constancias de Yape/Plin que llegaron por «Compartir» y esperan a que la persona las revise (nada se añade solo).
+    var pendingConstancias: [ConstanciaInbox.Entry] = []
     var showFeedback = false
     var feedbackManual = false
     /// Hoja abierta desde el botón «+» o desde las listas (transferir, ingreso o gasto previsto).
@@ -267,22 +267,38 @@ final class AppModel {
     /// Abre la hoja de confirmar si hay algo vencido y no hay otra hoja abierta (`checkPending`).
     var splashDone = false
 
-    /// Vacía el buzón de «Compartir»: lo seguro se añade solo (con «Deshacer»); el resto pasa por la revisión.
+    /// Lee las constancias que dejó «Compartir». Nunca crea movimientos: quedan en espera (banner del Resumen y «Constancias» en Revisión)
+    /// hasta que la persona las revise. Las que ya están en sus movimientos (repetidas) se quitan solas.
     func processConstanciaInbox() {
-        let entries = ConstanciaInbox.take()
-        guard !entries.isEmpty else { return }
-        var review: [ImportReview] = []
-        var last: (String, ImportReview.Applied)?
-        for e in entries {
-            guard let rev = ImportReview(name: "Constancia", statement: e.statement, engine: engine) else { continue }
-            if e.auto, rev.rows.count == 1, rev.rows[0].on, rev.rows[0].why == .none, let ap = importApply(rev) {
-                last = ("\(e.brand.capitalized) · \(e.desc)", ap)
-            } else if rev.rows.contains(where: { $0.why != .exact }) {
-                review.append(rev)
-            }
+        let all = ConstanciaInbox.all()
+        var gone = Set<String>()
+        var keep: [ConstanciaInbox.Entry] = []
+        for e in all {
+            if let rev = ImportReview(name: "Constancia", statement: e.statement, engine: engine), !rev.rows.allSatisfy({ $0.why == .exact }) { keep.append(e) }
+            else { gone.insert(e.id) }
         }
-        if let last { inboxDone = (Tr.f("Constancia añadida: {0}", last.0), last.1) }
-        if !review.isEmpty { inboxReviews = Array(review.prefix(ImportReview.maxFiles)); showInboxReview = true }
+        ConstanciaInbox.remove(ids: gone)
+        if keep != pendingConstancias { pendingConstancias = keep }
+    }
+
+    /// Abre la revisión de Nazca con las constancias en espera (o solo con las indicadas).
+    func reviewConstancias(_ ids: Set<String>? = nil) {
+        let list = pendingConstancias.filter { ids?.contains($0.id) ?? true }
+        let revs = list.compactMap { ImportReview(name: "Constancia", statement: $0.statement, engine: engine) }
+        guard !revs.isEmpty else { return }
+        inboxReviews = Array(revs.prefix(ImportReview.maxFiles))
+        showInboxReview = true
+    }
+
+    func discardConstancia(_ id: String) {
+        ConstanciaInbox.remove(ids: [id])
+        pendingConstancias.removeAll { $0.id == id }
+    }
+
+    /// Texto del aviso: «Yape», «Plin» o «Yape y Plin» según lo que haya.
+    var constanciaBrands: String {
+        let b = Set(pendingConstancias.map { $0.brand.lowercased() })
+        return b.contains("yape") && b.contains("plin") ? "Yape y Plin" : b.contains("plin") ? "Plin" : "Yape"
     }
 
     func checkPending() {
