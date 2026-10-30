@@ -17,7 +17,7 @@ final class WatchStore: NSObject, WCSessionDelegate {
 
     override init() {
         super.init()
-        if let d = UserDefaults.standard.data(forKey: key), let s = try? JSONDecoder().decode(WatchSnapshot.self, from: d) { snapshot = s }
+        if let d = UserDefaults.standard.data(forKey: key), let s = try? JSONDecoder().decode(WatchSnapshot.self, from: d) { snapshot = s; Tr.forced = s.lang }
         guard WCSession.isSupported() else { return }
         WCSession.default.delegate = self
         WCSession.default.activate()
@@ -28,6 +28,7 @@ final class WatchStore: NSObject, WCSessionDelegate {
     private func take(_ ctx: [String: Any]) {
         guard let d = ctx[WatchKey.snapshot] as? Data, let s = try? JSONDecoder().decode(WatchSnapshot.self, from: d) else { return }
         snapshot = s
+        Tr.forced = s.lang
         UserDefaults.standard.set(d, forKey: key)
         WatchShare.save(d)
         WidgetCenter.shared.reloadAllTimelines()

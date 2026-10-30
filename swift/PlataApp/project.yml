@@ -56,6 +56,9 @@ targets:
     sources:
       - path: PlataWatch
       - path: Shared
+      - path: SharedWatch
+      - path: Plata/Tr.swift
+      - path: Plata/Resources/tr_en.json
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: net.plataapp.plata.watchkitapp   # CÁMBIALO si tu App ID del reloj es otro
@@ -77,6 +80,9 @@ targets:
     sources:
       - path: PlataWatchWidgets
       - path: Shared
+      - path: SharedWatch
+      - path: Plata/Tr.swift
+      - path: Plata/Resources/tr_en.json
     info:
       path: PlataWatchWidgets/Info.plist
       properties:

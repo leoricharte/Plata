@@ -120,19 +120,19 @@ private let families: [WidgetFamily] = [.accessoryCircular, .accessoryRectangula
 struct BudgetWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: "plata.budget", provider: SnapProvider()) { BudgetWidgetView(e: $0).containerBackground(.fill.tertiary, for: .widget) }
-            .configurationDisplayName("Presupuesto de hoy").description("Lo que te queda para gastar hoy.").supportedFamilies(families)
+            .configurationDisplayName(Tr.t("Presupuesto de hoy")).description(Tr.t("Lo que te queda para gastar hoy.")).supportedFamilies(families)
     }
 }
 struct InsightsWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: "plata.insights", provider: SnapProvider()) { InsightsWidgetView(e: $0).containerBackground(.fill.tertiary, for: .widget) }
-            .configurationDisplayName("Nota de Insights").description("La nota del mes.").supportedFamilies(families)
+            .configurationDisplayName(Tr.t("Nota de Insights")).description(Tr.t("La nota del mes.")).supportedFamilies(families)
     }
 }
 struct NextWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: "plata.next", provider: SnapProvider()) { NextWidgetView(e: $0).containerBackground(.fill.tertiary, for: .widget) }
-            .configurationDisplayName("Próximo cobro").description("Tu próximo ingreso o pago.").supportedFamilies(families)
+            .configurationDisplayName(Tr.t("Próximo cobro")).description(Tr.t("Tu próximo ingreso o pago.")).supportedFamilies(families)
     }
 }
 

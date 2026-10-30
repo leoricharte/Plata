@@ -99,7 +99,7 @@ struct BentoWidget: Widget {
         AppIntentConfiguration(kind: "plata.bento", intent: BentoIntent.self, provider: BentoProvider()) { e in
             BentoView(e: e).containerBackground(.black, for: .widget)
         }
-        .configurationDisplayName("Bento").description("Un bento de tu galería: tú eliges las piezas.")
+        .configurationDisplayName("Bento").description(Tr.t("Un bento de tu galería: tú eliges las piezas."))
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge]).contentMarginsDisabled()
     }
 }

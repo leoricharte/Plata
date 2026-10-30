@@ -102,7 +102,7 @@ final class WatchBridge: NSObject, WCSessionDelegate {
             spentToday: spentToday, allowance: allowance, daysLeft: dl, cats: Array(cats.prefix(12)), days: days,
             accounts: accounts, categories: e.categoryNames.filter { $0 != "Ingreso" }, catInfo: catInfo, letter: im.letter,
             adjective: Tr.t(InsightsText.adjective[im.letter] ?? ""), tier: im.plus == .diamond ? "diamond" : (im.plus == .plus ? "plus" : "none"),
-            nextName: next?.0 ?? "", nextAmt: next?.1 ?? 0, nextIn: next?.2 ?? -1, hasCredit: creditLimit > 0)
+            nextName: next?.0 ?? "", nextAmt: next?.1 ?? 0, nextIn: next?.2 ?? -1, hasCredit: creditLimit > 0, lang: Tr.lang)
     }
 
     /// Solo el glifo del banco (sin fondo), en blanco, para que el reloj lo pinte del color que quiera. Solo si ya existe un logo real.

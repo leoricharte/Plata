@@ -59,6 +59,7 @@ struct WatchSnapshot: Codable {
     var nextAmt: Double
     var nextIn: Int                     // días hasta el próximo cobro o pago (-1 = no hay)
     var hasCredit: Bool                 // hay tarjetas con límite
+    var lang: String? = nil             // idioma de la app (es / en) para textos del reloj
 }
 
 /// Un movimiento anotado en el reloj, pendiente de guardarse en el iPhone.
@@ -96,6 +97,8 @@ enum WatchShare {
     static func save(_ data: Data) { defaults.set(data, forKey: WatchKey.snapshot) }
     static func load() -> WatchSnapshot? {
         guard let d = defaults.data(forKey: WatchKey.snapshot) else { return nil }
-        return try? JSONDecoder().decode(WatchSnapshot.self, from: d)
+        guard let s = try? JSONDecoder().decode(WatchSnapshot.self, from: d) else { return nil }
+        Tr.forced = s.lang
+        return s
     }
 }
