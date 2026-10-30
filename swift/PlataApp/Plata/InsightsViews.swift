@@ -62,9 +62,7 @@ struct InsightsBanner: View {
                     Text(InsightsText.phrase(m, nick: nickOf(e), gender: Engine.text(e.data["settings"]?["gender"])))
                         .font(.inter(15)).opacity(0.95).multilineTextAlignment(.center).padding(.horizontal, 6).padding(.bottom, 14)
                 } else { Spacer().frame(height: 8) }
-                Text("Ver informe").font(.inter(17, .semibold)).foregroundStyle(g[1])
-                    .frame(maxWidth: .infinity).frame(height: 50)
-                    .plataGlass(in: Capsule())
+                ReportPill(color: g[1])
             }
             .foregroundStyle(.white)
             .padding(18).frame(maxWidth: .infinity)
@@ -101,6 +99,17 @@ struct InsightsBanner: View {
             .plataGlass(in: RoundedRectangle(cornerRadius: 24, style: .continuous))
         }
         .buttonStyle(.plain)
+    }
+}
+
+/// El botón «Ver informe» del banner de cierre: negro en modo oscuro y blanco en modo claro, con el texto del color del degradado de la nota.
+private struct ReportPill: View {
+    let color: Color
+    @Environment(\.colorScheme) private var scheme
+    var body: some View {
+        Text("Ver informe").font(.inter(17, .semibold)).foregroundStyle(color)
+            .frame(maxWidth: .infinity).frame(height: 50)
+            .background(scheme == .dark ? Color.black : Color.white, in: Capsule())
     }
 }
 
