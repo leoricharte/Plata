@@ -58,7 +58,7 @@ struct MonthView: View {
                 .rowStyle(top: 0, bottom: 14)
 
                 PillSegmented(items: filters(e).map { ($0, label($0, e)) }, selection: $filter)
-                .rowStyle(top: 0, bottom: 2)
+                .rowStyle(top: 0, bottom: 14)
             }
 
             Section {

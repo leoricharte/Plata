@@ -46,7 +46,7 @@ struct MovimientosView: View {
                 .listRowSeparator(.hidden)
 
                 PillSegmented(items: Filter.allCases.map { ($0, $0.title) }, selection: $filter)
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 2, trailing: 0))
+                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 14, trailing: 0))
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
             }
