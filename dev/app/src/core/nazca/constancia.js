@@ -19,15 +19,17 @@ const NazcaConstancia = (() => {
   const KEY = /(yapeaste|plineaste|enviaste|pagaste|transferiste|te yapearon|te yapeo|te plinearon|te plineo|te enviaron|te envio|te pago|recibiste|monto|importe|total)/;
   const BAD = /(comision|saldo|limite|disponible|itf|cargo|costo)/;
   /* Monto: "S/ 18", "S/. 18.50", "S/1,234.50", "PEN 20", "US$ 5". El OCR a veces lee "S/" como "5/": solo se acepta si no sigue otro dígito (no es una fecha). */
-  const AMT = /(?:^|[^A-Za-z0-9])(?:(S[ \t]*\/[ \t]*\.?|PEN|US[ \t]*\$|USD|\$)|(5[ \t]*\/[ \t]*\.?)(?:(?!\d)|(?=\d+[.,]\d{2}(?![.,]?\d))))[ \t]*(\d{1,3}(?:[. ]\d{3})+(?:[.,]\d{1,2})?|\d{1,3}(?:,\d{3})+(?:[.]\d{1,2})?|\d+(?:[.,]\d{1,2})?)(?![.,]?\d|[ \t]*\/[ \t]*\d)/gi;
+  const AMT = /(?:^|[^A-Za-z0-9])(?:(S[ \t]*\/[ \t]*\.?|PEN|US[ \t]*\$|USD|\$)|(5[ \t]*\/[ \t]*\.?)(?:(?!\d)|(?=\d+[.,]\d{2}(?![.,]?\d))))[ \t]*(?:([-−–])[ \t]*)?(\d{1,3}(?:[. ]\d{3})+(?:[.,]\d{1,2})?|\d{1,3}(?:,\d{3})+(?:[.]\d{1,2})?|\d+(?:[.,]\d{1,2})?)(?![.,]?\d|[ \t]*\/[ \t]*\d)/gi;
   const LABEL_TO = /^(nombre del destinatario|nombre de destinatario|destinatario|destino|enviado a|enviaste a|pagaste a|yapeaste a|plineaste a|transferiste a|beneficiario|nombre del beneficiario|pagado a|comercio|contacto|para(?=[ ]*:))\b[ ]*[:\-]?[ ]*(.*)$/;
   const LABEL_FROM = /^(nombre del remitente|remitente|origen|enviado por|de parte de|recibido de|de)\b[ ]*[:\-]?[ ]*(.*)$/;
-  const LABEL_MSG = /^(mensaje|detalle|concepto|motivo|descripcion|referencia|servicio)\b[ ]*[:\-]?[ ]*(.*)$/;
+  const LABEL_MSG = /^(mensaje|detalle(?![ ]+de[ ]+(?:movimiento|la[ ]+operacion))|concepto|motivo|descripcion|referencia|servicio)\b[ ]*[:\-]?[ ]*(.*)$/;
   const LABELISH = /^(nombre|celular|telefono|numero|nro|cuenta|monto|importe|total|fecha|hora|mensaje|detalle|concepto|motivo|operacion|codigo|destino|origen|destinatario|remitente|enviado|recibido|banco|comision|saldo|referencia|servicio|datos|id)\b/;
   const INLINE_NEG = /(?:yapeaste|plineaste|enviaste|pagaste|transferiste)[ ]+(?:(?:s\/|5\/)[ ]*[\d.,]+[ ]+)?a[ ]+(.+)$/;
   const INLINE_POS = /^(.+?)[ ]+te[ ]+(?:yapeo|plineo|envio|pago|transfirio)\b/;
   const DATE_ISO = /(\d{4})-(\d{2})-(\d{2})/, DATE_WORDS = /(\d{1,2})[ ]*(?:de[ ]+)?([a-z]{3,10})\.?,?[ ]*(?:de[ ]+)?(\d{4})/g, DATE_NUM = /(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4}|\d{2})(?![\d])/, TIME_RE = /(\d{1,2}):(\d{2})(?::\d{2})?[ ]*(?:([ap])\.?[ ]?m\b\.?)?/;
-  const OP = /(?:n[ro°º.]*[ ]*(?:de[ ]*)?operacion|codigo[ ]*(?:de[ ]*)?operacion|numero[ ]*de[ ]*operacion|id[ ]*(?:de[ ]*)?operacion|codigo[ ]*(?:de[ ]*)?transaccion|operacion[ ]*n[ro°º.]*|operacion)[ ]*[:#]?[ ]*([a-z0-9][a-z0-9-]{4,23})/g;
+  const OP = /(?:n[ro°º.]*[ ]*(?:de[ ]*)?operacion|codigo[ ]*(?:de[ ]*)?operacion|numero[ ]*de[ ]*operacion|id[ ]*(?:de[ ]*)?operacion|codigo[ ]*(?:de[ ]*)?transaccion|operacion[ ]*n[ro°º.]*|operacion)[ ]*[:#]?[ ]*([a-z0-9][a-z0-9.-]{4,28})/g;
+  /* «Pagaste con Plin» (Scotiabank…): el nombre va en la línea de abajo. «Plin-Nombre» (detalle de movimiento del banco): el nombre va después del guion. «Entidad de destino»: envío desde un banco. */
+  const HEAD_CON = /^(pagaste|enviaste|transferiste|yapeaste|plineaste)[ ]+con[ ]+(plin|yape)\b/, DASH_WHO = /(?:^|[ ])(?:plin|yape)[ ]*[-–][ ]*([a-zñ].*)$/i, ENTIDAD = /entidad de destino/;
 
   function daysIn(y, m) { return m === 2 ? (y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0) ? 29 : 28) : [4, 6, 9, 11].indexOf(m) >= 0 ? 30 : 31; }
   function okDate(y, m, d) { return y >= 2000 && y <= 2100 && m >= 1 && m <= 12 && d >= 1 && d <= daysIn(y, m); }
@@ -69,7 +71,11 @@ const NazcaConstancia = (() => {
   }
   function whoOf(lines, ns, sign) {
     const order = sign > 0 ? [LABEL_FROM, LABEL_TO] : [LABEL_TO, LABEL_FROM];
-    for (const L of order) for (let i = 0; i < lines.length; i++) { const m = L.exec(ns[i]); if (m) { const v = cleanWho(after(lines, ns, i, m)); if (v && !/^(yape|plin)$/i.test(v)) return v; } }
+    const pass = (L) => { for (let i = 0; i < lines.length; i++) { const m = L.exec(ns[i]); if (m) { const v = cleanWho(after(lines, ns, i, m)); if (v && !/^(yape|plin)$/i.test(v)) return v; } } return ''; };
+    let w = pass(order[0]); if (w) return w;
+    for (let i = 0; i + 1 < lines.length; i++) if (HEAD_CON.test(ns[i]) && !/\d/.test(lines[i + 1]) && !LABELISH.test(ns[i + 1])) { const v = cleanWho(lines[i + 1]); if (v) return v; }
+    for (let i = 0; i < lines.length; i++) { const m = DASH_WHO.exec(lines[i]); if (m && !/\d/.test(m[1])) { const v = cleanWho(m[1]); if (v) return v; } }
+    w = pass(order[1]); if (w) return w;
     for (let i = 0; i < lines.length; i++) {
       if (sign <= 0) { const m = INLINE_NEG.exec(ns[i]); if (m) { const v = cleanWho(ns[i].length === lines[i].length ? lines[i].slice(lines[i].length - m[1].length) : m[1]); if (v) return v; } }
       if (sign >= 0) { const m = INLINE_POS.exec(ns[i]); if (m) { const v = cleanWho(ns[i].length === lines[i].length ? lines[i].slice(0, m[1].length) : m[1]); if (v) return v; } }
@@ -81,7 +87,12 @@ const NazcaConstancia = (() => {
     const j = i + 1; if (j >= lines.length) return '';
     const l = lines[j].replace(/\s+/g, ' ').trim();
     if (l.length < 3 || l.length > 60 || /\d/.test(l) || !/[a-z]{3}/i.test(l) || LABELISH.test(ns[j]) || /yape|plin|operacion|transaccion|seguridad|gracias|compartir/.test(ns[j])) return '';
-    return cleanWho(l);
+    const w = cleanWho(l), k = j + 1;
+    if (w && k < lines.length) {   /* el nombre puede venir partido en dos líneas: «Ana Maria» / «Lopez Perez» */
+      const l2 = lines[k].replace(/\s+/g, ' ').trim();
+      if (l2.length >= 3 && l2.length <= 40 && !/\d/.test(l2) && /^[A-ZÁÉÍÓÚÑ]/.test(l2) && /[a-z]{3}/i.test(l2) && !LABELISH.test(ns[k]) && !/yape|plin|operacion|transaccion|seguridad|gracias|compartir|nuevo/.test(ns[k])) return cleanWho(l + ' ' + l2);
+    }
+    return w;
   }
   function msgOf(lines, ns, di) {
     for (let i = 0; i < lines.length; i++) {
@@ -99,28 +110,28 @@ const NazcaConstancia = (() => {
     lines.forEach((ln, i) => {
       const re = new RegExp(AMT.source, 'gi'); let m;
       while ((m = re.exec(ln))) {
-        const v = parseAmt(m[3]); if (!(v === v)) continue;
+        const v = parseAmt(m[4]); if (!(v === v)) continue;
         const usd = !!m[1] && /^(US|USD|\$)/i.test(m[1].replace(/\s+/g, '')) && !/^S/i.test(m[1]);
         let sc = 0; if (KEY.test(ns[i])) sc += 3; if (i > 0 && KEY.test(ns[i - 1])) sc += 2; if (BAD.test(ns[i]) || (i > 0 && BAD.test(ns[i - 1]) && ln.replace(m[0], '').trim() === '')) sc -= 5;
-        c.push({ v, cur: usd ? 'USD' : 'PEN', sc, i });
+        c.push({ v, cur: usd ? 'USD' : 'PEN', sc, i, neg: !!m[3] });
       }
     });
     if (!c.length) return null;
     let best = c[0]; c.forEach((x) => { if (x.sc > best.sc) best = x; });
     const ties = c.filter((x) => x.sc === best.sc && x.v !== best.v);
-    return { v: best.v, cur: best.cur, amb: ties.length > 0, i: best.i };
+    return { v: best.v, cur: best.cur, amb: ties.length > 0, i: best.i, neg: !!best.neg };
   }
   function brandOf(n) {
     const y = /yape/.test(n), p = /plin/.test(n);
     if (y && /yapeaste|te yapeo|te yapearon|yapeo realizado|codigo de seguridad/.test(n)) return 'yape';
     if (!y && !p && /ventana del comercio|finalizar tu compra/.test(n)) return 'plin';   /* pago en un comercio: el logo de Plin es una imagen y el OCR no lo lee */
-    if (y && p) return /plineaste|plin enviado|plineo|te plinearon|volver a plin/.test(n) ? 'plin' : 'yape';   /* «987 440 228 - Yape» es el destino, no la app */
+    if (y && p) return /plineaste|plin enviado|plineo|te plinearon|volver a plin|pagaste con plin/.test(n) ? 'plin' : 'yape';   /* «987 440 228 - Yape» es el destino, no la app */
     return y ? 'yape' : p ? 'plin' : '';
   }
   function viaOf(n) { return /\binterbank\b/.test(n) ? 'interbank' : /\bbbva\b/.test(n) ? 'bbva' : /\bbcp\b|banco de credito/.test(n) ? 'bcp' : ''; }
   function opOf(n) {
     const re = new RegExp(OP.source, 'g'); let m;
-    while ((m = re.exec(n))) if (/\d/.test(m[1])) return m[1].toUpperCase();
+    while ((m = re.exec(n))) { const v = m[1].replace(/[.-]+$/, '').replace(/\./g, ''); if (/\d/.test(v)) return v.toUpperCase(); }
     return '';
   }
   function parse(text, today, forced) {
@@ -133,13 +144,14 @@ const NazcaConstancia = (() => {
     for (let i = 0; i < ns.length && !date; i++) { const d = dateIn(ns[i]); if (d) { date = d; di = i; time = timeIn(ns[i]) || (i + 1 < ns.length ? timeIn(ns[i + 1]) : ''); } }
     const neg = NEG.test(n), pos = POS.test(n);
     let sign = forced ? (forced > 0 ? 1 : -1) : pos && !neg ? 1 : neg && !pos ? -1 : 0;
+    if (!sign && amt.neg) sign = -1;   /* «S/ -1.00»: salió dinero */
     if (!sign) { const hasTo = ns.some((l) => LABEL_TO.test(l)), hasFrom = ns.some((l) => LABEL_FROM.test(l)); sign = hasFrom && !hasTo ? 1 : hasTo ? -1 : 0; }
     const flags = [];
     if (!sign) flags.push('direction');
     if (!date) flags.push('date');
     if (amt.amb) flags.push('amount');
     let brand = brandOf(n);
-    if (/cuenta de (origen|cargo)/.test(n) && viaOf(n) && !/yapeaste|te yapeo|te yapearon/.test(n)) brand = 'plin';   /* constancia del banco (BBVA…): el dinero salió de esa cuenta */
+    if ((/cuenta de (origen|cargo)/.test(n) && viaOf(n) || ENTIDAD.test(n)) && !/yapeaste|te yapeo|te yapearon/.test(n)) brand = 'plin';   /* constancia del banco (BBVA…): el dinero salió de esa cuenta */
     const op = opOf(flat);
     /* Si la persona dice que recibió pero la captura es de quien envió (o al revés), el nombre que sale es el suyo, no el de la otra parte. */
     const other = forced && ((forced > 0 && neg && !pos) || (forced < 0 && pos && !neg));
@@ -166,6 +178,6 @@ const NazcaConstancia = (() => {
     };
   }
   /* TABLES: las reglas tal cual; swift/tools/gen-nazca-constancia.mjs las copia a Swift para que las dos lecturas no se desvíen. */
-  return { id: 'constancia', label: 'Yape y Plin · Constancia', detect, read, MAX_CHARS, MAX_LINES, TABLES: { NEG, POS, KEY, BAD, AMT, LABEL_TO, LABEL_FROM, LABEL_MSG, LABELISH, INLINE_NEG, INLINE_POS, OP, DATE_ISO, DATE_WORDS, DATE_NUM, TIME_RE, MONTHS } };
+  return { id: 'constancia', label: 'Yape y Plin · Constancia', detect, read, MAX_CHARS, MAX_LINES, TABLES: { HEAD_CON, DASH_WHO, ENTIDAD, NEG, POS, KEY, BAD, AMT, LABEL_TO, LABEL_FROM, LABEL_MSG, LABELISH, INLINE_NEG, INLINE_POS, OP, DATE_ISO, DATE_WORDS, DATE_NUM, TIME_RE, MONTHS } };
 })();
 if (typeof module !== 'undefined' && module.exports) module.exports = NazcaConstancia;

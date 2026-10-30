@@ -91,12 +91,12 @@ public enum NazcaConstancia {
 
     static let usdRx = Rx(#"^(US|USD|\$)"#, ci: true), sRx = Rx(#"^S"#, ci: true)
 
-    static func amountOf(_ lines: [String], _ ns: [String]) -> (v: Double, cur: String, amb: Bool, i: Int)? {
-        struct Cand { var v: Double; var cur: String; var sc: Int; var i: Int }
+    static func amountOf(_ lines: [String], _ ns: [String]) -> (v: Double, cur: String, amb: Bool, i: Int, neg: Bool)? {
+        struct Cand { var v: Double; var cur: String; var sc: Int; var i: Int; var neg: Bool }
         var c: [Cand] = []
         for (i, ln) in lines.enumerated() {
             for m in amt.all(ln) {
-                guard let v = parseAmt(m[3]) else { continue }
+                guard let v = parseAmt(m[4]) else { continue }
                 let sym = m[1]
                 let usd = !sym.isEmpty && usdRx.test(wsRuns.replace(sym, "")) && !sRx.test(sym)
                 var sc = 0
@@ -105,23 +105,29 @@ public enum NazcaConstancia {
                 var rest = ln
                 if let r = rest.range(of: m[0]) { rest.removeSubrange(r) }
                 if bad.test(ns[i]) || (i > 0 && bad.test(ns[i - 1]) && rest.jsTrimmed.isEmpty) { sc -= 5 }
-                c.append(Cand(v: v, cur: usd ? "USD" : "PEN", sc: sc, i: i))
+                c.append(Cand(v: v, cur: usd ? "USD" : "PEN", sc: sc, i: i, neg: !m[3].isEmpty))
             }
         }
         guard var best = c.first else { return nil }
         for x in c where x.sc > best.sc { best = x }
         let amb = c.contains { $0.sc == best.sc && $0.v != best.v }
-        return (best.v, best.cur, amb, best.i)
+        return (best.v, best.cur, amb, best.i, best.neg)
     }
 
-    static let headBad = Rx(#"yape|plin|operacion|transaccion|seguridad|gracias|compartir"#), digitRx = Rx(#"\d"#), alpha3 = Rx(#"[a-z]{3}"#, ci: true)
-    /// Pagos de servicios y comercios: sin «Destino», el nombre es la línea que sigue al monto.
+    static let headBad = Rx(#"yape|plin|operacion|transaccion|seguridad|gracias|compartir"#), headBad2 = Rx(#"yape|plin|operacion|transaccion|seguridad|gracias|compartir|nuevo"#)
+    static let digitRx = Rx(#"\d"#), alpha3 = Rx(#"[a-z]{3}"#, ci: true), upperStart = Rx(#"^[A-ZÁÉÍÓÚÑ]"#)
+    /// Pagos de servicios y comercios: sin «Destino», el nombre es la línea que sigue al monto (y, si el nombre viene partido en dos líneas, se juntan).
     static func headWho(_ lines: [String], _ ns: [String], _ i: Int) -> String {
         let j = i + 1
         if j >= lines.count { return "" }
         let l = wsRuns.replace(lines[j], " ").jsTrimmed
         if l.jsLength < 3 || l.jsLength > 60 || digitRx.test(l) || !alpha3.test(l) || labelish.test(ns[j]) || headBad.test(ns[j]) { return "" }
-        return cleanWho(l)
+        let w = cleanWho(l), k = j + 1
+        if !w.isEmpty && k < lines.count {
+            let l2 = wsRuns.replace(lines[k], " ").jsTrimmed
+            if l2.jsLength >= 3 && l2.jsLength <= 40 && !digitRx.test(l2) && upperStart.test(l2) && alpha3.test(l2) && !labelish.test(ns[k]) && !headBad2.test(ns[k]) { return cleanWho(l + " " + l2) }
+        }
+        return w
     }
 
     // MARK: nombre y mensaje
@@ -148,11 +154,22 @@ public enum NazcaConstancia {
 
     static func whoOf(_ lines: [String], _ ns: [String], _ sign: Int) -> String {
         let order = sign > 0 ? [labelFrom, labelTo] : [labelTo, labelFrom]
-        for L in order {
+        func pass(_ L: Rx) -> String {
             for i in lines.indices {
                 if let m = L.groups(ns[i]) { let v = cleanWho(after(lines, ns, i, m[2])); if !v.isEmpty && v.lowercased() != "yape" && v.lowercased() != "plin" { return v } }
             }
+            return ""
         }
+        var w = pass(order[0]); if !w.isEmpty { return w }
+        // «Pagaste con Plin» / «Ana Sur***» (Scotiabank): el nombre es la línea de abajo.
+        for i in 0..<max(lines.count - 1, 0) where headCon.test(ns[i]) && !digitRx.test(lines[i + 1]) && !labelish.test(ns[i + 1]) {
+            let v = cleanWho(lines[i + 1]); if !v.isEmpty { return v }
+        }
+        // «Yape - Ana Lopez» / «Plin – Ana Lopez»: el nombre va después del guion.
+        for i in lines.indices {
+            if let m = dashWho.groups(lines[i]), !digitRx.test(m[1]) { let v = cleanWho(m[1]); if !v.isEmpty { return v } }
+        }
+        w = pass(order[1]); if !w.isEmpty { return w }
         for i in lines.indices {
             if sign <= 0, let m = inlineNeg.groups(ns[i]) {
                 let v = cleanWho(ns[i].jsLength == lines[i].jsLength ? lines[i].jsSlice(lines[i].jsLength - m[1].jsLength) : m[1])
@@ -183,7 +200,7 @@ public enum NazcaConstancia {
 
     // MARK: marca, banco y operación
 
-    static let viaInter = Rx(#"\binterbank\b"#), viaBbva = Rx(#"\bbbva\b"#), viaBcp = Rx(#"\bbcp\b|banco de credito"#), plinWords = Rx(#"plineaste|plin enviado|plineo|te plinearon|volver a plin"#), yapeOnly = Rx(#"yapeaste|te yapeo|te yapearon|yapeo realizado|codigo de seguridad"#), originRx = Rx(#"cuenta de (origen|cargo)"#), yapeOnly2 = Rx(#"yapeaste|te yapeo|te yapearon"#)
+    static let viaInter = Rx(#"\binterbank\b"#), viaBbva = Rx(#"\bbbva\b"#), viaBcp = Rx(#"\bbcp\b|banco de credito"#), plinWords = Rx(#"plineaste|plin enviado|plineo|te plinearon|volver a plin|pagaste con plin"#), yapeOnly = Rx(#"yapeaste|te yapeo|te yapearon|yapeo realizado|codigo de seguridad"#), originRx = Rx(#"cuenta de (origen|cargo)"#), yapeOnly2 = Rx(#"yapeaste|te yapeo|te yapearon"#)
 
     static let shopRx = Rx(#"ventana del comercio|finalizar tu compra"#)
     static func brandOf(_ n: String) -> String {
@@ -197,7 +214,12 @@ public enum NazcaConstancia {
     static func viaOf(_ n: String) -> String { viaInter.test(n) ? "interbank" : viaBbva.test(n) ? "bbva" : viaBcp.test(n) ? "bcp" : "" }
 
     static func opOf(_ n: String) -> String {
-        for m in op.all(n) where m[1].unicodeScalars.contains(where: { (0x30...0x39).contains($0.value) }) { return m[1].uppercased() }
+        for m in op.all(n) {
+            var v = m[1]
+            while let l = v.last, l == "." || l == "-" { v.removeLast() }
+            v = v.replacingOccurrences(of: ".", with: "")
+            if v.unicodeScalars.contains(where: { (0x30...0x39).contains($0.value) }) { return v.uppercased() }
+        }
         return ""
     }
 
@@ -223,6 +245,7 @@ public enum NazcaConstancia {
         }
         let isNeg = neg.test(n), isPos = pos.test(n)
         var sign = forced != 0 ? (forced > 0 ? 1 : -1) : (isPos && !isNeg ? 1 : isNeg && !isPos ? -1 : 0)
+        if sign == 0 && amount.neg { sign = -1 }   // «S/ -1.00»: salió dinero
         if sign == 0 {
             let hasTo = ns.contains { labelTo.test($0) }, hasFrom = ns.contains { labelFrom.test($0) }
             sign = hasFrom && !hasTo ? 1 : hasTo ? -1 : 0
@@ -232,7 +255,7 @@ public enum NazcaConstancia {
         if date.isEmpty { flags.append("date") }
         if amount.amb { flags.append("amount") }
         var brand = brandOf(n)
-        if originRx.test(n) && !viaOf(n).isEmpty && !yapeOnly2.test(n) { brand = "plin" }   // constancia del banco (BBVA…): el dinero salió de esa cuenta
+        if ((originRx.test(n) && !viaOf(n).isEmpty) || entidadRx.test(n)) && !yapeOnly2.test(n) { brand = "plin" }   // constancia del banco (BBVA…): el dinero salió de esa cuenta
         let op = opOf(flat)
         // Si la persona dice que recibió pero la captura es de quien envió (o al revés), el nombre que sale es el suyo, no el de la otra parte.
         let other = forced != 0 && ((forced > 0 && isNeg && !isPos) || (forced < 0 && isPos && !isNeg))

@@ -468,6 +468,86 @@
     "flags": [],
     "auto": true
    }
+  },
+  {
+   "name": "real-plin-scotiabank",
+   "text": "Pagaste con Plin\nAna Sur***\nS/ 284.00\nFecha y hora 02 set. 2026 - 05:18 a. m.\nCuenta de\norigen\nCta. Free\n*** ***9996\nDestino\n*** *** 930\nYape\nComisión Gratis\nNúmero de\noperación\n784.444.001.1355\nEnviamos el detalle de la operación a:\nA******@HOTMAIL.COM",
+   "expect": {
+    "detect": 2,
+    "bank": "",
+    "brand": "plin",
+    "amount": -284,
+    "cur": "PEN",
+    "date": "2026-09-02",
+    "desc": "Ana Sur***",
+    "ref": "7844440011355",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "real-yape-nombre-en-dos-lineas",
+   "text": "¡Yapeaste!\nS/ 440\nAna Maria\nLopez Perez\n28 may. 2024 - 5:34 pm\nNº de celular: *** *** 936\nDestino: Yape\nNº de operación: 08888188\nCompartir\nNuevo Yapeo",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": -440,
+    "cur": "PEN",
+    "date": "2024-05-28",
+    "desc": "Ana Maria Lopez Perez",
+    "ref": "08888188",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "real-detalle-de-movimiento-plin",
+   "text": "Detalle de movimiento\ns/ -1.00\n29 Oct 2026 | 11:15 PM\nTipo de operación\nPlin-Ana Eu\nFecha del proceso\n29 Oct 2026\nOrigen\nGest De Procesos Tc\nCompartir\nDescargar",
+   "expect": {
+    "detect": 2,
+    "bank": "",
+    "brand": "plin",
+    "amount": -1,
+    "cur": "PEN",
+    "date": "2026-10-29",
+    "desc": "Ana Eu",
+    "ref": "t2315",
+    "flags": [],
+    "auto": false
+   }
+  },
+  {
+   "name": "real-bbva-contactos-sin-origen",
+   "text": "Envío a contactos\nOperación exitosa\n24 octubre 2026, 19:14 h\nImporte enviado\nS/100.00\nEntidad de destino Yape\nComisión S/ 0.00\nNúmero de operación 5807427EBE6B\nTipo de operación Envío a contactos\nContacto Ana m lopez r",
+   "expect": {
+    "detect": 2,
+    "bank": "",
+    "brand": "plin",
+    "amount": -100,
+    "cur": "PEN",
+    "date": "2026-10-24",
+    "desc": "Ana m lopez r",
+    "ref": "5807427EBE6B",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "real-yape-anuncio-pollo",
+   "text": "¡Yapeaste!\nCompartir\nS/ 50\nAna M. Rich S.\n27 ago. 2025 | 7:07 p.m.\nAy mi gatito miau miau\nCÓDIGO DE SEGURIDAD\n9 0 7\nDATOS DE LA TRANSACCIÓN\nNro. de celular\n*** *** 625\nDestino\nYape\nNro. de operación\n22345907\nMás en Yape Nuevo\n1/4 Pollo a\nla brasa +\npapas fritas\nDesde\ns/13.90\nIr a Promos",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": -50,
+    "cur": "PEN",
+    "date": "2025-08-27",
+    "desc": "Ana M. Rich S. · Ay mi gatito miau miau",
+    "ref": "22345907",
+    "flags": [],
+    "auto": true
+   }
   }
  ]
 }

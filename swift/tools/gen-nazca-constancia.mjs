@@ -16,7 +16,7 @@ const T = K.TABLES;
 
 // ---- 1. Tablas ----
 const raw = (re) => 'Rx(#"' + re.source + '"#' + (re.flags.includes('i') ? ', ci: true' : '') + ')';
-const names = { NEG: 'neg', POS: 'pos', KEY: 'key', BAD: 'bad', AMT: 'amt', LABEL_TO: 'labelTo', LABEL_FROM: 'labelFrom', LABEL_MSG: 'labelMsg', LABELISH: 'labelish', INLINE_NEG: 'inlineNeg', INLINE_POS: 'inlinePos', OP: 'op', DATE_ISO: 'dateIso', DATE_WORDS: 'dateWords', DATE_NUM: 'dateNum', TIME_RE: 'timeRe' };
+const names = { NEG: 'neg', POS: 'pos', KEY: 'key', BAD: 'bad', AMT: 'amt', LABEL_TO: 'labelTo', LABEL_FROM: 'labelFrom', LABEL_MSG: 'labelMsg', LABELISH: 'labelish', INLINE_NEG: 'inlineNeg', INLINE_POS: 'inlinePos', OP: 'op', DATE_ISO: 'dateIso', DATE_WORDS: 'dateWords', DATE_NUM: 'dateNum', TIME_RE: 'timeRe', HEAD_CON: 'headCon', DASH_WHO: 'dashWho', ENTIDAD: 'entidadRx' };
 let out = '// GENERADO por swift/tools/gen-nazca-constancia.mjs a partir de dev/app/src/core/nazca/constancia.js. No editar a mano.\nimport Foundation\n\nextension NazcaConstancia {\n';
 for (const [k, v] of Object.entries(names)) out += `    static let ${v} = ${raw(T[k])}\n`;
 out += '    static let months: [String: Int] = [' + Object.entries(T.MONTHS).map(([k, v]) => `"${k}": ${v}`).join(', ') + ']\n';
