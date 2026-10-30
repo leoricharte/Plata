@@ -224,7 +224,7 @@ struct ProyeccionView: View {
         Button(action: action) {
             Image(systemName: symbol).font(.system(size: 15, weight: .semibold)).foregroundStyle(Brand.accent)
                 .frame(width: 36, height: 36)
-                .background(Color(.systemGroupedBackground), in: Circle())
+                .background(Brand.fieldBg, in: Circle())
                 .opacity(disabled ? 0.3 : 1)
         }
         .buttonStyle(.plain).disabled(disabled)
