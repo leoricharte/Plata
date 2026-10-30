@@ -43,6 +43,7 @@ struct ReviewView: View {
         "gap": "Puede faltar un estado, o la cuenta ya tenía saldo antes del primero que importaste."]
     private static let cadence = ["w": "cada semana", "b": "cada 2 semanas", "m": "cada mes", "q": "cada quincena"]
 
+    @State private var fitH: CGFloat = 0
     @State private var cw: CGFloat = UIScreen.main.bounds.width
 
     var body: some View {
@@ -102,6 +103,7 @@ struct ReviewView: View {
                         .scrollTargetLayout()
                     }
                     .contentMargins(.horizontal, 16, for: .scrollContent)
+                    .scrollClipDisabled()
                     .scrollTargetBehavior(.viewAligned)
                     .scrollPosition(id: $page)
                     if list.count > 1 {
@@ -127,7 +129,9 @@ struct ReviewView: View {
             .padding(.top, 16).padding(.bottom, 28)
             .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { cw = $0 }
         }
-        .presentationDetents([.large]).presentationDragIndicator(.visible).presentationCornerRadius(38)
+        .onScrollGeometryChange(for: CGFloat.self) { $0.contentSize.height } action: { _, h in fitH = h }
+        .presentationDetents(fitH > 0 && fitH + 60 < UIScreen.main.bounds.height * 0.8 ? [.height(fitH + 60), .large] : [.large])
+        .presentationDragIndicator(.visible).presentationCornerRadius(38)
         .presentationBackground(Brand.sheetBg)
         .sheet(item: $editing) { w in TransactionSheet(mode: .edit(w.tx)) }
         .onChange(of: model.reviewTab) { page = nil }
