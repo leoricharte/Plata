@@ -88,17 +88,6 @@ struct CloudPriceLine: View {
 }
 
 /// Nubes verdes de fondo de las tarjetas de Plata Cloud.
-private struct CloudBackdrop: View {
-    var body: some View {
-        ZStack(alignment: .topTrailing) {
-            CloudMark(kind: .cloud, height: 40).opacity(0.10).offset(x: 24, y: -4).foregroundStyle(Brand.accent)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
-        .allowsHitTesting(false)
-        .accessibilityHidden(true)
-    }
-}
-
 // MARK: texto de estado
 
 extension CloudModel {
@@ -208,8 +197,7 @@ struct CloudCard: View {
         }
         .padding(.horizontal, 16).padding(.top, 12).padding(.bottom, 14)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background { ZStack { Color(.secondarySystemGroupedBackground); CloudBackdrop() } }
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .plataGlass(in: RoundedRectangle(cornerRadius: 22, style: .continuous))
         .padding(.top, 6).padding(.bottom, 14)
         .alert(Tr.t(ask?.title ?? ""), isPresented: Binding(get: { ask != nil }, set: { if !$0 { ask = nil } }), presenting: ask) { a in
             Button(a.action, role: a.destructive ? .destructive : nil) { run(a) }
@@ -247,7 +235,7 @@ struct CloudCard: View {
                 seg("Local", on: !isCloud) { if isCloud { ask = .toLocal } }
                 seg("Cloud", on: isCloud) { if !isCloud { ask = .toCloud } }
             }
-            .padding(4).background(Color(.tertiarySystemFill), in: Capsule())
+            .padding(4).background(Color(light: "#E5E5EA", dark: "#0A2218"), in: Capsule())
             let left = cloud.cooldownLeft
             if left > 0 { CooldownNote(left: left) }
         }
@@ -257,7 +245,7 @@ struct CloudCard: View {
         Button(action: tap) {
             Text(t).font(.inter(15, .semibold)).foregroundStyle(on ? Color.primary : .secondary)
                 .frame(maxWidth: .infinity, minHeight: 34)
-                .background(on ? Color(.systemBackground) : .clear, in: Capsule())
+                .background(on ? Color(light: "#FFFFFF", dark: "#1F4332") : .clear, in: Capsule())
         }
         .buttonStyle(.plain)
     }
