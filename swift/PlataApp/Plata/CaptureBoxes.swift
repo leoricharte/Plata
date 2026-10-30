@@ -37,30 +37,36 @@ enum CaptureBoxes {
 
     /// −1 si el texto es rojizo, 1 si es verdoso, 0 si no se distingue. Se toma el color de los píxeles que más se alejan del fondo.
     static func tone(of cg: CGImage, rect: CGRect) -> Int {
-        let W = cg.width, H = cg.height
-        let px = CGRect(x: rect.minX * Double(W), y: (1 - rect.maxY) * Double(H), width: rect.width * Double(W), height: rect.height * Double(H)).integral
-        guard px.width >= 2, px.height >= 2, let crop = cg.cropping(to: px) else { return 0 }
+        let width = Double(cg.width), height = Double(cg.height)
+        let area = CGRect(x: rect.minX * width, y: (1 - rect.maxY) * height, width: rect.width * width, height: rect.height * height).integral
+        guard area.width >= 2, area.height >= 2, let crop = cg.cropping(to: area) else { return 0 }
         let w = 32, h = 8
         var data = [UInt8](repeating: 0, count: w * h * 4)
         guard let ctx = CGContext(data: &data, width: w, height: h, bitsPerComponent: 8, bytesPerRow: w * 4,
                                   space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return 0 }
         ctx.interpolationQuality = .low
         ctx.draw(crop, in: CGRect(x: 0, y: 0, width: w, height: h))
-        func px(_ i: Int) -> (Double, Double, Double) { (Double(data[i * 4]), Double(data[i * 4 + 1]), Double(data[i * 4 + 2])) }
-        // el fondo: el promedio de las esquinas
-        let corners = [0, w - 1, (h - 1) * w, h * w - 1].map(px)
-        let bg = (corners.map { $0.0 }.reduce(0, +) / 4, corners.map { $0.1 }.reduce(0, +) / 4, corners.map { $0.2 }.reduce(0, +) / 4)
-        var far: [(Double, Double, Double, Double)] = []
+        var rs = [Double](), gs = [Double](), bs = [Double]()
         for i in 0..<(w * h) {
-            let p = px(i)
-            let d = abs(p.0 - bg.0) + abs(p.1 - bg.1) + abs(p.2 - bg.2)
-            far.append((d, p.0, p.1, p.2))
+            rs.append(Double(data[i * 4])); gs.append(Double(data[i * 4 + 1])); bs.append(Double(data[i * 4 + 2]))
         }
-        far.sort { $0.0 > $1.0 }
-        let top = far.prefix(max(4, far.count / 12))
-        guard top.first?.0 ?? 0 > 90 else { return 0 }
+        // el fondo: el promedio de las cuatro esquinas
+        let corners = [0, w - 1, (h - 1) * w, h * w - 1]
+        var bgR = 0.0, bgG = 0.0, bgB = 0.0
+        for c in corners { bgR += rs[c]; bgG += gs[c]; bgB += bs[c] }
+        bgR /= 4; bgG /= 4; bgB /= 4
+        var dist = [(d: Double, i: Int)]()
+        for i in 0..<(w * h) {
+            let d = abs(rs[i] - bgR) + abs(gs[i] - bgG) + abs(bs[i] - bgB)
+            dist.append((d, i))
+        }
+        dist.sort { $0.d > $1.d }
+        guard let first = dist.first, first.d > 90 else { return 0 }
+        let top = dist.prefix(max(4, dist.count / 12))
+        var r = 0.0, g = 0.0, b = 0.0
+        for t in top { r += rs[t.i]; g += gs[t.i]; b += bs[t.i] }
         let n = Double(top.count)
-        let r = top.map { $0.1 }.reduce(0, +) / n, g = top.map { $0.2 }.reduce(0, +) / n, b = top.map { $0.3 }.reduce(0, +) / n
+        r /= n; g /= n; b /= n
         if r > g + 45 && r > b + 35 { return -1 }
         if g > r + 25 && g > b + 15 { return 1 }
         return 0
