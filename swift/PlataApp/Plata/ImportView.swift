@@ -379,7 +379,7 @@ struct ImportFlowView: View {
         notice = nil
         switch step {
         case .start: dismiss()
-        case .paste: step = .start; pasted = ; shot = nil
+        case .paste: step = .start; pasted = ""; shot = nil
         case .how, .country: step = .start; keyText = ""; pend = nil
         case .banks: step = .country; keyText = ""; pend = nil
         case .bank: step = .banks; keyText = ""; pend = nil
