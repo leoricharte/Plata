@@ -18,6 +18,8 @@ struct BankBrand {
 struct SubBrand {
     let id: String
     let bg: Color
+    /// Color del glifo (la mayoría de las marcas lo dibujan en blanco; Apple Music, en negro sobre blanco).
+    var fg: Color = .white
     let vb: Bool
     let bb: [CGFloat]?
     let k: CGFloat
@@ -29,7 +31,7 @@ struct SubBrand {
 enum Brands {
     private struct RawShape: Decodable { let d: String; let a: String; let c: String; let o: Double; let eo: Bool }
     private struct RawBank: Decodable { let keys: [String]; let bg: String; let fixed: Bool; let box: [CGFloat]; let sz: CGFloat; let shapes: [RawShape] }
-    private struct RawSub: Decodable { let i: String; let bg: String; let vb: Bool; let bb: [CGFloat]?; let k: CGFloat; let eo: Bool; let keys: [String]; let d: String }
+    private struct RawSub: Decodable { let i: String; let bg: String; let fg: String?; let vb: Bool; let bb: [CGFloat]?; let k: CGFloat; let eo: Bool; let keys: [String]; let d: String }
     private struct Raw: Decodable { let banks: [RawBank]; let subs: [RawSub] }
 
     static let (banks, subs): ([BankBrand], [SubBrand]) = {
@@ -40,7 +42,7 @@ enum Brands {
                       shapes: r.shapes.map { BrandShape(path: SVGPath.parse($0.d), accFill: Color(hex: $0.a), cardFill: Color(hex: $0.c), opacity: $0.o, evenOdd: $0.eo) })
         }
         let s = raw.subs.map { r in
-            SubBrand(id: r.i, bg: Color(hex: r.bg), vb: r.vb, bb: r.bb, k: r.k, evenOdd: r.eo, keys: r.keys, path: SVGPath.parse(r.d))
+            SubBrand(id: r.i, bg: Color(hex: r.bg), fg: r.fg.map { Color(hex: $0) } ?? .white, vb: r.vb, bb: r.bb, k: r.k, evenOdd: r.eo, keys: r.keys, path: SVGPath.parse(r.d))
         }
         return (b, s)
     }()
@@ -112,7 +114,7 @@ struct SubGlyph: View {
             }
             let k = size.width / sd
             let t = CGAffineTransform(translationX: -vx, y: -vy).concatenating(CGAffineTransform(scaleX: k, y: k))
-            ctx.fill(brand.path.applying(t), with: .color(.white), style: FillStyle(eoFill: brand.evenOdd))
+            ctx.fill(brand.path.applying(t), with: .color(brand.fg), style: FillStyle(eoFill: brand.evenOdd))
         }
         .allowsHitTesting(false)
     }
