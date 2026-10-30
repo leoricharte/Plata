@@ -297,9 +297,9 @@ extension Brand {
 struct PlataBackdrop: View {
     var body: some View {
         LinearGradient(stops: [
-            .init(color: Color(light: "#CFEFDF", dark: "#0F3626"), location: 0),
-            .init(color: Color(light: "#E3F4EB", dark: "#0A2218"), location: 0.38),
-            .init(color: Color(light: "#F1F7F4", dark: "#07140E"), location: 0.78)
+            .init(color: Color(light: "#DDF1E7", dark: "#0F3626"), location: 0),
+            .init(color: Color(light: "#EBF5EF", dark: "#0A2218"), location: 0.38),
+            .init(color: Color(light: "#F4F8F6", dark: "#07140E"), location: 0.78)
         ], startPoint: .top, endPoint: .bottom)
         .ignoresSafeArea()
     }
