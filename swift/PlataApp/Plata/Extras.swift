@@ -8,7 +8,7 @@ enum Prefs {
     static let fbKey = "plata.fb"
     static let formURL = URL(string: "https://forms.gle/FAt51YAz6k7JPQcC7")!
     static let changelogURL = URL(string: "https://github.com/leoricharte/Plata/blob/main/CHANGELOG.md#beta-4")!
-    static let transparencyURL = URL(string: "https://plataapp.net/transparencia.html#analisis")!
+    static let transparencyURL = URL(string: "https://plataapp.net/transparencia.html")!
 
     static func scheme(_ t: String) -> ColorScheme? { t == "light" ? .light : (t == "dark" ? .dark : nil) }
     static func locale(_ l: String) -> Locale { l == "auto" ? .autoupdatingCurrent : Locale(identifier: l) }
