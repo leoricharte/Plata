@@ -246,7 +246,7 @@ struct AjustesView: View {
 
                 SCard {
                     LinkRow(symbol: "gift", title: "Novedades", color: Brand.green, first: true,
-                            trailing: AnyView(BetaPill(label: "B E T A  4"))) { model.showNews = true }
+                            trailing: AnyView(BetaPill(label: "B E T A  5"))) { model.showNews = true }
                 }
                 SCard {
                     LinkRow(symbol: "star", title: "Danos tu opinión", color: Brand.green, first: true) { model.feedbackManual = true; model.showFeedback = true }

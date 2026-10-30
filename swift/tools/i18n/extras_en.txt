@@ -295,3 +295,16 @@ Tienes {0} constancias de {1} por revisar ¦ You have {0} {1} receipts to review
 Constancia compartida. Revísala para elegir la cuenta y añadirla como movimiento. ¦ Shared receipt. Review it to pick the account and add it as a transaction.
 Descartar ¦ Dismiss
 Guardada. Queda en Revisión para que la confirmes. ¦ Saved. It waits in Review for you to confirm.
+Plata, ahora nativa en iPhone ¦ Plata, now native on iPhone
+Una app hecha para iPhone: más fluida, con Face ID o PIN para abrirla y modo claro y oscuro. Tus datos siguen en tu dispositivo. ¦ An app made for iPhone: smoother, with Face ID or a PIN to open it, and light and dark modes. Your data stays on your device.
+CONSTANCIAS ¦ RECEIPTS
+Yape y Plin, directo a Plata ¦ Yape and Plin, straight to Plata
+Comparte la captura de tu constancia a Plata y Nazca la lee en tu dispositivo, sin servidor. Queda en Revisión para que la confirmes. ¦ Share a screenshot of your receipt to Plata and Nazca reads it on your device, with no server. It waits in Review for you to confirm.
+Tu presupuesto en la muñeca ¦ Your budget on your wrist
+Aros por categoría, como los de Actividad, con un ✓, un – o una ✕ según cómo vayas. Anota gastos girando la corona. ¦ Rings per category, like Activity, with a ✓, a – or an ✕ depending on how you're doing. Log expenses by turning the crown.
+Plata en tu pantalla de inicio ¦ Plata on your Home Screen
+Widgets y Bentos para ver tu plata sin abrir la app. ¦ Widgets and Bentos to see your money without opening the app.
+PRESUPUESTO ¦ BUDGET
+Presupuesto en aros ¦ Budget in rings
+Los mismos aros del reloj, hasta 4 categorías a la vez, y un encabezado que cambia con la estación del año. ¦ The same rings as the watch, up to 4 categories at once, and a header that changes with the season.
+Plata llega a iPhone y Apple Watch como app nativa: constancias de Yape y Plin que se leen en tu dispositivo, widgets y Bentos, aros de presupuesto y Face ID. ¦ Plata arrives on iPhone and Apple Watch as a native app: Yape and Plin receipts read on your device, widgets and Bentos, budget rings and Face ID.

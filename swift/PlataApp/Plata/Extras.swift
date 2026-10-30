@@ -5,10 +5,10 @@ import PlataCore
 /// Preferencias del dispositivo (la web las guarda en `localStorage`, no en el perfil): apariencia e idioma.
 enum Prefs {
     static let themeKey = "plata.theme", langKey = "plata.lang"
-    static let newsKey = "plata.news", newsId = "b4-461"
+    static let newsKey = "plata.news", newsId = "b5-69"
     static let fbKey = "plata.fb"
     static let formURL = URL(string: "https://forms.gle/FAt51YAz6k7JPQcC7")!
-    static let changelogURL = URL(string: "https://github.com/leoricharte/Plata/blob/main/CHANGELOG.md#beta-4")!
+    static let changelogURL = URL(string: "https://github.com/leoricharte/Plata/blob/main/CHANGELOG.md#beta-5")!
     static let transparencyURL = URL(string: "https://plataapp.net/transparencia.html")!
 
     static func scheme(_ t: String) -> ColorScheme? { t == "light" ? .light : (t == "dark" ? .dark : nil) }
@@ -96,6 +96,7 @@ private struct HistoryEntry: Identifiable {
 }
 
 private let historyList: [HistoryEntry] = [
+    .init(name: "Beta 5", date: "30 oct 2026", text: "Plata llega a iPhone y Apple Watch como app nativa: constancias de Yape y Plin que se leen en tu dispositivo, widgets y Bentos, aros de presupuesto y Face ID.", big: true),
     .init(name: "Beta 4", date: "27 oct 2026", text: "Nazca lee tus estados de cuenta en tu dispositivo, Revisión con sugerencias en tarjetas y detección de recurrentes, historial de cada suscripción e infraestructura blindada.", big: true),
     .init(name: "Beta 3", date: "24 oct 2026", text: "Plata Cloud: sincronización cifrada entre tus dispositivos, por invitación y con el primer mes gratis. Además, notas y rachas con laureles, transferencias entre cuentas, logos automáticos de bancos y servicios, y avisos inteligentes.", big: true),
     .init(name: "Beta 2", date: "20 oct 2026", text: "Plata llega a tu mesa: versión de escritorio y Bentos, además del modo oscuro y nuevas secciones en la web.", big: true),
@@ -145,18 +146,18 @@ enum AppInfo {
     static var build: String { (Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String) ?? "" }
 }
 
-// MARK: - Novedades (historias de la Beta 4)
+// MARK: - Novedades (historias de la Beta 5)
 
 private struct NewsSlide {
     let image: String?, symbol: String, tag: String, title: String, text: String, note: String?
 }
 
 private let newsSlides: [NewsSlide] = [
-    .init(image: "News_nazca", symbol: "chart.bar.doc.horizontal", tag: "NAZCA", title: "Nazca lee tus estados de cuenta", text: "Sube el PDF o el CSV de tu banco y Nazca lo lee en tu dispositivo, sin servidor. Antes de importar comprueba que los movimientos sumen el saldo del estado.", note: "Por ahora, algunos bancos de Perú y EE. UU."),
-    .init(image: nil, symbol: "checkmark.shield", tag: "BLINDAJE", title: "Infraestructura blindada", text: "Reforzamos la seguridad de Plata: la app solo ejecuta su propio código, limpia todo lo que llega de un archivo o de la nube, y el servidor y el panel tienen pruebas de seguridad.", note: nil),
-    .init(image: "News_revision", symbol: "doc.text.magnifyingglass", tag: "REVISIÓN", title: "Plata revisa por ti", text: "Encuentra transferencias entre tus cuentas, pagos de tarjeta, repetidos y montos raros, con reglas claras y sin IA. Tú aceptas o descartas cada tarjeta, nada cambia sin tu permiso y puedes deshacer.", note: nil),
-    .init(image: "News_recurrentes", symbol: "repeat", tag: "RECURRENTES", title: "Detecta lo que se repite", text: "Reconoce tu sueldo, tus suscripciones y tus gastos fijos sumando todas tus cuentas, y los crea en un toque.", note: nil),
-    .init(image: "News_historial", symbol: "clock.arrow.circlepath", tag: "HISTORIAL", title: "La historia de cada suscripción", text: "Mira cuándo empezó, cuándo subió de precio o cambió de cuenta, y si se saltó un mes o hubo un quiebre.", note: nil),
+    .init(image: nil, symbol: "iphone", tag: "IPHONE", title: "Plata, ahora nativa en iPhone", text: "Una app hecha para iPhone: más fluida, con Face ID o PIN para abrirla y modo claro y oscuro. Tus datos siguen en tu dispositivo.", note: nil),
+    .init(image: nil, symbol: "doc.viewfinder", tag: "CONSTANCIAS", title: "Yape y Plin, directo a Plata", text: "Comparte la captura de tu constancia a Plata y Nazca la lee en tu dispositivo, sin servidor. Queda en Revisión para que la confirmes.", note: nil),
+    .init(image: nil, symbol: "applewatch", tag: "APPLE WATCH", title: "Tu presupuesto en la muñeca", text: "Aros por categoría, como los de Actividad, con un ✓, un – o una ✕ según cómo vayas. Anota gastos girando la corona.", note: nil),
+    .init(image: nil, symbol: "square.grid.2x2", tag: "WIDGETS", title: "Plata en tu pantalla de inicio", text: "Widgets y Bentos para ver tu plata sin abrir la app.", note: nil),
+    .init(image: nil, symbol: "circle.circle", tag: "PRESUPUESTO", title: "Presupuesto en aros", text: "Los mismos aros del reloj, hasta 4 categorías a la vez, y un encabezado que cambia con la estación del año.", note: nil),
 ]
 
 /// Historias a pantalla completa (`newsPopup`): barras de progreso de 6,5 s, toque a la izquierda retrocede, a la derecha avanza, mantener pausa.
@@ -191,7 +192,7 @@ struct NewsStoryView: View {
                 VStack(spacing: 0) {
                     bars.padding(.horizontal, 28).padding(.top, 12)
                     HStack {
-                        BetaPill(label: "B E T A  4").environment(\.colorScheme, .dark)
+                        BetaPill(label: "B E T A  5").environment(\.colorScheme, .dark)
                             .background(.white.opacity(0.2), in: Capsule())
                         Spacer()
                         Button { close() } label: {
