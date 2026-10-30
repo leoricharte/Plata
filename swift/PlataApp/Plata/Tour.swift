@@ -128,7 +128,7 @@ struct TourOverlay: View {
                 card(tip, width: w, arrowX: center.map { $0 - left }, arrowUp: false)
                     .padding(.leading, left)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.bottom, safe.bottom + 78)
+                    .padding(.bottom, safe.bottom + 92)
             }
             .frame(width: size.width, height: size.height)
         }
