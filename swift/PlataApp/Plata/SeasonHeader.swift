@@ -102,9 +102,62 @@ struct SeasonArt: View {
         return p
     }
 
+    // MARK: movimiento de entrada (misma coreografía que la web: una sola vez por apertura y todo vuelve a su sitio)
+
+    private static func lerp(_ a: Double, _ b: Double, _ f: Double) -> Double { a + (b - a) * f }
+    /// 0 → 1 → 0 mientras dura la animación (`del` y `dur` en segundos); fuera de ella, 0.
+    private static func bump(_ t: Double, _ del: Double, _ dur: Double) -> Double {
+        let p = (t - del) / dur
+        return t >= 0 && p > 0 && p < 1 ? sin(.pi * p) : 0
+    }
+    /// Una oscilación completa que termina en 0.
+    private static func osc(_ t: Double, _ del: Double, _ dur: Double) -> Double {
+        let p = (t - del) / dur
+        return t >= 0 && p > 0 && p < 1 ? sin(2 * .pi * p) : 0
+    }
+    /// Pieza extra que cruza cayendo (o flotando) y se desvanece. `y`: altura al inicio, a mitad y al final; `a`: giro al inicio, a mitad y al final.
+    private struct Faller {
+        var x: Double, y: Double, rot: Double, scale: Double, sx: Double, del: Double, dur: Double
+        var ys: (Double, Double, Double), spin: (Double, Double), peak: Double, mid: Double
+        func state(_ t: Double) -> (dx: Double, dy: Double, rot: Double, op: Double)? {
+            let p = (t - del) / dur
+            guard t >= 0, p > 0, p < 1 else { return nil }
+            let k = 0.55
+            let dy = p < k ? SeasonArt.lerp(ys.0, ys.1, p / k) : SeasonArt.lerp(ys.1, ys.2, (p - k) / (1 - k))
+            let dx = p < k ? SeasonArt.lerp(0, sx, p / k) : SeasonArt.lerp(sx, -sx * 0.5, (p - k) / (1 - k))
+            let r = p < k ? SeasonArt.lerp(0, spin.0, p / k) : SeasonArt.lerp(spin.0, spin.1, (p - k) / (1 - k))
+            let op = p < 0.14 ? SeasonArt.lerp(0, peak, p / 0.14) : (p < k ? SeasonArt.lerp(peak, mid, (p - 0.14) / (k - 0.14)) : SeasonArt.lerp(mid, 0, (p - k) / (1 - k)))
+            return (dx, dy, r, op)
+        }
+    }
+    private static let leafFall = [
+        Faller(x: 30, y: 2, rot: -20, scale: 0.62, sx: 7, del: 0.5, dur: 2.5, ys: (-10, 20, 44), spin: (38, 80), peak: 0.95, mid: 0.8),
+        Faller(x: 54, y: -2, rot: 35, scale: 0.5, sx: -6, del: 1.3, dur: 2.7, ys: (-10, 20, 44), spin: (38, 80), peak: 0.95, mid: 0.8),
+        Faller(x: 8, y: 4, rot: 10, scale: 0.45, sx: 8, del: 2.0, dur: 2.3, ys: (-10, 20, 44), spin: (38, 80), peak: 0.95, mid: 0.8),
+    ]
+    private static let petalFall = [
+        Faller(x: 34, y: 0, rot: -40, scale: 0.55, sx: 9, del: 0.6, dur: 3.0, ys: (-8, 16, 36), spin: (50, -30), peak: 0.9, mid: 0.75),
+        Faller(x: 56, y: -2, rot: 30, scale: 0.45, sx: -8, del: 1.6, dur: 3.0, ys: (-8, 16, 36), spin: (50, -30), peak: 0.9, mid: 0.75),
+    ]
+    /// Cuánto dura todo el movimiento.
+    static let total: Double = 4.8
+
     var body: some View {
+        let m = SeasonMotion.shared
+        let running = m.start != nil && !m.done
+        TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: !running)) { tl in
+            let t: Double = (m.start != nil && !m.done) ? min(Self.total, max(0, tl.date.timeIntervalSince(m.start!))) : -1
+            art(t: t)
+        }
+        .frame(width: 64, height: 50)
+        .scaleEffect(x: right ? -1 : 1, y: 1)
+        .accessibilityHidden(true)
+    }
+
+    /// `t < 0`: en reposo (el dibujo de siempre).
+    private func art(t: Double) -> some View {
         let g = season.palette
-        Canvas { ctx, size in
+        return Canvas { ctx, size in
             ctx.scaleBy(x: size.width / 72, y: size.height / 56)
             func fill(_ path: Path, _ t: CGAffineTransform, _ color: Color, _ opacity: Double = 1) {
                 ctx.fill(path.applying(t), with: .color(color.opacity(opacity)))
@@ -112,37 +165,83 @@ struct SeasonArt: View {
             func stroke(_ path: Path, _ t: CGAffineTransform, _ color: Color, _ width: CGFloat, _ opacity: Double = 1) {
                 ctx.stroke(path.applying(t), with: .color(color.opacity(opacity)), style: StrokeStyle(lineWidth: width, lineCap: .round, lineJoin: .round))
             }
-            let none = CGAffineTransform.identity
+            /// Gira y escala alrededor de un punto (en el sistema de la pieza).
+            func about(_ cx: CGFloat, _ cy: CGFloat, rot: Double = 0, scale: CGFloat = 1) -> CGAffineTransform {
+                CGAffineTransform(translationX: -cx, y: -cy).concatenating(CGAffineTransform(scaleX: scale, y: scale))
+                    .concatenating(CGAffineTransform(rotationAngle: rot * .pi / 180)).concatenating(CGAffineTransform(translationX: cx, y: cy))
+            }
             switch season {
             case .autumn:
-                fill(Self.leaf, Self.tf(18, 22, rot: -25, scale: 1.15), g[1], 0.95)
-                fill(Self.leaf, Self.tf(46, 38, rot: 32, scale: 0.85), g[0])
-                fill(Self.leaf, Self.tf(60, 12, rot: 62, scale: 0.6), g[2], 0.75)
-            case .winter:
-                stroke(Self.flake, Self.tf(18, 24, scale: 1.3), g[1], 2.2 * 1.3)
-                stroke(Self.flake, Self.tf(46, 40, scale: 0.9), g[0], 2.2 * 0.9)
-                stroke(Self.flake, Self.tf(60, 14, scale: 0.65), g[2], 2.2 * 0.65)
-            case .spring:
-                let petal = Path(ellipseIn: CGRect(x: -11, y: -5.5, width: 22, height: 11))
-                fill(petal, Self.tf(20, 24, rot: -35), g[0], 0.95)
-                fill(petal, Self.tf(46, 38, rot: 28), g[1], 0.9)
-                fill(petal, Self.tf(60, 14, rot: -10, scale: 0.7), g[3], 0.9)
-            case .summer:
-                if right {
-                    stroke(Self.wave(14), none, g[0], 2.4, 0.7)
-                    stroke(Self.wave(25), none, g[1], 2.4, 1)
-                    stroke(Self.wave(36), none, g[0], 2.4, 0.7)
-                } else {
-                    fill(Path(ellipseIn: CGRect(x: 11.5, y: 15.5, width: 17, height: 17)), none, g[0])
-                    stroke(Self.rays, none, g[0], 2.4)
+                // las hojas se mecen desde el tallo
+                func sway(_ del: Double) -> CGAffineTransform { about(0, -14, rot: 7 * Self.osc(t, del, 2.2)) }
+                fill(Self.leaf, sway(0.2).concatenating(Self.tf(18, 22, rot: -25, scale: 1.15)), g[1], 0.95)
+                fill(Self.leaf, sway(0.5).concatenating(Self.tf(46, 38, rot: 32, scale: 0.85)), g[0])
+                fill(Self.leaf, sway(0.8).concatenating(Self.tf(60, 12, rot: 62, scale: 0.6)), g[2], 0.75)
+                for (i, f) in Self.leafFall.enumerated() {
+                    guard let st = f.state(t) else { continue }
+                    fill(Self.leaf, Self.tf(CGFloat(f.x + st.dx), CGFloat(f.y + st.dy), rot: CGFloat(f.rot + st.rot), scale: CGFloat(f.scale)), [g[0], g[1], g[3]][i], 0.9 * st.op)
                 }
-                fill(Self.sparkle, Self.tf(48, 40), g[1], 0.95)
-                fill(Self.sparkle, Self.tf(60, 14, scale: 0.65), g[3])
+            case .winter:
+                // los copos crecen, se atenúan y vuelven
+                func pulse(_ del: Double, _ dur: Double, _ k: Double) -> (CGAffineTransform, Double) {
+                    let b = Self.bump(t, del, dur)
+                    return (about(0, 0, rot: 24 * b, scale: CGFloat(1 + (k - 1) * b)), 1 - 0.72 * b)
+                }
+                let a = pulse(0.25, 2.0, 1.4), b = pulse(0.9, 1.9, 1.45), c = pulse(1.5, 1.8, 1.5)
+                stroke(Self.flake, a.0.concatenating(Self.tf(18, 24, scale: 1.3)), g[1], 2.2 * 1.3, a.1)
+                stroke(Self.flake, b.0.concatenating(Self.tf(46, 40, scale: 0.9)), g[0], 2.2 * 0.9, b.1)
+                stroke(Self.flake, c.0.concatenating(Self.tf(60, 14, scale: 0.65)), g[2], 2.2 * 0.65, c.1)
+            case .spring:
+                // los pétalos se mecen y dos más pasan flotando
+                func flut(_ del: Double) -> CGAffineTransform {
+                    let o = Self.osc(t, del, 2.2), b = Self.bump(t, del, 2.2)
+                    return CGAffineTransform(rotationAngle: 12 * o * .pi / 180).concatenating(CGAffineTransform(translationX: CGFloat(1.5 * o), y: CGFloat(2.5 * b)))
+                }
+                let petal = Path(ellipseIn: CGRect(x: -11, y: -5.5, width: 22, height: 11))
+                fill(petal, flut(0.2).concatenating(Self.tf(20, 24, rot: -35)), g[0], 0.95)
+                fill(petal, flut(0.55).concatenating(Self.tf(46, 38, rot: 28)), g[1], 0.9)
+                fill(petal, flut(0.9).concatenating(Self.tf(60, 14, rot: -10, scale: 0.7)), g[3], 0.9)
+                for (i, f) in Self.petalFall.enumerated() {
+                    guard let st = f.state(t) else { continue }
+                    fill(petal, Self.tf(CGFloat(f.x + st.dx), CGFloat(f.y + st.dy), rot: CGFloat(f.rot + st.rot), scale: CGFloat(f.scale)), [g[0], g[3]][i], 0.9 * st.op)
+                }
+            case .summer:
+                func twinkle(_ del: Double) -> (CGFloat, Double) {
+                    // dos destellos seguidos (1.4 s cada uno)
+                    let b = max(Self.bump(t, del, 1.4), Self.bump(t, del + 1.4, 1.4))
+                    return (CGFloat(1 - 0.45 * b), 1 - 0.65 * b)
+                }
+                if right {
+                    for (n, y) in [14, 25, 36].enumerated() {
+                        let b = Self.bump(t, Double(n) * 0.22, 2.6)
+                        stroke(Self.wave(CGFloat(y)), CGAffineTransform(translationX: CGFloat(-5 * b), y: CGFloat(1.6 * b)), n == 1 ? g[1] : g[0], 2.4, n == 1 ? 1 : 0.7)
+                    }
+                } else {
+                    // el sol late dos veces; los rayos giran un poco
+                    let beat = max(Self.bump(t, 0.25, 1.15), Self.bump(t, 1.4, 1.15))
+                    let r = Self.bump(t, 0.25, 2.3)
+                    fill(Path(ellipseIn: CGRect(x: 11.5, y: 15.5, width: 17, height: 17)), about(20, 24, scale: CGFloat(1 + 0.18 * beat)), g[0])
+                    stroke(Self.rays, about(20, 24, rot: 20 * r, scale: CGFloat(1 + 0.12 * r)), g[0], 2.4, 1 - 0.25 * r)
+                }
+                let a = twinkle(0.3), b = twinkle(0.7)
+                fill(Self.sparkle, CGAffineTransform(scaleX: a.0, y: a.0).concatenating(Self.tf(48, 40)), g[1], 0.95 * a.1)
+                fill(Self.sparkle, CGAffineTransform(scaleX: b.0, y: b.0).concatenating(Self.tf(60, 14, scale: 0.65)), g[3], b.1)
             }
         }
-        .frame(width: 64, height: 50)
-        .scaleEffect(x: right ? -1 : 1, y: 1)
-        .accessibilityHidden(true)
+    }
+}
+
+/// El movimiento de entrada del dibujo de temporada: arranca una sola vez por apertura de la app, la primera vez que el título del mes se ve,
+/// dura unos segundos y luego todo queda quieto como siempre. Con «Reducir movimiento» no se anima nada.
+@MainActor @Observable final class SeasonMotion {
+    static let shared = SeasonMotion()
+    var start: Date?
+    var done = false
+    func begin(reduceMotion: Bool) {
+        guard start == nil, !done else { return }
+        if reduceMotion { done = true; return }
+        start = Date()
+        Task { try? await Task.sleep(for: .seconds(SeasonArt.total + 0.3)); self.done = true }
     }
 }
 
@@ -152,6 +251,9 @@ struct MonthHeader: View {
     let year: Int
     let hemi: String
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(AppModel.self) private var model
+    @State private var seen = false
 
     var body: some View {
         let season = Season.of(month0: month0, hemi: hemi)
@@ -185,5 +287,11 @@ struct MonthHeader: View {
         }
         .padding(.top, 16).padding(.bottom, 2)
         .accessibilityElement(children: .combine)
+        .onScrollVisibilityChange(threshold: 0.6) { seen = $0 }
+        .task(id: seen) {
+            guard seen else { return }
+            while !model.splashDone || AppLock.shared.locked { try? await Task.sleep(for: .milliseconds(100)); if Task.isCancelled { return } }
+            SeasonMotion.shared.begin(reduceMotion: reduceMotion)
+        }
     }
 }
