@@ -8,3 +8,5 @@ node_modules/
 __pycache__/
 *.bak
 dist-web/
+!dev/tests/constancias.json
+!dev/app/src/tr/constancias.json

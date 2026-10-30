@@ -1,0 +1,473 @@
+{
+ "nota": "Casos inventados y tres basados en capturas reales de Yape y Plin (con datos de ejemplo). Cuando haya más capturas reales se agregan aquí. today = el día que se usa si el texto no trae fecha.",
+ "today": "2026-10-29",
+ "cases": [
+  {
+   "name": "yape-enviado",
+   "text": "¡Yapeaste S/ 18!\n29 oct. 2026 - 02:15 p. m.\nNombre del destinatario\nJuan Pérez V.\nCelular del destinatario\n*** *** 123\nNro. de operación\n01234567",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": -18,
+    "cur": "PEN",
+    "date": "2026-10-29",
+    "desc": "Juan Pérez V.",
+    "ref": "01234567",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "yape-recibido",
+   "text": "Sara Ron* te yapeó S/ 25.50\n28 oct. 2026 - 09:05 a. m.\nMensaje\nalmuerzo\nNº de operación: 998877",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": 25.5,
+    "cur": "PEN",
+    "date": "2026-10-28",
+    "desc": "Sara Ron* · almuerzo",
+    "ref": "998877",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "plin-interbank",
+   "text": "Plin enviado con éxito\nMonto S/ 20.00\nEnviado a: MARIA LOPEZ R.\nInterbank\nFecha y hora: 29/10/2026 14:15\nCódigo de operación: 000123456",
+   "expect": {
+    "detect": 2,
+    "bank": "interbank",
+    "brand": "plin",
+    "amount": -20,
+    "cur": "PEN",
+    "date": "2026-10-29",
+    "desc": "Maria Lopez R.",
+    "ref": "000123456",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "ocr-5-por-s",
+   "text": "Yapeaste 5/ 12.50\n29 de octubre de 2026\nDestino\nTienda Lupe\nOperacion N° 5566778",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": -12.5,
+    "cur": "PEN",
+    "date": "2026-10-29",
+    "desc": "Tienda Lupe",
+    "ref": "5566778",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "sin-fecha",
+   "text": "Yape\nYapeaste S/ 7\nDestino\nCarlos Q.\nN de operacion 1234567",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": -7,
+    "cur": "PEN",
+    "date": "2026-10-29",
+    "desc": "Carlos Q.",
+    "ref": "1234567",
+    "flags": [
+     "date"
+    ],
+    "auto": false
+   }
+  },
+  {
+   "name": "sin-marca-ni-verbo",
+   "text": "Constancia\nS/ 30.00\n2026-10-20\nNúmero de operación 4455667",
+   "expect": {
+    "detect": 1,
+    "bank": "",
+    "brand": "",
+    "amount": -30,
+    "cur": "PEN",
+    "date": "2026-10-20",
+    "desc": "Constancia",
+    "ref": "4455667",
+    "flags": [
+     "direction",
+     "who"
+    ],
+    "auto": false
+   }
+  },
+  {
+   "name": "miles",
+   "text": "Yapeaste S/ 1,234.50\n15/10/2026\nDestino\nInmobiliaria Sol\nNro de operacion 77777777",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": -1234.5,
+    "cur": "PEN",
+    "date": "2026-10-15",
+    "desc": "Inmobiliaria Sol",
+    "ref": "77777777",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "comision",
+   "text": "Plin enviado\nMonto: S/ 50.00\nComisión: S/ 0.00\nEnviado a Ana\n01/10/2026 10:00 am\nCódigo de operación 99887766",
+   "expect": {
+    "detect": 2,
+    "bank": "",
+    "brand": "plin",
+    "amount": -50,
+    "cur": "PEN",
+    "date": "2026-10-01",
+    "desc": "Ana",
+    "ref": "99887766",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "no-es-constancia",
+   "text": "hola esto no es una constancia 12 de mayo",
+   "expect": {
+    "detect": 0,
+    "error": "no_amount"
+   }
+  },
+  {
+   "name": "operacion-sin-n",
+   "text": "Yapeaste S/ 9\n5/10/2026\nDestino\nPepe\nOperación 1234567",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": -9,
+    "cur": "PEN",
+    "date": "2026-10-05",
+    "desc": "Pepe",
+    "ref": "1234567",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "dolares",
+   "text": "Plin enviado\nMonto US$ 5.00\nEnviado a: Pedro Gil\nBBVA\n3 nov. 2026 08:30\nCódigo de operación AB123456",
+   "expect": {
+    "detect": 2,
+    "bank": "bbva",
+    "brand": "plin",
+    "amount": -5,
+    "cur": "USD",
+    "date": "2026-11-03",
+    "desc": "Pedro Gil",
+    "ref": "AB123456",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "mayusculas",
+   "text": "YAPEASTE S/ 15\n12 SET 2026 06:40 PM\nDESTINO\nLUIS RAMIREZ\nNRO. DE OPERACION 33221100",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": -15,
+    "cur": "PEN",
+    "date": "2026-09-12",
+    "desc": "Luis Ramirez",
+    "ref": "33221100",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "monto-en-linea-aparte",
+   "text": "Yape\nYapeaste\nMonto\nS/ 40.00\n2026-09-30 19:20\nDestino: Cafe Central\nN° de operación 10101010",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": -40,
+    "cur": "PEN",
+    "date": "2026-09-30",
+    "desc": "Cafe Central",
+    "ref": "10101010",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "remitente-sin-verbo",
+   "text": "Yape\nRemitente\nAna Z.\nMonto S/ 10\nFecha 01/10/2026 11:00 am\nOperación 55667788",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": 10,
+    "cur": "PEN",
+    "date": "2026-10-01",
+    "desc": "Ana Z.",
+    "ref": "55667788",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "mensaje-guion",
+   "text": "Yapeaste S/ 3\nDestino\nBodega Rosa\nMensaje\n-\n02/10/2026 12:00\nN° de operación 12121212",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": -3,
+    "cur": "PEN",
+    "date": "2026-10-02",
+    "desc": "Bodega Rosa",
+    "ref": "12121212",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "dos-montos",
+   "text": "Yape\nS/ 10.00\nS/ 12.00\n04/10/2026\nDestino\nNico\nOperación 11112222",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": -10,
+    "cur": "PEN",
+    "date": "2026-10-04",
+    "desc": "Nico",
+    "ref": "11112222",
+    "flags": [
+     "amount"
+    ],
+    "auto": false
+   }
+  },
+  {
+   "name": "fecha-invalida",
+   "text": "Yapeaste S/ 8\n31/02/2026\nDestino\nTere\nOperación 90909090",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": -8,
+    "cur": "PEN",
+    "date": "2026-10-29",
+    "desc": "Tere",
+    "ref": "90909090",
+    "flags": [
+     "date"
+    ],
+    "auto": false
+   }
+  },
+  {
+   "name": "te-pago",
+   "text": "Te pagó S/ 60\nde Rocío M.\n05/10/2026 3:10 p. m.\nOperación 70707070 Yape",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": 60,
+    "cur": "PEN",
+    "date": "2026-10-05",
+    "desc": "Rocío M.",
+    "ref": "70707070",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "real-yape-servicio",
+   "text": "¡Yapeaste el servicio!\nS/10\nMetropolitano y Corredores\n05 ene. 2026 | 11:31 a. m.\nCÓDIGO DE SEGURIDAD\n4 8 5\nDATOS DE LA TRANSACCIÓN\nServicio Recarga de Tarjetas\nCódigo de cliente 1234567890\nNro. de operación 26101992",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": -10,
+    "cur": "PEN",
+    "date": "2026-01-05",
+    "desc": "Metropolitano y Corredores · Recarga de Tarjetas",
+    "ref": "26101992",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "real-yape-sin-operacion",
+   "text": "¡Yapeaste!\nS/ 7.90\n01 abr. 2025 | 09:01 a. m.\nCÓDIGO DE SEGURIDAD 1 6 9\nDATOS DE LA TRANSACCIÓN\nNro. de celular\nDestino Yape\nNro. de operación",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": -7.9,
+    "cur": "PEN",
+    "date": "2025-04-01",
+    "desc": "Yape",
+    "ref": "t0901",
+    "flags": [
+     "who"
+    ],
+    "auto": false
+   }
+  },
+  {
+   "name": "real-plin-comercio",
+   "text": "¡Pago exitoso!\nS/250.00\nRegresa a la ventana del comercio\npara finalizar tu compra\nComercio:\nShopstar\n#123456789012345678\nComisión:\nGRATIS\nFecha y hora:\n01 Mar 2022 10:34 AM\nCódigo de Operación:\n00051136547657787543\nEnviar constancia\nIr al inicio",
+   "expect": {
+    "detect": 2,
+    "bank": "",
+    "brand": "plin",
+    "amount": -250,
+    "cur": "PEN",
+    "date": "2022-03-01",
+    "desc": "Shopstar",
+    "ref": "00051136547657787543",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "plin-comercio-ocr-5",
+   "text": "¡Pago exitoso!\n5/250.00\nComercio:\nShopstar\nFecha y hora:\n01 Mar 2022 10:34 AM\nCódigo de Operación:\n000511365476057787543",
+   "expect": {
+    "detect": 1,
+    "bank": "",
+    "brand": "",
+    "amount": -250,
+    "cur": "PEN",
+    "date": "2022-03-01",
+    "desc": "Shopstar",
+    "ref": "000511365476057787543",
+    "flags": [],
+    "auto": false
+   }
+  },
+  {
+   "name": "real-bbva-envio-a-contactos",
+   "text": "Envío a contactos\nOperación exitosa\n28 octubre 2026, 13:05\nImporte enviado\nS/ 300.00\nEntidad de destino Yape\nComisión S/ 0.00\nNúmero de operación 9A41234567BC\nTipo de operación Envío a contactos\nContacto Mario p lopez r ·1234\nCuenta de origen Cuenta independencia BBVA\n00110800000000000000",
+   "expect": {
+    "detect": 2,
+    "bank": "bbva",
+    "brand": "plin",
+    "amount": -300,
+    "cur": "PEN",
+    "date": "2026-10-28",
+    "desc": "Mario p lopez r ·1234",
+    "ref": "9A41234567BC",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "real-bbva-envio-30",
+   "text": "Envío a contactos\nOperación exitosa\n25 octubre 2026, 21:26\nImporte enviado\nS/ 30.00\nEntidad de destino Yape\nComisión S/ 0.00\nNúmero de operación 5C12345678DE\nTipo de operación Envío a contactos\nContacto Mario p lopez r ·1234\nCuenta de origen Cuenta independencia BBVA\n00110800000000000000",
+   "expect": {
+    "detect": 2,
+    "bank": "bbva",
+    "brand": "plin",
+    "amount": -30,
+    "cur": "PEN",
+    "date": "2026-10-25",
+    "desc": "Mario p lopez r ·1234",
+    "ref": "5C12345678DE",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "real-plin-enviado-a-yape",
+   "text": "¡Pago exitoso!\ns/9.67\nEnviado a:\nAna M Torres P\n987 000 000 - Yape\nComisión:\nGRATIS\nFecha y hora:\n18 Ago 2026 06:30 PM\nCódigo de operación:\n12345678\nEnviar constancia\nVolver a Plin",
+   "expect": {
+    "detect": 2,
+    "bank": "",
+    "brand": "plin",
+    "amount": -9.67,
+    "cur": "PEN",
+    "date": "2026-08-18",
+    "desc": "Ana M Torres P",
+    "ref": "12345678",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "real-plin-enviado-a-yape-2",
+   "text": "¡Pago exitoso!\ns/5.60\nEnviado a:\nRosa N Quispe C\n920 000 000 - Yape\nComisión:\nGRATIS\nFecha y hora:\n16 Ago 2026 03:15 PM\nCódigo de operación:\n87654321\nEnviar constancia\nVolver a Plin",
+   "expect": {
+    "detect": 2,
+    "bank": "",
+    "brand": "plin",
+    "amount": -5.6,
+    "cur": "PEN",
+    "date": "2026-08-16",
+    "desc": "Rosa N Quispe C",
+    "ref": "87654321",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "real-plin-enviado-a-plin",
+   "text": "¡Pago exitoso!\ns/80.00\nEnviado a:\nCarla Elena Ramos Soto\n989 000 000 - Plin\nComisión:\nGRATIS\nFecha y hora:\n14 Sep 2026 01:21 PM\nCódigo de operación:\n11223344\nVolver a Plin",
+   "expect": {
+    "detect": 2,
+    "bank": "",
+    "brand": "plin",
+    "amount": -80,
+    "cur": "PEN",
+    "date": "2026-09-14",
+    "desc": "Carla Elena Ramos Soto",
+    "ref": "11223344",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "real-yape-nombre-y-mensaje",
+   "text": "¡Yapeaste!\nCompartir\nS/ 180\nAna Mar*\n09 may. 2026 | 8:55 p.m.\nfeliz día mamá\nCÓDIGO DE SEGURIDAD 5 5 4\nDATOS DE LA TRANSACCIÓN\nNro. de celular *** *** 000\nDestino Yape\nNro. de operación 12345001\nMás en Yape Nuevo\nYAPEA TUS SERVICIOS\ndesde donde estés",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": -180,
+    "cur": "PEN",
+    "date": "2026-05-09",
+    "desc": "Ana Mar* · feliz día mamá",
+    "ref": "12345001",
+    "flags": [],
+    "auto": true
+   }
+  },
+  {
+   "name": "real-yape-con-anuncio",
+   "text": "¡Yapeaste!\nCompartir\nS/ 0.10\nRosa L. Soto C.\n18 jun. 2025 | 11:25 p.m.\nCÓDIGO DE SEGURIDAD 7 3 1\nDATOS DE LA TRANSACCIÓN\nNro. de celular *** *** 000\nDestino Yape\nNro. de operación 00406000\nMás en Yape Nuevo\nDisfruta de un COMBO Completo Reg.\nA solo S/ 10.90\nIr a Promos",
+   "expect": {
+    "detect": 2,
+    "bank": "yape",
+    "brand": "yape",
+    "amount": -0.1,
+    "cur": "PEN",
+    "date": "2025-06-18",
+    "desc": "Rosa L. Soto C.",
+    "ref": "00406000",
+    "flags": [],
+    "auto": true
+   }
+  }
+ ]
+}

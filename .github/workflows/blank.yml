@@ -27,6 +27,9 @@ jobs:
       - name: Nazca (PDF y bancos)
         run: node dev/tests/nazca-pdf.mjs
 
+      - name: Nazca (constancias de Yape y Plin)
+        run: node dev/tests/constancia.mjs
+
       - name: Pruebas de seguridad del servidor
         run: |
           node dev/tests/carrera.mjs

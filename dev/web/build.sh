@@ -9,4 +9,6 @@ cp dev/app/out/finanzas.html dist-web/index.html
 cp dev/web/sw.js dev/web/_headers app/manifest.webmanifest app/icon-180.png app/icon-192.png app/icon-512.png dist-web/
 # pdf.js (lector de PDF de Nazca): solo se descarga cuando alguien importa un PDF
 mkdir -p dist-web/nazca && cp dev/vendor/pdfjs/pdf.mjs dev/vendor/pdfjs/pdf.worker.mjs dev/vendor/pdfjs/LICENSE dist-web/nazca/
+# Tesseract (OCR de capturas de constancias): solo se descarga cuando alguien elige una captura
+mkdir -p dist-web/nazca/ocr && cp dev/vendor/tesseract/* dist-web/nazca/ocr/ && rm dist-web/nazca/ocr/README.md
 echo "dist-web listo"

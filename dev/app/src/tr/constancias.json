@@ -1,0 +1,330 @@
+[
+ [
+  "Pegar constancia de Yape o Plin",
+  "Paste a Yape or Plin receipt",
+  "YapeまたはPlinの受領書を貼り付け",
+  "Incolla una ricevuta di Yape o Plin",
+  "Coller un reçu Yape ou Plin",
+  "Zalijepi potvrdu s Yapea ili Plina"
+ ],
+ [
+  "Pega el texto de la constancia que compartes al pagar. Plata lo lee en este dispositivo.",
+  "Paste the text of the receipt you share after paying. Plata reads it on this device.",
+  "支払い後に共有する受領書のテキストを貼り付けます。Plataはこの端末内で読み取ります。",
+  "Incolla il testo della ricevuta che condividi dopo il pagamento. Plata lo legge su questo dispositivo.",
+  "Collez le texte du reçu que vous partagez après un paiement. Plata le lit sur cet appareil.",
+  "Zalijepi tekst potvrde koju dijeliš nakon plaćanja. Plata ga čita na ovom uređaju."
+ ],
+ [
+  "Yape o Plin",
+  "Yape or Plin",
+  "YapeまたはPlin",
+  "Yape o Plin",
+  "Yape ou Plin",
+  "Yape ili Plin"
+ ],
+ [
+  "Constancia",
+  "Receipt",
+  "受領書",
+  "Ricevuta",
+  "Reçu",
+  "Potvrda"
+ ],
+ [
+  "Yape · Constancia",
+  "Yape · Receipt",
+  "Yape · 受領書",
+  "Yape · Ricevuta",
+  "Yape · Reçu",
+  "Yape · Potvrda"
+ ],
+ [
+  "Plin · Constancia",
+  "Plin · Receipt",
+  "Plin · 受領書",
+  "Plin · Ricevuta",
+  "Plin · Reçu",
+  "Plin · Potvrda"
+ ],
+ [
+  "Copia todo el texto de la constancia y pégalo aquí. No se sube a ningún servidor.",
+  "Copy all the text of the receipt and paste it here. It isn't uploaded to any server.",
+  "受領書のテキストをすべてコピーしてここに貼り付けてください。サーバーにはアップロードされません。",
+  "Copia tutto il testo della ricevuta e incollalo qui. Non viene caricato su nessun server.",
+  "Copiez tout le texte du reçu et collez-le ici. Il n'est envoyé à aucun serveur.",
+  "Kopiraj sav tekst potvrde i zalijepi ga ovdje. Ne šalje se ni na jedan poslužitelj."
+ ],
+ [
+  "Pega aquí el texto de la constancia",
+  "Paste the receipt text here",
+  "ここに受領書のテキストを貼り付け",
+  "Incolla qui il testo della ricevuta",
+  "Collez ici le texte du reçu",
+  "Ovdje zalijepi tekst potvrde"
+ ],
+ [
+  "Pegar del portapapeles",
+  "Paste from clipboard",
+  "クリップボードから貼り付け",
+  "Incolla dagli appunti",
+  "Coller depuis le presse-papiers",
+  "Zalijepi iz međuspremnika"
+ ],
+ [
+  "Revisa el monto, la fecha y si fue un pago o un ingreso antes de importar.",
+  "Check the amount, the date and whether it was a payment or income before importing.",
+  "インポートする前に、金額、日付、支払いか入金かを確認してください。",
+  "Controlla l'importo, la data e se era un pagamento o un'entrata prima di importare.",
+  "Vérifiez le montant, la date et s'il s'agit d'un paiement ou d'un revenu avant d'importer.",
+  "Prije uvoza provjeri iznos, datum i je li riječ o plaćanju ili prihodu."
+ ],
+ [
+  "Leer constancia",
+  "Read receipt",
+  "受領書を読み取る",
+  "Leggi la ricevuta",
+  "Lire le reçu",
+  "Pročitaj potvrdu"
+ ],
+ [
+  "Esto no parece una constancia",
+  "This doesn't look like a receipt",
+  "これは受領書ではないようです",
+  "Questa non sembra una ricevuta",
+  "Ceci ne ressemble pas à un reçu",
+  "Ovo ne izgleda kao potvrda"
+ ],
+ [
+  "No encontramos un monto. Copia todo el texto de la constancia de Yape o Plin y vuélvelo a pegar.",
+  "We couldn't find an amount. Copy all the text of the Yape or Plin receipt and paste it again.",
+  "金額が見つかりませんでした。YapeまたはPlinの受領書のテキストをすべてコピーして、もう一度貼り付けてください。",
+  "Non abbiamo trovato un importo. Copia tutto il testo della ricevuta di Yape o Plin e incollalo di nuovo.",
+  "Nous n'avons pas trouvé de montant. Copiez tout le texte du reçu Yape ou Plin et collez-le à nouveau.",
+  "Nismo pronašli iznos. Kopiraj sav tekst potvrde s Yapea ili Plina i zalijepi ga ponovno."
+ ],
+ [
+  "No pude leer el portapapeles. Pega el texto en el recuadro.",
+  "I couldn't read the clipboard. Paste the text into the box.",
+  "クリップボードを読み取れませんでした。テキストをボックスに貼り付けてください。",
+  "Non sono riuscito a leggere gli appunti. Incolla il testo nel riquadro.",
+  "Impossible de lire le presse-papiers. Collez le texte dans la zone.",
+  "Nisam mogao pročitati međuspremnik. Zalijepi tekst u okvir."
+ ],
+ [
+  "No encontré la fecha: puse la de hoy. Revísala.",
+  "I couldn't find the date, so I used today's. Please check it.",
+  "日付が見つからなかったため、今日の日付にしました。確認してください。",
+  "Non ho trovato la data: ho messo quella di oggi. Controllala.",
+  "Je n'ai pas trouvé la date : j'ai mis celle d'aujourd'hui. Vérifiez-la.",
+  "Nisam pronašao datum pa sam stavio današnji. Provjeri ga."
+ ],
+ [
+  "No sé si fue un pago o un ingreso. Revísalo.",
+  "I can't tell if it was a payment or income. Please check.",
+  "支払いか入金か判別できませんでした。確認してください。",
+  "Non so se era un pagamento o un'entrata. Controlla.",
+  "Je ne sais pas s'il s'agit d'un paiement ou d'un revenu. Vérifiez.",
+  "Ne znam je li riječ o plaćanju ili prihodu. Provjeri."
+ ],
+ [
+  "Elige la captura de la constancia de Yape o Plin. Se lee en este dispositivo: no se sube a ningún servidor.",
+  "Choose the screenshot of the Yape or Plin receipt. It's read on this device: it isn't uploaded to any server.",
+  "YapeまたはPlinの明細のスクリーンショットを選んでください。この端末で読み取られ、サーバーにはアップロードされません。",
+  "Scegli lo screenshot della ricevuta di Yape o Plin. Viene letto su questo dispositivo: non viene caricato su nessun server.",
+  "Choisis la capture d'écran du reçu Yape ou Plin. Elle est lue sur cet appareil : elle n'est envoyée à aucun serveur.",
+  "Odaberi snimku zaslona potvrde Yape ili Plin. Čita se na ovom uređaju: ne šalje se ni na jedan poslužitelj."
+ ],
+ [
+  "Elegir captura",
+  "Choose screenshot",
+  "スクリーンショットを選ぶ",
+  "Scegli screenshot",
+  "Choisir une capture",
+  "Odaberi snimku zaslona"
+ ],
+ [
+  "O copia todo el texto de la constancia y pégalo aquí.",
+  "Or copy all the text of the receipt and paste it here.",
+  "または明細のテキストをすべてコピーして、ここに貼り付けてください。",
+  "Oppure copia tutto il testo della ricevuta e incollalo qui.",
+  "Ou copie tout le texte du reçu et colle-le ici.",
+  "Ili kopiraj sav tekst potvrde i zalijepi ga ovdje."
+ ],
+ [
+  "Pega aquí el texto de la constancia",
+  "Paste the receipt text here",
+  "ここに明細のテキストを貼り付け",
+  "Incolla qui il testo della ricevuta",
+  "Colle ici le texte du reçu",
+  "Zalijepi ovdje tekst potvrde"
+ ],
+ [
+  "No pude abrir el lector de capturas",
+  "I couldn't open the screenshot reader",
+  "スクリーンショットの読み取りを開けませんでした",
+  "Non sono riuscito ad aprire il lettore di screenshot",
+  "Je n'ai pas pu ouvrir le lecteur de captures",
+  "Nisam uspio otvoriti čitač snimki zaslona"
+ ],
+ [
+  "Revisa tu conexión y vuelve a intentarlo, o pega el texto de la constancia.",
+  "Check your connection and try again, or paste the receipt text.",
+  "接続を確認してもう一度お試しいただくか、明細のテキストを貼り付けてください。",
+  "Controlla la connessione e riprova, oppure incolla il testo della ricevuta.",
+  "Vérifie ta connexion et réessaie, ou colle le texte du reçu.",
+  "Provjeri vezu i pokušaj ponovno ili zalijepi tekst potvrde."
+ ],
+ [
+  "No pude abrir esa captura",
+  "I couldn't open that screenshot",
+  "そのスクリーンショットを開けませんでした",
+  "Non sono riuscito ad aprire quello screenshot",
+  "Je n'ai pas pu ouvrir cette capture",
+  "Nisam uspio otvoriti tu snimku zaslona"
+ ],
+ [
+  "Elige una captura de pantalla de la constancia (imagen de hasta 12 MB).",
+  "Choose a screenshot of the receipt (an image up to 12 MB).",
+  "明細のスクリーンショット(最大12MBの画像)を選んでください。",
+  "Scegli uno screenshot della ricevuta (immagine fino a 12 MB).",
+  "Choisis une capture d'écran du reçu (image jusqu'à 12 Mo).",
+  "Odaberi snimku zaslona potvrde (slika do 12 MB)."
+ ],
+ [
+  "No pude leer texto en la captura",
+  "I couldn't read text in the screenshot",
+  "スクリーンショットの文字を読み取れませんでした",
+  "Non sono riuscito a leggere il testo nello screenshot",
+  "Je n'ai pas pu lire de texte dans la capture",
+  "Nisam uspio pročitati tekst na snimci zaslona"
+ ],
+ [
+  "Prueba con una captura más clara y completa, o pega el texto de la constancia.",
+  "Try a clearer, complete screenshot, or paste the receipt text.",
+  "より鮮明で全体が写ったスクリーンショットを試すか、明細のテキストを貼り付けてください。",
+  "Prova con uno screenshot più nitido e completo, oppure incolla il testo della ricevuta.",
+  "Essaie une capture plus nette et complète, ou colle le texte du reçu.",
+  "Pokušaj s jasnijom i potpunom snimkom zaslona ili zalijepi tekst potvrde."
+ ],
+ [
+  "No encontramos un monto en la captura. Prueba con una captura más clara que muestre el monto y la fecha.",
+  "We didn't find an amount in the screenshot. Try a clearer screenshot that shows the amount and date.",
+  "スクリーンショットに金額が見つかりませんでした。金額と日付が写った鮮明なスクリーンショットを試してください。",
+  "Non abbiamo trovato un importo nello screenshot. Prova con uno screenshot più nitido che mostri importo e data.",
+  "Nous n'avons pas trouvé de montant dans la capture. Essaie une capture plus nette montrant le montant et la date.",
+  "Nismo pronašli iznos na snimci zaslona. Pokušaj s jasnijom snimkom koja prikazuje iznos i datum."
+ ],
+ [
+  "¿Enviaste dinero o te llegó? Mucha gente guarda la captura de quien envió, así que Plata no lo puede adivinar.",
+  "Did you send money or receive it? Many people keep the screenshot of whoever sent it, so Plata can't guess.",
+  "お金を送りましたか、それとも受け取りましたか?送った側のスクリーンショットを保存している人も多いため、Plataには判別できません。",
+  "Hai inviato denaro o lo hai ricevuto? Molti conservano lo screenshot di chi ha inviato, quindi Plata non può indovinare.",
+  "As-tu envoyé de l'argent ou en as-tu reçu ? Beaucoup gardent la capture de celui qui a envoyé, donc Plata ne peut pas deviner.",
+  "Jesi li poslao novac ili ti je stigao? Mnogi spremaju snimku onoga tko je poslao, pa Plata ne može pogoditi."
+ ],
+ [
+  "Envié dinero",
+  "I sent money",
+  "お金を送った",
+  "Ho inviato denaro",
+  "J'ai envoyé de l'argent",
+  "Poslao sam novac"
+ ],
+ [
+  "Pagaste o transferiste a alguien.",
+  "You paid or transferred to someone.",
+  "誰かに支払い、または送金しました。",
+  "Hai pagato o trasferito a qualcuno.",
+  "Tu as payé ou transféré à quelqu'un.",
+  "Platio si ili prenio nekome."
+ ],
+ [
+  "Me llegó dinero",
+  "I received money",
+  "お金を受け取った",
+  "Ho ricevuto denaro",
+  "J'ai reçu de l'argent",
+  "Stigao mi je novac"
+ ],
+ [
+  "Alguien te yapeó, te plineó o te transfirió.",
+  "Someone Yaped, Plined or transferred to you.",
+  "誰かがYape、Plinまたは送金で送ってくれました。",
+  "Qualcuno ti ha inviato con Yape, Plin o bonifico.",
+  "Quelqu'un t'a envoyé par Yape, Plin ou virement.",
+  "Netko ti je poslao putem Yapea, Plina ili prijenosa."
+ ],
+ [
+  "Primero elige si enviaste dinero o te llegó.",
+  "First choose whether you sent money or received it.",
+  "まず、お金を送ったか受け取ったかを選んでください。",
+  "Prima scegli se hai inviato denaro o lo hai ricevuto.",
+  "Choisis d'abord si tu as envoyé ou reçu de l'argent.",
+  "Prvo odaberi jesi li poslao ili primio novac."
+ ],
+ [
+  "¿Fue un gasto o un ingreso? Mucha gente guarda la captura de quien envió, así que Plata no lo puede adivinar.",
+  "Was it an expense or income? Many people keep the screenshot of whoever sent it, so Plata can't guess.",
+  "支出ですか、収入ですか?送った側のスクリーンショットを保存している人も多いため、Plataには判別できません。",
+  "Era una spesa o un'entrata? Molti conservano lo screenshot di chi ha inviato, quindi Plata non può indovinare.",
+  "Était-ce une dépense ou un revenu ? Beaucoup gardent la capture de celui qui a envoyé, donc Plata ne peut pas deviner.",
+  "Je li bio rashod ili prihod? Mnogi spremaju snimku onoga tko je poslao, pa Plata ne može pogoditi."
+ ],
+ [
+  "Sube la captura de la constancia de Yape o Plin. Se lee en este dispositivo: no se sube a ningún servidor.",
+  "Upload the screenshot of the Yape or Plin receipt. It's read on this device: it isn't uploaded to any server.",
+  "YapeまたはPlinの明細のスクリーンショットをアップロードしてください。この端末で読み取られ、サーバーにはアップロードされません。",
+  "Carica lo screenshot della ricevuta di Yape o Plin. Viene letto su questo dispositivo: non viene caricato su nessun server.",
+  "Importe la capture d'écran du reçu Yape ou Plin. Elle est lue sur cet appareil : elle n'est envoyée à aucun serveur.",
+  "Učitaj snimku zaslona potvrde Yape ili Plin. Čita se na ovom uređaju: ne šalje se ni na jedan poslužitelj."
+ ],
+ [
+  "Subir captura",
+  "Upload screenshot",
+  "スクリーンショットをアップロード",
+  "Carica screenshot",
+  "Importer la capture",
+  "Učitaj snimku zaslona"
+ ],
+ [
+  "Importar captura de Yape o Plin",
+  "Import a Yape or Plin screenshot",
+  "YapeまたはPlinのスクリーンショットを取り込む",
+  "Importa screenshot di Yape o Plin",
+  "Importer une capture Yape ou Plin",
+  "Uvezi snimku zaslona Yapea ili Plina"
+ ],
+ [
+  "Sube la captura de la constancia. Plata la lee en este dispositivo.",
+  "Upload the receipt screenshot. Plata reads it on this device.",
+  "明細のスクリーンショットをアップロードしてください。Plataがこの端末で読み取ります。",
+  "Carica lo screenshot della ricevuta. Plata lo legge su questo dispositivo.",
+  "Importe la capture du reçu. Plata la lit sur cet appareil.",
+  "Učitaj snimku zaslona potvrde. Plata je čita na ovom uređaju."
+ ],
+ [
+  "Primero elige si fue un gasto o un ingreso.",
+  "First choose whether it was an expense or income.",
+  "まず、支出か収入かを選んでください。",
+  "Prima scegli se è stata una spesa o un'entrata.",
+  "Choisis d'abord s'il s'agit d'une dépense ou d'un revenu.",
+  "Prvo odaberi je li bio rashod ili prihod."
+ ],
+ [
+  "Revisa tu conexión y vuelve a intentarlo.",
+  "Check your connection and try again.",
+  "接続を確認してもう一度お試しください。",
+  "Controlla la connessione e riprova.",
+  "Vérifie ta connexion et réessaie.",
+  "Provjeri vezu i pokušaj ponovno."
+ ],
+ [
+  "Prueba con una captura más clara y completa.",
+  "Try a clearer, complete screenshot.",
+  "より鮮明で全体が写ったスクリーンショットを試してください。",
+  "Prova con uno screenshot più nitido e completo.",
+  "Essaie une capture plus nette et complète.",
+  "Pokušaj s jasnijom i potpunom snimkom zaslona."
+ ]
+]
