@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 import LocalAuthentication
 
 /// Crear un PIN: se escribe dos veces y se rechazan los obvios (000000, 123456…).

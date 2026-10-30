@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 import PlataCore
 
 /// Preferencias del dispositivo (la web las guarda en `localStorage`, no en el perfil): apariencia e idioma.
