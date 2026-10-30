@@ -37,7 +37,7 @@ struct MonthView: View {
                 MonthHeader(month0: month0, year: year, hemi: Engine.text(e.data["settings"]?["hemi"]))
                     .rowStyle(top: 0, bottom: 0)
                 scoreRow(e, month)
-                    .rowStyle(top: 0, bottom: 14)
+                    .rowStyle(top: 6, bottom: 22)
             }
 
             Section {
@@ -55,7 +55,7 @@ struct MonthView: View {
                 .padding(18)
                 .frame(maxWidth: .infinity)
                 .plataGlass(in: RoundedRectangle(cornerRadius: 26, style: .continuous))
-                .rowStyle(top: 0, bottom: 14)
+                .rowStyle(top: 6, bottom: 22)
 
                 PillSegmented(items: filters(e).map { ($0, label($0, e)) }, selection: $filter)
                 .rowStyle(top: 0, bottom: 14)

@@ -181,7 +181,8 @@ struct PillSegmented<Value: Hashable>: View {
             }
         }
         .padding(3)
-        .background(Color(light: "#E5E5EA", dark: "#0A2218"), in: Capsule())
+        // riel en verde bosque muy tenue (no el gris de iOS): se funde con el fondo menta en claro
+        .background(Color(UIColor { $0.userInterfaceStyle == .dark ? UIColor(red: 0.039, green: 0.133, blue: 0.094, alpha: 1) : UIColor(red: 0.06, green: 0.21, blue: 0.15, alpha: 0.085) }), in: Capsule())
     }
 }
 
