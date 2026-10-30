@@ -201,7 +201,6 @@ struct CuentasView: View {
     private func debitList(_ e: Engine, _ f: Fmt) -> some View {
         let list = sorted(e.allAccounts, kind: "acc", e, [:])
         return ListCard {
-            if !list.isEmpty { Color.clear.frame(height: 6) }
             ForEach(Array(list.enumerated()), id: \.offset) { i, a in
                 if i > 0 { RowDivider() }
                 let cur = Engine.text(a["cur"])
@@ -220,7 +219,7 @@ struct CuentasView: View {
                         Text(f.whole(Engine.number(a["balance"]), cur)).font(.inter(16, .medium)).monospacedDigit()
                         Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(.tertiary)
                     }
-                    .frame(minHeight: 64).contentShape(Rectangle())
+                    .padding(.vertical, 10).frame(minHeight: 64).contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .swipeRow(accountSwipe(a, debt: false))

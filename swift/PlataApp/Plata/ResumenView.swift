@@ -560,8 +560,10 @@ struct TransactionRow: View {
             Text(fmt.signed(amount, cur))
                 .font(.inter(16, .medium)).monospacedDigit()
                 .foregroundStyle(isIncome ? Brand.gain : Color.primary)
+                .lineLimit(1).fixedSize()
             Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(.tertiary)
         }
+        .padding(.vertical, 10)
         .frame(minHeight: 64)
         .contentShape(Rectangle())
     }

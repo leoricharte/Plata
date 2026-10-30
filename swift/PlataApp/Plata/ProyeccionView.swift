@@ -439,7 +439,7 @@ struct ProyeccionView: View {
                                 }
                                 Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(.tertiary)
                             }
-                            .frame(minHeight: 64).contentShape(Rectangle())
+                            .padding(.vertical, 10).frame(minHeight: 64).contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
                     }

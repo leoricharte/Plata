@@ -134,15 +134,15 @@ struct ReviewView: View {
                         .font(.inter(16)).foregroundStyle(Brand.green).frame(maxWidth: .infinity).frame(height: 48).padding(.top, 8)
                 }
             }
-            .padding(.top, 16).padding(.bottom, 28)
+            .padding(.top, 16).padding(.bottom, 12)
             .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { cw = $0 }
         }
         .onScrollGeometryChange(for: CGFloat.self) { $0.contentSize.height } action: { _, h in fitH = h }
-        .presentationDetents(fitH > 0 && fitH + 60 < UIScreen.main.bounds.height * 0.8 ? [.height(fitH + 60), .large] : [.large], selection: $detent)
+        .presentationDetents(fitH > 0 && fitH + 40 < UIScreen.main.bounds.height * 0.8 ? [.height(fitH + 40), .large] : [.large], selection: $detent)
         .onChange(of: fitH) { _, h in
             // Al abrir el popup ya está en .large: hay que mover la selección al detent ajustado.
-            let ok = h > 0 && h + 60 < UIScreen.main.bounds.height * 0.8
-            if ok { if detent != .large || !fitted { detent = .height(h + 60); fitted = true } }
+            let ok = h > 0 && h + 40 < UIScreen.main.bounds.height * 0.8
+            if ok { if detent != .large || !fitted { detent = .height(h + 40); fitted = true } }
             else { detent = .large }
         }
         .presentationDragIndicator(.visible).presentationCornerRadius(38)
@@ -196,7 +196,7 @@ struct ReviewView: View {
             .buttonStyle(.plain)
         }
         .padding(22)
-        .frame(minHeight: 380, alignment: .top)
+        .frame(alignment: .top)
         .plataGlass(in: RoundedRectangle(cornerRadius: 28, style: .continuous))
     }
 

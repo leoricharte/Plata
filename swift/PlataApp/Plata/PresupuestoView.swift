@@ -191,6 +191,7 @@ struct PresupuestoView: View {
                         Text(f.exact(Engine.number(s["amount"]), Engine.text(s["cur"]))).font(.inter(16, .medium)).monospacedDigit()
                         Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(.tertiary)
                     }
+                    .padding(.vertical, 10)
                     .frame(minHeight: 64)
                     .contentShape(Rectangle())
                 }

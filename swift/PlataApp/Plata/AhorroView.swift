@@ -92,6 +92,7 @@ struct AhorroView: View {
         }()
         let line: ScreenInsights.Line? = model.engine.insightsEnabled ? ScreenInsights.saving(s, today: model.today, whole: { f.whole($0, $1) }) : nil
         return NavigationLink(value: AcctRef(id: Engine.identifier(s["id"]))) {
+            VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 12) {
                 Tile(symbol: iconSymbol(Engine.text(s["icon"])) ?? "leaf.fill", color: Color(hex: color))
                 VStack(alignment: .leading, spacing: 6) {
@@ -108,11 +109,12 @@ struct AhorroView: View {
                     }
                     Text((goal > 0 ? "\(Int(pct.rounded()))% de \(f.whole(goal, cur)) · " : "") + eta)
                         .font(.inter(13)).foregroundStyle(.secondary).lineLimit(2)
-                    if let line { InsightLineView(line: line) }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                Text(f.whole(bal, cur)).font(.inter(16, .medium)).monospacedDigit()
+                Text(f.whole(bal, cur)).font(.inter(16, .medium)).monospacedDigit().lineLimit(1).fixedSize()
                 Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(.tertiary)
+            }
+            if let line { InsightLineView(line: line).padding(.leading, 58).padding(.top, 2).fixedSize(horizontal: false, vertical: true) }
             }
             .padding(.vertical, 10).frame(minHeight: 64).contentShape(Rectangle())
         }

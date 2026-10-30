@@ -271,6 +271,7 @@ struct AccountDetailView: View {
                     Spacer(minLength: 8)
                     Text("+" + f.exact(Engine.number(l["amount"]), cur)).font(.inter(16, .semibold)).monospacedDigit().foregroundStyle(Brand.gainText)
                 }
+                .padding(.vertical, 10)
                 .frame(minHeight: 64)
             }
             RowDivider()
