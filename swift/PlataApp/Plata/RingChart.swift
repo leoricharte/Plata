@@ -24,7 +24,7 @@ struct RingChart<Center: View>: View {
                 let circ = 2 * Double.pi * Double(r)
                 var track = Path()
                 track.addArc(center: c, radius: r, startAngle: .degrees(0), endAngle: .degrees(360), clockwise: false)
-                ctx.stroke(track, with: .color(Color(light: "#F3F3F5", dark: "#2C2C2E")), lineWidth: sw)
+                ctx.stroke(track, with: .color(Color(light: "#E3EFE8", dark: "#1D4D37")), lineWidth: sw)
                 let total = max(items.reduce(0) { $0 + $1.value }, 0.000001)
                 var cum = 0.0
                 for it in items where it.value > 0 {
