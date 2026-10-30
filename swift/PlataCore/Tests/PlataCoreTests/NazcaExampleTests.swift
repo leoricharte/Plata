@@ -89,4 +89,30 @@ final class NazcaExampleTests: XCTestCase {
         let json = String(data: try JSONEncoder().encode(t), encoding: .utf8) ?? ""
         for s in ["Netflix", "Bodega", "44.9", "2026"] { XCTAssertFalse(json.contains(s)) }
     }
+
+    func testSavedTemplateReadsAnotherCapture() throws {
+        let ex = [NazcaExample.Example(desc: "Netflix", amount: -44.9, date: "2026-10-12"),
+                  NazcaExample.Example(desc: "Bodega Lupe", amount: -18, date: "2026-10-11")]
+        let t = try NazcaExample.learn(examples: ex, boxes: headerLayout(), today: today).get()
+        var saved = NazcaTemplates.remember(t, into: [])
+        saved = NazcaTemplates.remember(t, into: saved)
+        XCTAssertEqual(saved.count, 1)
+        XCTAssertEqual(saved[0].uses, 2)
+        let hit = NazcaTemplates.best(saved, boxes: headerLayout(), today: today)
+        XCTAssertEqual(hit?.extraction.items.count, 4)
+        XCTAssertNil(NazcaTemplates.best(saved, boxes: [B(text: "hola", x: 0.1, y: 0.1, w: 0.2, h: 0.02)], today: today))
+    }
+
+    func testSharePayloadIsClosedAndOff() throws {
+        let ex = [NazcaExample.Example(desc: "Netflix", amount: -44.9, date: "2026-10-12"),
+                  NazcaExample.Example(desc: "Bodega Lupe", amount: -18, date: "2026-10-11")]
+        let t = try NazcaExample.learn(examples: ex, boxes: headerLayout(), today: today).get()
+        let p = NazcaShare.payload(t, bank: "Mi Banco Secreto")
+        XCTAssertEqual(p.bank, "otro")
+        XCTAssertEqual(NazcaShare.payload(t, bank: "BCP").bank, "bcp")
+        XCTAssertEqual(p.dateMode, "header")
+        let json = String(data: try JSONEncoder().encode(p), encoding: .utf8) ?? ""
+        for s in ["Netflix", "Bodega", "Secreto", "44.9"] { XCTAssertFalse(json.contains(s)) }
+        XCTAssertFalse(NazcaShare.enabled)
+    }
 }

@@ -25,6 +25,8 @@ struct ImportFlowView: View {
     /// «Sesión de reconocimiento»: los dos movimientos elegidos (sus ids) y la captura de la persona.
     @State private var exPicks: [String] = []
     @State private var exShot: PhotosPickerItem?
+    /// Captura subida sin elegir movimientos: se lee con lo que Nazca ya aprendió.
+    @State private var exKnownShot: PhotosPickerItem?
     /// `true` si se abrió directo en una revisión (constancias que llegaron desde «Compartir»): «Regresar» cierra.
     private let preloaded: Bool
 
@@ -387,7 +389,7 @@ struct ImportFlowView: View {
         switch step {
         case .start: dismiss()
         case .paste: step = .start; shot = nil; dir = 0
-        case .example: step = .start; exShot = nil; exPicks = []
+        case .example: step = .start; exShot = nil; exKnownShot = nil; exPicks = []
         case .how, .country: step = .start; keyText = ""; pend = nil
         case .banks: step = .country; keyText = ""; pend = nil
         case .bank: step = .banks; keyText = ""; pend = nil
@@ -469,8 +471,38 @@ struct ImportFlowView: View {
                 }
                 .disabled(exPicks.count != 2)
                 .onChange(of: exShot) { _, item in if let item { Task { await readExample(item) } } }
+                if !TemplateVault.load().isEmpty {
+                    PhotosPicker(selection: $exKnownShot, matching: .images) {
+                        Text("Ya la conozco: usar lo que Nazca aprendió").font(.inter(17)).foregroundStyle(Brand.green)
+                            .frame(maxWidth: .infinity, minHeight: 44)
+                    }
+                    .onChange(of: exKnownShot) { _, item in if let item { Task { await readKnown(item) } } }
+                }
             }
         }
+    }
+
+    /// Una captura con la forma que Nazca ya aprendió: no hace falta elegir movimientos.
+    private func readKnown(_ item: PhotosPickerItem) async {
+        notice = nil; step = .busy
+        defer { exKnownShot = nil }
+        guard let data = try? await item.loadTransferable(type: Data.self),
+              let boxes = try? await CaptureBoxes.read(imageData: data), !boxes.isEmpty else {
+            step = .example
+            notice = Notice(title: Tr.t("No pude leer texto en la captura"), message: Tr.t("Prueba con una captura más clara y completa."))
+            return
+        }
+        guard let hit = NazcaTemplates.best(TemplateVault.load(), boxes: boxes, today: model.today.iso),
+              let rev = ImportReview(name: "Captura", statement: NazcaExample.statement(hit.extraction), engine: model.engine) else {
+            step = .example
+            notice = Notice(title: Tr.t("Nazca aún no conoce esta captura"), message: Tr.t("Elige dos movimientos que salgan en ella y Nazca aprende cómo leerla."))
+            return
+        }
+        TemplateVault.reinforce(at: hit.index)
+        origin = .example
+        reviews = [rev]; idx = 0; step = .review
+        if hit.extraction.flags.contains("date") { notice = Notice(title: Tr.t("Revisa las fechas"), message: Tr.t("Algunos movimientos no traían fecha: puse la de hoy.")) }
+        else if hit.extraction.flags.contains("sign") { notice = Notice(title: Tr.t("Revisa gastos e ingresos"), message: Tr.t("En algunos movimientos adiviné si eran gasto o ingreso.")) }
     }
 
     private func readExample(_ item: PhotosPickerItem) async {
@@ -503,6 +535,8 @@ struct ImportFlowView: View {
                 notice = Notice(title: Tr.t("Nazca no encontró más movimientos"), message: Tr.t("Prueba con una captura que muestre varios movimientos."))
                 return
             }
+            // Aprendizaje local: se recuerda solo la forma de la captura. Puente al envío (apagado): NazcaShare.submit(template, bank:, via:)
+            TemplateVault.remember(template)
             origin = .example
             reviews = [rev]; idx = 0; step = .review
             if x.flags.contains("date") { notice = Notice(title: Tr.t("Revisa las fechas"), message: Tr.t("Algunos movimientos no traían fecha: puse la de hoy.")) }
