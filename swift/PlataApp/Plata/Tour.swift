@@ -161,32 +161,34 @@ struct TourOverlay: View {
         }
         .padding(.top, 18).padding(.horizontal, 18).padding(.bottom, 12)
         .frame(width: width, alignment: .leading)
-        .background(Color(light: "#FFFFFF", dark: "#0D2A1D"), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(Brand.accent.opacity(0.45), lineWidth: 1))
-        .overlay(alignment: arrowUp ? .topLeading : .bottomLeading) {
-            if let ax = arrowX {
-                Triangle().fill(Color(light: "#FFFFFF", dark: "#0D2A1D"))
-                    .overlay(TriangleSides().stroke(Brand.accent.opacity(0.45), style: StrokeStyle(lineWidth: 1, lineCap: .round, lineJoin: .round)))
-                    .frame(width: 22, height: 11)
-                    .rotationEffect(.degrees(arrowUp ? 0 : 180))
-                    .offset(x: min(max(18, ax), width - 36) - 11, y: arrowUp ? -9 : 9)
-            }
-        }
+        .background(BubbleShape(arrowX: arrowX.map { min(max(18, $0), width - 36) }, up: arrowUp).fill(Color(light: "#FFFFFF", dark: "#0D2A1D")))
+        .overlay(BubbleShape(arrowX: arrowX.map { min(max(18, $0), width - 36) }, up: arrowUp).stroke(Brand.accent.opacity(0.45), style: StrokeStyle(lineWidth: 1, lineJoin: .round)))
         .shadow(color: .black.opacity(0.24), radius: 20, y: 12)   // sombra de globo + punta juntos
         .accessibilityElement(children: .contain)
     }
 }
 
-/// Solo los dos lados inclinados: la base queda abierta para que la punta se funda con el borde del globo.
-private struct TriangleSides: Shape {
+/// Globo + punta como UNA sola silueta (union): un solo relleno y un solo borde, así la punta
+/// tiene exactamente la misma opacidad que el globo y no hay costura ni bordes doblados.
+private struct BubbleShape: Shape {
+    var arrowX: CGFloat?      // centro de la punta, relativo al borde izquierdo del globo
+    var up: Bool              // true = punta arriba, false = abajo
     func path(in r: CGRect) -> Path {
-        var p = Path(); p.move(to: CGPoint(x: r.minX, y: r.maxY)); p.addLine(to: CGPoint(x: r.midX, y: r.minY)); p.addLine(to: CGPoint(x: r.maxX, y: r.maxY)); return p
-    }
-}
-
-private struct Triangle: Shape {
-    func path(in r: CGRect) -> Path {
-        var p = Path(); p.move(to: CGPoint(x: r.midX, y: r.minY)); p.addLine(to: CGPoint(x: r.maxX, y: r.maxY)); p.addLine(to: CGPoint(x: r.minX, y: r.maxY)); p.closeSubpath(); return p
+        let base = Path(roundedRect: r, cornerSize: CGSize(width: 24, height: 24), style: .continuous)
+        guard let ax = arrowX else { return base }
+        let x = r.minX + ax
+        var t = Path()
+        if up {
+            t.move(to: CGPoint(x: x - 11, y: r.minY + 2))
+            t.addLine(to: CGPoint(x: x, y: r.minY - 9))
+            t.addLine(to: CGPoint(x: x + 11, y: r.minY + 2))
+        } else {
+            t.move(to: CGPoint(x: x - 11, y: r.maxY - 2))
+            t.addLine(to: CGPoint(x: x, y: r.maxY + 9))
+            t.addLine(to: CGPoint(x: x + 11, y: r.maxY - 2))
+        }
+        t.closeSubpath()
+        return base.union(t)
     }
 }
 
@@ -264,14 +266,8 @@ private struct TourSheetTip: ViewModifier {
         }
         .padding(.top, 18).padding(.horizontal, 18).padding(.bottom, 12)
         .frame(width: w, alignment: .leading)
-        .background(Color(light: "#FFFFFF", dark: "#0D2A1D"), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(Brand.accent.opacity(0.45), lineWidth: 1.5))
-        .overlay(alignment: .topLeading) {
-            Triangle().fill(Color(light: "#FFFFFF", dark: "#0D2A1D"))
-                .overlay(TriangleSides().stroke(Brand.accent.opacity(0.45), style: StrokeStyle(lineWidth: 1, lineCap: .round, lineJoin: .round)))
-                .frame(width: 22, height: 11)
-                .offset(x: min(max(18, arrowX), w - 36) - 11, y: -9)
-        }
+        .background(BubbleShape(arrowX: min(max(18, arrowX), w - 36), up: true).fill(Color(light: "#FFFFFF", dark: "#0D2A1D")))
+        .overlay(BubbleShape(arrowX: min(max(18, arrowX), w - 36), up: true).stroke(Brand.accent.opacity(0.45), style: StrokeStyle(lineWidth: 1, lineJoin: .round)))
         .shadow(color: .black.opacity(0.24), radius: 20, y: 12)
     }
 }
