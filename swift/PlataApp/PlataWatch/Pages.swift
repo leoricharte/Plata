@@ -124,8 +124,13 @@ struct BudgetPage: View {
                             }
                         } else if !hidden {
                             if !s.cats.isEmpty && (s.monthBudget ?? 0) > 0 {
-                                Amount(text: s.fmt(max(0, -(s.monthLeft ?? 0)))).font(.system(size: 26, weight: .bold, design: .rounded)).foregroundStyle(.red)
-                                    .minimumScaleFactor(0.6).lineLimit(1)
+                                let over = max(0, -(s.monthLeft ?? 0))
+                                VStack(spacing: 2) {
+                                    Text(over > 0 ? "te pasaste" : "al límite").textCase(.uppercase)
+                                        .font(.system(size: 11, weight: .semibold)).tracking(3.5).foregroundStyle(.secondary).lineLimit(1).minimumScaleFactor(0.7)
+                                    Amount(text: s.fmt(over)).font(.system(size: 26, weight: .bold, design: .rounded)).foregroundStyle(.red)
+                                        .minimumScaleFactor(0.6).lineLimit(1)
+                                }
                             }
                             Text(s.cats.isEmpty ? "Sin presupuesto este mes" : "Presupuesto del mes agotado").font(.system(size: 14)).foregroundStyle(.secondary).multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
                         }
@@ -189,9 +194,30 @@ struct BudgetPage: View {
                 CategoryRing(cat: c, symbol: s.catInfo?.first { $0.label == c.name }?.symbol ?? "circle.fill", width: width, radius: radius)
                     .frame(width: radius * 2, height: radius * 2)
             }
+            // el hueco del centro: ✓ verde = va bien · – amarillo = ok pero cerca del tope · ✕ rojo = te pasaste
+            let hole = (outer - CGFloat(top.count) * (width + gap) + gap) * 2
+            statusMark(s, top).font(.system(size: min(34, hole * 0.5), weight: .heavy, design: .rounded))
         }
         .frame(width: 160, height: 160)
         .contentShape(Circle())
+    }
+
+    /// 0 = va bien · 1 = ok pero acercándose al límite (80 % o más del tope, en total o en alguna categoría) · 2 = te pasaste.
+    private func budgetState(_ s: WatchSnapshot, _ top: [WatchCat]) -> Int {
+        let ratios = s.cats.map { $0.limit > 0 ? $0.spent / $0.limit : 0 }
+        var overall = 0.0
+        if let b = s.monthBudget, b > 0 { overall = (b - (s.monthLeft ?? b)) / b }
+        if overall > 1 || (s.allowance <= 0 && (s.monthBudget ?? 0) > 0) || ratios.contains(where: { $0 > 1 }) { return 2 }
+        if overall >= 0.8 || ratios.contains(where: { $0 >= 0.8 }) { return 1 }
+        return 0
+    }
+
+    @ViewBuilder private func statusMark(_ s: WatchSnapshot, _ top: [WatchCat]) -> some View {
+        switch budgetState(s, top) {
+        case 2: Image(systemName: "xmark").foregroundStyle(Color(red: 1.0, green: 0.27, blue: 0.23))
+        case 1: Image(systemName: "minus").foregroundStyle(Color(red: 1.0, green: 0.80, blue: 0.0))
+        default: Image(systemName: "checkmark").foregroundStyle(Color(red: 0.20, green: 0.84, blue: 0.45))
+        }
     }
 
     /// Un solo aro grande y grueso, como el de Actividad: lo gastado hoy al centro y, debajo, de cuánto es el tope del día.
@@ -334,9 +360,9 @@ struct AddPage: View {
         if now.timeIntervalSince(lastTick) > 0.35 || dir != lastDir { streakStart = now; crownAcc = 0 }   // pausa o giro inverso: otra vez a 0.25
         lastTick = now
         lastDir = dir
-        crownAcc += abs(d0) * 24                       // 24 muescas por vuelta
+        crownAcc += abs(d0) * 12                       // 12 muescas por vuelta (antes 24: la corona cuesta más)
         let sustained = now.timeIntervalSince(streakStart)
-        let rung = min(Self.ladder.count - 1, Int(sustained / 0.9))   // un escalón cada ~0.9 s seguidos
+        let rung = min(Self.ladder.count - 1, Int(sustained / 1.3))   // un escalón cada ~1.3 s seguidos
         let unit = Self.ladder[rung]
         var moved = false
         while crownAcc >= 1 {

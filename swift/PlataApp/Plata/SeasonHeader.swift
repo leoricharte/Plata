@@ -271,17 +271,17 @@ struct MonthHeader: View {
         let name = Spanish.monthsFull[month0].capitalized
         HStack(spacing: 0) {
             Color.clear.frame(maxWidth: .infinity, minHeight: 50)
-                .overlay(alignment: .trailing) { SeasonArt(season: season).padding(.trailing, -8) }
+                .overlay(alignment: .trailing) { SeasonArt(season: season).padding(.trailing, -20) }
                 .clipped()
             VStack(spacing: 0) {
-                Text("\(season.name) \(String(year))").font(.inter(18, .semibold)).tracking(-0.2).foregroundStyle(s1)
+                Text("\(season.name) \(String(year))").font(.inter(20, .semibold)).tracking(-0.2).foregroundStyle(s1)
                 Text(name)
-                    .font(.inter(42, .heavy, relativeTo: .largeTitle))
+                    .font(.inter(50, .heavy, relativeTo: .largeTitle))
                     .tracking(-1.4)
                     .foregroundStyle(LinearGradient(colors: [s1, s2], startPoint: .leading, endPoint: .trailing))
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
-                    .padding(.leading, 2).padding(.trailing, 2 + 1.4).padding(.bottom, 4)   // el tracking negativo deja la tinta 0.7 pt a la derecha del centro
+                    .padding(.leading, 2).padding(.trailing, 2 + 1.4).padding(.bottom, 2).padding(.top, -4)   // el tracking negativo deja la tinta 0.7 pt a la derecha del centro
             }
             .layoutPriority(1)
             .background {
@@ -290,7 +290,7 @@ struct MonthHeader: View {
                     .allowsHitTesting(false)
             }
             Color.clear.frame(maxWidth: .infinity, minHeight: 50)
-                .overlay(alignment: .leading) { SeasonArt(season: season, right: true).padding(.leading, -8) }
+                .overlay(alignment: .leading) { SeasonArt(season: season, right: true).padding(.leading, -20) }
                 .clipped()
         }
         .padding(.top, 16).padding(.bottom, 14)
