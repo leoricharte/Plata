@@ -12,6 +12,18 @@ extension Color {
 }
 
 extension Color {
+    /// ¿Es un color casi negro? (una categoría en negro no se ve sobre el fondo oscuro del reloj).
+    static func watchIsDark(_ h: String?) -> Bool {
+        let t = (h ?? "").replacingOccurrences(of: "#", with: "")
+        guard t.count == 6, let v = UInt32(t, radix: 16) else { return false }
+        let r = Double((v >> 16) & 255) / 255, g = Double((v >> 8) & 255) / 255, b = Double(v & 255) / 255
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b < 0.30
+    }
+    /// El color de la categoría para dibujarlo sobre fondo oscuro: si ya es oscuro, blanco; si no, el suyo.
+    init(watchOnDark h: String?) { self = Color.watchIsDark(h) ? Color(white: 0.94) : Color(watchHex: h) }
+}
+
+extension Color {
     /// El mismo tono, muy oscuro (o casi blanco si el aro ya es oscuro): para el texto y el icono que van encima de un aro de ese color.
     init(watchDark h: String?) {
         let t = (h ?? "").replacingOccurrences(of: "#", with: "")
@@ -86,7 +98,7 @@ struct CategoryRing: View {
         let pct = " · " + String(Int((frac * 100).rounded())) + "%"
         let label = Self.fit(cat.name, pct, avail: avail, radius: radius, size: size)
         return ZStack {
-            ActivityRing(frac: frac, color: Color(watchHex: cat.color), width: width, radius: radius, symbol: symbol, iconSize: iconSize, iconColor: dark)
+            ActivityRing(frac: frac, color: Color.watchIsDark(cat.color) ? Color(white: 0.30) : Color(watchHex: cat.color), width: width, radius: radius, symbol: symbol, iconSize: iconSize, iconColor: dark)
             if let label { CurvedLabel(text: label, radius: radius, size: size, start: begin, color: dark) }
         }
     }

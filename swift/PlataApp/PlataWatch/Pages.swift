@@ -87,7 +87,7 @@ struct BudgetPage: View {
                                     let r = c.limit > 0 ? c.spent / c.limit : 0
                                     VStack(alignment: .leading, spacing: 3) {
                                         HStack { Text(c.name).lineLimit(1); Spacer(); Amount(text: s.fmt(c.spent)) }.font(.system(size: 14, weight: .medium))
-                                        ProgressView(value: min(1, r)).tint(r >= 1 ? .red : Color(watchHex: c.color))
+                                        ProgressView(value: min(1, r)).tint(r >= 1 ? .red : Color(watchOnDark: c.color))
                                     }
                                 }
                             }
@@ -197,6 +197,8 @@ struct AddPage: View {
     @State private var lastDir = 1.0
     @State private var crownAcc = 0.0
     @State private var value = 0.0
+    /// El botón «Siguiente» aparece cuando la persona gira la corona o escribe un monto; antes, solo se ve el monto y una pista.
+    @State private var touched = false
     @State private var isOut = true
     @State private var category = ""
     @State private var editing = false
@@ -238,7 +240,7 @@ struct AddPage: View {
             value = max(0, (v * 100).rounded() / 100)
             moved = true
         }
-        if moved { WKInterfaceDevice.current().play(.click) }
+        if moved { WKInterfaceDevice.current().play(.click); if !touched { withAnimation(.spring(response: 0.45, dampingFraction: 0.85)) { touched = true } } }
     }
 
     private func done(_ s: WatchSnapshot) -> some View {
@@ -262,28 +264,41 @@ struct AddPage: View {
         .sheet(isPresented: $editing) {
             VStack {
                 TextField("Monto", text: $typedText)
-                Button("Listo") { if let v = Double(typedText.replacingOccurrences(of: ",", with: ".")) { value = max(0, v) }; editing = false }
+                Button("Listo") { if let v = Double(typedText.replacingOccurrences(of: ",", with: ".")) { value = max(0, v); withAnimation(.spring(response: 0.45, dampingFraction: 0.85)) { touched = true } }; editing = false }
             }
         }
     }
 
     /// Paso 1: solo el monto, sin scroll, para que la corona sea del monto.
     private func amountView(_ s: WatchSnapshot) -> some View {
-        VStack(spacing: 6) {
+        // El monto grande en el centro; abajo, una sola cosa a la vez: la pista al empezar y, al girar o tocar el monto, el botón «Siguiente».
+        VStack(spacing: 0) {
             Button { isOut.toggle() } label: {
                 Text(isOut ? "Gasto" : "Ingreso").font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(isOut ? Color.secondary : WatchTheme.accent)
             }.buttonStyle(.plain)
+            Spacer(minLength: 0)
             Button { editing = true; typedText = "" } label: {
                 Amount(text: (isOut ? "-" : "+") + WatchFormat.money(value, sym: s.sym, dec: 2))
-                    .font(.system(size: 34, weight: .bold, design: .rounded)).minimumScaleFactor(0.5).lineLimit(1)
+                    .font(.system(size: 40, weight: .bold, design: .rounded)).minimumScaleFactor(0.5).lineLimit(1)
                     .foregroundStyle(isOut ? Color.primary : WatchTheme.accent)
             }
             .buttonStyle(.plain)
-            Text("Gira la corona · toca el monto para escribirlo").font(.system(size: 11)).foregroundStyle(.secondary).multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
-            Button { path = [isOut ? .category : .account] } label: { Text("Siguiente").font(.system(size: 13, weight: .semibold)).frame(maxWidth: .infinity) }
-                .buttonStyle(.borderedProminent).controlSize(.small).tint(WatchTheme.accent).disabled(value <= 0)
-            SyncNote()
+            Spacer(minLength: 0)
+            ZStack {
+                if touched {
+                    Button { path = [isOut ? .category : .account] } label: { Text("Siguiente").font(.system(size: 14, weight: .semibold)).frame(maxWidth: .infinity) }
+                        .buttonStyle(.borderedProminent).controlSize(.small).tint(WatchTheme.accent).disabled(value <= 0)
+                        .transition(.asymmetric(insertion: .move(edge: .bottom).combined(with: .opacity).combined(with: .scale(scale: 0.92)), removal: .opacity))
+                } else {
+                    VStack(spacing: 4) {
+                        Text("Gira la corona · toca el monto para escribirlo").font(.system(size: 11)).foregroundStyle(.secondary).multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
+                        SyncNote()
+                    }
+                    .transition(.opacity)
+                }
+            }
+            .frame(minHeight: 44)
         }
         .padding(.horizontal, 6)
         .focusable()
@@ -300,8 +315,8 @@ struct AddPage: View {
                     ForEach(cats, id: \.name) { c in
                         Button { category = c.name; path.append(.account); WKInterfaceDevice.current().play(.click) } label: {
                             VStack(spacing: 4) {
-                                Image(systemName: c.symbol).font(.system(size: 26, weight: .semibold)).foregroundStyle(Color(watchHex: c.color))
-                                    .frame(width: 52, height: 52).background(Color(watchHex: c.color).opacity(0.22), in: Circle())
+                                Image(systemName: c.symbol).font(.system(size: 26, weight: .semibold)).foregroundStyle(Color(watchOnDark: c.color))
+                                    .frame(width: 52, height: 52).background(Color.watchIsDark(c.color) ? Color.white.opacity(0.14) : Color(watchHex: c.color).opacity(0.22), in: Circle())
                                 Text(c.label).font(.system(size: 12, weight: .medium)).lineLimit(1).minimumScaleFactor(0.7)
                             }
                             .frame(maxWidth: .infinity).padding(.vertical, 6)
@@ -346,7 +361,7 @@ struct AddPage: View {
     private func save(account: String) {
         let iso = DateFormatter.iso.string(from: Date())
         store.add(WatchEntry(id: UUID().uuidString, amount: isOut ? -value : value, category: isOut ? category : "Ingreso", account: account, note: "", date: iso))
-        value = 0; path = []
+        value = 0; path = []; touched = false
     }
 }
 
