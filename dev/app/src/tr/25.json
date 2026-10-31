@@ -35,5 +35,6 @@
 ["Enseñar a Nazca", "Teach Nazca", "Nazcaに教える", "Insegna a Nazca", "Apprendre à Nazca", "Uči Nazcu"],
 ["Guías por banco", "Guides by bank", "銀行別ガイド", "Guide per banca", "Guides par banque", "Vodiči po banci"],
 ["Añadir trabajo", "Add job", "仕事を追加", "Aggiungi lavoro", "Ajouter un travail", "Dodaj posao"],
-["Añadir otro trabajo", "Add another job", "別の仕事を追加", "Aggiungi un altro lavoro", "Ajouter un autre travail", "Dodaj još jedan posao"]
+["Añadir otro trabajo", "Add another job", "別の仕事を追加", "Aggiungi un altro lavoro", "Ajouter un autre travail", "Dodaj još jedan posao"],
+["Queda {0} día del mes", "{0} {0?day:days} left in the month", "今月はあと{0}日", "{0} {0?giorno:giorni} alla fine del mese", "Il reste {0} {0?jour:jours} dans le mois", "Do kraja mjeseca {0} {0?dan:dana}"]
 ]
