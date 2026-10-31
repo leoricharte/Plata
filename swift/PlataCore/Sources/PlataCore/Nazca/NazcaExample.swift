@@ -354,7 +354,7 @@ public enum NazcaExample {
     }
 
     public static func learn(examples: [Example], boxes: [Box], today: String) -> Result<Template, LearnError> {
-        guard examples.count >= 2 else { return .failure(.needTwo) }
+        guard !examples.isEmpty else { return .failure(.needTwo) }
         let ls = lines(boxes)
         var found: [Found] = []
         var missing: [Int] = []
@@ -363,6 +363,7 @@ public enum NazcaExample {
             else if let f = find(ex, in: ls, today: today, soft: true) { found.append(f) }
             else { missing.append(i) }
         }
+        if examples.count == 1 { missing.append(1) }     // una sola fila elegida: se aprende de ella y se marca como parcial
         // si solo uno apareció, se aprende con ese (con menos confianza) en vez de rendirse
         guard missing.count < 2 else { return .failure(.notFound(missing[0])) }
         let partial = !missing.isEmpty
@@ -407,7 +408,7 @@ public enum NazcaExample {
         else { dateMode = .none }
         checks += 1
         // signo
-        let okEx = partial ? [examples[missing[0] == 0 ? 1 : 0]] : Array(examples.prefix(2))
+        let okEx = partial ? [examples[missing[0] == 0 && examples.count > 1 ? 1 : 0]] : Array(examples.prefix(2))
         let sa = okEx[0].amount < 0 ? -1 : 1, sb = okEx[okEx.count - 1].amount < 0 ? -1 : 1
         let ma = parseMoney(a.box.text)?.marker ?? 0, mb = parseMoney(b.box.text)?.marker ?? 0
         let signMode: SignMode
@@ -423,11 +424,107 @@ public enum NazcaExample {
         else { signMode = .fixed(sa); agree += 0 }
         checks += 1
         checks += 1; if softN == 0 { agree += 1 }
-        let cur = examples[0].cur.isEmpty ? examples[1].cur : examples[0].cur
+        let cur = examples[0].cur.isEmpty && examples.count > 1 ? examples[1].cur : examples[0].cur
         return .success(Template(amountX: amountX, rightAligned: rightAligned, tol: tol, descDy: a.descDy == b.descDy ? a.descDy : a.descDy,
                                  descLeft: descLeft, dateMode: dateMode, signMode: signMode, cur: cur,
                                  confidence: checks == 0 ? 0 : (agree / checks) * (partial ? 0.5 : 1),
                                  soft: softN > 0 ? softN : nil, partial: partial ? true : nil))
+    }
+
+
+    // MARK: Selección en la captura: la persona encierra una o varias filas y Nazca aprende de ellas
+
+    /// Un rectángulo sobre la captura, en posiciones de 0 a 1 (`y` crece hacia abajo).
+    public struct Region: Equatable, Sendable {
+        public var x: Double, y: Double, w: Double, h: Double
+        public init(x: Double, y: Double, w: Double, h: Double) { self.x = x; self.y = y; self.w = w; self.h = h }
+    }
+
+    /// La franja vertical de una fila reconocida (para iluminarla mientras la persona arrastra).
+    public struct Band: Equatable, Sendable {
+        public var y: Double
+        public var h: Double
+    }
+
+    /// Un trozo cuenta como «dentro» si el cuadro cubre más de la mitad de él: no hace falta ser exacto con el dedo.
+    private static func inRegion(_ b: Box, _ r: Region) -> Bool {
+        let ix = max(0, min(b.x + b.w, r.x + r.w) - max(b.x, r.x))
+        let iy = max(0, min(b.y + b.h, r.y + r.h) - max(b.y, r.y))
+        let area = b.w * b.h
+        return area > 0 && (ix * iy) / area >= 0.5
+    }
+
+    private struct Pick { var li: Int; var box: Box; var money: Money }
+
+    /// Las filas con un monto dentro del cuadro (en orden de arriba hacia abajo).
+    private static func picks(in r: Region, _ ls: [Line]) -> [Pick] {
+        var out: [Pick] = []
+        for (li, line) in ls.enumerated() {
+            guard let b = line.boxes.first(where: { inRegion($0, r) && isMoneyLike($0) }), let m = parseMoney(b.text) else { continue }
+            out.append(Pick(li: li, box: b, money: m))
+        }
+        return out
+    }
+
+    /// Las franjas de las filas que Nazca ve dentro del cuadro.
+    public static func rows(in r: Region, boxes: [Box]) -> [Band] {
+        let ls = lines(boxes)
+        return picks(in: r, ls).map { p in
+            let line = ls[p.li]
+            let top = line.boxes.map(\.y).min() ?? line.y
+            let bottom = line.boxes.map { $0.y + $0.h }.max() ?? line.y
+            return Band(y: top, h: bottom - top)
+        }
+    }
+
+    /// El cuadro que abarca todas las filas con monto de la captura (el atajo «toda la lista»).
+    public static func listRegion(boxes: [Box]) -> Region? {
+        let ls = lines(boxes)
+        let rows = ls.filter { $0.boxes.contains(where: isMoneyLike) }
+        guard let first = rows.first, let last = rows.last else { return nil }
+        let top = max(0, (first.boxes.map(\.y).min() ?? first.y) - 0.004)
+        let bottom = min(1, (last.boxes.map { $0.y + $0.h }.max() ?? last.y) + 0.004)
+        return Region(x: 0, y: top, w: 1, h: max(0.01, bottom - top))
+    }
+
+    /// De las filas encerradas saca uno o dos ejemplos para aprender: dos que se distingan por el signo si los hay, si no la primera y la última.
+    /// El nombre sale de la misma fila (o de la de arriba o abajo si el nombre va en otra línea); la fecha, de la fila o del encabezado de arriba.
+    public static func examples(from r: Region, boxes: [Box], today: String) -> [Example] {
+        let ls = lines(boxes)
+        let ps = picks(in: r, ls)
+        guard !ps.isEmpty else { return [] }
+        func sign(_ p: Pick) -> Int { p.money.marker != 0 ? p.money.marker : (p.box.tone != 0 ? p.box.tone : -1) }
+        func example(_ p: Pick) -> Example {
+            func text(_ k: Int, leftOf: Bool) -> String {
+                guard ls.indices.contains(k) else { return "" }
+                return ls[k].boxes.filter { c in
+                    c != p.box && !isMoneyLike(c) && parseDate(c.text, today: today) == nil && inRegion(c, r) && (!leftOf || c.x < p.box.x)
+                }.map { $0.text.trimmingCharacters(in: .whitespaces) }.joined(separator: " ")
+            }
+            var desc = text(p.li, leftOf: true)
+            if desc.isEmpty { desc = text(p.li, leftOf: false) }
+            if desc.isEmpty { desc = text(p.li - 1, leftOf: false) }
+            if desc.isEmpty { desc = text(p.li + 1, leftOf: false) }
+            var date = ""
+            outer: for dy in [0, -1, 1, -2, 2] {
+                let k = p.li + dy
+                guard ls.indices.contains(k) else { continue }
+                for c in ls[k].boxes where c != p.box && !isMoneyLike(c) { if let d = parseDate(c.text, today: today) { date = d; break outer } }
+            }
+            if date.isEmpty {
+                var k = p.li - 1
+                while k >= 0 && k >= p.li - 14 {
+                    let l = ls[k]
+                    if !l.boxes.contains(where: isMoneyLike), let d = l.boxes.compactMap({ parseDate($0.text, today: today) }).first { date = d; break }
+                    k -= 1
+                }
+            }
+            return Example(desc: desc, amount: Double(sign(p)) * p.money.value, date: date, cur: p.money.cur)
+        }
+        let first = ps[0]
+        if ps.count == 1 { return [example(first)] }
+        let other = ps.first(where: { sign($0) != sign(first) }) ?? ps[ps.count - 1]
+        return [example(first), example(other)]
     }
 
     // MARK: Aplicar

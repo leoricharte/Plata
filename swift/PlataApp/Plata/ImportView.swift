@@ -38,6 +38,12 @@ struct ImportFlowView: View {
     @State private var exQuery = ""
     @State private var exShowAll = false
     @State private var showShotPicker = false
+    /// La captura de la sesión de reconocimiento: su texto con posiciones, la imagen y el cuadro que la persona encierra.
+    @State private var exBoxes: [NazcaExample.Box] = []
+    @State private var exImage: UIImage?
+    @State private var exRegion: NazcaExample.Region?
+    /// `true` si la persona prefiere escribir o elegir los movimientos en vez de encerrarlos en la captura.
+    @State private var exManualFlow = false
     @State private var anyShot: PhotosPickerItem?
     /// `true` si se abrió directo en una revisión (constancias que llegaron desde «Compartir»): «Regresar» cierra.
     private let preloaded: Bool
@@ -94,6 +100,7 @@ struct ImportFlowView: View {
                 .padding(.bottom, 24)
             }
             .plataBackground()
+            .scrollDisabled(step == .example && !exManualFlow && exImage != nil)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -165,7 +172,7 @@ struct ImportFlowView: View {
             groupLabel("Enseñar a Nazca")
             SCard {
                 GoRow(symbol: "wand.and.stars", title: "Sesión de reconocimiento",
-                      sub: "Escribe o elige dos movimientos y sube una captura de cualquier app o banco. Nazca aprende cómo está armada y trae el resto.") { shotData = nil; step = .example; notice = nil; exPicks = []; exQuery = ""; exShowAll = false }
+                      sub: "Sube una captura de cualquier app o banco y encierra con el dedo uno o varios movimientos. Nazca aprende cómo está armada y trae el resto.") { shotData = nil; exBoxes = []; exImage = nil; exRegion = nil; exManualFlow = false; step = .example; notice = nil; exPicks = []; exQuery = ""; exShowAll = false }
             }
             groupLabel("Guías por banco")
             SCard {
@@ -431,7 +438,7 @@ struct ImportFlowView: View {
         switch step {
         case .start: dismiss()
         case .paste: step = .start; shot = nil; shotData = nil; dir = 0
-        case .example: step = .start; exShot = nil; shotData = nil; exPicks = []
+        case .example: step = .start; exShot = nil; shotData = nil; exPicks = []; exBoxes = []; exImage = nil; exRegion = nil; exManualFlow = false
         case .institution: exHold = nil; step = .example
         case .how, .country: step = .start; keyText = ""; pend = nil
         case .banks: step = .country; keyText = ""; pend = nil
@@ -531,7 +538,26 @@ struct ImportFlowView: View {
         }
     }
 
-    private var exampleBody: some View {
+    @ViewBuilder private var exampleBody: some View {
+        if exManualFlow { manualSession }
+        else if let img = exImage {
+            VStack(spacing: 10) {
+                Text("Arrastra en diagonal desde una esquina para encerrar un movimiento, varios o toda la lista. Nazca lee el resto igual.")
+                    .font(.inter(15)).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 4)
+                CaptureRegionView(image: img, boxes: exBoxes, region: $exRegion)
+                    .containerRelativeFrame(.vertical) { h, _ in h * 0.56 }
+            }
+        } else {
+            VStack(alignment: .leading, spacing: 10) {
+                stepLine(1, "Sube una captura de tu app o banco.")
+                stepLine(2, "Encierra con el dedo un movimiento, varios o toda la lista.")
+                stepLine(3, "Nazca lee el resto igual que lo que encerraste.")
+            }
+            .frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 4).padding(.bottom, 8)
+        }
+    }
+
+    private var manualSession: some View {
         let list = exCandidates
         return VStack(spacing: 14) {
             VStack(alignment: .leading, spacing: 10) {
@@ -552,7 +578,47 @@ struct ImportFlowView: View {
     }
 
     /// Fijo abajo: la acción nunca queda al final de una lista larga.
-    private var exampleBar: some View {
+    @ViewBuilder private var exampleBar: some View {
+        if exManualFlow { manualBar }
+        else if exImage != nil { regionBar }
+        else { pickBar }
+    }
+
+    private var regionBar: some View {
+        let n = exRegion.map { NazcaExample.rows(in: $0, boxes: exBoxes).count } ?? 0
+        let hint = n == 0 ? Tr.t("Arrastra sobre los movimientos.")
+            : (n == 1 ? Tr.t("1 movimiento en el cuadro: Nazca aprende de ese.") : Tr.f("{0} movimientos en el cuadro.", String(n)))
+        return VStack(spacing: 8) {
+            Text(verbatim: hint).font(.inter(13)).foregroundStyle(.secondary)
+            Button { runExampleRegion() } label: { Text("Leer captura") }
+                .buttonStyle(PrimaryPillStyle()).disabled(n == 0)
+            HStack(spacing: 22) {
+                Button { withAnimation(.snappy) { exRegion = NazcaExample.listRegion(boxes: exBoxes) } } label: { Text("Toda la lista") }
+                Button { exManualFlow = true; notice = nil } label: { Text("Escribir movimientos") }
+            }
+            .font(.inter(15)).foregroundStyle(Brand.green)
+        }
+        .padding(.horizontal, 20).padding(.top, 10).padding(.bottom, 6)
+        .background(.bar)
+    }
+
+    private var pickBar: some View {
+        VStack(spacing: 8) {
+            PhotosPicker(selection: $exShot, matching: .images) {
+                Label(Tr.t("Subir captura"), systemImage: "camera")
+                    .font(.inter(18, .semibold)).foregroundStyle(.white)
+                    .frame(maxWidth: .infinity).frame(height: 54)
+                    .background(Brand.ink, in: Capsule())
+            }
+            .onChange(of: exShot) { _, item in if let item { Task { await loadExampleShot(item) } } }
+            Button { exManualFlow = true; notice = nil } label: { Text("Prefiero escribir los movimientos") }
+                .font(.inter(15)).foregroundStyle(Brand.green)
+        }
+        .padding(.horizontal, 20).padding(.top, 10).padding(.bottom, 6)
+        .background(.bar)
+    }
+
+    private var manualBar: some View {
         let ready = currentExamples().count == 2
         let hint = ready ? "Listo: sube la captura."
             : (exManualMode ? "Completa el nombre y el monto de los dos." : "Elige dos movimientos (\(exPicks.count)/2).")
@@ -677,16 +743,47 @@ struct ImportFlowView: View {
             notice = Notice(title: Tr.t("No pude leer texto en la captura"), message: Tr.t("Prueba con una captura más clara y completa."))
             return
         }
+        learnAndHold(examples: examples, boxes: boxes, today: model.today.iso)
+    }
+
+    /// Lo que la persona encerró en la captura: Nazca saca de ahí los ejemplos y aprende.
+    private func runExampleRegion() {
+        guard let r = exRegion else { return }
+        notice = nil
         let today = model.today.iso
+        let examples = NazcaExample.examples(from: r, boxes: exBoxes, today: today)
+        guard !examples.isEmpty else {
+            notice = Notice(title: Tr.t("No veo un monto en el cuadro"), message: Tr.t("Encierra al menos un movimiento completo, con su monto."))
+            return
+        }
+        learnAndHold(examples: examples, boxes: exBoxes, today: today)
+    }
+
+    /// Una captura ya subida y leída para la sesión: se guarda con su imagen para que la persona la encierre.
+    private func loadExampleShot(_ item: PhotosPickerItem) async {
+        defer { exShot = nil }
+        notice = nil; step = .busy
+        guard let data = try? await item.loadTransferable(type: Data.self), let img = UIImage(data: data),
+              let boxes = try? await CaptureBoxes.read(imageData: data), !boxes.isEmpty else {
+            step = .example
+            notice = Notice(title: Tr.t("No pude leer texto en la captura"), message: Tr.t("Prueba con una captura más clara y completa."))
+            return
+        }
+        shotData = data; exBoxes = boxes; exImage = img; exRegion = nil
+        step = .example
+    }
+
+    private func learnAndHold(examples: [NazcaExample.Example], boxes: [NazcaExample.Box], today: String) {
         switch NazcaExample.learn(examples: examples, boxes: boxes, today: today) {
         case .failure(let err):
             step = .example
-            var n = 1
+            var n = 0
             if case .notFound(let k) = err { n = k }
+            let ex = examples[min(n, examples.count - 1)]
             notice = err == .needTwo
                 ? Notice(title: Tr.t("Elige dos movimientos"), message: Tr.t("Nazca necesita dos para aprender."))
                 : Notice(title: Tr.t("No encontré uno de los dos movimientos"),
-                         message: Tr.f("Busqué «{0}» ({1}) en la captura, por nombre y por monto y fecha, y no lo vi. Revisa que ese movimiento salga completo en la imagen.", String(examples[n].desc.prefix(40)), String(format: "%.2f", abs(examples[n].amount))))
+                         message: Tr.f("Busqué «{0}» ({1}) en la captura, por nombre y por monto y fecha, y no lo vi. Revisa que ese movimiento salga completo en la imagen.", String(ex.desc.prefix(40)), String(format: "%.2f", abs(ex.amount))))
         case .success(let template):
             let x = NazcaExample.extract(template, boxes: boxes, today: today)
             guard !x.items.isEmpty else {
@@ -744,11 +841,11 @@ struct ImportFlowView: View {
         rev.loose = true
         rev.build(model.engine)
         origin = .example
-        shotData = nil
+        shotData = nil; exBoxes = []; exImage = nil; exRegion = nil
         reviews = [rev]; idx = 0; step = .review
         if x.flags.contains("date") { notice = Notice(title: Tr.t("Revisa las fechas"), message: Tr.t("Algunos movimientos no traían fecha: puse la de hoy.")) }
         else if x.flags.contains("sign") { notice = Notice(title: Tr.t("Revisa gastos e ingresos"), message: Tr.t("En algunos movimientos adiviné si eran gasto o ingreso.")) }
-        else if template.partial == true { notice = Notice(title: Tr.t("Aprendí con un solo movimiento"), message: Tr.t("Uno de tus dos movimientos no apareció en la captura, así que Nazca se guió por el otro. Revisa bien la lista, sobre todo gastos e ingresos.")) }
+        else if template.partial == true { notice = Notice(title: Tr.t("Aprendí con un solo movimiento"), message: Tr.t("Nazca se guió por un solo movimiento, así que puede haberse equivocado en gastos, ingresos o fechas. Revisa bien la lista.")) }
         else if template.soft != nil { notice = Notice(title: Tr.t("Encontré un ejemplo por monto y fecha"), message: Tr.t("Uno de tus movimientos no se llamaba igual en la captura, pero había uno con el mismo monto y la misma fecha. Revisa la lista.")) }
         else if template.confidence < 0.6 { notice = Notice(title: Tr.t("Revisa la lista"), message: Tr.t("Tus dos movimientos se veían distintos en la captura, así que Nazca puede haberse equivocado.")) }
     }
@@ -787,9 +884,9 @@ struct ImportFlowView: View {
             showExample(hit.extraction, template: saved.template, institution: saved.bank)
             return
         }
-        shotData = data
+        shotData = data; exBoxes = boxes; exImage = UIImage(data: data); exRegion = nil; exManualFlow = false
         step = .example
-        notice = Notice(title: Tr.t("Nazca aún no conoce esta captura"), message: Tr.t("Dale dos movimientos de ejemplo y aprende a leerla."))
+        notice = Notice(title: Tr.t("Nazca aún no conoce esta captura"), message: Tr.t("Encierra con el dedo uno o varios movimientos y aprende a leerla."))
     }
 
     private func dirRow(_ v: Int, _ title: String, _ sub: String) -> some View {

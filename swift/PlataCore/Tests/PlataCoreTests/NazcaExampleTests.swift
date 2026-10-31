@@ -261,4 +261,38 @@ final class NazcaExampleTests: XCTestCase {
         if case .failure(let e) = NazcaExample.learn(examples: none, boxes: boxes, today: today) { err = e }
         XCTAssertEqual(err, .notFound(0))
     }
+
+    /// Encerrar una fila: aprende de esa y lee las demás. Encerrar varias: aprende de dos que se distingan. El encabezado de arriba da la fecha.
+    func testRegionSelection() throws {
+        func row(_ y: Double, _ d: String, _ a: String) -> [B] {
+            [B(text: d, x: 0.05, y: y, w: 0.4, h: 0.02), B(text: a, x: 0.72, y: y, w: 0.2, h: 0.02)]
+        }
+        let boxes = [B(text: "Friday, October 23rd", x: 0.05, y: 0.10, w: 0.3, h: 0.015)]
+            + row(0.20, "Gusto, Payroll", "+$229.80") + row(0.30, "Starbucks", "-$5.40") + row(0.40, "Uber", "-$12.00")
+        // una sola fila: parcial
+        let one = NazcaExample.Region(x: 0.0, y: 0.19, w: 1.0, h: 0.05)
+        XCTAssertEqual(NazcaExample.rows(in: one, boxes: boxes).count, 1)
+        let ex1 = NazcaExample.examples(from: one, boxes: boxes, today: today)
+        XCTAssertEqual(ex1.count, 1)
+        XCTAssertEqual(ex1[0].amount, 229.8)
+        XCTAssertEqual(ex1[0].desc, "Gusto, Payroll")
+        XCTAssertEqual(ex1[0].date, "2026-10-23")
+        let t1 = try NazcaExample.learn(examples: ex1, boxes: boxes, today: today).get()
+        XCTAssertEqual(t1.partial, true)
+        XCTAssertEqual(NazcaExample.extract(t1, boxes: boxes, today: today).items.count, 3)
+        // varias filas: dos con signo distinto
+        let all = try XCTUnwrap(NazcaExample.listRegion(boxes: boxes))
+        XCTAssertEqual(NazcaExample.rows(in: all, boxes: boxes).count, 3)
+        let ex2 = NazcaExample.examples(from: all, boxes: boxes, today: today)
+        XCTAssertEqual(ex2.count, 2)
+        XCTAssertNotEqual(ex2[0].amount < 0, ex2[1].amount < 0)
+        let t2 = try NazcaExample.learn(examples: ex2, boxes: boxes, today: today).get()
+        XCTAssertNil(t2.partial)
+        let x = NazcaExample.extract(t2, boxes: boxes, today: today)
+        XCTAssertEqual(x.items.map(\.amount), [229.8, -5.4, -12])
+        XCTAssertEqual(Set(x.items.map(\.date)), ["2026-10-23"])
+        // un cuadro sin montos
+        let empty = NazcaExample.Region(x: 0, y: 0.0, w: 1, h: 0.05)
+        XCTAssertTrue(NazcaExample.examples(from: empty, boxes: boxes, today: today).isEmpty)
+    }
 }
