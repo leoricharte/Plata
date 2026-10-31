@@ -24,5 +24,16 @@
 ["Leer captura", "Read screenshot", "スクリーンショットを読み取る", "Leggi lo screenshot", "Lire la capture", "Pročitaj snimku"],
 ["Nazca no encontró más movimientos", "Nazca didn't find more transactions", "Nazcaはそれ以上の取引を見つけられませんでした", "Nazca non ha trovato altri movimenti", "Nazca n'a pas trouvé d'autres transactions", "Nazca nije pronašla više transakcija"],
 ["Prueba con una captura que muestre varios movimientos.", "Try a screenshot that shows several transactions.", "複数の取引が写っているスクリーンショットをお試しください。", "Prova con uno screenshot che mostri più movimenti.", "Essayez une capture qui montre plusieurs transactions.", "Pokušaj sa snimkom na kojoj se vidi više transakcija."],
-["Captura", "Screenshot", "スクリーンショット", "Screenshot", "Capture", "Snimka zaslona"]
+["Captura", "Screenshot", "スクリーンショット", "Screenshot", "Capture", "Snimka zaslona"],
+["Registrar", "Record", "記録", "Registra", "Enregistrer", "Zabilježi"],
+["Planear", "Plan", "計画", "Pianifica", "Planifier", "Planiraj"],
+["Algo que ya pasó", "Something that already happened", "すでに起きたこと", "Qualcosa che è già successo", "Quelque chose qui s'est déjà passé", "Nešto što se već dogodilo"],
+["Archivo o captura", "File or screenshot", "ファイルまたはスクリーンショット", "File o screenshot", "Fichier ou capture", "Datoteka ili snimka zaslona"],
+["Sueldo o pago", "Salary or payment", "給与または支払い", "Stipendio o pagamento", "Salaire ou paiement", "Plaća ili uplata"],
+["Recibo o compra", "Bill or purchase", "請求書または購入", "Bolletta o acquisto", "Facture ou achat", "Račun ili kupnja"],
+["Subir", "Upload", "アップロード", "Carica", "Importer", "Učitaj"],
+["Enseñar a Nazca", "Teach Nazca", "Nazcaに教える", "Insegna a Nazca", "Apprendre à Nazca", "Uči Nazcu"],
+["Guías por banco", "Guides by bank", "銀行別ガイド", "Guide per banca", "Guides par banque", "Vodiči po banci"],
+["Añadir trabajo", "Add job", "仕事を追加", "Aggiungi lavoro", "Ajouter un travail", "Dodaj posao"],
+["Añadir otro trabajo", "Add another job", "別の仕事を追加", "Aggiungi un altro lavoro", "Ajouter un autre travail", "Dodaj još jedan posao"]
 ]
