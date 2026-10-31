@@ -92,9 +92,9 @@ struct ImportFlowView: View {
         switch step {
         case .start: return (nil, "Importar movimientos")
         case .how: return (nil, "Cómo funciona")
-        case .country: return (nil, "Tu país")
-        case .banks: return (Nazca.bankCatalog.first { $0.id == country }?.name ?? "Perú", "Tu banco")
-        case .bank: return (Nazca.countryName(bank ?? ""), Nazca.bankShort(bank))
+        case .country: return carry != nil ? ("Archivo recibido", "¿De qué banco es?") : (nil, "Tu país")
+        case .banks: return (carry != nil ? "Archivo recibido" : (Nazca.bankCatalog.first { $0.id == country }?.name ?? "Perú"), carry != nil ? "¿De qué banco es?" : "Tu banco")
+        case .bank: return carry != nil ? ("Archivo recibido", "Contraseña del archivo") : (Nazca.countryName(bank ?? ""), Nazca.bankShort(bank))
         case .key: return (nil, "Contraseña")
         case .busy: return (nil, "Leyendo…")
         case .done: return (nil, "Importado")
@@ -192,7 +192,7 @@ struct ImportFlowView: View {
             }
             groupLabel("Enseñar a Nazca")
             SCard {
-                GoRow(symbol: "wand.and.stars", title: "Sesión de reconocimiento",
+                GoRow(symbol: "viewfinder", title: "Sesión de reconocimiento",
                       sub: "Sube una captura de cualquier app o banco y encierra con el dedo uno o varios movimientos. Nazca aprende cómo está armada y trae el resto.") { shotData = nil; exBoxes = []; exImage = nil; exRegion = nil; exManualFlow = false; step = .example; notice = nil; exPicks = []; exQuery = ""; exShowAll = false }
             }
             groupLabel("Guías por banco")
@@ -236,8 +236,28 @@ struct ImportFlowView: View {
         }
     }
 
+    /// El archivo que llegó desde «Compartir» y espera a que se elija su banco: la persona ve qué se está importando.
+    @ViewBuilder private var carryCard: some View {
+        if let c = carry {
+            SCard {
+                HStack(spacing: 14) {
+                    Image(systemName: c.name.lowercased().hasSuffix(".pdf") ? "doc.richtext" : "tablecells").font(.system(size: 26)).foregroundStyle(Brand.accent).frame(width: 40)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(verbatim: c.name).font(.inter(16, .semibold)).lineLimit(2).truncationMode(.middle)
+                        Text(verbatim: ByteCountFormatter.string(fromByteCount: Int64(c.size), countStyle: .file)).font(.inter(13)).foregroundStyle(.secondary)
+                    }
+                    Spacer(minLength: 0)
+                }
+                .padding(.vertical, 12)
+            }
+            Text("Plata ya tiene tu archivo. Elige el banco para saber cómo leerlo.").font(.inter(15)).foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 4).padding(.bottom, 10)
+        }
+    }
+
     private var countryBody: some View {
         VStack(spacing: 0) {
+            carryCard
             SCard {
                 ForEach(Array(Nazca.bankCatalog.enumerated()), id: \.element.id) { k, c in
                     if k > 0 { RowDivider() }
@@ -251,11 +271,12 @@ struct ImportFlowView: View {
     private var banksBody: some View {
         let c = Nazca.bankCatalog.first { $0.id == country } ?? Nazca.bankCatalog[0]
         return VStack(spacing: 0) {
+            carryCard
             SCard {
                 ForEach(Array(c.banks.enumerated()), id: \.element.id) { k, b in
                     if k > 0 { RowDivider() }
                     let on = b.active && Nazca.ready.contains(b.id)
-                    Button { bank = b.id; step = .bank; notice = nil } label: {
+                    Button { chooseBank(b.id) } label: {
                         HStack(spacing: 12) {
                             BankMarkView(id: b.id, size: nil).foregroundStyle(on ? Color(red: 0.133, green: 0.710, blue: 0.451) : Color.secondary)
                                 .frame(width: 40, height: 40)
@@ -287,7 +308,9 @@ struct ImportFlowView: View {
         let id = bank ?? ""
         let steps = Nazca.bankSteps[id]
         return VStack(spacing: 0) {
-            if let steps {
+            if carry != nil {
+                carryCard
+            } else if let steps {
                 SCard {
                     ForEach(Array(steps.enumerated()), id: \.offset) { k, t in
                         HStack(alignment: .top, spacing: 14) {
@@ -303,7 +326,7 @@ struct ImportFlowView: View {
                     .font(.inter(16)).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 4).padding(.bottom, 14)
             }
             if let k = Nazca.bankKey[id] { keyField(k) }
-            Button { pick(from: .bank) } label: { Text(id == "yape" ? "Subir reporte de movimientos" : "Subir estado de cuenta") }
+            Button { pick(from: .bank) } label: { Text(carry != nil ? "Leer este archivo" : (id == "yape" ? "Subir reporte de movimientos" : "Subir estado de cuenta")) }
                 .buttonStyle(PrimaryPillStyle())
                 .disabled(Nazca.bankKey[id] != nil && !keyOk)
                 .padding(.top, 8)
@@ -372,7 +395,22 @@ struct ImportFlowView: View {
                     LockedCard(item: item, info: Nazca.bankKey[bank ?? ""]) { text in unlock(item, text) }
                 }
                 if reviews.count > 1 { strip }
-                ImportReviewBody(review: $reviews[idx], multi: reviews.count > 1, onRemove: removeCurrent)
+                // Arriba, lo que se va a importar: el banco y sus movimientos (con scroll propio). Con varios archivos se desliza de uno a otro.
+                Group {
+                    if reviews.count > 1 {
+                        TabView(selection: $idx) {
+                            ForEach(reviews.indices, id: \.self) { k in
+                                ImportReviewBody(review: $reviews[k], multi: true, onRemove: removeCurrent, part: .top).tag(k)
+                            }
+                        }
+                        .tabViewStyle(.page(indexDisplayMode: .never))
+                    } else {
+                        ImportReviewBody(review: $reviews[idx], multi: false, onRemove: removeCurrent, part: .top)
+                    }
+                }
+                .frame(height: 560)
+                // Abajo, cómo se guarda: cuenta, saldo y ajustes del archivo que se ve arriba.
+                ImportReviewBody(review: $reviews[idx], multi: reviews.count > 1, onRemove: removeCurrent, part: .options)
                     .id(idx)
             }
         }
@@ -954,10 +992,19 @@ struct ImportFlowView: View {
         if r.flags.contains("amount") { notice = Notice(title: Tr.t("Revisa el monto"), message: Tr.t("Había más de un monto en la constancia.")) }
     }
 
+    /// Elegir banco: con un archivo ya en Plata no hay que explicar cómo descargarlo; se lee ahí mismo (o se pide la clave si el banco la usa).
+    private func chooseBank(_ id: String) {
+        bank = id; notice = nil
+        if carry != nil, Nazca.bankKey[id] == nil, let c = carry {
+            carry = nil; step = .busy
+            Task { await ingest([c], adding: false) }
+        } else { step = .bank }
+    }
+
     private func pick(from: Step) {
         origin = from
         notice = nil
-        if let c = carry { carry = nil; step = .busy; Task { await ingest([c], adding: false) }; return }
+        if let c = carry { carry = nil; step = .busy; let k = keyText.isEmpty ? nil : keyText; Task { await ingest([c], adding: false, key: k) }; return }
         picking = true
     }
 
@@ -1486,6 +1533,9 @@ struct ImportReviewBody: View {
     @Binding var review: ImportReview
     let multi: Bool
     let onRemove: () -> Void
+    /// `.top`: banco y movimientos; `.options`: cuenta, saldo y el resto.
+    enum Part { case top, options }
+    var part: Part = .options
 
     @State private var filter = "all"
     @State private var filterOpen = false
@@ -1499,15 +1549,19 @@ struct ImportReviewBody: View {
         let f = model.fmt
         let proj = review.projected(e)
         let credit = proj?.credit ?? false
+        if part == .top {
+            VStack(spacing: 0) {
+                profileCard(e)
+                listSection(f).frame(maxHeight: .infinity)
+            }
+        } else {
         VStack(spacing: 0) {
-            profileCard(e)
             footNote
             summary
             if let src = review.source { statementAccountCard(e, src) } else { accountCard(e) }
             if !review.foreignCurrency.isEmpty { fxCard(e, f) }
             balanceCard(e, f, proj, credit)
             if !review.isStatement && !review.gen { columnsCard }
-            listSection(f)
             if review.analysis.truncated {
                 Text("El archivo tiene más de 5000 filas: se leyeron las primeras 5000.")
                     .font(.inter(13)).foregroundStyle(.secondary).multilineTextAlignment(.center).padding(.horizontal, 10).padding(.bottom, 10)
@@ -1520,6 +1574,7 @@ struct ImportReviewBody: View {
             }
         }
         .padding(.bottom, 20)
+        }
     }
 
     // MARK: arriba
@@ -1877,16 +1932,23 @@ struct ImportReviewBody: View {
                 Text("Con estas columnas no se lee ningún movimiento.").font(.inter(15)).foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity).padding(16)
             } else {
-                SCard {
-                    ForEach(Array(shown.enumerated()), id: \.element.i) { k, r in
-                        if k > 0 { RowDivider() }
-                        ImportRowView(row: r, names: names, fmt: f,
-                                      onToggle: { review.toggle(r.i) },
-                                      onCategory: { review.setCategory(r.i, $0) })
+                // los movimientos en su propia tarjeta, con scroll propio
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        ForEach(Array(shown.enumerated()), id: \.element.i) { k, r in
+                            if k > 0 { RowDivider() }
+                            ImportRowView(row: r, names: names, fmt: f,
+                                          onToggle: { review.toggle(r.i) },
+                                          onCategory: { review.setCategory(r.i, $0) })
+                        }
+                        if pages > 1 { pager(p, pages, frows.count).padding(.top, 8) }
                     }
+                    .padding(.horizontal, 16).padding(.vertical, 4)
                 }
+                .frame(maxHeight: .infinity)
+                .plataGlass(in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+                .padding(.top, 6).padding(.bottom, 14)
             }
-            if pages > 1 { pager(p, pages, frows.count) }
         }
     }
 
