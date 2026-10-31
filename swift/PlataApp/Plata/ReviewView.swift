@@ -225,7 +225,7 @@ struct ReviewView: View {
                 }
                 Spacer(minLength: 8)
                 VStack(alignment: .trailing, spacing: 2) {
-                    Text((c.amount < 0 ? "−" : "+") + f.exact(abs(c.amount), c.cur)).font(.inter(16, .semibold)).monospacedDigit()
+                    Text((c.amount < 0 ? "−" : "+") + f.exact(abs(c.amount), c.cur)).font(.inter(16)).monospacedDigit()
                     Text(verbatim: date).font(.inter(12.5)).foregroundStyle(.secondary)
                 }
             }
@@ -358,7 +358,7 @@ struct ReviewView: View {
                 }
                 Spacer(minLength: 8)
                 VStack(alignment: .trailing, spacing: 1) {
-                    Text((a < 0 ? "−" : "+") + f.exact(abs(a), cur)).font(.inter(15, .semibold)).monospacedDigit()
+                    Text((a < 0 ? "−" : "+") + f.exact(abs(a), cur)).font(.inter(15)).monospacedDigit()
                     Text(label).font(.inter(12.5, .bold)).foregroundStyle(Brand.warn)
                 }
             }

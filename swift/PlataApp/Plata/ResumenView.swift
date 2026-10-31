@@ -179,7 +179,7 @@ struct ResumenView: View {
                         Text(whenText(day: day, days: days, pending: pending)).font(.inter(14)).foregroundStyle(.secondary)
                     }
                     Spacer(minLength: 8)
-                    Text("+" + f.whole(next.amount, cur)).font(.inter(16, .semibold)).monospacedDigit().foregroundStyle(Brand.gainText)
+                    Text("+" + f.whole(next.amount, cur)).font(.inter(16)).monospacedDigit().foregroundStyle(Brand.gainText)
                     Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(Color(.tertiaryLabel))
                 }
                 .padding(.top, 2)
@@ -288,7 +288,7 @@ struct ResumenView: View {
                         Text(expenseWhen(day: day, days: days, due: due)).font(.inter(14)).foregroundStyle(.secondary)
                     }
                     Spacer(minLength: 8)
-                    Text("−" + f.whole(Engine.number(x["amount"]), cur)).font(.inter(16, .semibold)).monospacedDigit()
+                    Text("−" + f.whole(Engine.number(x["amount"]), cur)).font(.inter(16)).monospacedDigit()
                     Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(Color(.tertiaryLabel))
                 }
                 .padding(.top, 2)
@@ -351,7 +351,7 @@ struct ResumenView: View {
                                     .font(.inter(14)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                             }
                             Spacer(minLength: 8)
-                            Text("−" + f.whole(abs(ev.a0), ev.cur ?? f.currency)).font(.inter(16, .semibold)).monospacedDigit()
+                            Text("−" + f.whole(abs(ev.a0), ev.cur ?? f.currency)).font(.inter(16)).monospacedDigit()
                             if ev.srcId != nil, sub != nil {
                                 Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(Color(.tertiaryLabel))
                             }
@@ -558,7 +558,7 @@ struct TransactionRow: View {
             }
             Spacer(minLength: 8)
             Text(fmt.signed(amount, cur))
-                .font(.inter(16, .medium)).monospacedDigit()
+                .font(.inter(16)).monospacedDigit()
                 .foregroundStyle(isIncome ? Brand.gain : Color.primary)
                 .lineLimit(1).fixedSize()
             Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(.tertiary)

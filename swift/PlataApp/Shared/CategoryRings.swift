@@ -119,6 +119,8 @@ struct CategoryRing: View {
     var width: CGFloat
     var radius: CGFloat
     var fontSize: CGFloat = 9.5
+    /// En el Watch: solo el icono arriba y, abajo, el porcentaje en vez del nombre.
+    var compact = false
 
     var body: some View {
         let frac = cat.limit > 0 ? cat.spent / cat.limit : 0
@@ -131,7 +133,7 @@ struct CategoryRing: View {
         let pct = String(Int((frac * 100).rounded())) + "%"
         let pctFits = CurvedLabel.span(pct, radius: radius, size: size) <= tip - begin - 2
         let maxSpan = 130.0
-        let name = Self.fitName(cat.name, radius: radius, size: size, maxSpan: maxSpan)
+        let name = compact ? pct : Self.fitName(cat.name, radius: radius, size: size, maxSpan: maxSpan)
         let nameSpan = name.map { CurvedLabel.span($0, radius: radius, size: size) } ?? 0
         let nameOnColor = tip >= 180 + nameSpan / 2
         let base = Color.watchIsDark(cat.color) ? Color(white: 0.30) : Color(watchHex: cat.color)
@@ -139,7 +141,7 @@ struct CategoryRing: View {
             ActivityRing(frac: frac, color: base, width: width, radius: radius)
             Image(systemName: symbol).font(.system(size: iconSize, weight: .heavy)).foregroundStyle(dark)
                 .offset(y: -radius)
-            CurvedLabel(text: pct, radius: radius, size: size, start: begin, color: pctFits ? dark : Color.secondary)
+            if !compact { CurvedLabel(text: pct, radius: radius, size: size, start: begin, color: pctFits ? dark : Color.secondary) }
             if let name { BottomArcLabel(text: name, symbol: nil, radius: radius, size: size, iconSize: iconSize, color: nameOnColor ? dark : Color.secondary) }
         }
     }
@@ -155,31 +157,33 @@ struct CategoryRing: View {
     }
 }
 
-/// Un anillo como los de Actividad: pista tenue, progreso con degradado y tapas redondas.
-/// Pasado el 100 % da una segunda vuelta encima (con sombra en la punta) que vira a rojo, para que se note que te pasaste.
+/// Un anillo como los de Actividad: pista del mismo color más tenue, progreso con degradado (más oscuro al arrancar, más claro en la punta) y tapas redondas.
+/// Pasado el 100 % da una segunda vuelta encima del mismo color, con sombra en la punta, igual que Actividad.
 struct ActivityRing: View {
     var frac: Double
     var color: Color
     var width: CGFloat
     var radius: CGFloat
     var arrow = false
-    static let over = Color(red: 0.93, green: 0.24, blue: 0.29)
+
+    private var start: Color { color.mix(with: .black, by: 0.18) }
+    private var tipColor: Color { color.mix(with: .white, by: 0.22) }
 
     var body: some View {
         let lap = min(1, max(0.004, frac))
         let extra = min(1, max(0, frac - 1))
         ZStack {
-            Circle().stroke(color.opacity(0.25), lineWidth: width)
+            Circle().stroke(color.opacity(0.22), lineWidth: width)
             Circle().trim(from: 0, to: lap)
-                .stroke(AngularGradient(colors: [color.opacity(0.55), color], center: .center, startAngle: .degrees(0), endAngle: .degrees(max(1, 360 * lap))),
+                .stroke(AngularGradient(colors: [start, tipColor], center: .center, startAngle: .degrees(0), endAngle: .degrees(max(1, 360 * lap))),
                         style: StrokeStyle(lineWidth: width, lineCap: .round))
                 .rotationEffect(.degrees(-90))
             if frac > 1 {
                 Circle().trim(from: 0, to: max(0.004, extra))
-                    .stroke(AngularGradient(colors: [color, Self.over], center: .center, startAngle: .degrees(0), endAngle: .degrees(max(1, 360 * max(0.004, extra)))),
+                    .stroke(AngularGradient(colors: [start, tipColor], center: .center, startAngle: .degrees(0), endAngle: .degrees(max(1, 360 * max(0.004, extra)))),
                             style: StrokeStyle(lineWidth: width, lineCap: .round))
                     .rotationEffect(.degrees(-90))
-                    .shadow(color: .black.opacity(0.45), radius: width * 0.22, x: 0, y: 0)
+                    .shadow(color: .black.opacity(0.4), radius: width * 0.2, x: 0, y: 0)
             }
             if arrow && frac > 0.02 {
                 let deg = 360 * lap

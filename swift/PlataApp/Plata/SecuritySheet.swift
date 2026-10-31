@@ -140,7 +140,7 @@ struct SecuritySheet: View {
                 }
 
                 if lock.hasPIN {
-                    Text("Pedir el PIN").font(.inter(13, .semibold)).foregroundStyle(.secondary).textCase(.uppercase).tracking(0.5)
+                    Text("Pedir el PIN").font(.inter(15, .semibold)).foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 8).padding(.top, 22).padding(.bottom, 8)
                     SCard {
                         ForEach(Array(graces.enumerated()), id: \.offset) { i, g in

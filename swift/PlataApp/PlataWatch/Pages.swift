@@ -123,11 +123,12 @@ struct BudgetPage: View {
     @ViewBuilder private func rings(_ s: WatchSnapshot) -> some View {
         let top = Array(s.cats.prefix(3))
         // el dibujo se compone en 160 pt y se escala para llenar el ancho del reloj
-        let d = min(WKInterfaceDevice.current().screenBounds.width * 0.84, 180)
+        let d = min(WKInterfaceDevice.current().screenBounds.width * 0.80, 170)
         let k = d / 160
         Group { if top.isEmpty { singleRing(s) } else { multiRing(s, top) } }
             .scaleEffect(k)
             .frame(width: 160 * k, height: 160 * k)
+            .frame(maxWidth: .infinity)
     }
 
     private func multiRing(_ s: WatchSnapshot, _ top: [WatchCat]) -> some View {
@@ -135,7 +136,7 @@ struct BudgetPage: View {
         return ZStack {
             ForEach(Array(top.enumerated()), id: \.offset) { i, c in
                 let radius = outer - width / 2 - CGFloat(i) * (width + gap)
-                CategoryRing(cat: c, symbol: s.catInfo?.first { $0.label == c.name }?.symbol ?? "circle.fill", width: width, radius: radius)
+                CategoryRing(cat: c, symbol: s.catInfo?.first { $0.label == c.name }?.symbol ?? "circle.fill", width: width, radius: radius, compact: true)
                     .frame(width: radius * 2, height: radius * 2)
             }
             // el hueco del centro: ✓ verde = va bien · – amarillo = ok pero cerca del tope · ✕ rojo = te pasaste

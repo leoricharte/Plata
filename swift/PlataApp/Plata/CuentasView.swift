@@ -103,7 +103,7 @@ struct CuentasView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 if let j = first {
                     Text(verbatim: "+" + f.whole(Engine.jobNetPay(j), e.accountCurrency(j["acc"])))
-                        .font(.inter(16, .semibold)).monospacedDigit().foregroundStyle(Brand.gainText)
+                        .font(.inter(16)).monospacedDigit().foregroundStyle(Brand.gainText)
                 }
                 Image(systemName: "chevron.right").font(.system(size: 15, weight: .semibold)).foregroundStyle(.tertiary)
             }

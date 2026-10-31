@@ -542,7 +542,7 @@ struct LookPreview: View {
                                     Text(r.0).font(.inter(15)); Text(r.1).font(.inter(12)).foregroundStyle(.secondary)
                                 }
                                 Spacer()
-                                Text(r.2).font(.inter(15, .bold)).foregroundStyle(r.3 ? Brand.gainText : Color.primary).monospacedDigit()
+                                Text(r.2).font(.inter(15)).foregroundStyle(r.3 ? Brand.gainText : Color.primary).monospacedDigit()
                             }
                             .padding(.vertical, 10)
                         }

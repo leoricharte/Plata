@@ -269,7 +269,7 @@ struct AccountDetailView: View {
                         Text(shortDate(Engine.text(l["date"])) + (from.map { " · " + Engine.text($0["name"]) } ?? "")).font(.inter(13)).foregroundStyle(.secondary)
                     }
                     Spacer(minLength: 8)
-                    Text("+" + f.exact(Engine.number(l["amount"]), cur)).font(.inter(16, .semibold)).monospacedDigit().foregroundStyle(Brand.gainText)
+                    Text("+" + f.exact(Engine.number(l["amount"]), cur)).font(.inter(16)).monospacedDigit().foregroundStyle(Brand.gainText)
                 }
                 .padding(.vertical, 10)
                 .frame(minHeight: 64)

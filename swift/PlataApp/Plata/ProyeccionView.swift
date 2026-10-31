@@ -209,7 +209,7 @@ struct ProyeccionView: View {
                         Text(x.name).font(.inter(15)).strikethrough(x.skipped).lineLimit(1)
                         if x.pend { StatusBadge(text: "por confirmar", size: 11) }
                         Spacer(minLength: 8)
-                        Text((x.amt > 0 ? "+" : "") + f.whole(x.amt)).font(.inter(15, .bold)).foregroundStyle(x.amt > 0 ? Brand.gainText : Color.primary)
+                        Text((x.amt > 0 ? "+" : "") + f.whole(x.amt)).font(.inter(15)).foregroundStyle(x.amt > 0 ? Brand.gainText : Color.primary)
                     }
                     .padding(.vertical, 8).opacity(x.skipped ? 0.5 : 1)
                 }
@@ -379,7 +379,7 @@ struct ProyeccionView: View {
                     row(tile: AnyView(LetterTile(letter: String(Engine.text(x["name"]).prefix(1)), color: Brand.accent)),
                         title: Engine.text(x["name"]), badge: pend.contains(Engine.identifier(x["id"])) ? "Por confirmar" : nil,
                         sub: Self.dlabel(Engine.text(x["date"])) + " · " + Engine.repeatLabel(x["repeat"]) + untilText(x),
-                        trailing: AnyView(Text("+" + f.whole(Engine.number(x["amount"]), cur)).font(.inter(16, .semibold)).monospacedDigit().foregroundStyle(Brand.gainText)),
+                        trailing: AnyView(Text("+" + f.whole(Engine.number(x["amount"]), cur)).font(.inter(16)).monospacedDigit().foregroundStyle(Brand.gainText)),
                         onTap: { let i = Engine.identifier(x["id"]); model.activeSheet = pend.contains(i) ? .confirm(kind: "in", id: i, pick: true) : .expected(kind: "income", id: i) },
                         swipe: expectedSwipe(x, confirmKind: "in", editKind: "income", collection: "expected_income", noun: "ingreso previsto"))
                 }
@@ -413,7 +413,7 @@ struct ProyeccionView: View {
                     row(tile: AnyView(LetterTile(letter: String(Engine.text(j["name"]).prefix(1)), color: Engine.flag(j["sim"]) ? Color(hex: "#FF9F0A") : Brand.accent)),
                         title: Engine.text(j["name"]), badge: Engine.flag(j["sim"]) ? "Simulado" : nil,
                         sub: line1 + Engine.jobRepeatLabel(j) + "\n" + Self.dlabel(Engine.text(j["start"])) + until,
-                        trailing: AnyView(Text("+" + f.whole(Engine.jobNetPay(j), cur)).font(.inter(16, .semibold)).monospacedDigit().foregroundStyle(Brand.gainText)),
+                        trailing: AnyView(Text("+" + f.whole(Engine.jobNetPay(j), cur)).font(.inter(16)).monospacedDigit().foregroundStyle(Brand.gainText)),
                         onTap: { model.activeSheet = .job(id: Engine.identifier(j["id"])) })
                 }
                 RowDivider()
@@ -434,7 +434,7 @@ struct ProyeccionView: View {
                                 }
                                 Spacer(minLength: 8)
                                 VStack(alignment: .trailing, spacing: 0) {
-                                    Text("+" + f.whole(Engine.number(t["amount"]), e.accountCurrency(t["acc"]))).font(.inter(16, .semibold)).foregroundStyle(Brand.gainText)
+                                    Text("+" + f.whole(Engine.number(t["amount"]), e.accountCurrency(t["acc"]))).font(.inter(16)).foregroundStyle(Brand.gainText)
                                     if Engine.number(t["hrs"]) > 0 { Text("\(Engine.number(t["hrs"]).formatted()) hrs").font(.inter(12)).foregroundStyle(.secondary) }
                                 }
                                 Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(.tertiary)
@@ -466,7 +466,7 @@ struct ProyeccionView: View {
                     row(tile: AnyView(isCard ? AnyView(Tile(symbol: "creditcard.fill", color: Color(hex: "#B98AE6"))) : AnyView(CategoryTile(engine: e, name: cat, color: Color(hex: e.categoryColor(cat))))),
                         title: Engine.text(x["name"]), badge: pend.contains(Engine.identifier(x["id"])) ? "Por confirmar" : nil,
                         sub: Self.dlabel(Engine.text(x["date"])) + " · " + Engine.repeatLabel(x["repeat"]) + untilText(x) + " · " + (isCard ? "Pago de crédito" : cat),
-                        trailing: AnyView(Text("−" + f.whole(Engine.number(x["amount"]), cur)).font(.inter(16, .semibold)).monospacedDigit()),
+                        trailing: AnyView(Text("−" + f.whole(Engine.number(x["amount"]), cur)).font(.inter(16)).monospacedDigit()),
                         onTap: { let i = Engine.identifier(x["id"]); model.activeSheet = pend.contains(i) ? .confirm(kind: "out", id: i, pick: true) : .expected(kind: isCard ? "cardpay" : "expense", id: i) },
                         swipe: expectedSwipe(x, confirmKind: "out", editKind: isCard ? "cardpay" : "expense", collection: "expected_expense", noun: isCard ? "pago previsto" : "gasto previsto"))
                 }
@@ -574,7 +574,7 @@ struct ProyeccionView: View {
                                 }
                                 Spacer(minLength: 8)
                                 VStack(alignment: .trailing, spacing: 0) {
-                                    Text((ev.amt > 0 ? "+" : "") + f.whole(ev.amt)).font(.inter(16, .semibold)).monospacedDigit().foregroundStyle(ev.amt > 0 ? Brand.gainText : Color.primary)
+                                    Text((ev.amt > 0 ? "+" : "") + f.whole(ev.amt)).font(.inter(16)).monospacedDigit().foregroundStyle(ev.amt > 0 ? Brand.gainText : Color.primary)
                                     Text(ev.skipped ? "—" : f.whole(ev.after)).font(.inter(13)).foregroundStyle(.secondary)
                                 }
                                 if ev.key != nil { Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(.tertiary) }

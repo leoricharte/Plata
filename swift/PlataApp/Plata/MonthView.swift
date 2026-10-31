@@ -222,7 +222,7 @@ struct MonthView: View {
     private func stat(_ title: String, _ value: String, _ color: Color) -> some View {
         VStack(spacing: 2) {
             Text(title).font(.inter(15)).foregroundStyle(.secondary)
-            Text(value).font(.inter(17, .semibold)).monospacedDigit().foregroundStyle(color).lineLimit(1).minimumScaleFactor(0.7)
+            Text(value).font(.inter(17)).monospacedDigit().foregroundStyle(color).lineLimit(1).minimumScaleFactor(0.7)
         }
         .frame(maxWidth: .infinity)
     }

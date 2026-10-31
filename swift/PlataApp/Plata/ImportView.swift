@@ -212,8 +212,8 @@ struct ImportFlowView: View {
     }
 
     private func groupLabel(_ title: String) -> some View {
-        Text(title).font(.inter(13, .semibold)).foregroundStyle(.secondary).textCase(.uppercase)
-            .frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 6).padding(.bottom, 6).padding(.top, 4)
+        Text(title).font(.inter(15, .semibold)).foregroundStyle(.secondary)
+            .frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 8).padding(.bottom, 6).padding(.top, 6)
     }
 
     private var privacyNote: some View {
