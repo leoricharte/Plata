@@ -175,4 +175,36 @@ final class NazcaExampleTests: XCTestCase {
         XCTAssertEqual(Nazca.markDuplicates(items, existing: have, acc: "a", includeImported: true)[0].dup, .near)
         XCTAssertEqual(Nazca.markDuplicates(items, existing: have, acc: "b", includeImported: true)[0].dup, .none)
     }
+
+    func testOrdinalDates() {
+        XCTAssertEqual(NazcaExample.parseDate("Friday, October 23rd", today: today), "2026-10-23")
+        XCTAssertEqual(NazcaExample.parseDate("Wednesday, October 21st", today: today), "2026-10-21")
+        XCTAssertEqual(NazcaExample.parseDate("Thursday, October 22nd", today: today), "2026-10-22")
+        XCTAssertEqual(NazcaExample.parseDate("Saturday, October 24th", today: today), "2026-10-24")
+        XCTAssertEqual(NazcaExample.parseDate("3rd March 2026", today: today), "2026-03-03")
+        XCTAssertNil(NazcaExample.parseDate("4:42 PM • Deposit", today: today))
+        XCTAssertNil(NazcaExample.parseDate("Gusto, Payroll", today: today))
+    }
+
+    /// Una app con la fecha en inglés como encabezado, y nombres que no coinciden con los que la persona tiene anotados.
+    func testChimeStyleBothExamplesBySoftMatch() throws {
+        func row(_ y: Double, _ d: String, _ a: String, _ sub: String) -> [B] {
+            [B(text: d, x: 0.2, y: y, w: 0.4, h: 0.02), B(text: a, x: 0.72, y: y, w: 0.2, h: 0.02), B(text: sub, x: 0.2, y: y + 0.03, w: 0.3, h: 0.015)]
+        }
+        func head(_ y: Double, _ t: String) -> [B] { [B(text: t, x: 0.05, y: y, w: 0.3, h: 0.015)] }
+        let boxes = head(0.10, "Saturday, October 24th") + head(0.16, "Friday, October 23rd")
+            + row(0.22, "Gusto, Payroll", "+$229.80", "4:42 PM • Deposit")
+            + head(0.30, "Thursday, October 22nd") + row(0.36, "Wsmg22 Allcmicar, Payroll", "+$420.32", "1:09 AM • Deposit")
+            + head(0.44, "Wednesday, October 21st") + row(0.50, "MyPay repayment", "-$35.00", "12:47 AM • MyPay")
+            + row(0.58, "Gusto, Payroll", "+$602.14", "12:47 AM • Deposit")
+        let ex = [NazcaExample.Example(desc: "Bonus Generations", amount: 229.8, date: "2026-10-23"),
+                  NazcaExample.Example(desc: "Generations", amount: 602.14, date: "2026-10-21")]
+        let t = try NazcaExample.learn(examples: ex, boxes: boxes, today: today).get()
+        XCTAssertEqual(t.soft, 2)
+        XCTAssertEqual(t.dateMode, .header)
+        let x = NazcaExample.extract(t, boxes: boxes, today: today)
+        XCTAssertEqual(x.items.map(\.amount), [229.8, 420.32, -35, 602.14])
+        XCTAssertEqual(x.items.map(\.date), ["2026-10-23", "2026-10-22", "2026-10-21", "2026-10-21"])
+        XCTAssertEqual(x.items[0].desc, "Gusto, Payroll")
+    }
 }

@@ -137,8 +137,8 @@ public enum NazcaExample {
 
     private static let isoRx = try! NSRegularExpression(pattern: #"\b(\d{4})-(\d{1,2})-(\d{1,2})\b"#)
     private static let numRx = try! NSRegularExpression(pattern: #"\b(\d{1,2})[/.\-](\d{1,2})[/.\-](\d{2}|\d{4})\b"#)
-    private static let dmRx = try! NSRegularExpression(pattern: #"\b(\d{1,2})\s*(?:de\s+)?([a-z]{3,10})\.?(?:\s*(?:de\s+)?(\d{4}))?\b"#)
-    private static let mdRx = try! NSRegularExpression(pattern: #"\b([a-z]{3,10})\.?\s+(\d{1,2})(?:,?\s*(\d{4}))?\b"#)
+    private static let dmRx = try! NSRegularExpression(pattern: #"\b(\d{1,2})(?:st|nd|rd|th)?\s*(?:de\s+)?([a-z]{3,10})\.?(?:\s*(?:de\s+)?(\d{4}))?\b"#)
+    private static let mdRx = try! NSRegularExpression(pattern: #"\b([a-z]{3,10})\.?\s+(\d{1,2})(?:st|nd|rd|th)?(?:,?\s*(\d{4}))?\b"#)
 
     private static func calendar() -> Calendar {
         var c = Calendar(identifier: .gregorian); c.timeZone = TimeZone(identifier: "UTC")!; return c

@@ -686,7 +686,7 @@ struct ImportFlowView: View {
             notice = err == .needTwo
                 ? Notice(title: Tr.t("Elige dos movimientos"), message: Tr.t("Nazca necesita dos para aprender."))
                 : Notice(title: Tr.t("No encontré uno de los dos movimientos"),
-                         message: Tr.f("Busqué «{0}» en la captura y no lo vi. Escribe movimientos que se vean completos en la imagen, con el monto como sale.", String(examples[n].desc.prefix(40))))
+                         message: Tr.f("Busqué «{0}» ({1}) en la captura, por nombre y por monto y fecha, y no lo vi. Revisa que ese movimiento salga completo en la imagen.", String(examples[n].desc.prefix(40)), String(format: "%.2f", abs(examples[n].amount))))
         case .success(let template):
             let x = NazcaExample.extract(template, boxes: boxes, today: today)
             guard !x.items.isEmpty else {
