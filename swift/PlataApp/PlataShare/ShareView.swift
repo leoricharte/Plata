@@ -35,30 +35,42 @@ struct ShareView: View {
         .tint(green)
     }
 
+    /// Una fila de lista (como en «Importar movimientos»): ícono verde plano, título y descripción, chevron.
     private func option(_ icon: String, _ title: String, _ sub: String, _ run: @escaping () -> Void) -> some View {
         Button(action: run) {
             HStack(spacing: 14) {
-                Image(systemName: icon).font(.system(size: 19, weight: .semibold)).foregroundStyle(.white)
-                    .frame(width: 42, height: 42)
-                    .background(LinearGradient(colors: [ShareTheme.green, ShareTheme.greenDeep], startPoint: .topLeading, endPoint: .bottomTrailing), in: Circle())
+                Image(systemName: icon).font(.system(size: 21, weight: .regular)).foregroundStyle(ShareTheme.green)
+                    .frame(width: 30)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(verbatim: Tr.t(title)).font(.system(size: 17, weight: .semibold)).foregroundStyle(ShareTheme.text)
                     Text(verbatim: Tr.t(sub)).font(.system(size: 13)).foregroundStyle(ShareTheme.sub).multilineTextAlignment(.leading)
                 }
                 Spacer(minLength: 0)
-                Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(ShareTheme.greenText.opacity(0.7))
+                Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(ShareTheme.sub.opacity(0.7))
             }
-            .padding(.horizontal, 14).padding(.vertical, 12)
+            .padding(.horizontal, 16).padding(.vertical, 13)
             .frame(maxWidth: .infinity)
-            .background(ShareTheme.rowFill.opacity(0.85), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).strokeBorder(ShareTheme.rowStroke.opacity(0.8), lineWidth: 1))
+            .contentShape(Rectangle())
         }
         .buttonStyle(ShareRowStyle())
     }
 
-    /// El rótulo de la marca arriba de cada tarjeta.
+    /// Las filas juntas en una sola tarjeta, separadas por una línea fina.
+    private func optionList(_ rows: [(String, String, String, () -> Void)]) -> some View {
+        VStack(spacing: 0) {
+            ForEach(Array(rows.enumerated()), id: \.offset) { i, r in
+                if i > 0 { Rectangle().fill(ShareTheme.rowStroke.opacity(0.8)).frame(height: 1).padding(.leading, 60) }
+                option(r.0, r.1, r.2, r.3)
+            }
+        }
+        .background(ShareTheme.rowFill.opacity(0.85), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).strokeBorder(ShareTheme.rowStroke.opacity(0.8), lineWidth: 1))
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+    }
+
+    /// El logo de Plata arriba de cada tarjeta.
     private var brand: some View {
-        Text(verbatim: "PLATA").font(.system(size: 12, weight: .heavy)).tracking(3).foregroundStyle(ShareTheme.greenText)
+        Image("PlataLogo").resizable().scaledToFit().frame(height: 24).accessibilityLabel("Plata")
     }
 
     private func choose(_ kind: ShareModel.Kind) -> some View {
@@ -66,11 +78,13 @@ struct ShareView: View {
             brand
             Text(verbatim: Tr.t(kind == .image ? "¿Qué es esta captura?" : "¿Qué hacemos con este archivo?")).font(.system(size: 19, weight: .bold))
             if kind == .image {
-                option("checkmark.seal", "Constancia de Yape o Plin", "Un pago o ingreso suelto") { Task { await model.readAsConstancia() } }
-                option("viewfinder", "Sesión de reconocimiento", "Nazca lee la lista de movimientos") { Task { await model.handOff(.recognition) } }
+                optionList([
+                    ("checkmark.seal", "Constancia de Yape o Plin", "Un pago o ingreso suelto", { Task { await model.readAsConstancia() } }),
+                    ("viewfinder", "Sesión de reconocimiento", "Nazca lee la lista de movimientos", { Task { await model.handOff(.recognition) } })])
             } else {
-                option("square.and.arrow.down", "Importar archivo", "Plata reconoce el banco sola") { Task { await model.handOff(.file) } }
-                option("building.columns", "Elegir banco", "Tú dices de cuál es") { Task { await model.handOff(.banks) } }
+                optionList([
+                    ("square.and.arrow.down", "Importar archivo", "Plata reconoce el banco sola", { Task { await model.handOff(.file) } }),
+                    ("building.columns", "Elegir banco", "Tú dices de cuál es", { Task { await model.handOff(.banks) } })])
             }
             Button { model.cancel() } label: { Text(verbatim: Tr.t("Cancelar")).font(.system(size: 16, weight: .medium)).foregroundStyle(ShareTheme.greenText).frame(maxWidth: .infinity, minHeight: 40) }
         }

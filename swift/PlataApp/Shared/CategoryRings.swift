@@ -78,7 +78,7 @@ struct CurvedLabel: View {
 /// Icono y nombre de la categoría pegados al aro, centrados abajo (a las 6), leyéndose de izquierda a derecha.
 struct BottomArcLabel: View {
     var text: String
-    var symbol: String
+    var symbol: String?
     var radius: CGFloat
     var size: CGFloat
     var iconSize: CGFloat
@@ -91,7 +91,7 @@ struct BottomArcLabel: View {
 
     var body: some View {
         let chars = Array(text.uppercased())
-        let iconSpan = Double((iconSize + 3) / radius) * 180 / .pi
+        let iconSpan = symbol == nil ? 0 : Double((iconSize + 3) / radius) * 180 / .pi
         let steps = chars.map { CurvedLabel.step($0, radius: radius, size: size) }
         let total = iconSpan + steps.reduce(0, +)
         let left = -total / 2
@@ -99,8 +99,10 @@ struct BottomArcLabel: View {
         var a = left + iconSpan
         for st in steps { pos.append(a + st / 2); a += st }
         return ZStack {
-            Image(systemName: symbol).font(.system(size: iconSize, weight: .heavy)).foregroundStyle(color)
-                .offset(y: radius).rotationEffect(.degrees(-(left + iconSpan / 2 - 1.5 / Double(radius) * 180 / .pi)))
+            if let symbol {
+                Image(systemName: symbol).font(.system(size: iconSize, weight: .heavy)).foregroundStyle(color)
+                    .offset(y: radius).rotationEffect(.degrees(-(left + iconSpan / 2 - 1.5 / Double(radius) * 180 / .pi)))
+            }
             ForEach(Array(chars.enumerated()), id: \.offset) { i, ch in
                 Text(String(ch)).font(.system(size: size, weight: .heavy, design: .rounded)).foregroundStyle(color)
                     .offset(y: radius).rotationEffect(.degrees(-pos[i]))
@@ -109,7 +111,8 @@ struct BottomArcLabel: View {
     }
 }
 
-/// Un aro de categoría: su avance (como mucho una vuelta), el porcentaje en el arranque del aro y, abajo en el centro, el icono y el nombre.
+/// Un aro de categoría como los de Actividad: el icono en el arranque (a las 12), el porcentaje pegado a él y el nombre abajo en el centro.
+/// Si te pasas del límite el aro da una segunda vuelta encima, con sombra y hacia rojo.
 struct CategoryRing: View {
     var cat: WatchCat
     var symbol: String
@@ -124,56 +127,61 @@ struct CategoryRing: View {
         let dark = Color(watchDark: cat.color)
         let toDeg = 180 / Double.pi
         let tip = 360 * min(1, max(0, frac))
-        let begin = Double(width * 0.35 / radius) * toDeg + 3          // pasada la tapa redonda del arranque
+        let begin = Double((width * 0.5 + iconSize * 0.5 + 2) / radius) * toDeg        // pasado el icono
         let pct = String(Int((frac * 100).rounded())) + "%"
-        // el porcentaje va donde empieza el aro; si el avance es tan corto que no cabe, se escribe sobre la pista
         let pctFits = CurvedLabel.span(pct, radius: radius, size: size) <= tip - begin - 2
-        // abajo: el nombre más largo que cabe (como mucho 130°), con «…» si hay que recortarlo
         let maxSpan = 130.0
-        let name = Self.fitName(cat.name, radius: radius, size: size, iconSize: iconSize, maxSpan: maxSpan)
-        let nameSpan = name.map { BottomArcLabel.span($0, radius: radius, size: size, iconSize: iconSize) } ?? 0
+        let name = Self.fitName(cat.name, radius: radius, size: size, maxSpan: maxSpan)
+        let nameSpan = name.map { CurvedLabel.span($0, radius: radius, size: size) } ?? 0
         let nameOnColor = tip >= 180 + nameSpan / 2
+        let base = Color.watchIsDark(cat.color) ? Color(white: 0.30) : Color(watchHex: cat.color)
         return ZStack {
-            ActivityRing(frac: frac, color: Color.watchIsDark(cat.color) ? Color(white: 0.30) : Color(watchHex: cat.color), width: width, radius: radius, symbol: nil, iconSize: iconSize, iconColor: dark)
+            ActivityRing(frac: frac, color: base, width: width, radius: radius)
+            Image(systemName: symbol).font(.system(size: iconSize, weight: .heavy)).foregroundStyle(dark)
+                .offset(y: -radius)
             CurvedLabel(text: pct, radius: radius, size: size, start: begin, color: pctFits ? dark : Color.secondary)
-            if let name { BottomArcLabel(text: name, symbol: symbol, radius: radius, size: size, iconSize: iconSize, color: nameOnColor ? dark : Color.secondary) }
+            if let name { BottomArcLabel(text: name, symbol: nil, radius: radius, size: size, iconSize: iconSize, color: nameOnColor ? dark : Color.secondary) }
         }
     }
 
-    private static func fitName(_ name: String, radius: CGFloat, size: CGFloat, iconSize: CGFloat, maxSpan: Double) -> String? {
+    private static func fitName(_ name: String, radius: CGFloat, size: CGFloat, maxSpan: Double) -> String? {
         var n = name.count
         while n >= 2 {
             let nm = n == name.count ? name : String(name.prefix(n - 1)) + "…"
-            if BottomArcLabel.span(nm, radius: radius, size: size, iconSize: iconSize) <= maxSpan { return nm }
+            if CurvedLabel.span(nm, radius: radius, size: size) <= maxSpan { return nm }
             n -= 1
         }
         return nil
     }
 }
 
-/// Un anillo como los de Actividad: la pista tenue y el progreso con degradado. Se queda en una sola vuelta aunque te pases.
+/// Un anillo como los de Actividad: pista tenue, progreso con degradado y tapas redondas.
+/// Pasado el 100 % da una segunda vuelta encima (con sombra en la punta) que vira a rojo, para que se note que te pasaste.
 struct ActivityRing: View {
     var frac: Double
     var color: Color
     var width: CGFloat
     var radius: CGFloat
     var arrow = false
-    var symbol: String? = nil          // icono de la categoría en la punta (en vez de la flecha)
-    var iconSize: CGFloat = 9
-    var iconColor: Color = .black.opacity(0.75)
+    static let over = Color(red: 0.93, green: 0.24, blue: 0.29)
+
     var body: some View {
         let lap = min(1, max(0.004, frac))
+        let extra = min(1, max(0, frac - 1))
         ZStack {
             Circle().stroke(color.opacity(0.25), lineWidth: width)
             Circle().trim(from: 0, to: lap)
-                .stroke(AngularGradient(colors: [color.opacity(0.65), color], center: .center, startAngle: .degrees(0), endAngle: .degrees(max(1, 360 * lap))),
+                .stroke(AngularGradient(colors: [color.opacity(0.55), color], center: .center, startAngle: .degrees(0), endAngle: .degrees(max(1, 360 * lap))),
                         style: StrokeStyle(lineWidth: width, lineCap: .round))
                 .rotationEffect(.degrees(-90))
-            if let symbol {
-                let deg = frac > 0.02 ? 360 * lap : 0
-                Image(systemName: symbol).font(.system(size: iconSize, weight: .heavy)).foregroundStyle(iconColor)
-                    .offset(x: radius * CGFloat(sin(deg * .pi / 180)), y: -radius * CGFloat(cos(deg * .pi / 180)))
-            } else if arrow && frac > 0.02 {
+            if frac > 1 {
+                Circle().trim(from: 0, to: max(0.004, extra))
+                    .stroke(AngularGradient(colors: [color, Self.over], center: .center, startAngle: .degrees(0), endAngle: .degrees(max(1, 360 * max(0.004, extra)))),
+                            style: StrokeStyle(lineWidth: width, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                    .shadow(color: .black.opacity(0.45), radius: width * 0.22, x: 0, y: 0)
+            }
+            if arrow && frac > 0.02 {
                 let deg = 360 * lap
                 Image(systemName: "arrow.right").font(.system(size: width * 0.6, weight: .heavy)).foregroundStyle(.black.opacity(0.7))
                     .rotationEffect(.degrees(deg))
@@ -182,4 +190,3 @@ struct ActivityRing: View {
         }
     }
 }
-

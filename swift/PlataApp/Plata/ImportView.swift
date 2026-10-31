@@ -54,6 +54,8 @@ struct ImportFlowView: View {
     @State private var pageH: CGFloat = 0
     /// Un archivo que ya está en Plata y espera a que la persona elija su banco.
     @State private var carry: Picked?
+    /// El archivo que llegó con «Importar archivo» desde Compartir: se muestra mientras se lee o pide contraseña.
+    @State private var recv: Picked?
 
     init(preloaded: [ImportReview] = [], startAtCapture: Bool = false, handoff: ShareHandoff.Payload? = nil) {
         self.preloaded = !preloaded.isEmpty
@@ -70,7 +72,7 @@ struct ImportFlowView: View {
         let file = Picked(name: h.item.name, size: size, data: size <= limit ? h.data : nil)
         switch h.item.choice {
         case .recognition: await loadExampleShot(data: h.data)
-        case .file: notice = nil; step = .busy; await ingest([file], adding: false)
+        case .file: notice = nil; recv = file; step = .busy; await ingest([file], adding: false)
         case .banks: carry = file; origin = .start; step = .country
         }
     }
@@ -96,8 +98,8 @@ struct ImportFlowView: View {
         case .country: return carry != nil ? ("Archivo recibido", "¿De qué banco es?") : (nil, "Tu país")
         case .banks: return (carry != nil ? "Archivo recibido" : (Nazca.bankCatalog.first { $0.id == country }?.name ?? "Perú"), carry != nil ? "¿De qué banco es?" : "Tu banco")
         case .bank: return carry != nil ? ("Archivo recibido", "Contraseña del archivo") : (Nazca.countryName(bank ?? ""), Nazca.bankShort(bank))
-        case .key: return (nil, "Contraseña")
-        case .busy: return (nil, "Leyendo…")
+        case .key: return recv != nil ? ("Archivo recibido", "Necesita su contraseña") : (nil, "Contraseña")
+        case .busy: return recv != nil ? ("Archivo recibido", "Leyendo tu archivo") : (nil, "Leyendo…")
         case .done: return (nil, "Importado")
         case .paste: return (nil, "Yape o Plin")
         case .example: return (nil, "Sesión de reconocimiento")
@@ -120,6 +122,7 @@ struct ImportFlowView: View {
                 .padding(.horizontal, 20)
                 .padding(.bottom, 24)
             }
+            .onChange(of: step) { _, n in if n != .busy && n != .key { recv = nil } }
             .plataBackground()
             .scrollDisabled(step == .example && !exManualFlow && exImage != nil)
             .navigationBarTitleDisplayMode(.inline)
@@ -240,19 +243,23 @@ struct ImportFlowView: View {
     /// El archivo que llegó desde «Compartir» y espera a que se elija su banco: la persona ve qué se está importando.
     @ViewBuilder private var carryCard: some View {
         if let c = carry {
-            SCard {
-                HStack(spacing: 14) {
-                    Image(systemName: c.name.lowercased().hasSuffix(".pdf") ? "doc.richtext" : "tablecells").font(.system(size: 26)).foregroundStyle(Brand.accent).frame(width: 40)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(verbatim: c.name).font(.inter(16, .semibold)).lineLimit(2).truncationMode(.middle)
-                        Text(verbatim: ByteCountFormatter.string(fromByteCount: Int64(c.size), countStyle: .file)).font(.inter(13)).foregroundStyle(.secondary)
-                    }
-                    Spacer(minLength: 0)
-                }
-                .padding(.vertical, 12)
-            }
+            fileCard(c)
             Text("Plata ya tiene tu archivo. Elige el banco para saber cómo leerlo.").font(.inter(15)).foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 4).padding(.bottom, 10)
+        }
+    }
+
+    private func fileCard(_ c: Picked) -> some View {
+        SCard {
+            HStack(spacing: 14) {
+                Image(systemName: c.name.lowercased().hasSuffix(".pdf") ? "doc.richtext" : "tablecells").font(.system(size: 26)).foregroundStyle(Brand.accent).frame(width: 40)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(verbatim: c.name).font(.inter(16, .semibold)).lineLimit(2).truncationMode(.middle)
+                    Text(verbatim: ByteCountFormatter.string(fromByteCount: Int64(c.size), countStyle: .file)).font(.inter(13)).foregroundStyle(.secondary)
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(.vertical, 12)
         }
     }
 
@@ -365,12 +372,9 @@ struct ImportFlowView: View {
 
     private var keyBody: some View {
         VStack(spacing: 0) {
-            Text("Este estado de cuenta está protegido. Escribe su contraseña para abrirlo en este dispositivo.")
+            if let f = pend ?? recv { fileCard(f) }
+            Text(recv != nil ? "Este archivo está protegido con una contraseña. Escríbela para que Plata pueda leerlo. Se abre solo en este dispositivo." : "Este estado de cuenta está protegido. Escribe su contraseña para abrirlo en este dispositivo.")
                 .font(.inter(16)).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 4).padding(.bottom, 14)
-            if let pend {
-                Text(verbatim: String(pend.name.prefix(80))).font(.inter(13)).foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 4).padding(.bottom, 12)
-            }
             keyField(nil)
             Button { openPending() } label: { Text("Abrir estado de cuenta") }
                 .buttonStyle(PrimaryPillStyle())
@@ -381,7 +385,8 @@ struct ImportFlowView: View {
 
     private var busyBody: some View {
         VStack(spacing: 18) {
-            ProgressView().controlSize(.large).padding(.top, 40)
+            if let r = recv { fileCard(r) }
+            ProgressView().controlSize(.large).padding(.top, recv == nil ? 40 : 16)
             Text("Nazca está leyendo tu estado de cuenta en este dispositivo.")
                 .font(.inter(16)).foregroundStyle(.secondary).multilineTextAlignment(.center)
         }

@@ -344,6 +344,7 @@ struct AddPage: View {
                         }
                     }
                 }
+                .listRowBackground(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(WatchTheme.accent.opacity(0.20)))
             }
         }
         .listStyle(.carousel)
@@ -354,7 +355,7 @@ struct AddPage: View {
         if let d = a.logo, let img = UIImage(data: d) {
             Image(uiImage: img).renderingMode(.template).resizable().scaledToFit().frame(width: 26, height: 26).foregroundStyle(WatchTheme.accent)
         } else {
-            Image(systemName: a.symbol ?? "creditcard.fill").font(.system(size: 20)).foregroundStyle(.white).frame(width: 26, height: 26)
+            Image(systemName: a.symbol ?? "creditcard.fill").font(.system(size: 20)).foregroundStyle(WatchTheme.accent).frame(width: 26, height: 26)
         }
     }
 
