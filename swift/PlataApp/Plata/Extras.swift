@@ -379,7 +379,7 @@ struct CreditsView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
-                PageHead(eyebrow: "Plata", title: "Créditos")
+                PageHead(title: "Créditos")
                 ListCard {
                     role("Leonardo Richarte", "Director creativo, diseño de UI y concepto")
                     RowDivider()

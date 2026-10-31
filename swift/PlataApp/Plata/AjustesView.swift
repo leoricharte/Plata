@@ -4,7 +4,7 @@ import PlataCore
 
 /// Título de pantalla de la web: texto pequeño arriba (`.eyebrow`) y título de 34 pt (`h1`).
 struct PageHead: View {
-    let eyebrow: String
+    var eyebrow: String? = nil
     let title: String
     /// El banco cuyo logo reemplaza al título (pantalla de cada banco al importar).
     var bankMark: String? = nil
@@ -12,7 +12,7 @@ struct PageHead: View {
     var bankMarks: [String] = []
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(eyebrow).font(.inter(15)).foregroundStyle(.secondary)
+            if let eyebrow { Text(eyebrow).font(.inter(15)).foregroundStyle(.secondary) }
             if !bankMarks.isEmpty {
                 HStack(spacing: 22) { ForEach(bankMarks, id: \.self) { BankMarkView(id: $0, logo: true) } }
                     .foregroundStyle(Color(red: 0.133, green: 0.710, blue: 0.451)).padding(.top, 8).padding(.bottom, 4)
@@ -168,7 +168,7 @@ struct AjustesView: View {
         let hidden = hiddenAccounts(e)
         ScrollView {
             VStack(spacing: 0) {
-                PageHead(eyebrow: "Perfil y preferencias", title: "Ajustes")
+                PageHead(title: "Ajustes")
                 profileCard(e)
                 if model.isDemo { DemoNoticeCard() }
                 status
@@ -457,7 +457,7 @@ struct ProfileSettingsView: View {
         let f = model.fmt
         ScrollView {
             VStack(spacing: 0) {
-                PageHead(eyebrow: "Perfil", title: "Editar perfil")
+                PageHead(title: "Editar perfil")
                 PhotoRow()
                 SCard {
                     SettingRow("Nombre", first: true) { MiniField(placeholder: "", text: $first, width: 190, numeric: false) }

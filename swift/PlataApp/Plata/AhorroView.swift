@@ -14,7 +14,7 @@ struct AhorroView: View {
         let items = c.savings.filter { $0.ub > 0 }.map { RingChart<AnyView>.Item(value: $0.ub, color: Color(hex: $0.color)) }
         ScrollView {
             VStack(spacing: 0) {
-                PageHead(eyebrow: "Tus metas de ahorro", title: "Ahorro")
+                PageHead(title: "Ahorro")
 
                 VStack(spacing: 0) {
                     RingChart(items: items) {

@@ -30,7 +30,7 @@ struct CuentasView: View {
         let net = balance - debt
         ScrollView {
             VStack(spacing: 0) {
-                PageHead(eyebrow: "Débito, crédito e intereses", title: "Cuentas")
+                PageHead(title: "Cuentas")
 
                 card {
                     HStack(alignment: .top, spacing: 20) {

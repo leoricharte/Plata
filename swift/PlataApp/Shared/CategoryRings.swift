@@ -12,12 +12,15 @@ extension Color {
 }
 
 extension Color {
-    /// El mismo tono, muy oscuro: para el texto y el icono que van encima de un aro de ese color.
+    /// El mismo tono, muy oscuro (o casi blanco si el aro ya es oscuro): para el texto y el icono que van encima de un aro de ese color.
     init(watchDark h: String?) {
         let t = (h ?? "").replacingOccurrences(of: "#", with: "")
         guard t.count == 6, let v = UInt32(t, radix: 16) else { self = Color(white: 0.08); return }
+        let r = Double((v >> 16) & 255) / 255, g = Double((v >> 8) & 255) / 255, b = Double(v & 255) / 255
+        // Un aro que ya es oscuro (p. ej. «Proyectos» en casi negro) no admite un tono aún más oscuro: ahí el texto y el icono van claros.
+        if 0.2126 * r + 0.7152 * g + 0.0722 * b < 0.30 { self = Color(white: 0.92); return }
         let k = 0.30
-        self = Color(red: Double((v >> 16) & 255) / 255 * k, green: Double((v >> 8) & 255) / 255 * k, blue: Double(v & 255) / 255 * k)
+        self = Color(red: r * k, green: g * k, blue: b * k)
     }
 }
 

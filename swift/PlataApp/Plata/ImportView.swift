@@ -88,19 +88,19 @@ struct ImportFlowView: View {
     /// El PDF que Nazca reconoció de OTRO banco que el elegido (ya abierto), por si la persona confirma «Leerlo como…».
     @State private var asDoc: AsDoc?
 
-    private var head: (String, String) {
+    private var head: (String?, String) {
         switch step {
-        case .start: return ("Importar", "Importar movimientos")
-        case .how: return ("Importar archivo", "Cómo funciona")
-        case .country: return ("Datos de banco", "Tu país")
+        case .start: return (nil, "Importar movimientos")
+        case .how: return (nil, "Cómo funciona")
+        case .country: return (nil, "Tu país")
         case .banks: return (Nazca.bankCatalog.first { $0.id == country }?.name ?? "Perú", "Tu banco")
         case .bank: return (Nazca.countryName(bank ?? ""), Nazca.bankShort(bank))
-        case .key: return ("Estado de cuenta", "Contraseña")
-        case .busy: return ("Datos de banco", "Leyendo…")
-        case .done: return ("Listo", "Importado")
-        case .paste: return ("Constancia", "Yape o Plin")
-        case .example: return ("Importar", "Sesión de reconocimiento")
-        case .institution: return ("Captura", "Institución")
+        case .key: return (nil, "Contraseña")
+        case .busy: return (nil, "Leyendo…")
+        case .done: return (nil, "Importado")
+        case .paste: return (nil, "Yape o Plin")
+        case .example: return (nil, "Sesión de reconocimiento")
+        case .institution: return (nil, "Institución")
         case .review:
             let label = reviews.indices.contains(idx) ? reviews[idx].source?.label ?? "" : ""
             let gen = reviews.indices.contains(idx) && reviews[idx].gen

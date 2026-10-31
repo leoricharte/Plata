@@ -20,7 +20,7 @@ struct PresupuestoView: View {
         let dl = c.dim - model.today.day + 1
         ScrollView {
             VStack(spacing: 0) {
-                PageHead(eyebrow: bt > 0 ? ("Quedan \(dl) \(dl == 1 ? "día" : "días") del mes") : "Planifica tu mes", title: "Presupuesto")
+                PageHead(eyebrow: bt > 0 ? (dl == 1 ? "Queda 1 día del mes" : "Quedan \(dl) días del mes") : nil, title: "Presupuesto")
 
                 setCard(set, active: set == act)
                 ringCard(e, c, f, bt, left, dl, preview: set != act)
