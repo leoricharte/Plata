@@ -149,12 +149,11 @@ final class NazcaExampleTests: XCTestCase {
         XCTAssertEqual(t.soft, 1)
         XCTAssertEqual(t.dateMode, .header)
         XCTAssertEqual(NazcaExample.extract(t, boxes: headerLayout(), today: today).items.count, 4)
-        // sin monto en la captura sigue sin encontrarse
-        let none = [NazcaExample.Example(desc: "Nada", amount: -999, date: "2026-10-12"), ex[1]]
-        XCTAssertEqual({ () -> NazcaExample.LearnError? in
-            if case .failure(let e) = NazcaExample.learn(examples: none, boxes: headerLayout(), today: today) { return e }
-            return nil
-        }(), .notFound(0))
+        // si falta uno aprende con el otro (parcial); si faltan los dos, no hay de dónde aprender
+        let none = [NazcaExample.Example(desc: "Nada", amount: -999, date: "2026-10-12"), NazcaExample.Example(desc: "Tampoco", amount: -998, date: "2026-10-11")]
+        var err: NazcaExample.LearnError?
+        if case .failure(let e) = NazcaExample.learn(examples: none, boxes: headerLayout(), today: today) { err = e }
+        XCTAssertEqual(err, .notFound(0))
     }
 
     func testCardInstitutionMakesCardStatement() throws {
