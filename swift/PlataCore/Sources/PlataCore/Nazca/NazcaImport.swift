@@ -59,6 +59,8 @@ public struct ImportReview {
     public var guess: String
     /// Leído de un PDF de un banco que Nazca no conoce (lectura genérica): sin sello de verificado ni columnas que ajustar.
     public var gen = false
+    /// Una captura (sin huella de importación): los repetidos se buscan también entre lo ya importado.
+    public var loose = false
     public internal(set) var names: [String]
     /// Filas repetidas entre archivos unidos que se omitieron.
     public internal(set) var mdup = 0
@@ -117,6 +119,8 @@ public struct ImportReview {
         let pool = card ? e.allCards.filter { Engine.str($0["kind"]) == "card" } : e.allAccounts
         var hit = pool.first { bankIs($0) && !last4.isEmpty && Engine.str($0["last4"]) == last4 }
             ?? pool.first { bankIs($0) && Engine.str($0["cur"]) == r.cur && Engine.str($0["last4"]).isEmpty }
+            // una captura no trae los últimos 4 dígitos: se sugiere la cuenta o tarjeta de esa institución y moneda aunque la persona sí los tenga anotados
+            ?? (last4.isEmpty && r.bank == nil ? pool.first { bankIs($0) && (r.cur.isEmpty || Engine.str($0["cur"]) == r.cur) } : nil)
         // Constancia de Plin (aunque salga de BBVA, Interbank…): se sugiere la cuenta de Yape o Plin que más se use, si la persona la tiene; si no, la del banco.
         if !card && r.name == "Plin" {
             let txs = e.data["transactions"]?.arrayValue ?? []
@@ -293,7 +297,7 @@ public struct ImportReview {
             }
         }
         let known = Self.known(e)
-        let dups = Nazca.markDuplicates(items, existing: known, acc: accId)
+        let dups = Nazca.markDuplicates(items, existing: known, acc: accId, includeImported: loose)
         let guesser = Nazca.categorizer(e.categoryNames, history: known)
         var dupF: [Int: Nazca.Duplicate] = [:]
         if mode == .split && !fxAccount.isEmpty {

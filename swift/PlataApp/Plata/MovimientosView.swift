@@ -67,7 +67,7 @@ struct MovimientosView: View {
                 Button { model.showImport = true } label: {
                     HStack(spacing: 10) {
                         Image(systemName: "folder.badge.plus").font(.system(size: 22)).foregroundStyle(Brand.accent).frame(width: 26)
-                        Text("Importar datos de banco").font(.inter(17)).foregroundStyle(Brand.accent)
+                        Text("Importar movimientos").font(.inter(17)).foregroundStyle(Brand.accent)
                         Spacer(minLength: 0)
                     }
                     .frame(minHeight: 44)

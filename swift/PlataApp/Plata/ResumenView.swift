@@ -121,7 +121,7 @@ struct ResumenView: View {
                 .font(.inter(15)).foregroundStyle(.secondary)
                 .padding(.bottom, 4)
             startRow("plus.circle.fill", "Añadir un movimiento") { model.showAddTransaction = true }
-            startRow("folder.badge.plus", "Importar datos de banco") { model.showImport = true }
+            startRow("folder.badge.plus", "Importar movimientos") { model.showImport = true }
                 .tourAnchor("imp")
             startRow("folder.fill", "Cargar mi archivo de perfil") { model.path.append(.ajustes) }
             startRow("info.circle.fill", "Ver con datos de ejemplo") { pickingDemo = true }

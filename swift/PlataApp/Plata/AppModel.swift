@@ -28,7 +28,7 @@ final class AppModel {
     /// La bienvenida (se muestra hasta que la termines, o si no hay datos y nunca la viste).
     var showWelcome = false
     var showHistory = false
-    /// «Importar datos de banco» (Nazca): pantalla completa que presenta `RootView`.
+    /// «Importar movimientos» (Nazca): pantalla completa que presenta `RootView`.
     var showImport = false
     /// Abrir el importador directo en «Importar captura» (desde Nuevo movimiento).
     var importAtCapture = false

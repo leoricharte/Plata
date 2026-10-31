@@ -141,4 +141,38 @@ final class NazcaExampleTests: XCTestCase {
         XCTAssertTrue(NazcaTemplates.verified.isEmpty)
         XCTAssertEqual(NazcaShare.payload(t, bank: "bcp").status, "pending")
     }
+
+    func testSoftMatchByAmountAndDate() throws {
+        // el usuario escribe otro nombre para el primer movimiento: se encuentra por monto y fecha
+        let ex = [NazcaExample.Example(desc: "Suscripción de video", amount: -44.9, date: "2026-10-12"),
+                  NazcaExample.Example(desc: "Bodega Lupe", amount: -18, date: "2026-10-11")]
+        let t = try NazcaExample.learn(examples: ex, boxes: headerLayout(), today: today).get()
+        XCTAssertEqual(t.soft, 1)
+        XCTAssertEqual(t.dateMode, .header)
+        XCTAssertEqual(NazcaExample.extract(t, boxes: headerLayout(), today: today).items.count, 4)
+        // sin monto en la captura sigue sin encontrarse
+        let none = [NazcaExample.Example(desc: "Nada", amount: -999, date: "2026-10-12"), ex[1]]
+        XCTAssertEqual({ () -> NazcaExample.LearnError? in
+            if case .failure(let e) = NazcaExample.learn(examples: none, boxes: headerLayout(), today: today) { return e }
+            return nil
+        }(), .notFound(0))
+    }
+
+    func testCardInstitutionMakesCardStatement() throws {
+        let ex = [NazcaExample.Example(desc: "Netflix", amount: -44.9, date: "2026-10-12"),
+                  NazcaExample.Example(desc: "Bodega Lupe", amount: -18, date: "2026-10-11")]
+        let t = try NazcaExample.learn(examples: ex, boxes: headerLayout(), today: today).get()
+        let x = NazcaExample.extract(t, boxes: headerLayout(), today: today)
+        XCTAssertEqual(NazcaExample.statement(x, institution: "applecard").kind, "tarjeta")
+        XCTAssertEqual(NazcaExample.statement(x, institution: "bcp").kind, "corriente")
+        XCTAssertEqual(NazcaExample.statement(x).kind, "corriente")
+    }
+
+    func testCaptureDuplicatesIncludeImported() {
+        let items = [Nazca.Item(line: 1, date: "2026-10-12", desc: "Netflix", amount: -44.9)]
+        let have = [Nazca.Known(acc: "a", date: "2026-10-12", amount: -44.9, note: "NETFLIX.COM", imp: "abc")]
+        XCTAssertEqual(Nazca.markDuplicates(items, existing: have, acc: "a")[0].dup, .none)
+        XCTAssertEqual(Nazca.markDuplicates(items, existing: have, acc: "a", includeImported: true)[0].dup, .near)
+        XCTAssertEqual(Nazca.markDuplicates(items, existing: have, acc: "b", includeImported: true)[0].dup, .none)
+    }
 }

@@ -3,7 +3,7 @@ import UniformTypeIdentifiers
 import PhotosUI
 import PlataCore
 
-/// «Importar datos de banco» (la pasarela de importación de la web, `imp*`): elegir el archivo, revisar lo que Nazca leyó y confirmar.
+/// «Importar movimientos» (la pasarela de importación de la web, `imp*`): elegir el archivo, revisar lo que Nazca leyó y confirmar.
 /// Todo se lee en el dispositivo: CSV, reportes en Excel (Yape) y estados de cuenta en PDF (con clave si el banco la pide).
 struct ImportFlowView: View {
     @Environment(AppModel.self) private var model
@@ -35,6 +35,8 @@ struct ImportFlowView: View {
     /// Lo aprendido de la captura, esperando a saber de qué institución es.
     @State private var exHold: ExHold?
     @State private var showSource = false
+    @State private var exQuery = ""
+    @State private var exShowAll = false
     @State private var showShotPicker = false
     @State private var anyShot: PhotosPickerItem?
     /// `true` si se abrió directo en una revisión (constancias que llegaron desde «Compartir»): «Regresar» cierra.
@@ -101,14 +103,9 @@ struct ImportFlowView: View {
                     }
                 }
             }
-            .safeAreaInset(edge: .bottom) { if step == .review && reviews.indices.contains(idx) { bar } }
+            .safeAreaInset(edge: .bottom) { if step == .review && reviews.indices.contains(idx) { bar } else if step == .example { exampleBar } }
         }
         .fileImporter(isPresented: $picking, allowedContentTypes: Self.types, allowsMultipleSelection: true) { handle($0) }
-        .confirmationDialog(Text("Subir"), isPresented: $showSource, titleVisibility: .hidden) {
-            Button("Elegir archivo") { bank = nil; pick(from: .start) }
-            Button("Elegir captura de Fotos") { showShotPicker = true }
-            Button("Cancelar", role: .cancel) {}
-        }
         .photosPicker(isPresented: $showShotPicker, selection: $anyShot, matching: .images)
         .onChange(of: anyShot) { _, item in if let item { Task { await readAny(item) } } }
         .interactiveDismissDisabled(step == .busy)
@@ -144,12 +141,31 @@ struct ImportFlowView: View {
             groupLabel("Subir")
             SCard {
                 GoRow(symbol: "square.and.arrow.up", title: "Subir archivo o captura",
-                      sub: "Un CSV, un estado de cuenta o una captura. Nazca reconoce el formato y usa lo que ya sabe leer.") { showSource = true; notice = nil }
+                      sub: "Un CSV, un estado de cuenta o una captura. Nazca reconoce el formato y usa lo que ya sabe leer.",
+                      chevron: showSource ? "chevron.down" : "chevron.right") {
+                    notice = nil
+                    withAnimation(.snappy(duration: 0.3)) { showSource.toggle() }
+                }
+                if showSource {
+                    VStack(spacing: 0) {
+                        RowDivider()
+                        GoRow(symbol: "doc", title: "Archivo", sub: "CSV, PDF o Excel") {
+                            withAnimation(.snappy(duration: 0.3)) { showSource = false }
+                            bank = nil; pick(from: .start)
+                        }
+                        RowDivider()
+                        GoRow(symbol: "photo", title: "Captura de Fotos", sub: "De tu banco o de una app") {
+                            withAnimation(.snappy(duration: 0.3)) { showSource = false }
+                            showShotPicker = true
+                        }
+                    }
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+                }
             }
             groupLabel("Enseñar a Nazca")
             SCard {
                 GoRow(symbol: "wand.and.stars", title: "Sesión de reconocimiento",
-                      sub: "Escribe o elige dos movimientos y sube una captura de cualquier app o banco. Nazca aprende cómo está armada y trae el resto.") { shotData = nil; step = .example; notice = nil; exPicks = [] }
+                      sub: "Escribe o elige dos movimientos y sube una captura de cualquier app o banco. Nazca aprende cómo está armada y trae el resto.") { shotData = nil; step = .example; notice = nil; exPicks = []; exQuery = ""; exShowAll = false }
             }
             groupLabel("Guías por banco")
             SCard {
@@ -459,7 +475,7 @@ struct ImportFlowView: View {
     /// Los movimientos más recientes de la persona, para que elija dos que SÍ salgan en la captura.
     private var exCandidates: [JSONValue] {
         let all = model.engine.allTransactions.filter { !Engine.identifier($0["id"]).isEmpty && Engine.number($0["amount"]) != 0 }
-        return Array(all.sorted { Engine.text($0["date"]) > Engine.text($1["date"]) }.prefix(60))
+        return Array(all.sorted { Engine.text($0["date"]) > Engine.text($1["date"]) }.prefix(150))
     }
 
     private var exManualMode: Bool { exMode == 0 || exCandidates.count < 2 }
@@ -492,14 +508,37 @@ struct ImportFlowView: View {
         return list.count == 2 ? list : []
     }
 
+    /// Los movimientos que se muestran: los elegidos primero, y el resto filtrado por lo que se escribió (diez recientes si no se escribió nada).
+    private var exShown: (list: [JSONValue], more: Int) {
+        let all = exCandidates
+        let q = exQuery.trimmingCharacters(in: .whitespaces).lowercased()
+        let picked = all.filter { exPicks.contains(Engine.identifier($0["id"])) }
+        let rest = all.filter { tx in
+            guard !exPicks.contains(Engine.identifier(tx["id"])) else { return false }
+            if q.isEmpty { return true }
+            let amount = String(format: "%.2f", abs(Engine.number(tx["amount"])))
+            return Engine.text(tx["note"]).lowercased().contains(q) || amount.contains(q)
+        }
+        let limit = q.isEmpty && !exShowAll ? 10 : 40
+        return (picked + rest.prefix(limit), max(0, rest.count - limit))
+    }
+
+    private func stepLine(_ n: Int, _ text: String) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            Text(verbatim: "\(n)").font(.inter(13, .bold)).foregroundStyle(.white)
+                .frame(width: 24, height: 24).background(Brand.accent, in: Circle())
+            Text(Tr.t(text)).font(.inter(16)).frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
     private var exampleBody: some View {
         let list = exCandidates
-        let ready = currentExamples().count == 2
-        return VStack(spacing: 12) {
-            Text(shotData != nil
-                 ? "Nazca aún no conoce esta captura. Escribe dos movimientos que salgan en ella, o elige dos tuyos, y aprende cómo leerla."
-                 : "Escribe o elige dos movimientos que aparezcan en tu captura. Con ellos, Nazca entiende dónde está cada dato y lee los demás igual.")
-                .font(.inter(16)).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 4)
+        return VStack(spacing: 14) {
+            VStack(alignment: .leading, spacing: 10) {
+                stepLine(1, "Escribe o elige dos movimientos que salgan en tu captura.")
+                stepLine(2, "Sube la captura: Nazca lee el resto igual que esos dos.")
+            }
+            .frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 4)
             if list.count >= 2 {
                 Picker("", selection: $exMode) {
                     Text("Escribirlos").tag(0)
@@ -507,10 +546,18 @@ struct ImportFlowView: View {
                 }
                 .pickerStyle(.segmented)
             }
-            if exManualMode { manualForm } else { pickList(list) }
-            Text(exManualMode ? "Escribe cada uno tal como sale en la captura. No se guardan aparte: entran con los demás en la revisión."
-                              : "Se lee en este dispositivo: la captura no se sube a ningún servidor.")
-                .font(.inter(13)).foregroundStyle(.secondary).multilineTextAlignment(.center).padding(.horizontal, 14)
+            if exManualMode { manualForm } else { pickList }
+        }
+        .padding(.bottom, 8)
+    }
+
+    /// Fijo abajo: la acción nunca queda al final de una lista larga.
+    private var exampleBar: some View {
+        let ready = currentExamples().count == 2
+        let hint = ready ? "Listo: sube la captura."
+            : (exManualMode ? "Completa el nombre y el monto de los dos." : "Elige dos movimientos (\(exPicks.count)/2).")
+        return VStack(spacing: 8) {
+            Text(verbatim: Tr.t(hint)).font(.inter(13)).foregroundStyle(.secondary)
             if let data = shotData {
                 Button { Task { await runExample(data: data) } } label: { Text("Leer captura") }
                     .buttonStyle(PrimaryPillStyle()).disabled(!ready)
@@ -526,52 +573,86 @@ struct ImportFlowView: View {
                 .onChange(of: exShot) { _, item in if let item { Task { await readExample(item) } } }
             }
         }
+        .padding(.horizontal, 20).padding(.top, 10).padding(.bottom, 6)
+        .background(.bar)
+    }
+
+    private func fieldRow<C: View>(_ label: String, @ViewBuilder _ content: () -> C) -> some View {
+        HStack(spacing: 12) {
+            Text(Tr.t(label)).font(.inter(17))
+            Spacer(minLength: 12)
+            content().font(.inter(17)).multilineTextAlignment(.trailing)
+        }
+        .padding(.vertical, 12)
     }
 
     private var manualForm: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 14) {
             ForEach(0..<2, id: \.self) { i in
                 SCard {
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text(verbatim: Tr.t("Movimiento") + " \(i + 1)").font(.inter(13, .semibold)).foregroundStyle(.secondary).textCase(.uppercase)
-                        TextField(Tr.t("Descripción, como sale en la captura"), text: $exManual[i].desc)
-                            .font(.inter(17)).textInputAutocapitalization(.sentences)
-                        HStack(spacing: 10) {
-                            TextField(Tr.t("Monto"), text: $exManual[i].amount).keyboardType(.decimalPad).font(.inter(17))
-                            Picker("", selection: $exManual[i].expense) {
-                                Text("Gasto").tag(true)
-                                Text("Ingreso").tag(false)
-                            }
-                            .pickerStyle(.segmented).frame(maxWidth: 190)
+                    HStack {
+                        Text(verbatim: Tr.t("Movimiento") + " \(i + 1)").font(.inter(15, .semibold)).foregroundStyle(Brand.accent)
+                        Spacer(minLength: 8)
+                        Picker("", selection: $exManual[i].expense) {
+                            Text("Gasto").tag(true)
+                            Text("Ingreso").tag(false)
                         }
-                        DatePicker(Tr.t("Fecha"), selection: $exManual[i].date, displayedComponents: .date).font(.inter(15))
+                        .pickerStyle(.segmented).frame(width: 190)
                     }
-                    .padding(.vertical, 8)
+                    .padding(.vertical, 10)
+                    RowDivider()
+                    fieldRow("Nombre") { TextField(Tr.t("Ej. Netflix"), text: $exManual[i].desc).textInputAutocapitalization(.sentences) }
+                    RowDivider()
+                    fieldRow("Monto") { TextField("0.00", text: $exManual[i].amount).keyboardType(.decimalPad) }
+                    RowDivider()
+                    fieldRow("Fecha") {
+                        DatePicker("", selection: $exManual[i].date, displayedComponents: .date).labelsHidden()
+                            .environment(\.locale, Locale(identifier: Tr.lang))
+                    }
                 }
             }
+            Text("Escríbelos como salen en la captura. No se guardan aparte: entran con los demás en la revisión.")
+                .font(.inter(13)).foregroundStyle(.secondary).multilineTextAlignment(.center).padding(.horizontal, 14)
         }
     }
 
-    private func pickList(_ list: [JSONValue]) -> some View {
+    private var pickList: some View {
         let e = model.engine, f = model.fmt
-        return SCard {
-            ForEach(Array(list.enumerated()), id: \.offset) { k, tx in
-                let id = Engine.identifier(tx["id"])
-                let on = exPicks.contains(id)
-                if k > 0 { RowDivider() }
-                Button {
-                    if on { exPicks.removeAll { $0 == id } }
-                    else if exPicks.count < 2 { exPicks.append(id) }
-                    else { exPicks = [exPicks[1], id] }
-                } label: {
-                    HStack(spacing: 8) {
-                        TransactionRow(tx: tx, engine: e, fmt: f).allowsHitTesting(false)
-                        Image(systemName: on ? "checkmark.circle.fill" : "circle").font(.system(size: 22))
-                            .foregroundStyle(on ? Brand.accent : Color.secondary)
+        let shown = exShown
+        return VStack(spacing: 12) {
+            HStack(spacing: 8) {
+                Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
+                TextField(Tr.t("Buscar por nombre o monto"), text: $exQuery).textInputAutocapitalization(.never).autocorrectionDisabled().font(.inter(16))
+            }
+            .padding(.horizontal, 12).frame(height: 44)
+            .background(Color(.tertiarySystemFill), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            SCard {
+                ForEach(Array(shown.list.enumerated()), id: \.offset) { k, tx in
+                    let id = Engine.identifier(tx["id"])
+                    let on = exPicks.contains(id)
+                    if k > 0 { RowDivider() }
+                    Button {
+                        if on { exPicks.removeAll { $0 == id } }
+                        else if exPicks.count < 2 { exPicks.append(id) }
+                        else { exPicks = [exPicks[1], id] }
+                    } label: {
+                        HStack(spacing: 8) {
+                            TransactionRow(tx: tx, engine: e, fmt: f).allowsHitTesting(false)
+                            Image(systemName: on ? "checkmark.circle.fill" : "circle").font(.system(size: 22))
+                                .foregroundStyle(on ? Brand.accent : Color.secondary)
+                        }
+                        .contentShape(Rectangle())
                     }
-                    .contentShape(Rectangle())
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
+                if shown.list.isEmpty {
+                    Text("No hay movimientos con eso.").font(.inter(15)).foregroundStyle(.secondary).frame(maxWidth: .infinity).padding(.vertical, 18)
+                }
+            }
+            if shown.more > 0 && exQuery.isEmpty && !exShowAll {
+                Button { withAnimation(.snappy) { exShowAll = true } } label: {
+                    Text("Ver más movimientos").font(.inter(17)).foregroundStyle(Brand.green).frame(maxWidth: .infinity, minHeight: 44)
+                }
             }
         }
     }
@@ -653,16 +734,21 @@ struct ImportFlowView: View {
     }
 
     private func showExample(_ x: NazcaExample.Extraction, template: NazcaExample.Template, institution: String?) {
-        guard let rev = ImportReview(name: "Captura", statement: NazcaExample.statement(x, institution: institution), engine: model.engine) else {
+        let st = NazcaExample.statement(x, institution: institution, defaultCur: model.engine.primaryCurrency)
+        guard var rev = ImportReview(name: "Captura", statement: st, engine: model.engine) else {
             step = .example
             notice = Notice(title: Tr.t("Nazca no encontró más movimientos"), message: Tr.t("Prueba con una captura que muestre varios movimientos."))
             return
         }
+        // una captura no trae huella de importación: los repetidos se buscan también entre lo ya importado de la cuenta elegida
+        rev.loose = true
+        rev.build(model.engine)
         origin = .example
         shotData = nil
         reviews = [rev]; idx = 0; step = .review
         if x.flags.contains("date") { notice = Notice(title: Tr.t("Revisa las fechas"), message: Tr.t("Algunos movimientos no traían fecha: puse la de hoy.")) }
         else if x.flags.contains("sign") { notice = Notice(title: Tr.t("Revisa gastos e ingresos"), message: Tr.t("En algunos movimientos adiviné si eran gasto o ingreso.")) }
+        else if template.soft != nil { notice = Notice(title: Tr.t("Encontré un ejemplo por monto y fecha"), message: Tr.t("Uno de tus movimientos no se llamaba igual en la captura, pero había uno con el mismo monto y la misma fecha. Revisa la lista.")) }
         else if template.confidence < 0.6 { notice = Notice(title: Tr.t("Revisa la lista"), message: Tr.t("Tus dos movimientos se veían distintos en la captura, así que Nazca puede haberse equivocado.")) }
     }
 
@@ -1222,6 +1308,7 @@ private struct GoRow: View {
     let title: String
     let sub: String?
     var verbatimTitle = false
+    var chevron = "chevron.right"
     let action: () -> Void
     var body: some View {
         Button(action: action) {
@@ -1232,7 +1319,7 @@ private struct GoRow: View {
                     if let sub { Text(sub).font(.inter(13.5)).foregroundStyle(.secondary).multilineTextAlignment(.leading) }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                Image(systemName: "chevron.right").font(.system(size: 15, weight: .semibold)).foregroundStyle(.tertiary)
+                Image(systemName: chevron).font(.system(size: 15, weight: .semibold)).foregroundStyle(.tertiary)
             }
             .padding(.vertical, 14)
             .contentShape(Rectangle())
@@ -1481,7 +1568,8 @@ struct ImportReviewBody: View {
         let isNew = review.account == ImportReview.newId
         let merge = review.mergeTarget(e)
         let accounts = e.allAccounts
-        let cards = src.card ? e.allCards.filter { Engine.text($0["kind"]) == "card" } : []
+        // una captura sin institución verificada puede ser de una cuenta o de una tarjeta: se ofrecen las dos
+        let cards = (src.card || src.bank == nil) ? e.allCards.filter { Engine.text($0["kind"]) == "card" } : []
         return SCard {
             Text("Cuenta").font(.inter(13)).foregroundStyle(.secondary).padding(.top, 10).padding(.bottom, 2)
             OptionRow(title: "Crear cuenta nueva", subVerbatim: Engine.text(src.newAcc["name"]) + ImportReview.l4(src.newAcc), on: isNew) {

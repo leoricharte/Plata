@@ -62,6 +62,8 @@ public enum NazcaExample {
         public var cur: String
         /// 0 a 1: qué tan de acuerdo estaban los dos ejemplos.
         public var confidence: Double
+        /// Cuántos de los dos ejemplos se encontraron solo por el monto y la fecha (no por el nombre). `nil` = ninguno.
+        public var soft: Int?
     }
 
     public enum LearnError: Error, Equatable, Sendable {
@@ -247,18 +249,23 @@ public enum NazcaExample {
         var dateDy: Int?
         var header: Bool
         var score: Double
+        /// Se encontró solo por el monto y la fecha, sin que el nombre se parezca.
+        var soft = false
     }
 
     private static func isMoneyLike(_ b: Box) -> Bool { parseMoney(b.text) != nil }
 
-    private static func find(_ ex: Example, in ls: [Line], today: String) -> Found? {
+    /// Busca el ejemplo en la captura: por monto y nombre; con `soft`, por monto y fecha (o solo monto si es el único así y no hay fecha).
+    private static func find(_ ex: Example, in ls: [Line], today: String, soft: Bool = false) -> Found? {
         var best: Found?
+        let noDesc = ex.desc.trimmingCharacters(in: .whitespaces).isEmpty
+        let amountHits = ls.reduce(0) { n, l in n + l.boxes.filter { b in parseMoney(b.text).map { abs($0.value - abs(ex.amount)) < 0.005 } ?? false }.count }
         for (li, line) in ls.enumerated() {
             for b in line.boxes {
                 guard let m = parseMoney(b.text), abs(m.value - abs(ex.amount)) < 0.005 else { continue }
                 var descDy = 0
                 var descBox: Box?
-                var score = ex.desc.trimmingCharacters(in: .whitespaces).isEmpty ? 0.5 : 0
+                var score = noDesc ? 0.5 : 0
                 for dy in -2...2 {
                     let k = li + dy
                     guard ls.indices.contains(k) else { continue }
@@ -267,7 +274,6 @@ public enum NazcaExample {
                         if s > score { score = s; descDy = dy; descBox = c }
                     }
                 }
-                if !ex.desc.trimmingCharacters(in: .whitespaces).isEmpty && score < 0.34 { continue }
                 var dateDy: Int?
                 var header = false
                 if !ex.date.isEmpty {
@@ -283,11 +289,31 @@ public enum NazcaExample {
                         k -= 1
                     }
                 }
-                let f = Found(line: li, box: b, descDy: descDy, descBox: descBox, dateDy: dateDy, header: header, score: score)
-                if best == nil || f.score > best!.score { best = f }
+                if soft {
+                    // sin nombre parecido: vale si coinciden monto y fecha, o si es el único monto igual y el ejemplo no trae fecha
+                    let dateOK = !ex.date.isEmpty && (dateDy != nil || header)
+                    guard dateOK || (ex.date.isEmpty && amountHits == 1) else { continue }
+                    if !noDesc && score >= 0.34 { /* ya lo habría encontrado la búsqueda normal */ }
+                    var f = Found(line: li, box: b, descDy: descBox == nil ? 0 : descDy, descBox: descBox, dateDy: dateDy, header: header, score: 0.1)
+                    f.soft = true
+                    if best == nil { best = f }
+                } else {
+                    if !noDesc && score < 0.34 { continue }
+                    let f = Found(line: li, box: b, descDy: descDy, descBox: descBox, dateDy: dateDy, header: header, score: score)
+                    if best == nil || f.score > best!.score { best = f }
+                }
             }
         }
         return best
+    }
+
+    /// El texto de la fila para un ejemplo que se encontró solo por monto y fecha: se supone que el nombre está a la izquierda del monto, en su misma línea.
+    private static func guessDesc(_ f: Found, in ls: [Line], today: String) -> Found {
+        var g = f
+        guard let line = ls.indices.contains(f.line) ? ls[f.line] : nil else { return g }
+        g.descDy = 0
+        g.descBox = line.boxes.first { $0 != f.box && !isMoneyLike($0) && parseDate($0.text, today: today) == nil }
+        return g
     }
 
     public static func learn(examples: [Example], boxes: [Box], today: String) -> Result<Template, LearnError> {
@@ -295,8 +321,19 @@ public enum NazcaExample {
         let ls = lines(boxes)
         var found: [Found] = []
         for (i, ex) in examples.prefix(2).enumerated() {
-            guard let f = find(ex, in: ls, today: today) else { return .failure(.notFound(i)) }
-            found.append(f)
+            if let f = find(ex, in: ls, today: today) { found.append(f) }
+            else if let f = find(ex, in: ls, today: today, soft: true) { found.append(f) }
+            else { return .failure(.notFound(i)) }
+        }
+        // los que se hallaron solo por monto y fecha toman el lugar del nombre del otro ejemplo; si ambos son así, se supone el texto a la izquierda
+        let softN = found.filter(\.soft).count
+        if softN == 1 {
+            let si = found[0].soft ? 0 : 1, oi = 1 - si
+            found[si].descDy = found[oi].descDy
+            let k = found[si].line + found[oi].descDy
+            if ls.indices.contains(k) { found[si].descBox = ls[k].boxes.first { $0 != found[si].box && !isMoneyLike($0) && parseDate($0.text, today: today) == nil } }
+        } else if softN == 2 {
+            found = found.map { guessDesc($0, in: ls, today: today) }
         }
         let a = found[0], b = found[1]
         var agree = 0.0, checks = 0.0
@@ -342,9 +379,11 @@ public enum NazcaExample {
         } else if sa == sb { signMode = .fixed(sa); agree += 0.5 }
         else { signMode = .fixed(sa); agree += 0 }
         checks += 1
+        checks += 1; if softN == 0 { agree += 1 }
         let cur = examples[0].cur.isEmpty ? examples[1].cur : examples[0].cur
         return .success(Template(amountX: amountX, rightAligned: rightAligned, tol: tol, descDy: a.descDy == b.descDy ? a.descDy : a.descDy,
-                                 descLeft: descLeft, dateMode: dateMode, signMode: signMode, cur: cur, confidence: checks == 0 ? 0 : agree / checks))
+                                 descLeft: descLeft, dateMode: dateMode, signMode: signMode, cur: cur, confidence: checks == 0 ? 0 : agree / checks,
+                                 soft: softN > 0 ? softN : nil))
     }
 
     // MARK: Aplicar
@@ -401,12 +440,19 @@ public enum NazcaExample {
         return Extraction(template: t, items: items, flags: flags)
     }
 
+    /// Instituciones que solo emiten tarjetas: una captura de ellas es de una tarjeta, no de una cuenta.
+    public static let cardIssuers: Set<String> = ["applecard", "io", "seen", "tjx", "milestone"]
+
     /// Arma el resultado que entiende la revisión de importaciones.
-    public static func statement(_ x: Extraction, institution: String? = nil, label: String = "Captura") -> Nazca.StatementResult {
-        let cur = x.template.cur.isEmpty ? (x.items.first?.cur ?? "") : x.template.cur
+    public static func statement(_ x: Extraction, institution: String? = nil, defaultCur: String = "", label: String = "Captura") -> Nazca.StatementResult {
+        var cur = x.template.cur.isEmpty ? (x.items.first?.cur ?? "") : x.template.cur
+        if cur.isEmpty { cur = defaultCur }
         var st = Nazca.StatementResult(bank: nil, kind: "corriente", label: label, cur: cur, items: x.items)
         // la institución solo NOMBRA la cuenta: el sello de banco verificado es de los lectores oficiales, no de una captura aprendida
-        if let b = institution, !b.isEmpty { let n = Nazca.bankShort(b); st.name = n; st.label = n }
+        if let b = institution, !b.isEmpty {
+            let n = Nazca.bankShort(b); st.name = n; st.label = n
+            if cardIssuers.contains(b) { st.kind = "tarjeta" }
+        }
         let dates = x.items.map(\.date).filter { !$0.isEmpty }.sorted()
         if let f = dates.first, let l = dates.last { st.period = .init(from: f, to: l) }
         return st

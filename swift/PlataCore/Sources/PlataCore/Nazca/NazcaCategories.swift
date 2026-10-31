@@ -89,7 +89,8 @@ extension Nazca {
         return Double(era * 146097 + doe - 719468)
     }
 
-    public static func markDuplicates(_ items: [Item], existing: [Known], acc: String) -> [DupMark] {
+    /// `includeImported`: para capturas, que no traen huella de importación; también se comparan con lo ya importado (mismo monto, mismo día o un día de diferencia, y nombre parecido o mismo día).
+    public static func markDuplicates(_ items: [Item], existing: [Known], acc: String, includeImported: Bool = false) -> [DupMark] {
         let prints = fingerprints(items)
         let mine = existing.filter { $0.acc == acc }
         var used = Set<Int>()
@@ -100,6 +101,15 @@ extension Nazca {
             for (k, t) in mine.enumerated() {
                 if used.contains(k) || !t.imp.isEmpty { continue }
                 if abs(t.amount - it.amount) < 0.005 && abs(dayNumber(t.date) - dayNumber(it.date)) <= 2 { hit = k; break }
+            }
+            if hit < 0 && includeImported {
+                let words = Set(merchant(it.desc).split(separator: " ").map(String.init))
+                for (k, t) in mine.enumerated() where !used.contains(k) && !t.imp.isEmpty {
+                    guard abs(t.amount - it.amount) < 0.005 else { continue }
+                    let days = abs(dayNumber(t.date) - dayNumber(it.date))
+                    let same = !words.isDisjoint(with: Set(merchant(t.note).split(separator: " ").map(String.init)))
+                    if days == 0 || (days <= 1 && same) { hit = k; break }
+                }
             }
             if hit >= 0 { used.insert(hit); return DupMark(fp: prints[i], dup: .near) }
             return DupMark(fp: prints[i], dup: .none)

@@ -10,25 +10,25 @@ struct AddMenuButton: View {
             Section("Registrar") {
                 Button { model.showAddTransaction = true } label: {
                     Label("Movimiento", systemImage: "plus.circle")
-                    Text("Registra algo que ya pasó")
+                    Text("Algo que ya pasó")
                 }
                 Button { model.activeSheet = .transfer } label: {
                     Label("Transferir", systemImage: "arrow.left.arrow.right")
                     Text("Entre tus cuentas")
                 }
                 Button { model.importAtCapture = false; model.showImport = true } label: {
-                    Label("Importar movimientos", systemImage: "square.and.arrow.down")
-                    Text("Archivo o captura de tu banco o app")
+                    Label("Importar", systemImage: "square.and.arrow.down")
+                    Text("Archivo o captura")
                 }
             }
             Section("Planear") {
                 Button { model.activeSheet = .expected(kind: "income", id: nil) } label: {
                     Label("Ingreso previsto", systemImage: "building.columns")
-                    Text("Sueldo, proyecto, pago esperado")
+                    Text("Sueldo o pago")
                 }
                 Button { model.activeSheet = .expected(kind: "expense", id: nil) } label: {
                     Label("Gasto previsto", systemImage: "creditcard")
-                    Text("Alquiler, recibo, compra futura")
+                    Text("Recibo o compra")
                 }
             }
         } label: {
