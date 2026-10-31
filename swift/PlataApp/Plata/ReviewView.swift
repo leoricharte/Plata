@@ -217,7 +217,11 @@ struct ReviewView: View {
                         Image(systemName: "checkmark.seal.fill").font(.system(size: 16)).foregroundStyle(Brand.accent)
                             .accessibilityLabel(Tr.t(c.brand.capitalized + " verificado"))
                     }
-                    Text(verbatim: c.name.isEmpty ? c.desc : c.name).font(.inter(14.5)).foregroundStyle(.secondary).lineLimit(1)
+                    // el subtítulo solo si dice algo más que la marca (la nota o el nombre de quien envía)
+                    let sub = (c.name.isEmpty ? c.desc : c.name).trimmingCharacters(in: .whitespacesAndNewlines)
+                    if !sub.isEmpty && Brands.norm(sub) != Brands.norm(c.brand) {
+                        Text(verbatim: sub).font(.inter(14.5)).foregroundStyle(.secondary).lineLimit(1)
+                    }
                 }
                 Spacer(minLength: 8)
                 VStack(alignment: .trailing, spacing: 2) {

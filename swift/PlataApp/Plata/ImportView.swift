@@ -51,6 +51,7 @@ struct ImportFlowView: View {
     /// Lo que llegó desde «Compartir»: la importación abre ya en el paso elegido.
     private let handoff: ShareHandoff.Payload?
     @State private var handoffDone = false
+    @State private var pageH: CGFloat = 0
     /// Un archivo que ya está en Plata y espera a que la persona elija su banco.
     @State private var carry: Picked?
 
@@ -398,17 +399,25 @@ struct ImportFlowView: View {
                 // Arriba, lo que se va a importar: el banco y sus movimientos (con scroll propio). Con varios archivos se desliza de uno a otro.
                 Group {
                     if reviews.count > 1 {
+                        // Cada página mide lo que ocupa; el carrusel toma la más alta. El margen de 20 pt deja respirar las sombras de las tarjetas (si no, el carrusel las corta en recuadro).
                         TabView(selection: $idx) {
                             ForEach(reviews.indices, id: \.self) { k in
-                                ImportReviewBody(review: $reviews[k], multi: true, onRemove: removeCurrent, part: .top).tag(k)
+                                ImportReviewBody(review: $reviews[k], multi: true, onRemove: removeCurrent, part: .top)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { h in if h > pageH { pageH = h } }
+                                    .frame(maxHeight: .infinity, alignment: .top)
+                                    .padding(.horizontal, 20).padding(.vertical, 20)
+                                    .tag(k)
                             }
                         }
                         .tabViewStyle(.page(indexDisplayMode: .never))
+                        .frame(height: max(pageH, 200) + 40)
+                        .padding(.horizontal, -20).padding(.vertical, -20)
+                        .onChange(of: reviews.count) { _, _ in pageH = 0 }
                     } else {
                         ImportReviewBody(review: $reviews[idx], multi: false, onRemove: removeCurrent, part: .top)
                     }
                 }
-                .frame(height: 560)
                 // Abajo, cómo se guarda: cuenta, saldo y ajustes del archivo que se ve arriba.
                 ImportReviewBody(review: $reviews[idx], multi: reviews.count > 1, onRemove: removeCurrent, part: .options)
                     .id(idx)
@@ -453,6 +462,7 @@ struct ImportFlowView: View {
             }
         }
         .padding(.horizontal, 20).padding(.top, 10).padding(.bottom, 6)
+        .fadeBarBackground()
     }
 
     private var doneBody: some View {
@@ -653,6 +663,7 @@ struct ImportFlowView: View {
             .font(.inter(15)).foregroundStyle(Brand.green)
         }
         .padding(.horizontal, 20).padding(.top, 10).padding(.bottom, 6)
+        .fadeBarBackground()
     }
 
     private var pickBar: some View {
@@ -668,6 +679,7 @@ struct ImportFlowView: View {
                 .font(.inter(15)).foregroundStyle(Brand.green)
         }
         .padding(.horizontal, 20).padding(.top, 10).padding(.bottom, 6)
+        .fadeBarBackground()
     }
 
     private var manualBar: some View {
@@ -692,6 +704,7 @@ struct ImportFlowView: View {
             }
         }
         .padding(.horizontal, 20).padding(.top, 10).padding(.bottom, 6)
+        .fadeBarBackground()
     }
 
     private func fieldRow<C: View>(_ label: String, @ViewBuilder _ content: () -> C) -> some View {
@@ -1537,6 +1550,7 @@ struct ImportReviewBody: View {
     enum Part { case top, options }
     var part: Part = .options
 
+    @State private var listH: CGFloat = 0
     @State private var filter = "all"
     @State private var filterOpen = false
     @State private var page = 0
@@ -1552,7 +1566,7 @@ struct ImportReviewBody: View {
         if part == .top {
             VStack(spacing: 0) {
                 profileCard(e)
-                listSection(f).frame(maxHeight: .infinity)
+                listSection(f)
             }
         } else {
         VStack(spacing: 0) {
@@ -1934,7 +1948,7 @@ struct ImportReviewBody: View {
             } else {
                 // los movimientos en su propia tarjeta, con scroll propio
                 ScrollView {
-                    LazyVStack(spacing: 0) {
+                    VStack(spacing: 0) {
                         ForEach(Array(shown.enumerated()), id: \.element.i) { k, r in
                             if k > 0 { RowDivider() }
                             ImportRowView(row: r, names: names, fmt: f,
@@ -1944,8 +1958,10 @@ struct ImportReviewBody: View {
                         if pages > 1 { pager(p, pages, frows.count).padding(.top, 8) }
                     }
                     .padding(.horizontal, 16).padding(.vertical, 4)
+                    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { listH = $0 }
                 }
-                .frame(maxHeight: .infinity)
+                .scrollIndicators(.visible)
+                .frame(height: min(max(listH, 60), 340))
                 .plataGlass(in: RoundedRectangle(cornerRadius: 22, style: .continuous))
                 .padding(.top, 6).padding(.bottom, 14)
             }

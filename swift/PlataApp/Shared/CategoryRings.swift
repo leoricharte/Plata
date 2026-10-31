@@ -51,7 +51,7 @@ struct CurvedLabel: View {
         default: return 1
         }
     }
-    private static func step(_ ch: Character, radius: CGFloat, size: CGFloat) -> Double { Double(size * 0.98) * weight(ch) / Double(radius) * 180 / .pi }
+    static func step(_ ch: Character, radius: CGFloat, size: CGFloat) -> Double { Double(size * 0.98) * weight(ch) / Double(radius) * 180 / .pi }
     /// Grados que ocupa un texto en un arco de ese radio.
     static func span(_ text: String, radius: CGFloat, size: CGFloat) -> Double { text.uppercased().reduce(0) { $0 + step($1, radius: radius, size: size) } }
 
@@ -75,7 +75,41 @@ struct CurvedLabel: View {
 }
 
 
-/// Un aro de categoría: su avance (como mucho una vuelta), el icono en la punta y, sobre el color, el nombre y el porcentaje curvados en un tono oscuro.
+/// Icono y nombre de la categoría pegados al aro, centrados abajo (a las 6), leyéndose de izquierda a derecha.
+struct BottomArcLabel: View {
+    var text: String
+    var symbol: String
+    var radius: CGFloat
+    var size: CGFloat
+    var iconSize: CGFloat
+    var color: Color
+
+    /// Grados que ocupa el conjunto (icono, hueco y nombre).
+    static func span(_ text: String, radius: CGFloat, size: CGFloat, iconSize: CGFloat) -> Double {
+        Double((iconSize + 3) / radius) * 180 / .pi + CurvedLabel.span(text, radius: radius, size: size)
+    }
+
+    var body: some View {
+        let chars = Array(text.uppercased())
+        let iconSpan = Double((iconSize + 3) / radius) * 180 / .pi
+        let steps = chars.map { CurvedLabel.step($0, radius: radius, size: size) }
+        let total = iconSpan + steps.reduce(0, +)
+        let left = -total / 2
+        var pos: [Double] = []
+        var a = left + iconSpan
+        for st in steps { pos.append(a + st / 2); a += st }
+        return ZStack {
+            Image(systemName: symbol).font(.system(size: iconSize, weight: .heavy)).foregroundStyle(color)
+                .offset(y: radius).rotationEffect(.degrees(-(left + iconSpan / 2 - 1.5 / Double(radius) * 180 / .pi)))
+            ForEach(Array(chars.enumerated()), id: \.offset) { i, ch in
+                Text(String(ch)).font(.system(size: size, weight: .heavy, design: .rounded)).foregroundStyle(color)
+                    .offset(y: radius).rotationEffect(.degrees(-pos[i]))
+            }
+        }
+    }
+}
+
+/// Un aro de categoría: su avance (como mucho una vuelta), el porcentaje en el arranque del aro y, abajo en el centro, el icono y el nombre.
 struct CategoryRing: View {
     var cat: WatchCat
     var symbol: String
@@ -89,34 +123,28 @@ struct CategoryRing: View {
         let iconSize = width * 0.62
         let dark = Color(watchDark: cat.color)
         let toDeg = 180 / Double.pi
-        let iconHalf = Double((iconSize / 2 + 1) / radius) * toDeg
         let tip = 360 * min(1, max(0, frac))
-        let start = Double(width * 0.35 / radius) * toDeg + 3          // pasada la tapa redonda del arranque
-        let end = (frac >= 1 ? 360 : tip) - iconHalf - 3               // antes del icono
-        let avail = end - (frac >= 1 ? max(start, iconHalf + 3) : start)
-        let begin = frac >= 1 ? max(start, iconHalf + 3) : start
-        let pct = " · " + String(Int((frac * 100).rounded())) + "%"
-        let label = Self.fit(cat.name, pct, avail: avail, radius: radius, size: size)
+        let begin = Double(width * 0.35 / radius) * toDeg + 3          // pasada la tapa redonda del arranque
+        let pct = String(Int((frac * 100).rounded())) + "%"
+        // el porcentaje va donde empieza el aro; si el avance es tan corto que no cabe, se escribe sobre la pista
+        let pctFits = CurvedLabel.span(pct, radius: radius, size: size) <= tip - begin - 2
+        // abajo: el nombre más largo que cabe (como mucho 130°), con «…» si hay que recortarlo
+        let maxSpan = 130.0
+        let name = Self.fitName(cat.name, radius: radius, size: size, iconSize: iconSize, maxSpan: maxSpan)
+        let nameSpan = name.map { BottomArcLabel.span($0, radius: radius, size: size, iconSize: iconSize) } ?? 0
+        let nameOnColor = tip >= 180 + nameSpan / 2
         return ZStack {
-            ActivityRing(frac: frac, color: Color.watchIsDark(cat.color) ? Color(white: 0.30) : Color(watchHex: cat.color), width: width, radius: radius, symbol: symbol, iconSize: iconSize, iconColor: dark)
-            if let label { CurvedLabel(text: label, radius: radius, size: size, start: begin, color: dark) }
+            ActivityRing(frac: frac, color: Color.watchIsDark(cat.color) ? Color(white: 0.30) : Color(watchHex: cat.color), width: width, radius: radius, symbol: nil, iconSize: iconSize, iconColor: dark)
+            CurvedLabel(text: pct, radius: radius, size: size, start: begin, color: pctFits ? dark : Color.secondary)
+            if let name { BottomArcLabel(text: name, symbol: symbol, radius: radius, size: size, iconSize: iconSize, color: nameOnColor ? dark : Color.secondary) }
         }
     }
 
-    /// El texto más completo que cabe: «Nombre · 12 %», luego el nombre recortado con «…», luego solo el nombre.
-    private static func fit(_ name: String, _ pct: String, avail: Double, radius: CGFloat, size: CGFloat) -> String? {
-        guard avail > 0 else { return nil }
-        func ok(_ t: String) -> Bool { CurvedLabel.span(t, radius: radius, size: size) <= avail }
+    private static func fitName(_ name: String, radius: CGFloat, size: CGFloat, iconSize: CGFloat, maxSpan: Double) -> String? {
         var n = name.count
-        while n >= 3 {
+        while n >= 2 {
             let nm = n == name.count ? name : String(name.prefix(n - 1)) + "…"
-            if ok(nm + pct) { return nm + pct }
-            n -= 1
-        }
-        n = name.count
-        while n >= 3 {
-            let nm = n == name.count ? name : String(name.prefix(n - 1)) + "…"
-            if ok(nm) { return nm }
+            if BottomArcLabel.span(nm, radius: radius, size: size, iconSize: iconSize) <= maxSpan { return nm }
             n -= 1
         }
         return nil

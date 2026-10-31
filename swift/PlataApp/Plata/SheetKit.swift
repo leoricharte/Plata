@@ -187,6 +187,18 @@ struct PillSegmented<Value: Hashable>: View {
     }
 }
 
+extension View {
+    /// Barra inferior sin recuadro: un desenfoque que se desvanece hacia arriba, para que los botones se lean sin dibujar una banda.
+    func fadeBarBackground() -> some View {
+        background(alignment: .bottom) {
+            Rectangle().fill(.regularMaterial)
+                .mask(LinearGradient(stops: [.init(color: .clear, location: 0), .init(color: .black, location: 0.34)], startPoint: .top, endPoint: .bottom))
+                .padding(.top, -28)
+                .ignoresSafeArea(edges: .bottom)
+        }
+    }
+}
+
 /// Botón de la web para las pantallas de detalle (`.secbtn` / `.delbtn`): píldora blanca de 50 pt.
 struct SecondaryPillStyle: ButtonStyle {
     var destructive = false
