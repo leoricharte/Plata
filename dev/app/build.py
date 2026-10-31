@@ -1,4 +1,4 @@
-"""Compila la app: junta src/app.html + traducciones + iconos + fuentes en UN solo archivo.
+"""Compila la app: junta src/app.html + src/css + src/js + traducciones + iconos + fuentes en UN solo archivo.
 Uso:  python3 dev/app/build.py        ->  dev/app/out/finanzas.html
       CHANNEL=alpha python3 ...        ->  icono blanco (finanzas-alpha.html)
 Después cópialo a app/index.html (ver dev/README.md)."""
@@ -11,6 +11,11 @@ icon = assets / ("icon-alpha-180.png" if CHANNEL == "alpha" else "icon-180.png")
 b64 = lambda p: base64.b64encode(p.read_bytes()).decode()
 
 html = (src / "app.html").read_text(encoding="utf-8")
+# app.html es solo la plantilla (HTML + el cascarón del script). Los estilos y el JavaScript viven en src/css/ y src/js/, un archivo por sección,
+# numerados: se pegan en ese orden, tal cual, en los marcadores. Lo hacemos primero porque esos archivos también traen marcadores (/*__I18N__*/, etc.).
+_join = lambda folder, ext: "".join(f.read_text(encoding="utf-8") for f in sorted((src / folder).glob("*." + ext)))
+assert "/*__CSS__*/\n" in html and "/*__JS__*/\n" in html, "build: faltan los marcadores /*__CSS__*/ y /*__JS__*/ en app.html"
+html = html.replace("/*__CSS__*/\n", _join("css", "css")).replace("/*__JS__*/\n", _join("js", "js"))
 rows = []
 import re as _re
 _ph = lambda t: sorted(_re.findall(r"\{\d+\}|<[^>]+>", t))

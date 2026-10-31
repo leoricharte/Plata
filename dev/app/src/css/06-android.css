@@ -1,0 +1,113 @@
+/* Android: barra Material de 5 pestañas, botón + cuadrado, radios de 20 px y pesos 600 (iPhone y escritorio no cambian) */
+.tab.tab-sv{display:none}
+html.android:not(.web) .tab.tab-sv{display:flex}
+html.android:not(.web) .card,html.android:not(.web) .kpi,html.android:not(.web) .scard,html.android:not(.web) .wopt,html.android:not(.web) .clopt,html.android:not(.web) .newsbn,html.android:not(.web) .lookprev{border-radius:20px}
+html.android:not(.web) h1,html.android:not(.web) .big{font-weight:600;letter-spacing:-.02em}
+html.android:not(.web) .tabbar{left:0;right:0;bottom:0;height:calc(72px + var(--sbx));border-radius:0;padding:0 2px var(--sbx);background:var(--nb);border-top:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;transition:height .22s ease,padding .22s ease}
+html.android:not(.web) .tabbar .barbg,html.android:not(.web) .tabbar .refract,html.android:not(.web) .tabbar .pill{display:none!important}
+html.android:not(.web) .tabbar::after{display:none}
+html.android:not(.web) .tabbar.compact{left:0;right:0;height:calc(58px + var(--sbx));padding:0 34px var(--sbx)}
+html.android:not(.web) .tab{font-size:12px;font-weight:500;gap:4px;padding-top:0;color:var(--ink);border-radius:0}
+html.android:not(.web)[data-theme=dark] .tab{color:#B7CDC1}
+html.android:not(.web) .tab.on,html.android:not(.web)[data-theme=dark] .tab.on{color:var(--mon);font-weight:700}
+html.android:not(.web) .tab .ic{width:24px;height:24px;margin:4px 0;transition:all .2s ease}
+html.android:not(.web) .tab.on .ic.fill{width:64px;height:32px;margin:0;padding:4px 20px;box-sizing:border-box;border-radius:16px;background:var(--mc)}
+html.android:not(.web) .tabbar.compact .tab{font-size:0;gap:0;line-height:0}
+html.android:not(.web) .tabbar.compact .tab .ic{width:28px;height:28px;margin:6px 0}
+html.android:not(.web) .tabbar.compact .tab.on .ic.fill{width:64px;height:40px;margin:0;padding:6px 18px}
+html.android:not(.web) #plusbtn{width:58px;height:58px;border-radius:18px;right:16px!important;bottom:calc(88px + var(--sbx))!important;background:#1C1C1E;box-shadow:0 6px 18px rgba(0,60,30,.25);transition:bottom .22s ease}
+html.android:not(.web)[data-theme=dark] #plusbtn{background:#22B573}
+html.android:not(.web) #plusbtn .barbg,html.android:not(.web) #plusbtn .refract{display:none}
+html.android:not(.web) #plusbtn svg{fill:#fff!important}
+html.android:not(.web) #plusbtn.compact,html.android:not(.web):is([data-tab="cuenta"],[data-tab="movimientos"]) #plusbtn.compact{width:58px;height:58px;right:16px!important;bottom:calc(72px + var(--sbx))!important}
+html.android:not(.web) #gearbtn{border-radius:14px;background:var(--card)}
+html.android:not(.web) #gearbtn .barbg,html.android:not(.web) #gearbtn .refract{display:none}
+html.android:not(.web) #gearbtn svg{fill:var(--ink)!important}
+html.android:not(.web) .betapill{border-radius:8px}
+/* Android · Material 3: contenedores, menú del +, hoja inferior, switches, segmentados, botones */
+html.android:not(.web){--mc:#C7F0DA;--mon:#0B3D26;--mo:#79867E;--nb:#EAF4EE;--sbx:calc(var(--sab) * .6)}
+html.android:not(.web)[data-theme=dark]{--mc:#1F4332;--mon:#D7F5E5;--mo:#7F9A8B;--nb:#12301F}
+html.android:not(.web) .qmenu{background:none;-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:none;border-radius:0;width:auto;min-width:0;padding:0;gap:10px;align-items:flex-end}
+html.android:not(.web) .qmenu .qi{width:auto;min-height:56px;padding:0 22px 0 16px;gap:12px;border-radius:20px;background:var(--mc);color:var(--mon);box-shadow:0 3px 10px rgba(0,40,20,.18);white-space:nowrap}
+html.android:not(.web) .qmenu .qi:active{opacity:1;filter:brightness(.94)}
+html.android:not(.web) .qmenu .qs{width:24px;height:24px;color:var(--mon)}html.android:not(.web) .qmenu .qs svg{width:24px;height:24px}
+html.android:not(.web) .qmenu .qsep{display:none}
+html.android:not(.web) .qmenu .ql{gap:0;white-space:normal;max-width:236px}
+html.android:not(.web) .qmenu .ql b{font-size:16px;font-weight:500;letter-spacing:0;line-height:22px}
+html.android:not(.web) .qmenu .ql em{font-size:12.5px;line-height:16px;color:var(--mon);opacity:.78}
+html.android:not(.web) .qmenu .qi{padding-block:8px}
+html.android:not(.web) #plusbtn.qopen{background:var(--mc);box-shadow:0 6px 18px rgba(0,40,20,.25)}
+html.android:not(.web) #plusbtn.qopen svg{fill:var(--mon)!important}
+html.android:not(.web) .sheet{left:0;right:0;bottom:0;border-radius:28px 28px 0 0;background:#F6FBF8;-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:0 -2px 16px rgba(0,40,20,.14);padding-bottom:calc(16px + var(--sab))}
+html.android:not(.web)[data-theme=dark] .sheet{background:#0F2A1F;box-shadow:0 -2px 18px rgba(0,0,0,.5)}
+html.android:not(.web) .sheet.prof{background:var(--inset)}
+html.android:not(.web) .sheet::before{width:32px;height:4px;background:var(--mo);opacity:.5;margin:-6px auto 14px}
+html.android:not(.web) .xbtn{background:var(--fill);border-radius:16px;-webkit-backdrop-filter:none;backdrop-filter:none}
+html.android:not(.web) .okbtn{border-radius:16px;box-shadow:none}
+html.android:not(.web) .back{background:transparent;border:0;box-shadow:none;border-radius:50%;-webkit-backdrop-filter:none;backdrop-filter:none}
+html.android:not(.web) .primary{height:56px;border-radius:20px;background:#22B573;box-shadow:none;font-size:16px;font-weight:600;letter-spacing:.1px}
+html.android:not(.web)[data-theme=dark] .primary{background:#22B573;color:#04281A}
+html.android:not(.web) :is(.sw2,.switch){width:52px;height:32px;border-radius:16px;background:var(--fill);box-shadow:inset 0 0 0 2px var(--mo)}
+html.android:not(.web) :is(.sw2,.switch).on,html.android:not(.web) :is(.sw2,.switch).fl-on{background:#22B573;box-shadow:none}
+html.android:not(.web) :is(.sw2,.switch).fl-off{background:var(--fill);box-shadow:inset 0 0 0 2px var(--mo)}
+html.android:not(.web) :is(.sw2,.switch) span,html.android:not(.web) :is(.sw2,.switch):active span,html.android:not(.web) :is(.sw2,.switch).press span,html.android:not(.web) :is(.sw2,.switch).fl-off span{left:8px;top:8px;width:16px;height:16px;border-radius:50%;background:var(--mo);box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;transition:left .2s cubic-bezier(.2,0,0,1),width .2s,height .2s,top .2s}
+html.android:not(.web) :is(.sw2,.switch).on span,html.android:not(.web) :is(.sw2,.switch).on:active span,html.android:not(.web) :is(.sw2,.switch).on.press span,html.android:not(.web) :is(.sw2,.switch).fl-on span{left:24px;top:4px;width:24px;height:24px;background:#fff;box-shadow:none}
+html.android:not(.web) .seg,html.android:not(.web)[data-theme=dark] .seg{padding:0;background:transparent;border:1px solid var(--mo);border-radius:20px;overflow:hidden}
+html.android:not(.web) .seg .thumb,html.android:not(.web) .seg.glass .thumb,html.android:not(.web)[data-theme=dark] .seg .thumb{top:0;bottom:0;left:0;width:calc(100% / var(--n));border-radius:0;background:var(--mc);box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;transform:translateX(calc(var(--i) * 100% + var(--dx,0px)));transition:transform .28s cubic-bezier(.2,0,0,1)}
+html.android:not(.web) .seg button,html.android:not(.web)[data-theme=dark] .seg button{height:38px;border-radius:0;font-size:14px;font-weight:500;color:var(--ink)}
+html.android:not(.web) .seg button.on,html.android:not(.web)[data-theme=dark] .seg button.on{color:var(--mon);font-weight:600}
+html.android:not(.web) input[type=range]::-webkit-slider-runnable-track{height:16px;border-radius:8px;background:linear-gradient(to right,#22B573 0,#22B573 calc(2px + (100% - 4px) * var(--f,0.66) - 6px),transparent calc(2px + (100% - 4px) * var(--f,0.66) - 6px),transparent calc(2px + (100% - 4px) * var(--f,0.66) + 6px),var(--mc) calc(2px + (100% - 4px) * var(--f,0.66) + 6px))}
+html.android:not(.web) input[type=range]::-webkit-slider-thumb,html.android:not(.web) input[type=range].jel::-webkit-slider-thumb,html.android:not(.web) input[type=range].jel.rel::-webkit-slider-thumb{width:4px;height:44px;margin-top:-14px;border-radius:2px;background:#22B573;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;transform:none}
+html.android:not(.web) input[type=range]::-moz-range-track{height:16px;border-radius:8px;background:var(--mc)}
+html.android:not(.web) input[type=range]::-moz-range-thumb{width:4px;height:44px;border-radius:2px;background:#22B573;box-shadow:none}
+html[data-theme=dark] [style*="color:#1C1C1E" i]{color:var(--ink)!important}html[data-theme=dark] [style*="color:var(--gt)" i]{color:#34C77B!important}
+html[data-theme=dark] svg [fill="#1C1C1E" i],html[data-theme=dark] svg[fill="#1C1C1E" i]{fill:var(--ink)}
+html[data-theme=dark] svg [stroke="#1C1C1E" i],html[data-theme=dark] svg[stroke="#1C1C1E" i]{stroke:var(--ink)}
+html[data-theme=dark] svg [fill="#6C6C70" i],html[data-theme=dark] svg[fill="#6C6C70" i]{fill:var(--mute)}
+html[data-theme=dark] svg [stroke="#6C6C70" i]{stroke:var(--mute)}
+html[data-theme=dark] svg [fill="#8E8E93" i]{fill:#98989F}
+html[data-theme=dark] svg [fill="#FFF" i],html[data-theme=dark] svg [fill="#fff" i]{fill:#fff}
+html[data-theme=dark] body{background:#000}
+
+html[data-theme=dark] .tab{color:#E5E5EA}
+html[data-theme=dark] .tab.on{color:var(--accent)}
+html[data-theme=dark] .gearbtn svg{color:#F2F2F7}
+html[data-theme=dark] .barbg,html[data-theme=dark] .gearbtn .barbg{background:rgba(58,58,62,.28);box-shadow:.75px 0 0 -.5px #3A3A3C,-.75px 0 0 -.5px #3A3A3C,0 0 0 .35px #3A3A3C,0 8px 15px rgba(0,0,0,.3),inset 0 .6px .6px rgba(255,255,255,.14),inset 0 -.6px .6px rgba(255,255,255,.06)}
+html[data-theme=dark] .pill{background:rgba(160,160,170,.22);box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+html[data-theme=dark] .tabbar.pressing .pill{background:rgba(255,255,255,.14);box-shadow:inset 0 .6px .6px rgba(255,255,255,.2)}
+html[data-theme=dark] .glassbtn{background:rgba(44,44,46,.8);border-color:rgba(255,255,255,.12);box-shadow:0 4px 16px rgba(0,0,0,.4)}
+html[data-theme=dark] .seg button{color:#D1D1D6}
+html[data-theme=dark] .seg button.on{color:#fff}
+html[data-theme=dark] .seg .thumb{background:#636366;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+html[data-theme=dark] .seg.glass .thumb{background:rgba(255,255,255,.14)}
+html[data-theme=dark] .sheet{background:linear-gradient(0deg,rgba(60,60,64,.2),rgba(60,60,64,.2)),rgba(28,28,30,.8)}
+html[data-theme=dark] .sheet.prof{background:#1C1C1E;--track:#3A3A3C;box-shadow:0 0 0 1px rgba(255,255,255,.07),0 20px 60px rgba(0,0,0,.6)}
+html[data-theme=dark] .sheet.prof .scard{background:#2C2C2E}html[data-theme=dark] .sheet.prof .row{border-color:#3A3A3C}html[data-theme=dark] .sheet.prof .mini{background:#3A3A3C}html[data-theme=dark] .profedit{background:rgba(120,120,128,.28);box-shadow:none}html[data-theme=dark] .sheet.prof .seg .thumb{background:#636366}
+html[data-theme=dark] .sheet::before{background:#48484A}
+html[data-theme=dark] .chip.on,html[data-theme=dark] .sheet .chip.on{background:#F2F2F7;color:#000}
+html[data-theme=dark] .popmenu{background:linear-gradient(0deg,rgba(60,60,64,.2),rgba(60,60,64,.2)),rgba(44,44,46,.86);box-shadow:0 0 0 .5px #48484A,0 8px 48px rgba(0,0,0,.6)}
+html[data-theme=dark] .alertbox{background:rgba(44,44,46,.95)}
+html[data-theme=dark] .alertbox button{background:rgba(120,120,128,.24)}
+html[data-theme=dark] .primary{background:linear-gradient(180deg,#FFFFFF,#E0E0E5);color:#000}
+html[data-theme=dark] .splash .sp-foot{color:rgba(242,242,247,.55)}html[data-theme=dark] .splash .sp-ic{background:rgba(242,242,247,.55);color:#000}
+html[data-theme=dark] .toast{background:rgba(72,72,76,.96)}
+html[data-theme=dark] .betapill{background:#2C2C2E;color:#F2F2F7}
+html[data-theme=dark] .tl{border-left-color:#3A3A3C}
+html[data-theme=dark] .tl .dot{box-shadow:0 0 0 3px var(--card)}
+html[data-theme=dark] .cd.amber{background:rgba(237,176,62,.16)}html[data-theme=dark] .cd.red{background:rgba(255,69,58,.18)}
+html[data-theme=dark] .cd.sel{background:var(--accent)}
+html[data-theme=dark] .cd.sel b{color:#fff}
+html[data-theme=dark] .sw2,html[data-theme=dark] .switch{background:rgba(120,120,128,.36)}
+html[data-theme=dark] .welcome .wdots i{background:rgba(235,235,245,.25)}
+html[data-theme=dark] .welcome .wdots i.on{background:#F2F2F7}
+html[data-theme=dark] .wghost{border-color:rgba(235,235,245,.3)}
+html[data-theme=dark] .sheet .chip{background:var(--inset)}
+html[data-theme=dark] .secbtn,html[data-theme=dark] .delbtn{border-color:rgba(255,255,255,.1)}
+html[data-theme=dark] .ico.on{box-shadow:inset 0 0 0 2.5px #F2F2F7}
+html[data-theme=dark] .sw.on::after{border-color:#F2F2F7}
+html[data-theme=dark] .sw2 span,html[data-theme=dark] .switch span{background:#fff}
+html[data-theme=dark] svg [stroke="#E5E5EA" i],html[data-theme=dark] svg [stroke="#F3F3F5" i],html[data-theme=dark] svg [stroke="#ECECF0" i]{stroke:#2C2C2E}
+html[data-theme=dark] img[alt="Estudio 22"]{filter:invert(1) brightness(1.1)}
+html[data-theme=dark] .sw2.on,html[data-theme=dark] .switch.on{background:var(--accent)}
+
+

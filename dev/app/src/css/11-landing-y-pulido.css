@@ -1,0 +1,77 @@
+/* landing: jerarquía */
+html.web .wland .wright{flex-direction:row;gap:14px}
+html.web .wland .wright .wrow{display:block;order:1;flex-basis:100%}
+html.web .wland .wright .primary{width:100%;height:68px;font-size:18px;font-weight:700;letter-spacing:-.01em;border-radius:999px;padding:0;background:#22B573!important;color:#fff!important;box-shadow:0 14px 34px -10px rgba(34,181,115,.65);transition:transform .25s cubic-bezier(.2,.9,.25,1),box-shadow .25s}
+html.web .wland .wright .primary:hover{transform:translateY(-2px);box-shadow:0 18px 40px -10px rgba(34,181,115,.8)}
+html.web .wland .wright .walso{order:2;flex-basis:100%;margin-top:10px;font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+html.web .wland .wright .wghost{order:3;flex-basis:100%;width:100%;height:56px;padding:0 20px;border-radius:999px;background:var(--wtile);border:1px solid var(--wline);font-size:16px;font-weight:600;color:var(--ink);text-align:center;margin:0}
+html.web .wland .wright .wghost:hover{border-color:#22B573}
+html.web .wland .wright .wopts{order:4;margin-top:0}
+html.web .wland .wnote{margin-top:22px!important}
+/* luz ambiental */
+@property --gl{syntax:'<number>';inherits:true;initial-value:1}
+html.web{animation:wglow 11s ease-in-out infinite;--glc:110,225,170;--gla:.55}
+html.web[data-theme=dark]{--glc:120,210,170;--gla:.3}
+html.web .device,html.web .welcome,html.web .splash{background:radial-gradient(ellipse 125% 110% at -5% -8%,rgba(var(--glc),calc(var(--gla) * var(--gl) * 1)) 0%,rgba(var(--glc),calc(var(--gla) * var(--gl) * .82)) 12%,rgba(var(--glc),calc(var(--gla) * var(--gl) * .6)) 26%,rgba(var(--glc),calc(var(--gla) * var(--gl) * .38)) 42%,rgba(var(--glc),calc(var(--gla) * var(--gl) * .2)) 58%,rgba(var(--glc),calc(var(--gla) * var(--gl) * .08)) 74%,rgba(var(--glc),calc(var(--gla) * var(--gl) * .02)) 88%,transparent 100%),var(--wpage)}
+@keyframes wglow{0%,100%{--gl:.3}50%{--gl:1}}
+@media (prefers-reduced-motion:reduce){html.web{animation:none;--gl:.7}}
+html.web .welcome .wmain:not(:has(.wbrand)){-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 40px,#000 calc(100% - 64px),transparent 100%);mask-image:linear-gradient(to bottom,transparent 0,#000 40px,#000 calc(100% - 64px),transparent 100%);padding-top:36px;padding-bottom:60px}
+html.web .wdemogrid .wdemo .tile{flex:none}
+html.web .welcome .wmain.wdm{width:min(1040px,calc(92vw / 1.4),calc((100vh - 360px) / 1.4 * 9 / 16 * 4 + 54px));max-width:none;align-self:center}
+html.web .wmain.wdm h1,html.web .wmain.wdm .wsub{text-align:center}
+html.web .wmain .wdemogrid{grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-top:14px}
+html.web .welcome .wdemogrid .wdemo{aspect-ratio:9/16;min-height:0;align-items:center!important;justify-content:center!important;text-align:center;padding:18px 14px;gap:16px;background:linear-gradient(170deg,color-mix(in srgb,var(--wtile) 88%,#fff 12%),var(--wtile) 60%)}
+html.web .wdemogrid .wdemo .tile{width:76px;height:76px;border-radius:24px;margin-top:6px}
+html.web .wdemogrid .wdemo>span{align-items:center;text-align:center;flex:none;width:100%}
+html.web .wdemogrid .wdemo .dt b{font-size:24px}
+html.web .wdemogrid .wdemo .dsub{display:flex;gap:0;justify-content:center;flex-wrap:wrap}html.web .wdemogrid .wdemo .dsub .age{margin-left:0!important;padding-left:0!important}html.web .wdemogrid .wdemo .dsub .age::before{content:'·';margin:0 .45em}
+html.web .wdemogrid .wdemo .dl{margin-top:14px;font-size:15px;min-height:2.7em}
+html.web .wdemogrid .wdemo>svg{display:none}
+.wdemofoot{display:none}html.web .wdemofoot{display:block;text-align:center;margin:18px 0 0;font-size:13px;color:var(--mute);opacity:.85}
+html.web .welcome .wdemogrid .wdemo{position:relative;overflow:hidden;transition:transform .35s cubic-bezier(.2,.9,.25,1),border-color .25s,box-shadow .35s,background .35s}
+html.web .welcome .wdemogrid .wdemo::after{content:'';position:absolute;inset:0;background:radial-gradient(90% 60% at 50% 0%,rgba(34,181,115,.16),transparent 70%);opacity:0;transition:opacity .35s;pointer-events:none}
+html.web .welcome .wdemogrid .wdemo:hover{transform:translateY(-4px);box-shadow:0 18px 40px -16px rgba(0,0,0,.55)}
+html.web .welcome .wdemogrid .wdemo:hover::after{opacity:1}
+html.web .wdemogrid .wdemo .tile{transition:transform .35s cubic-bezier(.2,.9,.25,1)}html.web .wdemogrid .wdemo:hover .tile{transform:scale(1.05)}html.web .wdemogrid .wdemo>span{flex:none!important}
+/* ---- pulido de color y controles (web) ---- */
+html.web .screen .eyebrow{color:#22B573;font-weight:600}
+html.web .seg{background:rgba(34,181,115,.12)}
+html.web[data-theme=dark] .seg{background:rgba(34,181,115,.16)}
+html.web .seg .thumb,html.web .seg.glass .thumb{background:#fff;box-shadow:0 1px 3px rgba(14,122,77,.18)}
+html.web[data-theme=dark] .seg .thumb,html.web[data-theme=dark] .seg.glass .thumb{background:#22B573;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+html.web .seg button{color:var(--mute)}html.web .seg button.on{color:var(--gt)}
+html.web[data-theme=dark] .seg button{color:#B9D3C4}html.web[data-theme=dark] .seg button.on{color:#fff}
+html.web[data-theme=dark] .insban{box-shadow:0 10px 28px -10px rgba(0,0,0,.45)!important}
+html.web[data-theme=dark] .insban span[style*="height:50px"]{background:#1C1C1E!important}
+
+html.web[data-theme=dark] .card[data-act=inshalf] .sub,html.web[data-theme=dark] .card[data-act=inshalf] [style*="var(--mute)"]{color:#A1A1A6!important}
+html.web[data-theme=dark] .card[data-act=inshalf]{background:linear-gradient(180deg,#232325,#0B0B0C)!important;box-shadow:0 10px 28px -10px rgba(0,0,0,.5)!important;color:#fff!important}
+html.web[data-theme=dark] .card[data-act=inshalf] .insgrain{display:none}
+html.web[data-theme=dark] [data-act=inshalf]>span:last-child{background:var(--tg)!important;box-shadow:none!important;color:#111!important}
+.btg{font-weight:inherit}
+html.web[data-theme=dark] .insban .btx{color:#1C1C1E!important;-webkit-text-fill-color:#1C1C1E}
+html.web[data-theme=dark] [data-act=inshalf] .btg{color:#111!important;-webkit-text-fill-color:#111}
+/* mobile en oscuro: mismos avisos que escritorio */
+html[data-theme=dark] .insban{box-shadow:0 10px 28px -10px rgba(0,0,0,.45)!important}
+html[data-theme=dark] .insban span[style*="height:50px"]{background:#1C1C1E!important}
+html[data-theme=dark] .card[data-act=inshalf] .sub,html[data-theme=dark] .card[data-act=inshalf] [style*="var(--mute)"]{color:#A1A1A6!important}
+html[data-theme=dark] .card[data-act=inshalf]{background:linear-gradient(180deg,#232325,#0B0B0C)!important;box-shadow:0 10px 28px -10px rgba(0,0,0,.5)!important;color:#fff!important}
+html[data-theme=dark] .card[data-act=inshalf] .insgrain{display:none}
+html[data-theme=dark] [data-act=inshalf]>span:last-child{background:var(--tg)!important;box-shadow:none!important;color:#111!important}
+html[data-theme=dark] .insban .btx{color:#1C1C1E!important;-webkit-text-fill-color:#1C1C1E}
+html[data-theme=dark] [data-act=inshalf] .btg{color:#111!important;-webkit-text-fill-color:#111}
+html.web svg [stroke="#E5E5EA" i],html.web svg [stroke="#F3F3F5" i],html.web svg [stroke="#ECECF0" i]{stroke:#E1EEE6}
+html.web[data-theme=dark] svg [stroke="#E5E5EA" i],html.web[data-theme=dark] svg [stroke="#F3F3F5" i],html.web[data-theme=dark] svg [stroke="#ECECF0" i]{stroke:#24432F}
+html.web[data-theme=dark] .switch,html.web[data-theme=dark] .sw{--off:#24432F}
+@media (min-width:900px) and (max-width:1279px){
+  html.web main{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-areas:"res pre" "pro aho" "cue mov"}
+}
+@media (min-width:1700px){
+  html.web main{max-width:1800px;width:100%;margin:0 auto;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-areas:"res pre pro aho" "res pre cue cue" "mov mov mov mov"}
+  html.web .webbar{max-width:1800px;margin:0 auto;width:100%}
+}
+/* botones de cerrar: mismo aspecto que el de regresar */
+.xbtn,html[data-theme=dark] .xbtn,html.web .wx,html[data-theme=dark].web .wx{background:var(--card);border:1px solid rgba(60,60,67,.14);box-shadow:0 2px 8px rgba(0,0,0,.06);-webkit-backdrop-filter:none;backdrop-filter:none;clip-path:none;-webkit-clip-path:none;color:var(--ink)}
+.xbtn svg,.wx svg{display:block}
+html.web .xbtn,html[data-theme=dark].web .xbtn{background:color-mix(in srgb,var(--ink) 9%,transparent);border-color:color-mix(in srgb,var(--ink) 13%,transparent);box-shadow:none}
+

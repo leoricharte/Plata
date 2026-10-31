@@ -19,7 +19,8 @@ CHANNEL=alpha python3 dev/app/build.py   # variante con icono blanco
 
 `dev/app/src/` contiene:
 
-- `app.html`: la app (HTML + CSS + JS). Todo el código está aquí.
+- `app.html`: la plantilla de la app (el HTML y el cascarón del script).
+- `css/NN-tema.css` y `js/NN-seccion.js`: los estilos y el JavaScript, un archivo por sección, numerados. `build.py` los pega en ese orden dentro de `app.html` y la compilación sigue siendo UN solo archivo. El JavaScript se sigue ejecutando como un solo bloque (mismo ámbito), así que cortar o mover un archivo no cambia cómo funciona la app mientras se mantenga el orden.
 - `tr/*.json`: traducciones, una fila por frase: `["es","en","ja","it","fr","hr"]` + una 7.ª posición opcional con una nota para quien traduce (no entra a la app). Guía general en `tr/_guia.json`; `build.py` avisa si los marcadores `{0}` no coinciden entre idiomas. Una frase nueva en la app se agrega aquí en los 6 idiomas.
 - `i18n*.js`, `icons_rmx.js` (Remix Icon, Apache-2.0), `icons_sf.js`, `demo_profiles.js`, `worldmap.js`.
 - `../assets/`: la fuente Inter (la app); el sitio sirve Inter desde `fonts/` en la raíz, la fuente de números de tarjeta y los iconos. Se incrustan en el archivo final.
@@ -36,7 +37,7 @@ Los datos de cada persona viven en el navegador **por dominio**: un fallo en el 
 
 ## Publicar una versión nueva de la app
 
-1. En `dev/app/src/app.html` sube `APP_BUILD` (busca `const APP_BUILD`). El número de la pantalla de inicio sale de ahí.
+1. En `dev/app/src/js/21-version-y-debug.js` sube `APP_BUILD` (busca `const APP_BUILD`; si cambia el número del archivo, `grep -rn "const APP_BUILD" dev/app/src/js`). El número de la pantalla de inicio sale de ahí.
 2. Compila: `python3 dev/app/build.py`. La compilación agrega la Content-Security-Policy con el hash de cada script; si alguien agrega un `onclick="…"` o un `<script src>`, la compilación se detiene.
 3. Sube `CACHE` (`finanzas-vNNN`) al mismo número en `dev/web/sw.js`.
 4. En `README.md` (línea de "Compilación") pon el mismo número.

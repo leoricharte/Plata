@@ -6,7 +6,7 @@ Plata es una PWA de **un solo archivo** (`app/index.html`), sin framework ni dep
 
 | Pieza | Dónde | Qué hace |
 |---|---|---|
-| Fuente de la app | `dev/app/src/app.html` | HTML + CSS + JS de la app (≈8.100 líneas; incluye el tutorial de primera vez, `TOUR`, y la lógica de pantallas) |
+| Fuente de la app | `dev/app/src/app.html`, `css/`, `js/` | `app.html` es la plantilla (HTML y cascarón del script); `css/` (12 archivos) y `js/` (35 archivos, uno por sección, ≈7.500 líneas; incluye el tutorial de primera vez, `TOUR`, y la lógica de pantallas) se pegan en ese orden al compilar |
 | Núcleo sin pantalla | `dev/app/src/core/*.js` | Lógica pura que no toca el DOM ni el estado (hoy: `nazca/`, Nazca, el motor de importación de archivos del banco: `csv.js`, `pdf.js` y un lector por banco en `bancos/`). Se prueba en Node (`dev/tests`) y se podrá reusar en otras plataformas |
 | Traducciones | `dev/app/src/tr/*.json`, `i18n*.js` | Una fila por frase: `["es","en","ja","it","fr","hr"]` |
 | Iconos | `icons_rmx.js` (Remix, Apache-2.0), `icons_sf.js` | SVG en objetos JS |
@@ -17,9 +17,9 @@ Plata es una PWA de **un solo archivo** (`app/index.html`), sin framework ni dep
 | Lector de PDF | `dev/vendor/pdfjs/` | pdf.js de Mozilla (Apache 2.0), sin modificar. No va dentro de `index.html`: `dev/web/build.sh` lo copia a `dist-web/nazca/` y la app lo carga solo cuando se importa un PDF (la CSP lo permite con `'self'` en `script-src`). Ver su README |
 | Servidor | `dev/worker/worker.js` | Cloudflare Worker + KV (ver `WORKER.md`) |
 
-## Cómo se organiza `app.html`
+## Cómo se organiza la app (`app.html`, `css/`, `js/`)
 
-El archivo tiene tres bloques: `<style>` (líneas 28–~1000), el HTML de las pantallas y el `<script>` principal (desde ~1070). El script es una IIFE con `'use strict'` y secciones marcadas con `/* ---------- Título ---------- */`. Para ver el índice: `grep -n "^/\* ----------" dev/app/src/app.html`.
+`app.html` es la plantilla: el HTML de las pantallas y el cascarón del `<script>` (una IIFE con `'use strict'`). Los estilos (`css/NN-tema.css`) y el JavaScript (`js/NN-seccion.js`) viven en archivos separados, numerados, que `build.py` pega en ese orden en los marcadores `/*__CSS__*/` y `/*__JS__*/`. Todo el JavaScript sigue siendo un solo bloque (un único ámbito), así que las funciones se ven entre archivos sin importar nada; lo que importa es el orden. Cada archivo corresponde a una sección `/* ---------- Título ---------- */`. Para ver el índice: `ls dev/app/src/js`. Para buscar algo: `grep -rn "función" dev/app/src/js`.
 
 Orden del script:
 

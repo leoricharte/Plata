@@ -1,0 +1,10 @@
+/* ---------- Modo oscuro ---------- */
+:root{--plinbg:#fff;--plinb:#13B9DE}html[data-theme=dark]{--plinbg:#13B9DE;--plinb:#fff}
+html[data-theme=dark]{--bg:#000;--ink:#F2F2F7;--mute:#98989F;--line:#2C2C2E;--card:#1C1C1E;--inset:#2C2C2E;--fill:#2C2C2E;--line2:#2C2C2E;--sec:rgba(235,235,245,.6);--gt:#3DD68C;--gt2:#3DD68C;--rt:#FF6961;--ot:#FFB340;--ink2:#D1D1D6;--track:#2C2C2E;--gbg:rgba(34,181,115,.18);--obg:rgba(255,159,10,.18);--rbg:rgba(255,59,48,.2);color-scheme:dark}
+/* Móvil con el aire del escritorio: fondo con degradado verde y bloques teñidos (misma paleta que html.web) */
+html:not(.web){--bg:#F1F7F4;--inset:#EDF5F0;--fill:#DCEEE3;--track:#E3F1E9;--line:#E1EEE6;--line2:#E1EEE6;--mute:#5E766A}
+html:not(.web),html:not(.web) body{background:#DDF1E7}
+html:not(.web)[data-theme=dark],html:not(.web)[data-theme=dark] body{background:#0F3626}
+html:not(.web) .device{background:linear-gradient(180deg,#DDF1E7 0,#EBF5EF 260px,#F1F7F4 520px)}
+html:not(.web)[data-theme=dark]{--bg:#07140E;--card:#0F2A1F;--inset:#173628;--fill:#1F4332;--track:#1F4332;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.08);--mute:#9DB5A9}
+html:not(.web)[data-theme=dark] .device{background:linear-gradient(180deg,#0F3626 0,#0A2218 280px,#07140E 560px)}

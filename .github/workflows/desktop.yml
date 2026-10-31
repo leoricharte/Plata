@@ -23,8 +23,8 @@ jobs:
         env:
           TAG_IN: ${{ inputs.tag }}
         run: |
-          build=$(grep -o 'const APP_BUILD = [0-9]*' dev/app/src/app.html | grep -o '[0-9]*$')
-          [ -n "$build" ] || { echo "No encontré APP_BUILD en dev/app/src/app.html"; exit 1; }
+          build=$(grep -ho 'const APP_BUILD = [0-9]*' dev/app/src/js/*.js | grep -o '[0-9]*$')
+          [ -n "$build" ] || { echo "No encontré APP_BUILD en dev/app/src/js/"; exit 1; }
           ver="3.0.$build"
           echo "build=$build" >> "$GITHUB_OUTPUT"
           echo "tag=${TAG_IN:-desktop-b$build}" >> "$GITHUB_OUTPUT"

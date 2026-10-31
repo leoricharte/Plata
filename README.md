@@ -184,7 +184,7 @@ Abre [web.plataapp.net](https://web.plataapp.net) en **Safari** → botón Compa
 | --- | --- |
 | `*.html`, `site.css`, `pages.css`, `nav.js`, `fonts/` | El sitio informativo (plataapp.net), estático |
 | `app/` | La app compilada (se genera, no se edita) |
-| `dev/app/src/` | Fuente de la app (`app.html`), traducciones (`tr/`) y Nazca (`core/nazca/`) |
+| `dev/app/src/` | Fuente de la app (`app.html`, `css/`, `js/`), traducciones (`tr/`) y Nazca (`core/nazca/`) |
 | `dev/web/` | Compilación de web.plataapp.net (Cloudflare Pages) |
 | `dev/worker/`, `cloud/` | El servidor (Cloudflare Worker): Plata Cloud, lista de espera y análisis de uso |
 | `dev/tests/` | Pruebas de Nazca y de seguridad |
