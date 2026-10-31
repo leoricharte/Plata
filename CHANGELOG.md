@@ -6,6 +6,7 @@
 - **Constancias de Yape y Plin**: comparte la captura y Nazca la lee en tu dispositivo; queda en Revisión.
 - **Presupuesto en aros** (hasta 4 categorías) y encabezado que cambia con la estación.
 - **Apple Watch**: aros por categoría con ✓ / – / ✕, texto «Te pasaste» y la corona para anotar gastos.
+- **Sesión de reconocimiento (496):** sube una captura de cualquier app o banco y encierra con el dedo uno o varios movimientos; Nazca aprende cómo está armada y trae el resto. Se lee en el dispositivo y pasa por Revisión.
 
 ## Beta 4
 

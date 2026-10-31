@@ -61,5 +61,58 @@ const NazcaOCR = (() => {
     return out;
   }
 
-  return { load, read, MAX_BYTES, MAX_SIDE };
+  /* El color del texto de una caja: -1 rojizo, 1 verdoso, 0 si no se distingue. Se toma el color de los píxeles que más se alejan del fondo (igual que en iPhone). */
+  let probe = null;
+  function tone(cv, b) {
+    const W = cv.width, H = cv.height, x = Math.max(0, Math.floor(b.x * W)), y = Math.max(0, Math.floor(b.y * H));
+    const w = Math.max(2, Math.min(W - x, Math.ceil(b.w * W))), h = Math.max(2, Math.min(H - y, Math.ceil(b.h * H)));
+    if (w < 2 || h < 2) return 0;
+    const PW = 32, PH = 8;
+    if (!probe) { probe = document.createElement('canvas'); probe.width = PW; probe.height = PH; }
+    const g = probe.getContext('2d', { willReadFrequently: true });
+    g.clearRect(0, 0, PW, PH); g.drawImage(cv, x, y, w, h, 0, 0, PW, PH);
+    const d = g.getImageData(0, 0, PW, PH).data, n = PW * PH, corners = [0, PW - 1, (PH - 1) * PW, n - 1];
+    let br = 0, bg = 0, bb = 0; corners.forEach((c) => { br += d[c * 4]; bg += d[c * 4 + 1]; bb += d[c * 4 + 2]; }); br /= 4; bg /= 4; bb /= 4;
+    const dist = []; for (let i = 0; i < n; i++) dist.push([Math.abs(d[i * 4] - br) + Math.abs(d[i * 4 + 1] - bg) + Math.abs(d[i * 4 + 2] - bb), i]);
+    dist.sort((p, q) => q[0] - p[0]);
+    if (!dist.length || dist[0][0] <= 90) return 0;
+    const top = dist.slice(0, Math.max(4, Math.floor(dist.length / 12)));
+    let r = 0, gg = 0, bl = 0; top.forEach((t) => { r += d[t[1] * 4]; gg += d[t[1] * 4 + 1]; bl += d[t[1] * 4 + 2]; }); r /= top.length; gg /= top.length; bl /= top.length;
+    if (r > gg + 45 && r > bl + 35) return -1;
+    if (gg > r + 25 && gg > bl + 15) return 1;
+    return 0;
+  }
+
+  /* El texto de la captura CON su lugar: [{ text, x, y, w, h, tone }] de 0 a 1 (y crece hacia abajo), más `url` (la captura reducida, para mostrarla) y `w`/`h`.
+   * Es lo que necesita la sesión de reconocimiento (core/nazca/ejemplo.js). Cada línea de Tesseract se parte donde hay un hueco grande entre palabras
+   * (el nombre a la izquierda y el monto a la derecha son cajas distintas). */
+  async function readBoxes(file, base) {
+    const c = await prep(file), w = await load(base);
+    let r; try { r = await w.recognize(await blob(c), {}, { blocks: true }); } catch (e) { throw fail('unavailable'); }
+    const d = (r && r.data) || {};
+    let ls = d.lines;
+    if (!ls || !ls.length) { ls = []; (d.blocks || []).forEach((b) => (b.paragraphs || []).forEach((p) => (p.lines || []).forEach((l) => ls.push(l)))); }
+    const W = c.width, H = c.height, boxes = [];
+    const mk = (ws) => {
+      const x0 = Math.min(...ws.map((q) => q.bbox.x0)), y0 = Math.min(...ws.map((q) => q.bbox.y0)), x1 = Math.max(...ws.map((q) => q.bbox.x1)), y1 = Math.max(...ws.map((q) => q.bbox.y1));
+      const text = ws.map((q) => String(q.text || '').trim()).filter(Boolean).join(' '); if (!text) return;
+      const b = { text, x: x0 / W, y: y0 / H, w: (x1 - x0) / W, h: (y1 - y0) / H, tone: 0 };
+      b.tone = tone(c, b); boxes.push(b);
+    };
+    ls.forEach((l) => {
+      const ws = (l.words || []).filter((q) => q && q.bbox && String(q.text || '').trim()).sort((p, q) => p.bbox.x0 - q.bbox.x0);
+      if (!ws.length) { if (l.bbox && String(l.text || '').trim()) mk([{ bbox: l.bbox, text: l.text }]); return; }
+      let cur = [ws[0]];
+      for (let i = 1; i < ws.length; i++) {
+        const prev = ws[i - 1], gap = (ws[i].bbox.x0 - prev.bbox.x1) / W, hh = Math.max(prev.bbox.y1 - prev.bbox.y0, ws[i].bbox.y1 - ws[i].bbox.y0) / H;
+        if (gap > Math.max(0.05, hh * 2.2)) { mk(cur); cur = []; }
+        cur.push(ws[i]);
+      }
+      mk(cur);
+    });
+    if (!boxes.length) throw fail('no_text');
+    return { boxes, url: c.toDataURL('image/jpeg', 0.92), w: W, h: H };
+  }
+
+  return { load, read, readBoxes, MAX_BYTES, MAX_SIDE };
 })();

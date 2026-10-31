@@ -12,12 +12,14 @@ Corren sin conexión, con Node 20 o más reciente. No tocan producción.
 | `panel-seguro.mjs` | Sesiones de admin de 1 h, tokens por persona (crear, revocar al instante), registro de auditoría sin tokens, roles dev/mod/auditor (solo lectura, sin abrir datos de usuarios), tablero del proyecto, propuestas (aprobar y rechazar), cierre de sesión que revoca, `/nazca` (tipo real, topes por conexión y globales) y que sin `RL_SALT` falle cerrado. Requiere `servidor-local.mjs` (reinícialo antes). |
 | `nazca.mjs` | Nazca, el motor de importación (CSV): separadores, codificación, encabezados, cargo/abono, tipo D/C, monedas, fechas y números, categorías, repetidos, límites. Usa los archivos inventados de `csv/`. |
 | `nazca-pdf.mjs` | Nazca con PDF: lectura con posiciones (pdf.js), lector del BCP (cargo/abono por columna, año de las fechas, 31DIC en enero), lector de Interbank (montos con signo, saldo por fila, página-guía ignorada, dólares), comprobación «cuadra», PDF con clave, PDF de otro banco, sin texto, dañado, demasiado grande. Usa los PDF inventados de `pdf/`. |
+| `ejemplo.mjs` | Sesión de reconocimiento (`core/nazca/ejemplo.js`), las mismas pruebas que Swift: montos y fechas en varios formatos, encabezados de fecha, signo por color, aprender con un solo ejemplo, coincidencia por monto y fecha (caso Chime) y el cuadro sobre la captura. |
 | `fuzz-perfil.js` | Carga un perfil donde cada texto es HTML malicioso y recorre la app (móvil y escritorio). Debe dar `HITS 0`. Requiere Playwright. |
 
 ```
 node dev/tests/carrera.mjs
 node dev/tests/nazca.mjs
 node dev/tests/nazca-pdf.mjs
+node dev/tests/ejemplo.mjs
 node dev/tests/cors.mjs
 node dev/tests/servidor-local.mjs &   # en otra terminal
 node dev/tests/servidor.mjs

@@ -266,7 +266,8 @@ const Nazca = (() => {
   /* --- Repetidos: huella exacta (si ya importaste este archivo) o mismo monto y fecha cercana (si lo anotaste a mano) --- */
   function fnv(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(36); }
   function fingerprints(items) { const seen = {}; return items.map((it) => { const base = it.date + '|' + it.amount.toFixed(2) + '|' + norm(it.desc) + (it.ref ? '|' + it.ref : ''); seen[base] = (seen[base] || 0) + 1; return fnv(base + '|' + seen[base]); }); }
-  function markDuplicates(items, existing, acc) {
+  /* `includeImported`: para capturas, que no traen huella de importación; también se comparan con lo ya importado (mismo monto, mismo día o un día de diferencia, y nombre parecido o mismo día). */
+  function markDuplicates(items, existing, acc, includeImported) {
     const prints = fingerprints(items), mine = (existing || []).filter((t) => t && t.acc === acc), used = new Set(), byPrint = new Set();
     mine.forEach((t) => { if (t.imp) byPrint.add(t.imp); });
     const day = (s) => Date.UTC(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10)) / 864e5;
@@ -276,6 +277,14 @@ const Nazca = (() => {
       for (let k = 0; k < mine.length; k++) {
         const t = mine[k]; if (used.has(k) || t.imp) continue;
         if (Math.abs(t.amount - it.amount) < 0.005 && Math.abs(day(t.date) - day(it.date)) <= 2) { hit = k; break; }
+      }
+      if (hit < 0 && includeImported) {
+        const words = new Set(merchant(it.desc).split(' ').filter(Boolean));
+        for (let k = 0; k < mine.length; k++) {
+          const t = mine[k]; if (used.has(k) || !t.imp || Math.abs(t.amount - it.amount) >= 0.005) continue;
+          const days = Math.abs(day(t.date) - day(it.date)), same = merchant(t.note || '').split(' ').some((w) => w && words.has(w));
+          if (days === 0 || (days <= 1 && same)) { hit = k; break; }
+        }
       }
       if (hit >= 0) { used.add(hit); return { fp: prints[i], dup: 'near' }; }
       return { fp: prints[i], dup: '' };
