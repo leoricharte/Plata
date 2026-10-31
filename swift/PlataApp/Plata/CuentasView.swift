@@ -51,6 +51,8 @@ struct CuentasView: View {
                     .font(.inter(13)).foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 8).padding(.bottom, 16)
 
+                jobCard(e, f)
+
                 sectionHead("Cuentas de débito", pf: "acct")
                 debitList(e, f)
 
@@ -79,6 +81,39 @@ struct CuentasView: View {
             .padding(18)
             .plataGlass(in: RoundedRectangle(cornerRadius: 26, style: .continuous))
             .padding(.bottom, 14)
+    }
+
+    /// El trabajo: con uno o más, un resumen que abre el primero; sin ninguno, la invitación a añadirlo.
+    private func jobCard(_ e: Engine, _ f: Fmt) -> some View {
+        let jobs = e.jobList
+        let first = jobs.first
+        return Button {
+            model.activeSheet = .job(id: first.map { Engine.identifier($0["id"]) })
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "banknote").font(.system(size: 22)).foregroundStyle(Brand.accent).frame(width: 26)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Trabajo").font(.inter(17, .semibold))
+                    if let j = first {
+                        Text(verbatim: Engine.text(j["name"]) + (jobs.count > 1 ? " +\(jobs.count - 1)" : "")).font(.inter(14)).foregroundStyle(.secondary)
+                    } else {
+                        Text("Pago por hora, impuestos, frecuencia").font(.inter(14)).foregroundStyle(.secondary)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                if let j = first {
+                    Text(verbatim: "+" + f.whole(Engine.jobNetPay(j), e.accountCurrency(j["acc"])))
+                        .font(.inter(16, .semibold)).monospacedDigit().foregroundStyle(Brand.gainText)
+                }
+                Image(systemName: "chevron.right").font(.system(size: 15, weight: .semibold)).foregroundStyle(.tertiary)
+            }
+            .padding(.horizontal, 18).padding(.vertical, 16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .plataGlass(in: RoundedRectangle(cornerRadius: 26, style: .continuous))
+            .padding(.bottom, 14)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     private func stat(_ label: String, _ value: String, _ color: Color? = nil) -> some View {

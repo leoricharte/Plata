@@ -402,9 +402,11 @@ public enum NazcaExample {
     }
 
     /// Arma el resultado que entiende la revisión de importaciones.
-    public static func statement(_ x: Extraction, label: String = "Captura") -> Nazca.StatementResult {
+    public static func statement(_ x: Extraction, institution: String? = nil, label: String = "Captura") -> Nazca.StatementResult {
         let cur = x.template.cur.isEmpty ? (x.items.first?.cur ?? "") : x.template.cur
         var st = Nazca.StatementResult(bank: nil, kind: "corriente", label: label, cur: cur, items: x.items)
+        // la institución solo NOMBRA la cuenta: el sello de banco verificado es de los lectores oficiales, no de una captura aprendida
+        if let b = institution, !b.isEmpty { let n = Nazca.bankShort(b); st.name = n; st.label = n }
         let dates = x.items.map(\.date).filter { !$0.isEmpty }.sorted()
         if let f = dates.first, let l = dates.last { st.period = .init(from: f, to: l) }
         return st

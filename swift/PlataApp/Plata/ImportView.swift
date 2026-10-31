@@ -9,12 +9,14 @@ struct ImportFlowView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
 
-    enum Step { case start, how, country, banks, bank, key, busy, review, done, paste, example }
+    enum Step { case start, how, country, banks, bank, key, busy, review, done, paste, example, institution }
 
     struct Notice: Equatable { var title: String; var message: String; var asBank: String? = nil }
     /// Un PDF protegido que está esperando su clave.
     struct Locked: Identifiable { let id = UUID(); var file: Picked; var name: String; var bad: Bool }
     struct AsDoc { var doc: PdfDoc; var name: String; var size: Int; var bank: String }
+    struct ManualExample { var desc = ""; var amount = ""; var expense = true; var date = Date() }
+    struct ExHold { var template: NazcaExample.Template; var extraction: NazcaExample.Extraction }
 
     @State private var step: Step
     @State private var origin: Step = .start
@@ -25,8 +27,16 @@ struct ImportFlowView: View {
     /// «Sesión de reconocimiento»: los dos movimientos elegidos (sus ids) y la captura de la persona.
     @State private var exPicks: [String] = []
     @State private var exShot: PhotosPickerItem?
-    /// Captura subida sin elegir movimientos: se lee con lo que Nazca ya aprendió.
-    @State private var exKnownShot: PhotosPickerItem?
+    /// Los dos movimientos de ejemplo: 0 = escritos a mano, 1 = elegidos de los de la persona.
+    @State private var exMode = 0
+    @State private var exManual: [ManualExample] = [ManualExample(), ManualExample()]
+    /// Una captura ya subida que espera (la dirección de una constancia, o los dos movimientos de ejemplo).
+    @State private var shotData: Data?
+    /// Lo aprendido de la captura, esperando a saber de qué institución es.
+    @State private var exHold: ExHold?
+    @State private var showSource = false
+    @State private var showShotPicker = false
+    @State private var anyShot: PhotosPickerItem?
     /// `true` si se abrió directo en una revisión (constancias que llegaron desde «Compartir»): «Regresar» cierra.
     private let preloaded: Bool
 
@@ -52,7 +62,7 @@ struct ImportFlowView: View {
 
     private var head: (String, String) {
         switch step {
-        case .start: return ("Importar", "Datos de banco")
+        case .start: return ("Importar", "Importar movimientos")
         case .how: return ("Importar archivo", "Cómo funciona")
         case .country: return ("Datos de banco", "Tu país")
         case .banks: return (Nazca.bankCatalog.first { $0.id == country }?.name ?? "Perú", "Tu banco")
@@ -62,6 +72,7 @@ struct ImportFlowView: View {
         case .done: return ("Listo", "Importado")
         case .paste: return ("Constancia", "Yape o Plin")
         case .example: return ("Importar", "Sesión de reconocimiento")
+        case .institution: return ("Captura", "Institución")
         case .review:
             let label = reviews.indices.contains(idx) ? reviews[idx].source?.label ?? "" : ""
             let gen = reviews.indices.contains(idx) && reviews[idx].gen
@@ -93,11 +104,18 @@ struct ImportFlowView: View {
             .safeAreaInset(edge: .bottom) { if step == .review && reviews.indices.contains(idx) { bar } }
         }
         .fileImporter(isPresented: $picking, allowedContentTypes: Self.types, allowsMultipleSelection: true) { handle($0) }
+        .confirmationDialog(Text("Subir"), isPresented: $showSource, titleVisibility: .hidden) {
+            Button("Elegir archivo") { bank = nil; pick(from: .start) }
+            Button("Elegir captura de Fotos") { showShotPicker = true }
+            Button("Cancelar", role: .cancel) {}
+        }
+        .photosPicker(isPresented: $showShotPicker, selection: $anyShot, matching: .images)
+        .onChange(of: anyShot) { _, item in if let item { Task { await readAny(item) } } }
         .interactiveDismissDisabled(step == .busy)
         .tint(Brand.accent)
     }
 
-    private static let types: [UTType] = [.commaSeparatedText, .tabSeparatedText, .plainText, .text, UTType(filenameExtension: "csv"), UTType(filenameExtension: "tsv"), UTType(filenameExtension: "xlsx"), .pdf].compactMap { $0 }
+    private static let types: [UTType] = [.commaSeparatedText, .tabSeparatedText, .plainText, .text, UTType(filenameExtension: "csv"), UTType(filenameExtension: "tsv"), UTType(filenameExtension: "xlsx"), .pdf, .image].compactMap { $0 }
 
     // MARK: pantallas
 
@@ -114,32 +132,40 @@ struct ImportFlowView: View {
         case .done: doneBody
         case .paste: pasteBody
         case .example: exampleBody
+        case .institution: institutionBody
         }
     }
 
     private var startBody: some View {
         VStack(spacing: 0) {
-            Text("Trae tus movimientos desde tu banco, sin conectar tus cuentas.")
+            Text("Trae tus movimientos desde tu banco o tu app, sin conectar tus cuentas.")
                 .font(.inter(16)).foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 4).padding(.bottom, 14)
+            groupLabel("Subir")
             SCard {
-                GoRow(symbol: "folder", title: "Importar archivo",
-                      sub: "Importa un archivo CSV o un estado de cuenta de tu banco. Plata usará Nazca para interpretarlo.") { bank = nil; pick(from: .start) }
-                Button { step = .how; notice = nil } label: {
-                    Text("Ver cómo funciona…").font(.inter(17)).foregroundStyle(Brand.green)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.leading, 38).padding(.bottom, 12)
-                }
-                .buttonStyle(.plain)
-                GoRow(symbol: "camera", title: "Importar captura de Yape o Plin",
-                      sub: "Sube la captura de la constancia. Plata la lee en este dispositivo.") { step = .paste; notice = nil; dir = 0 }
+                GoRow(symbol: "square.and.arrow.up", title: "Subir archivo o captura",
+                      sub: "Un CSV, un estado de cuenta o una captura. Nazca reconoce el formato y usa lo que ya sabe leer.") { showSource = true; notice = nil }
+            }
+            groupLabel("Enseñar a Nazca")
+            SCard {
                 GoRow(symbol: "wand.and.stars", title: "Sesión de reconocimiento",
-                      sub: "Elige dos movimientos tuyos y sube una captura de cualquier app o banco. Nazca aprende cómo está armada y trae el resto.") { step = .example; notice = nil; exPicks = [] }
+                      sub: "Escribe o elige dos movimientos y sube una captura de cualquier app o banco. Nazca aprende cómo está armada y trae el resto.") { shotData = nil; step = .example; notice = nil; exPicks = [] }
+            }
+            groupLabel("Guías por banco")
+            SCard {
                 GoRow(symbol: "building.columns", title: "Elegir banco",
                       sub: "Revisa una lista de bancos donde Nazca tiene funciones de interpretación avanzada.") { step = .country; notice = nil }
+                RowDivider()
+                GoRow(symbol: "questionmark.circle", title: "Ver cómo funciona",
+                      sub: "Cómo descargar tu archivo y subirlo.") { step = .how; notice = nil }
             }
             privacyNote
         }
+    }
+
+    private func groupLabel(_ title: String) -> some View {
+        Text(title).font(.inter(13, .semibold)).foregroundStyle(.secondary).textCase(.uppercase)
+            .frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 6).padding(.bottom, 6).padding(.top, 4)
     }
 
     private var privacyNote: some View {
@@ -388,8 +414,9 @@ struct ImportFlowView: View {
         notice = nil
         switch step {
         case .start: dismiss()
-        case .paste: step = .start; shot = nil; dir = 0
-        case .example: step = .start; exShot = nil; exKnownShot = nil; exPicks = []
+        case .paste: step = .start; shot = nil; shotData = nil; dir = 0
+        case .example: step = .start; exShot = nil; shotData = nil; exPicks = []
+        case .institution: exHold = nil; step = .example
         case .how, .country: step = .start; keyText = ""; pend = nil
         case .banks: step = .country; keyText = ""; pend = nil
         case .bank: step = .banks; keyText = ""; pend = nil
@@ -410,15 +437,20 @@ struct ImportFlowView: View {
             }
             Text("Sube la captura de la constancia de Yape o Plin. Se lee en este dispositivo: no se sube a ningún servidor.")
                 .font(.inter(13)).foregroundStyle(.secondary).multilineTextAlignment(.center).padding(.horizontal, 14)
-            PhotosPicker(selection: $shot, matching: .images) {
-                Label(Tr.t("Subir captura"), systemImage: "camera")
-                    .font(.inter(18, .semibold)).foregroundStyle(.white)
-                    .frame(maxWidth: .infinity).frame(height: 54)
-                    .background(Brand.ink, in: Capsule())
-                    .opacity(dir == 0 ? 0.4 : 1)
+            if let data = shotData {
+                Button { Task { await readConstancia(data: data) } } label: { Text("Leer constancia") }
+                    .buttonStyle(PrimaryPillStyle()).disabled(dir == 0)
+            } else {
+                PhotosPicker(selection: $shot, matching: .images) {
+                    Label(Tr.t("Subir captura"), systemImage: "camera")
+                        .font(.inter(18, .semibold)).foregroundStyle(.white)
+                        .frame(maxWidth: .infinity).frame(height: 54)
+                        .background(Brand.ink, in: Capsule())
+                        .opacity(dir == 0 ? 0.4 : 1)
+                }
+                .disabled(dir == 0)
+                .onChange(of: shot) { _, item in if let item { Task { await readShot(item) } } }
             }
-            .disabled(dir == 0)
-            .onChange(of: shot) { _, item in if let item { Task { await readShot(item) } } }
         }
     }
 
@@ -430,90 +462,136 @@ struct ImportFlowView: View {
         return Array(all.sorted { Engine.text($0["date"]) > Engine.text($1["date"]) }.prefix(60))
     }
 
+    private var exManualMode: Bool { exMode == 0 || exCandidates.count < 2 }
+
+    private static func isoDay(_ d: Date) -> String {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX"); f.calendar = Calendar(identifier: .gregorian); f.dateFormat = "yyyy-MM-dd"
+        return f.string(from: d)
+    }
+
+    private static func amountValue(_ t: String) -> Double? {
+        let v = Double(t.trimmingCharacters(in: .whitespaces).replacingOccurrences(of: ",", with: "."))
+        return (v ?? 0) > 0 ? v : nil
+    }
+
+    /// Los dos ejemplos que la persona dio (escritos o elegidos). Vacío si todavía no están completos.
+    private func currentExamples() -> [NazcaExample.Example] {
+        if exManualMode {
+            let list = exManual.compactMap { m -> NazcaExample.Example? in
+                let d = m.desc.trimmingCharacters(in: .whitespaces)
+                guard !d.isEmpty, let v = Self.amountValue(m.amount) else { return nil }
+                return NazcaExample.Example(desc: d, amount: m.expense ? -v : v, date: Self.isoDay(m.date))
+            }
+            return list.count == 2 ? list : []
+        }
+        let picked = model.engine.allTransactions.filter { exPicks.contains(Engine.identifier($0["id"])) }
+        let list = exPicks.compactMap { id in picked.first { Engine.identifier($0["id"]) == id } }.map {
+            NazcaExample.Example(desc: Engine.text($0["note"]), amount: Engine.number($0["amount"]), date: Engine.text($0["date"]))
+        }
+        return list.count == 2 ? list : []
+    }
+
     private var exampleBody: some View {
-        let e = model.engine, f = model.fmt
         let list = exCandidates
+        let ready = currentExamples().count == 2
         return VStack(spacing: 12) {
-            Text("Elige dos movimientos que aparezcan en tu captura. Con ellos, Nazca entiende dónde está cada dato y lee los demás igual.")
+            Text(shotData != nil
+                 ? "Nazca aún no conoce esta captura. Escribe dos movimientos que salgan en ella, o elige dos tuyos, y aprende cómo leerla."
+                 : "Escribe o elige dos movimientos que aparezcan en tu captura. Con ellos, Nazca entiende dónde está cada dato y lee los demás igual.")
                 .font(.inter(16)).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 4)
-            if list.count < 2 {
-                Text("Necesitas al menos dos movimientos en tu perfil para usar esto.")
-                    .font(.inter(14)).foregroundStyle(.secondary).multilineTextAlignment(.center).padding(.vertical, 20)
-            } else {
-                SCard {
-                    ForEach(Array(list.enumerated()), id: \.offset) { k, tx in
-                        let id = Engine.identifier(tx["id"])
-                        let on = exPicks.contains(id)
-                        if k > 0 { RowDivider() }
-                        Button {
-                            if on { exPicks.removeAll { $0 == id } }
-                            else if exPicks.count < 2 { exPicks.append(id) }
-                            else { exPicks = [exPicks[1], id] }
-                        } label: {
-                            HStack(spacing: 8) {
-                                TransactionRow(tx: tx, engine: e, fmt: f).allowsHitTesting(false)
-                                Image(systemName: on ? "checkmark.circle.fill" : "circle").font(.system(size: 22))
-                                    .foregroundStyle(on ? Brand.accent : Color.secondary)
-                            }
-                            .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                    }
+            if list.count >= 2 {
+                Picker("", selection: $exMode) {
+                    Text("Escribirlos").tag(0)
+                    Text("Elegir de mis movimientos").tag(1)
                 }
-                Text("Se lee en este dispositivo: la captura no se sube a ningún servidor.")
-                    .font(.inter(13)).foregroundStyle(.secondary).multilineTextAlignment(.center).padding(.horizontal, 14)
+                .pickerStyle(.segmented)
+            }
+            if exManualMode { manualForm } else { pickList(list) }
+            Text(exManualMode ? "Escribe cada uno tal como sale en la captura. No se guardan aparte: entran con los demás en la revisión."
+                              : "Se lee en este dispositivo: la captura no se sube a ningún servidor.")
+                .font(.inter(13)).foregroundStyle(.secondary).multilineTextAlignment(.center).padding(.horizontal, 14)
+            if let data = shotData {
+                Button { Task { await runExample(data: data) } } label: { Text("Leer captura") }
+                    .buttonStyle(PrimaryPillStyle()).disabled(!ready)
+            } else {
                 PhotosPicker(selection: $exShot, matching: .images) {
                     Label(Tr.t("Subir captura"), systemImage: "camera")
                         .font(.inter(18, .semibold)).foregroundStyle(.white)
                         .frame(maxWidth: .infinity).frame(height: 54)
                         .background(Brand.ink, in: Capsule())
-                        .opacity(exPicks.count == 2 ? 1 : 0.4)
+                        .opacity(ready ? 1 : 0.4)
                 }
-                .disabled(exPicks.count != 2)
+                .disabled(!ready)
                 .onChange(of: exShot) { _, item in if let item { Task { await readExample(item) } } }
-                if !TemplateVault.load().isEmpty {
-                    PhotosPicker(selection: $exKnownShot, matching: .images) {
-                        Text("Ya la conozco: usar lo que Nazca aprendió").font(.inter(17)).foregroundStyle(Brand.green)
-                            .frame(maxWidth: .infinity, minHeight: 44)
+            }
+        }
+    }
+
+    private var manualForm: some View {
+        VStack(spacing: 12) {
+            ForEach(0..<2, id: \.self) { i in
+                SCard {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text(verbatim: Tr.t("Movimiento") + " \(i + 1)").font(.inter(13, .semibold)).foregroundStyle(.secondary).textCase(.uppercase)
+                        TextField(Tr.t("Descripción, como sale en la captura"), text: $exManual[i].desc)
+                            .font(.inter(17)).textInputAutocapitalization(.sentences)
+                        HStack(spacing: 10) {
+                            TextField(Tr.t("Monto"), text: $exManual[i].amount).keyboardType(.decimalPad).font(.inter(17))
+                            Picker("", selection: $exManual[i].expense) {
+                                Text("Gasto").tag(true)
+                                Text("Ingreso").tag(false)
+                            }
+                            .pickerStyle(.segmented).frame(maxWidth: 190)
+                        }
+                        DatePicker(Tr.t("Fecha"), selection: $exManual[i].date, displayedComponents: .date).font(.inter(15))
                     }
-                    .onChange(of: exKnownShot) { _, item in if let item { Task { await readKnown(item) } } }
+                    .padding(.vertical, 8)
                 }
             }
         }
     }
 
-    /// Una captura con la forma que Nazca ya aprendió: no hace falta elegir movimientos.
-    private func readKnown(_ item: PhotosPickerItem) async {
+    private func pickList(_ list: [JSONValue]) -> some View {
+        let e = model.engine, f = model.fmt
+        return SCard {
+            ForEach(Array(list.enumerated()), id: \.offset) { k, tx in
+                let id = Engine.identifier(tx["id"])
+                let on = exPicks.contains(id)
+                if k > 0 { RowDivider() }
+                Button {
+                    if on { exPicks.removeAll { $0 == id } }
+                    else if exPicks.count < 2 { exPicks.append(id) }
+                    else { exPicks = [exPicks[1], id] }
+                } label: {
+                    HStack(spacing: 8) {
+                        TransactionRow(tx: tx, engine: e, fmt: f).allowsHitTesting(false)
+                        Image(systemName: on ? "checkmark.circle.fill" : "circle").font(.system(size: 22))
+                            .foregroundStyle(on ? Brand.accent : Color.secondary)
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    private func readExample(_ item: PhotosPickerItem) async {
+        defer { exShot = nil }
         notice = nil; step = .busy
-        defer { exKnownShot = nil }
-        guard let data = try? await item.loadTransferable(type: Data.self),
-              let boxes = try? await CaptureBoxes.read(imageData: data), !boxes.isEmpty else {
+        guard let data = try? await item.loadTransferable(type: Data.self) else {
             step = .example
             notice = Notice(title: Tr.t("No pude leer texto en la captura"), message: Tr.t("Prueba con una captura más clara y completa."))
             return
         }
-        guard let hit = NazcaTemplates.best(TemplateVault.load(), boxes: boxes, today: model.today.iso),
-              let rev = ImportReview(name: "Captura", statement: NazcaExample.statement(hit.extraction), engine: model.engine) else {
-            step = .example
-            notice = Notice(title: Tr.t("Nazca aún no conoce esta captura"), message: Tr.t("Elige dos movimientos que salgan en ella y Nazca aprende cómo leerla."))
-            return
-        }
-        TemplateVault.reinforce(at: hit.index)
-        origin = .example
-        reviews = [rev]; idx = 0; step = .review
-        if hit.extraction.flags.contains("date") { notice = Notice(title: Tr.t("Revisa las fechas"), message: Tr.t("Algunos movimientos no traían fecha: puse la de hoy.")) }
-        else if hit.extraction.flags.contains("sign") { notice = Notice(title: Tr.t("Revisa gastos e ingresos"), message: Tr.t("En algunos movimientos adiviné si eran gasto o ingreso.")) }
+        await runExample(data: data)
     }
 
-    private func readExample(_ item: PhotosPickerItem) async {
+    /// Aprende de los dos ejemplos en esta captura y lee el resto. Si sale bien, pregunta la institución antes de la revisión.
+    private func runExample(data: Data) async {
         notice = nil; step = .busy
-        defer { exShot = nil }
-        let picked = model.engine.allTransactions.filter { exPicks.contains(Engine.identifier($0["id"])) }
-        let examples = exPicks.compactMap { id in picked.first { Engine.identifier($0["id"]) == id } }.map {
-            NazcaExample.Example(desc: Engine.text($0["note"]), amount: Engine.number($0["amount"]), date: Engine.text($0["date"]))
-        }
-        guard examples.count == 2, let data = try? await item.loadTransferable(type: Data.self),
-              let boxes = try? await CaptureBoxes.read(imageData: data), !boxes.isEmpty else {
+        let examples = currentExamples()
+        guard examples.count == 2, let boxes = try? await CaptureBoxes.read(imageData: data), !boxes.isEmpty else {
             step = .example
             notice = Notice(title: Tr.t("No pude leer texto en la captura"), message: Tr.t("Prueba con una captura más clara y completa."))
             return
@@ -527,22 +605,104 @@ struct ImportFlowView: View {
             notice = err == .needTwo
                 ? Notice(title: Tr.t("Elige dos movimientos"), message: Tr.t("Nazca necesita dos para aprender."))
                 : Notice(title: Tr.t("No encontré uno de los dos movimientos"),
-                         message: Tr.f("Busqué «{0}» en la captura y no lo vi. Elige movimientos que se vean completos en la imagen.", String(examples[n].desc.prefix(40))))
+                         message: Tr.f("Busqué «{0}» en la captura y no lo vi. Escribe movimientos que se vean completos en la imagen, con el monto como sale.", String(examples[n].desc.prefix(40))))
         case .success(let template):
             let x = NazcaExample.extract(template, boxes: boxes, today: today)
-            guard !x.items.isEmpty, let rev = ImportReview(name: "Captura", statement: NazcaExample.statement(x), engine: model.engine) else {
+            guard !x.items.isEmpty else {
                 step = .example
                 notice = Notice(title: Tr.t("Nazca no encontró más movimientos"), message: Tr.t("Prueba con una captura que muestre varios movimientos."))
                 return
             }
-            // Aprendizaje local: se recuerda solo la forma de la captura. Puente al envío (apagado): NazcaShare.submit(template, bank:, via:)
-            TemplateVault.remember(template)
-            origin = .example
-            reviews = [rev]; idx = 0; step = .review
-            if x.flags.contains("date") { notice = Notice(title: Tr.t("Revisa las fechas"), message: Tr.t("Algunos movimientos no traían fecha: puse la de hoy.")) }
-            else if x.flags.contains("sign") { notice = Notice(title: Tr.t("Revisa gastos e ingresos"), message: Tr.t("En algunos movimientos adiviné si eran gasto o ingreso.")) }
-            else if template.confidence < 0.6 { notice = Notice(title: Tr.t("Revisa la lista"), message: Tr.t("Tus dos movimientos se veían distintos en la captura, así que Nazca puede haberse equivocado.")) }
+            shotData = nil
+            exHold = ExHold(template: template, extraction: x)
+            step = .institution
         }
+    }
+
+    private var institutionBody: some View {
+        let banks = Nazca.bankCatalog.flatMap(\.banks).filter { $0.active && Nazca.ready.contains($0.id) }
+        return VStack(spacing: 0) {
+            Text("Nazca ya reconoció la captura. ¿Es de alguna de estas instituciones? Así la cuenta queda bien nombrada y Nazca la recuerda mejor.")
+                .font(.inter(16)).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 4).padding(.bottom, 14)
+            SCard {
+                ForEach(Array(banks.enumerated()), id: \.element.id) { k, b in
+                    if k > 0 { RowDivider() }
+                    Button { chooseInstitution(b.id) } label: {
+                        HStack(spacing: 12) {
+                            BankMarkView(id: b.id, size: nil).foregroundStyle(Brand.accent).frame(width: 40, height: 40)
+                            Text(verbatim: b.name).font(.inter(16)).frame(maxWidth: .infinity, alignment: .leading)
+                            Image(systemName: "chevron.right").font(.system(size: 15, weight: .semibold)).foregroundStyle(.tertiary)
+                        }
+                        .padding(.vertical, 10).contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            Button { chooseInstitution(nil) } label: { Text("No es ninguna de estas") }
+                .buttonStyle(PrimaryPillStyle()).padding(.top, 8)
+        }
+    }
+
+    /// Con la institución elegida (o sin ella) se recuerda la forma de la captura en el dispositivo y se pasa a la revisión.
+    private func chooseInstitution(_ bankId: String?) {
+        guard let h = exHold else { return }
+        exHold = nil
+        // Aprendizaje local. Puente al envío (apagado): NazcaShare.submit(h.template, bank: bankId, via: sink)
+        TemplateVault.remember(h.template, bank: bankId)
+        showExample(h.extraction, template: h.template, institution: bankId)
+    }
+
+    private func showExample(_ x: NazcaExample.Extraction, template: NazcaExample.Template, institution: String?) {
+        guard let rev = ImportReview(name: "Captura", statement: NazcaExample.statement(x, institution: institution), engine: model.engine) else {
+            step = .example
+            notice = Notice(title: Tr.t("Nazca no encontró más movimientos"), message: Tr.t("Prueba con una captura que muestre varios movimientos."))
+            return
+        }
+        origin = .example
+        shotData = nil
+        reviews = [rev]; idx = 0; step = .review
+        if x.flags.contains("date") { notice = Notice(title: Tr.t("Revisa las fechas"), message: Tr.t("Algunos movimientos no traían fecha: puse la de hoy.")) }
+        else if x.flags.contains("sign") { notice = Notice(title: Tr.t("Revisa gastos e ingresos"), message: Tr.t("En algunos movimientos adiviné si eran gasto o ingreso.")) }
+        else if template.confidence < 0.6 { notice = Notice(title: Tr.t("Revisa la lista"), message: Tr.t("Tus dos movimientos se veían distintos en la captura, así que Nazca puede haberse equivocado.")) }
+    }
+
+    // MARK: una sola puerta para capturas
+
+    private func readAny(_ item: PhotosPickerItem) async {
+        defer { anyShot = nil }
+        notice = nil; step = .busy
+        guard let data = try? await item.loadTransferable(type: Data.self) else {
+            step = .start
+            notice = Notice(title: Tr.t("No pude leer texto en la captura"), message: Tr.t("Prueba con una captura más clara y completa."))
+            return
+        }
+        await readAnyData(data)
+    }
+
+    /// Una captura: primero la constancia de Yape o Plin, luego las formas verificadas y las que la persona ya enseñó; si ninguna la entiende, la sesión de reconocimiento.
+    private func readAnyData(_ data: Data) async {
+        notice = nil; step = .busy
+        let text = (try? await ConstanciaOCR.text(fromImageData: data)) ?? ""
+        if !text.isEmpty, NazcaConstancia.detect(text) > 0 {
+            shotData = data; dir = 0; step = .paste
+            notice = Notice(title: Tr.t("Parece una constancia de Yape o Plin"), message: Tr.t("Dime si fue un gasto o un ingreso y Nazca la lee."))
+            return
+        }
+        guard let boxes = try? await CaptureBoxes.read(imageData: data), !boxes.isEmpty else {
+            step = .start
+            notice = Notice(title: Tr.t("No pude leer texto en la captura"), message: Tr.t("Prueba con una captura más clara y completa."))
+            return
+        }
+        let verified = NazcaTemplates.verified, mine = TemplateVault.load()
+        if let hit = NazcaTemplates.best(verified + mine, boxes: boxes, today: model.today.iso) {
+            let saved = (verified + mine)[hit.index]
+            if hit.index >= verified.count { TemplateVault.reinforce(at: hit.index - verified.count) }
+            showExample(hit.extraction, template: saved.template, institution: saved.bank)
+            return
+        }
+        shotData = data
+        step = .example
+        notice = Notice(title: Tr.t("Nazca aún no conoce esta captura"), message: Tr.t("Dale dos movimientos de ejemplo y aprende a leerla."))
     }
 
     private func dirRow(_ v: Int, _ title: String, _ sub: String) -> some View {
@@ -563,7 +723,17 @@ struct ImportFlowView: View {
     private func readShot(_ item: PhotosPickerItem) async {
         notice = nil; step = .busy
         defer { shot = nil }
-        guard let data = try? await item.loadTransferable(type: Data.self), let text = try? await ConstanciaOCR.text(fromImageData: data), !text.isEmpty else {
+        guard let data = try? await item.loadTransferable(type: Data.self) else {
+            step = .paste
+            notice = Notice(title: Tr.t("No pude leer texto en la captura"), message: Tr.t("Prueba con una captura más clara y completa."))
+            return
+        }
+        await readConstancia(data: data)
+    }
+
+    private func readConstancia(data: Data) async {
+        notice = nil; step = .busy
+        guard let text = try? await ConstanciaOCR.text(fromImageData: data), !text.isEmpty else {
             step = .paste
             notice = Notice(title: Tr.t("No pude leer texto en la captura"), message: Tr.t("Prueba con una captura más clara y completa."))
             return
@@ -575,6 +745,7 @@ struct ImportFlowView: View {
             return
         }
         origin = .paste
+        shotData = nil
         reviews = [rev]; idx = 0; step = .review
         if r.flags.contains("amount") { notice = Notice(title: Tr.t("Revisa el monto"), message: Tr.t("Había más de un monto en la constancia.")) }
     }
@@ -623,6 +794,13 @@ struct ImportFlowView: View {
 
     private func handle(_ result: Result<[URL], Error>) {
         guard case .success(let urls) = result, !urls.isEmpty else { return }
+        if urls.count == 1, let t = UTType(filenameExtension: urls[0].pathExtension.lowercased()), t.conforms(to: .image) {
+            let scoped = urls[0].startAccessingSecurityScopedResource()
+            let data = try? Data(contentsOf: urls[0])
+            if scoped { urls[0].stopAccessingSecurityScopedResource() }
+            if let data { step = .busy; Task { await readAnyData(data) } }
+            return
+        }
         let adding = step == .review && !reviews.isEmpty
         var files: [Picked] = []
         for url in urls {

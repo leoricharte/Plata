@@ -14,6 +14,6 @@ enum TemplateVault {
         if let d = try? JSONEncoder().encode(list) { UserDefaults.standard.set(d, forKey: key) }
     }
 
-    static func remember(_ t: NazcaExample.Template) { save(NazcaTemplates.remember(t, into: load())) }
+    static func remember(_ t: NazcaExample.Template, bank: String? = nil) { save(NazcaTemplates.remember(t, into: load(), bank: bank)) }
     static func reinforce(at i: Int) { save(NazcaTemplates.reinforce(load(), at: i)) }
 }

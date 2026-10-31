@@ -115,4 +115,30 @@ final class NazcaExampleTests: XCTestCase {
         for s in ["Netflix", "Bodega", "Secreto", "44.9"] { XCTAssertFalse(json.contains(s)) }
         XCTAssertFalse(NazcaShare.enabled)
     }
+
+    func testInstitutionNamesAccountWithoutBankSeal() throws {
+        let ex = [NazcaExample.Example(desc: "Netflix", amount: -44.9, date: "2026-10-12"),
+                  NazcaExample.Example(desc: "Bodega Lupe", amount: -18, date: "2026-10-11")]
+        let t = try NazcaExample.learn(examples: ex, boxes: headerLayout(), today: today).get()
+        let x = NazcaExample.extract(t, boxes: headerLayout(), today: today)
+        let st = NazcaExample.statement(x, institution: "bcp")
+        XCTAssertNil(st.bank)
+        XCTAssertEqual(st.name, "BCP")
+        XCTAssertNil(NazcaExample.statement(x).bank)
+        XCTAssertEqual(NazcaExample.statement(x).name, "")
+    }
+
+    func testSavedTemplateRemembersBank() throws {
+        let ex = [NazcaExample.Example(desc: "Netflix", amount: -44.9, date: "2026-10-12"),
+                  NazcaExample.Example(desc: "Bodega Lupe", amount: -18, date: "2026-10-11")]
+        let t = try NazcaExample.learn(examples: ex, boxes: headerLayout(), today: today).get()
+        var saved = NazcaTemplates.remember(t, into: [], bank: "bcp")
+        XCTAssertEqual(saved[0].bank, "bcp")
+        saved = NazcaTemplates.remember(t, into: saved)
+        XCTAssertEqual(saved[0].bank, "bcp")
+        let back = try JSONDecoder().decode([NazcaTemplates.Saved].self, from: JSONEncoder().encode(saved))
+        XCTAssertEqual(back, saved)
+        XCTAssertTrue(NazcaTemplates.verified.isEmpty)
+        XCTAssertEqual(NazcaShare.payload(t, bank: "bcp").status, "pending")
+    }
 }

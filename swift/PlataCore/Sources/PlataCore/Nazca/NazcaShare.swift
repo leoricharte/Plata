@@ -28,6 +28,8 @@ public enum NazcaShare {
         public var dateMode: String
         public var dateDy: Int
         public var signMode: String
+        /// Siempre «pending» al salir de la app: solo Nazca global la pasa a «verified», tras revisarla y probarla con capturas sintéticas.
+        public var status = "pending"
     }
 
     public static func payload(_ t: NazcaExample.Template, bank: String?) -> Payload {

@@ -7,8 +7,14 @@ public enum NazcaTemplates {
         public var template: NazcaExample.Template
         /// Cuántas veces se usó o se confirmó.
         public var uses: Int
-        public init(template: NazcaExample.Template, uses: Int = 1) { self.template = template; self.uses = uses }
+        /// La institución que la persona dijo (de la lista de verificadas), si la dijo.
+        public var bank: String?
+        public init(template: NazcaExample.Template, uses: Int = 1, bank: String? = nil) { self.template = template; self.uses = uses; self.bank = bank }
     }
+
+    /// El catálogo VERIFICADO: formas de captura que Nazca global revisó y probó con capturas sintéticas. Vacío hasta que el aporte compartido exista;
+    /// la app solo usa de forma automática estas y las que la propia persona enseñó, nunca una plantilla sin verificar.
+    public static let verified: [Saved] = []
 
     public static let maxSaved = 8
 
@@ -19,12 +25,12 @@ public enum NazcaTemplates {
     }
 
     /// Añade una plantilla aprendida: si ya había una igual, se refuerza (y se queda la más reciente); si no, entra primera. Se guardan pocas.
-    public static func remember(_ t: NazcaExample.Template, into list: [Saved]) -> [Saved] {
+    public static func remember(_ t: NazcaExample.Template, into list: [Saved], bank: String? = nil) -> [Saved] {
         var out = list
         if let i = out.firstIndex(where: { similar($0.template, t) }) {
-            var s = out.remove(at: i); s.template = t; s.uses += 1
+            var s = out.remove(at: i); s.template = t; s.uses += 1; if let bank { s.bank = bank }
             out.insert(s, at: 0)
-        } else { out.insert(Saved(template: t), at: 0) }
+        } else { out.insert(Saved(template: t, bank: bank), at: 0) }
         return Array(out.prefix(maxSaved))
     }
 
