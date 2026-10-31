@@ -394,7 +394,6 @@ struct ImportFlowView: View {
             }
         }
         .padding(.horizontal, 20).padding(.top, 10).padding(.bottom, 6)
-        .background(.bar)
     }
 
     private var doneBody: some View {
@@ -566,11 +565,7 @@ struct ImportFlowView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 4)
             if list.count >= 2 {
-                Picker("", selection: $exMode) {
-                    Text("Escribirlos").tag(0)
-                    Text("Elegir de mis movimientos").tag(1)
-                }
-                .pickerStyle(.segmented)
+                PillSegmented(items: [(0, Tr.t("Escribirlos")), (1, Tr.t("Elegir de mis movimientos"))], selection: $exMode)
             }
             if exManualMode { manualForm } else { pickList }
         }
@@ -599,7 +594,6 @@ struct ImportFlowView: View {
             .font(.inter(15)).foregroundStyle(Brand.green)
         }
         .padding(.horizontal, 20).padding(.top, 10).padding(.bottom, 6)
-        .background(.bar)
     }
 
     private var pickBar: some View {
@@ -615,7 +609,6 @@ struct ImportFlowView: View {
                 .font(.inter(15)).foregroundStyle(Brand.green)
         }
         .padding(.horizontal, 20).padding(.top, 10).padding(.bottom, 6)
-        .background(.bar)
     }
 
     private var manualBar: some View {
@@ -640,7 +633,6 @@ struct ImportFlowView: View {
             }
         }
         .padding(.horizontal, 20).padding(.top, 10).padding(.bottom, 6)
-        .background(.bar)
     }
 
     private func fieldRow<C: View>(_ label: String, @ViewBuilder _ content: () -> C) -> some View {
@@ -659,11 +651,8 @@ struct ImportFlowView: View {
                     HStack {
                         Text(verbatim: Tr.t("Movimiento") + " \(i + 1)").font(.inter(15, .semibold)).foregroundStyle(Brand.accent)
                         Spacer(minLength: 8)
-                        Picker("", selection: $exManual[i].expense) {
-                            Text("Gasto").tag(true)
-                            Text("Ingreso").tag(false)
-                        }
-                        .pickerStyle(.segmented).frame(width: 190)
+                        PillSegmented(items: [(true, Tr.t("Gasto")), (false, Tr.t("Ingreso"))], selection: $exManual[i].expense, height: 34)
+                            .frame(width: 200)
                     }
                     .padding(.vertical, 10)
                     RowDivider()
@@ -1515,11 +1504,14 @@ struct ImportReviewBody: View {
         let constBrand: String? = bank == "yape" ? "Yape" : plin ? "Plin" : nil
         let title: String = constBrand ?? bank.map { Nazca.bankShort($0) } ?? ((src?.label).flatMap { $0.isEmpty ? nil : $0 } ?? (review.guess.isEmpty ? Tr.t(review.gen ? "Archivo PDF" : "Archivo CSV") : review.guess))
         let ci = src?.cardInfo
+        /// Sin banco reconocido por plantilla, pero la persona (o la captura) lo nombró: el logo sale igual, sin el verificado.
+        let namedBank: String? = bank == nil && !plin && constBrand == nil
+            ? Nazca.bankCatalog.flatMap(\.banks).first { Brands.norm($0.name) == Brands.norm(title) }?.id : nil
         let due = ci?.dueDate.flatMap { LocalDate(iso: $0) }
         return SCard {
             HStack(spacing: 14) {
                 Group {
-                    if let b = bank ?? (src?.label.hasPrefix("Plin") == true ? "plin" : nil), BankMarks.all[b] != nil { BankMarkView(id: b, size: 32).foregroundStyle(Color(red: 0.133, green: 0.710, blue: 0.451)) }
+                    if let b = bank ?? namedBank ?? (src?.label.hasPrefix("Plin") == true ? "plin" : nil), BankMarks.all[b] != nil { BankMarkView(id: b, size: 32).foregroundStyle(Color(red: 0.133, green: 0.710, blue: 0.451)) }
                     else { Image(systemName: bank != nil ? "building.columns" : "doc.text").font(.system(size: 30)) }
                 }
                 .foregroundStyle(Color.primary.opacity(0.46)).frame(width: 52, height: 52)

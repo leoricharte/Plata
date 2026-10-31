@@ -150,6 +150,7 @@ struct ChipRow: View {
 struct PillSegmented<Value: Hashable>: View {
     let items: [(Value, String)]
     @Binding var selection: Value
+    var height: CGFloat = 42
     @Namespace private var ns
 
     var body: some View {
@@ -164,11 +165,11 @@ struct PillSegmented<Value: Hashable>: View {
                         .foregroundStyle(.primary)
                         .lineLimit(1).minimumScaleFactor(0.8)
                         .frame(maxWidth: .infinity)
-                        .frame(height: 42)
+                        .frame(height: height)
                         .background {
                             if selection == item.0 {
                                 Capsule()
-                                    .fill(Color(light: "#FFFFFF", dark: "#1F4332"))
+                                    .fill(Color(light: "#FFFFFF", dark: "#2B5B45"))
                                     .shadow(color: .black.opacity(0.14), radius: 2, y: 1)
                                     .shadow(color: .black.opacity(0.06), radius: 6, y: 4)
                                     .matchedGeometryEffect(id: "thumb", in: ns)

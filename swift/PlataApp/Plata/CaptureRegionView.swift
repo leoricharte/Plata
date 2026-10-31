@@ -11,8 +11,15 @@ struct CaptureRegionView: View {
     /// Qué está haciendo el dedo: dibujar uno nuevo, moverlo o estirarlo desde una esquina (la opuesta queda fija).
     private enum Mode { case new(CGPoint), move(NazcaExample.Region), resize(CGPoint) }
     @State private var mode: Mode?
+    /// Zoom con dos dedos (se ancla donde están los dedos) y doble toque para volver.
+    @State private var zoom: CGFloat = 1
+    @State private var pan: CGSize = .zero
+    @State private var pinchBase: (zoom: CGFloat, pan: CGSize)?
+    @State private var pinching = false
+    @State private var saved: NazcaExample.Region?
 
     private let corner: CGFloat = 22
+    private let maxZoom: CGFloat = 6
 
     var body: some View {
         GeometryReader { geo in
@@ -26,7 +33,13 @@ struct CaptureRegionView: View {
             .overlay(RoundedRectangle(cornerRadius: corner, style: .continuous).strokeBorder(Color.primary.opacity(0.10), lineWidth: 1))
             .contentShape(Rectangle())
             .gesture(drag(size: fit))
+            .scaleEffect(zoom, anchor: .center)
+            .offset(pan)
             .frame(width: geo.size.width, height: geo.size.height)
+            .contentShape(Rectangle())
+            .simultaneousGesture(magnify(fit: fit, box: geo.size))
+            .simultaneousGesture(TapGesture(count: 2).onEnded { withAnimation(.snappy) { zoom = 1; pan = .zero } })
+            .clipped()
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(Tr.t("Captura. Arrastra para encerrar los movimientos."))
         }
@@ -36,6 +49,31 @@ struct CaptureRegionView: View {
         let iw = max(image.size.width, 1), ih = max(image.size.height, 1)
         let s = min(box.width / iw, box.height / ih)
         return CGSize(width: iw * s, height: ih * s)
+    }
+
+    private func magnify(fit: CGSize, box: CGSize) -> some Gesture {
+        MagnifyGesture().onChanged { v in
+            if !pinching {
+                pinching = true
+                mode = nil
+                region = saved          // el primer dedo ya empezó un cuadro: se deshace
+                pinchBase = (zoom, pan)
+            }
+            guard let base = pinchBase else { return }
+            let s1 = min(maxZoom, max(1, base.zoom * v.magnification))
+            let c = CGPoint(x: box.width / 2, y: box.height / 2)
+            let f = v.startLocation
+            let r = s1 / base.zoom
+            var o = CGSize(width: f.x - c.x - r * (f.x - c.x - base.pan.width), height: f.y - c.y - r * (f.y - c.y - base.pan.height))
+            let mx = max(0, (s1 * fit.width - box.width) / 2), my = max(0, (s1 * fit.height - box.height) / 2)
+            o.width = min(mx, max(-mx, o.width)); o.height = min(my, max(-my, o.height))
+            zoom = s1; pan = s1 <= 1.001 ? .zero : o
+        }
+        .onEnded { _ in
+            pinchBase = nil
+            if zoom < 1.02 { withAnimation(.snappy) { zoom = 1; pan = .zero } }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { pinching = false }
+        }
     }
 
     // MARK: lo que se dibuja encima
@@ -48,23 +86,20 @@ struct CaptureRegionView: View {
         if let r = region {
             let sel = rect(r, size)
             let bands = NazcaExample.rows(in: r, boxes: boxes)
+            let rad = min(14, sel.height / 2, sel.width / 2) / zoom, line = 1 / zoom
+            let shape = Path(roundedRect: sel, cornerRadius: rad, style: .continuous)
             Canvas { ctx, sz in
                 var dim = Path(CGRect(origin: .zero, size: sz))
-                dim.addRect(sel)
+                dim.addPath(shape)
                 ctx.fill(dim, with: .color(.black.opacity(0.46)), style: FillStyle(eoFill: true))
-                ctx.fill(Path(sel), with: .color(.white.opacity(0.10)))
-                ctx.stroke(Path(sel), with: .color(.white.opacity(0.55)), lineWidth: 1)
+                ctx.fill(shape, with: .color(.white.opacity(0.10)))
+                ctx.stroke(shape, with: .color(.white.opacity(0.50)), lineWidth: line)
                 for b in bands {
-                    let band = CGRect(x: sel.minX + 3, y: b.y * sz.height - 2, width: sel.width - 6, height: b.h * sz.height + 4)
-                    ctx.fill(Path(roundedRect: band, cornerRadius: 5), with: .color(.white.opacity(0.16)))
+                    let band = CGRect(x: sel.minX + 4 / zoom, y: b.y * sz.height - 2 / zoom, width: max(0, sel.width - 8 / zoom), height: b.h * sz.height + 4 / zoom)
+                    ctx.fill(Path(roundedRect: band, cornerRadius: 5 / zoom, style: .continuous), with: .color(.white.opacity(0.14)))
                 }
             }
             .allowsHitTesting(false)
-            ForEach(Array(corners(sel).enumerated()), id: \.offset) { _, p in
-                Circle().fill(.white).frame(width: 13, height: 13)
-                    .shadow(color: .black.opacity(0.35), radius: 2, y: 1)
-                    .position(p).allowsHitTesting(false)
-            }
             .sensoryFeedback(.selection, trigger: bands.count)
         } else {
             VStack {
@@ -95,7 +130,9 @@ struct CaptureRegionView: View {
 
     private func drag(size: CGSize) -> some Gesture {
         DragGesture(minimumDistance: 0).onChanged { v in
+            if pinching { return }
             if mode == nil {
+                saved = region
                 mode = pick(at: v.startLocation, size: size)
                 if case .new = mode { region = nil }
             }
@@ -121,7 +158,7 @@ struct CaptureRegionView: View {
         let sel = rect(r, size)
         // una esquina: se estira desde ella y la opuesta queda fija
         let opposite: [CGPoint] = [CGPoint(x: r.x + r.w, y: r.y + r.h), CGPoint(x: r.x, y: r.y + r.h), CGPoint(x: r.x + r.w, y: r.y), CGPoint(x: r.x, y: r.y)]
-        for (i, c) in corners(sel).enumerated() where hypot(c.x - loc.x, c.y - loc.y) < 30 { return .resize(opposite[i]) }
+        for (i, c) in corners(sel).enumerated() where hypot(c.x - loc.x, c.y - loc.y) < 30 / zoom { return .resize(opposite[i]) }
         if sel.contains(loc) { return .move(r) }
         return .new(start)
     }
