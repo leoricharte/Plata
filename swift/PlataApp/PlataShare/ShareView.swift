@@ -18,6 +18,8 @@ struct ShareView: View {
         VStack(spacing: 14) {
             switch model.phase {
             case .reading: reading
+            case .choose(let k): choose(k)
+            case .handedOff: handedOff
             case .ready(let r): ready(r)
             case .saved(let r): saved(r)
             case .failed: failed
@@ -28,10 +30,50 @@ struct ShareView: View {
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
     }
 
+    private func option(_ icon: String, _ title: String, _ sub: String, _ run: @escaping () -> Void) -> some View {
+        Button(action: run) {
+            HStack(spacing: 14) {
+                Image(systemName: icon).font(.system(size: 20, weight: .medium)).foregroundStyle(green).frame(width: 30)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(verbatim: Tr.t(title)).font(.system(size: 17, weight: .semibold)).foregroundStyle(.primary)
+                    Text(verbatim: Tr.t(sub)).font(.system(size: 13)).foregroundStyle(.secondary).multilineTextAlignment(.leading)
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 16).padding(.vertical, 12)
+            .frame(maxWidth: .infinity)
+            .background(Color.primary.opacity(0.06), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func choose(_ kind: ShareModel.Kind) -> some View {
+        VStack(spacing: 12) {
+            Text(verbatim: Tr.t(kind == .image ? "¿Qué es esta captura?" : "¿Qué hacemos con este archivo?")).font(.system(size: 19, weight: .bold))
+            if kind == .image {
+                option("checkmark.seal", "Constancia de Yape o Plin", "Un pago o ingreso suelto") { Task { await model.readAsConstancia() } }
+                option("viewfinder", "Sesión de reconocimiento", "Nazca lee la lista de movimientos") { Task { await model.handOff(.recognition) } }
+            } else {
+                option("square.and.arrow.down", "Importar archivo", "Plata reconoce el banco sola") { Task { await model.handOff(.file) } }
+                option("building.columns", "Elegir banco", "Tú dices de cuál es") { Task { await model.handOff(.banks) } }
+            }
+            Button { model.cancel() } label: { Text(verbatim: Tr.t("Cancelar")).font(.system(size: 16)).foregroundStyle(.secondary) }.padding(.top, 2)
+        }
+    }
+
+    private var handedOff: some View {
+        VStack(spacing: 10) {
+            Image(systemName: "checkmark.circle.fill").font(.system(size: 44)).foregroundStyle(green)
+            Text(verbatim: Tr.t("Listo")).font(.system(size: 19, weight: .bold))
+            Text(verbatim: Tr.t("Abre Plata para seguir. Te estará esperando.")).font(.system(size: 14)).foregroundStyle(.secondary).multilineTextAlignment(.center)
+        }
+        .padding(.vertical, 6)
+    }
+
     private var reading: some View {
         VStack(spacing: 12) {
             ProgressView()
-            Text(verbatim: Tr.t("Leyendo la constancia…")).font(.system(size: 16)).foregroundStyle(.secondary)
+            Text(verbatim: Tr.t("Leyendo…")).font(.system(size: 16)).foregroundStyle(.secondary)
         }
         .padding(.vertical, 8)
     }

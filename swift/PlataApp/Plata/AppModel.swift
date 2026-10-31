@@ -34,6 +34,8 @@ final class AppModel {
     var importAtCapture = false
     /// Constancias compartidas desde Yape/Plin que necesitan que la persona las revise.
     var inboxReviews: [ImportReview] = []
+    /// Lo que la persona dejó desde «Compartir» (captura para reconocer, archivo para importar): abre la importación ya encaminada.
+    var handoff: ShareHandoff.Payload?
     var showInboxReview = false
     /// Constancias de Yape/Plin que llegaron por «Compartir» y esperan a que la persona las revise (nada se añade solo).
     var pendingConstancias: [ConstanciaInbox.Entry] = []
@@ -279,6 +281,14 @@ final class AppModel {
         }
         ConstanciaInbox.remove(ids: gone)
         if keep != pendingConstancias { pendingConstancias = keep }
+    }
+
+    /// Recoge lo que dejó «Compartir» y abre la importación en el paso que la persona eligió.
+    func processShareHandoff() {
+        guard !showImport, let p = ShareHandoff.take() else { return }
+        handoff = p
+        importAtCapture = false
+        showImport = true
     }
 
     /// Abre la revisión de Nazca con las constancias en espera (o solo con las indicadas).

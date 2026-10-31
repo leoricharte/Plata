@@ -48,10 +48,30 @@ struct ImportFlowView: View {
     /// `true` si se abrió directo en una revisión (constancias que llegaron desde «Compartir»): «Regresar» cierra.
     private let preloaded: Bool
 
-    init(preloaded: [ImportReview] = [], startAtCapture: Bool = false) {
+    /// Lo que llegó desde «Compartir»: la importación abre ya en el paso elegido.
+    private let handoff: ShareHandoff.Payload?
+    @State private var handoffDone = false
+    /// Un archivo que ya está en Plata y espera a que la persona elija su banco.
+    @State private var carry: Picked?
+
+    init(preloaded: [ImportReview] = [], startAtCapture: Bool = false, handoff: ShareHandoff.Payload? = nil) {
         self.preloaded = !preloaded.isEmpty
+        self.handoff = handoff
         _reviews = State(initialValue: preloaded)
-        _step = State(initialValue: preloaded.isEmpty ? (startAtCapture ? .paste : .start) : .review)
+        _step = State(initialValue: handoff != nil ? .busy : (preloaded.isEmpty ? (startAtCapture ? .paste : .start) : .review))
+    }
+
+    @MainActor private func applyHandoff() async {
+        guard let h = handoff, !handoffDone else { return }
+        handoffDone = true
+        let size = h.data.count
+        let limit = h.item.name.lowercased().hasSuffix(".pdf") ? NazcaPDF.maxBytes : Nazca.maxBytes
+        let file = Picked(name: h.item.name, size: size, data: size <= limit ? h.data : nil)
+        switch h.item.choice {
+        case .recognition: await loadExampleShot(data: h.data)
+        case .file: notice = nil; step = .busy; await ingest([file], adding: false)
+        case .banks: carry = file; origin = .start; step = .country
+        }
     }
     @State private var idx = 0
     @State private var notice: Notice?
@@ -116,6 +136,7 @@ struct ImportFlowView: View {
         .photosPicker(isPresented: $showShotPicker, selection: $anyShot, matching: .images)
         .onChange(of: anyShot) { _, item in if let item { Task { await readAny(item) } } }
         .interactiveDismissDisabled(step == .busy)
+        .task { await applyHandoff() }
         .tint(Brand.accent)
     }
 
@@ -752,7 +773,17 @@ struct ImportFlowView: View {
     private func loadExampleShot(_ item: PhotosPickerItem) async {
         defer { exShot = nil }
         notice = nil; step = .busy
-        guard let data = try? await item.loadTransferable(type: Data.self), let img = UIImage(data: data),
+        guard let data = try? await item.loadTransferable(type: Data.self) else {
+            step = .example
+            notice = Notice(title: Tr.t("No pude leer texto en la captura"), message: Tr.t("Prueba con una captura más clara y completa."))
+            return
+        }
+        await loadExampleShot(data: data)
+    }
+
+    private func loadExampleShot(data: Data) async {
+        notice = nil; step = .busy
+        guard let img = UIImage(data: data),
               let boxes = try? await CaptureBoxes.read(imageData: data), !boxes.isEmpty else {
             step = .example
             notice = Notice(title: Tr.t("No pude leer texto en la captura"), message: Tr.t("Prueba con una captura más clara y completa."))
@@ -926,6 +957,7 @@ struct ImportFlowView: View {
     private func pick(from: Step) {
         origin = from
         notice = nil
+        if let c = carry { carry = nil; step = .busy; Task { await ingest([c], adding: false) }; return }
         picking = true
     }
 

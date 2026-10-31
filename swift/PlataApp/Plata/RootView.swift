@@ -39,10 +39,10 @@ struct RootView: View {
         }
         .fullScreenCover(isPresented: $model.showWelcome) { WelcomeView().interactiveDismissDisabled() }
         .fullScreenCover(isPresented: $model.showNews) { NewsStoryView() }
-        .fullScreenCover(isPresented: $model.showImport, onDismiss: { model.importAtCapture = false }) { ImportFlowView(startAtCapture: model.importAtCapture) }
+        .fullScreenCover(isPresented: $model.showImport, onDismiss: { model.importAtCapture = false; model.handoff = nil }) { ImportFlowView(startAtCapture: model.importAtCapture, handoff: model.handoff) }
         .fullScreenCover(isPresented: $model.showInboxReview, onDismiss: { model.processConstanciaInbox() }) { ImportFlowView(preloaded: model.inboxReviews) }
         .onChange(of: scenePhase) { _, p in
-            if p == .active { Task { while model.splashDone == false || AppLock.shared.locked { try? await Task.sleep(for: .milliseconds(100)) }; model.processConstanciaInbox() } }
+            if p == .active { Task { while model.splashDone == false || AppLock.shared.locked { try? await Task.sleep(for: .milliseconds(100)) }; model.processConstanciaInbox(); model.processShareHandoff() } }
         }
         .sheet(isPresented: $model.showHistory) { HistorySheet() }
         .fullScreenCover(isPresented: Binding(get: { cloud.flow != nil && !model.showWelcome }, set: { if !$0 { cloud.flow = nil } })) { CloudFlowHost().interactiveDismissDisabled() }
@@ -60,6 +60,7 @@ struct RootView: View {
             // los avisos esperan a que termine el splash
             while !model.splashDone || AppLock.shared.locked { try? await Task.sleep(for: .milliseconds(100)) }
             model.processConstanciaInbox()
+            model.processShareHandoff()
             model.checkPending()
             try? await Task.sleep(for: .milliseconds(700))
             if Nudges.shouldShowNews(model) { model.showNews = true }
