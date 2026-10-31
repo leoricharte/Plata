@@ -86,6 +86,7 @@
 ["¿Eliminar este movimiento?", "Delete this transaction?", "この取引を削除しますか?", "Eliminare questo movimento?", "Supprimer cette transaction ?", "Izbrisati ovu transakciju?"],
 ["Eliminado", "Deleted", "削除しました", "Eliminato", "Supprimé", "Izbrisano"],
 ["Programación", "Development", "開発", "Programmazione", "Programmation", "Programiranje"],
+["Asistente de programación", "Programming assistant", "プログラミング支援", "Assistente di programmazione", "Assistant de programmation", "Asistent u programiranju"],
 ["Director creativo, diseño de UI y concepto", "Creative director, UI design and concept", "クリエイティブディレクター、UIデザイン、コンセプト", "Direttore creativo, design UI e concept", "Directeur créatif, design UI et concept", "Kreativni direktor, UI dizajn i koncept"],
 ["El uso de IA fue limitado a la programación de la aplicación.", "The use of AI was limited to programming the app.", "AIの使用はアプリのプログラミングに限られています。", "L’uso dell’IA è stato limitato alla programmazione dell’app.", "L’utilisation de l’IA s’est limitée à la programmation de l’application.", "Upotreba umjetne inteligencije bila je ograničena na programiranje aplikacije."],
 ["Testers de la beta", "Beta testers", "ベータテスター", "Tester della beta", "Testeurs de la bêta", "Beta testeri"],

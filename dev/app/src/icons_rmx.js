@@ -1,5 +1,6 @@
 /* Remix Icon v4.9.1 (Apache-2.0) — rutas 24×24; b = caja ajustada [x,y,w,h] */
 const RMX = {
+  'user-fill': { d: 'M4 22C4 17.5817 7.58172 14 12 14C16.4183 14 20 17.5817 20 22H4ZM12 13C8.685 13 6 10.315 6 7C6 3.685 8.685 1 12 1C15.315 1 18 3.685 18 7C18 10.315 15.315 13 12 13Z', b: [4, 1, 16, 21] },
   /* Visor de esquinas (el mismo gesto que la sesión de reconocimiento de iPhone): hecho a mano, mismo trazo que Remix */
   'viewfinder-line': { d: 'M3 3H9V5H5V9H3V3ZM21 3V9H19V5H15V3H21ZM3 21V15H5V19H9V21H3ZM21 21H15V19H19V15H21V21Z', b: [3, 3, 18, 18] },
   'folder-chart-line': { d: 'M12.4142 5H21C21.5523 5 22 5.44772 22 6V20C22 20.5523 21.5523 21 21 21H3C2.44772 21 2 20.5523 2 20V4C2 3.44772 2.44772 3 3 3H10.4142L12.4142 5ZM4 5V19H20V7H11.5858L9.58579 5H4ZM11 9H13V17H11V9ZM15 12H17V17H15V12ZM7 14H9V17H7V14Z', b: [2, 3, 20, 18] },
