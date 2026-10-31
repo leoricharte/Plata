@@ -311,11 +311,18 @@ private struct CooldownNote: View {
 struct CloudStrip: View {
     @Environment(CloudModel.self) private var cloud
 
+    private var hasContent: Bool {
+        (cloud.isIn && cloud.link != nil) || (cloud.gone && !cloud.isIn) || (!cloud.isIn && !cloud.gone && !cloud.stripClosed && !cloud.joined)
+    }
+
     var body: some View {
-        VStack(spacing: 10) {
-            if cloud.isIn, let l = cloud.link { LinkRequestCard(req: l) }
-            if cloud.gone && !cloud.isIn { goneStrip }
-            if !cloud.isIn && !cloud.gone && !cloud.stripClosed && !cloud.joined { invite }
+        // Sin nada que mostrar no devuelve ni un VStack vacío: un vista vacía dentro del VStack de Resumen suma un espacio de 14 pt de más.
+        if hasContent {
+            VStack(spacing: 10) {
+                if cloud.isIn, let l = cloud.link { LinkRequestCard(req: l) }
+                if cloud.gone && !cloud.isIn { goneStrip }
+                if !cloud.isIn && !cloud.gone && !cloud.stripClosed && !cloud.joined { invite }
+            }
         }
     }
 
