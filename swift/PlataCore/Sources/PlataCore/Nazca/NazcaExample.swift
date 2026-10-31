@@ -64,6 +64,8 @@ public enum NazcaExample {
         public var confidence: Double
         /// Cuántos de los dos ejemplos se encontraron solo por el monto y la fecha (no por el nombre). `nil` = ninguno.
         public var soft: Int?
+        /// Se aprendió con un solo ejemplo (el otro no apareció en la captura): hay que revisar la lista y no se recuerda.
+        public var partial: Bool?
     }
 
     public enum LearnError: Error, Equatable, Sendable {
@@ -95,13 +97,17 @@ public enum NazcaExample {
         var t = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         for m in ["\u{2212}", "\u{2013}", "\u{2014}"] { t = t.replacingOccurrences(of: m, with: "-") }
         guard !t.isEmpty, t.count <= 24 else { return nil }
+        // «($229.80)» y «229.80-» son gastos escritos a la contable; sin decimales ni símbolo, «(3)» no es dinero
+        var forced = 0
+        if t.hasPrefix("("), t.hasSuffix(")"), t.contains(where: { "$.,".contains($0) }) { t = String(t.dropFirst().dropLast()).trimmingCharacters(in: .whitespaces); forced = -1 }
+        else if t.hasSuffix("-"), t.count > 1, t.dropLast().last?.isNumber == true { t = String(t.dropLast()); forced = -1 }
         let ns = t as NSString
         guard let m = moneyRx.firstMatch(in: t, range: NSRange(location: 0, length: ns.length)) else { return nil }
         func g(_ i: Int) -> String { let r = m.range(at: i); return r.location == NSNotFound ? "" : ns.substring(with: r) }
         let digits = g(4).trimmingCharacters(in: .whitespaces)
         guard let value = number(digits) else { return nil }
         let mark = g(1).isEmpty ? g(3) : g(1)
-        let marker = mark == "-" ? -1 : (mark == "+" ? 1 : 0)
+        let marker = forced != 0 ? forced : (mark == "-" ? -1 : (mark == "+" ? 1 : 0))
         let sym = (g(2) + g(5)).uppercased()
         let cur = sym.hasPrefix("S/") || sym == "PEN" ? "PEN" : (sym.isEmpty ? "" : "USD")
         return Money(value: value, marker: marker, cur: cur)
@@ -139,6 +145,14 @@ public enum NazcaExample {
     private static let numRx = try! NSRegularExpression(pattern: #"\b(\d{1,2})[/.\-](\d{1,2})[/.\-](\d{2}|\d{4})\b"#)
     private static let dmRx = try! NSRegularExpression(pattern: #"\b(\d{1,2})(?:st|nd|rd|th)?\s*(?:de\s+)?([a-z]{3,10})\.?(?:\s*(?:de\s+)?(\d{4}))?\b"#)
     private static let mdRx = try! NSRegularExpression(pattern: #"\b([a-z]{3,10})\.?\s+(\d{1,2})(?:st|nd|rd|th)?(?:,?\s*(\d{4}))?\b"#)
+    /// «10/23» o «23/10» sin año; solo con «/», porque «12.50» es un monto.
+    private static let slashRx = try! NSRegularExpression(pattern: #"(?<![\d/.])(\d{1,2})/(\d{1,2})(?![\d/])"#)
+
+    private static let weekdays: [String: Int] = [
+        "domingo": 1, "dom": 1, "sunday": 1, "sun": 1, "lunes": 2, "lun": 2, "monday": 2, "mon": 2, "martes": 3, "mar": 3, "tuesday": 3, "tue": 3, "tues": 3,
+        "miercoles": 4, "mie": 4, "wednesday": 4, "wed": 4, "jueves": 5, "jue": 5, "thursday": 5, "thu": 5, "thur": 5, "thurs": 5,
+        "viernes": 6, "vie": 6, "friday": 6, "fri": 6, "sabado": 7, "sab": 7, "saturday": 7, "sat": 7,
+    ]
 
     private static func calendar() -> Calendar {
         var c = Calendar(identifier: .gregorian); c.timeZone = TimeZone(identifier: "UTC")!; return c
@@ -178,29 +192,52 @@ public enum NazcaExample {
     static func parseDate(_ raw: String, today: String) -> String? {
         let t = Nazca.norm(raw).isEmpty ? "" : strip(raw)
         guard !t.isEmpty else { return nil }
-        func grab(_ rx: NSRegularExpression) -> [String]? {
+        func groups(_ m: NSTextCheckingResult) -> [String] {
             let ns = t as NSString
-            guard let m = rx.firstMatch(in: t, range: NSRange(location: 0, length: ns.length)) else { return nil }
             return (0..<m.numberOfRanges).map { i in
                 let r = m.range(at: i); return r.location == NSNotFound ? "" : ns.substring(with: r)
             }
         }
+        func grab(_ rx: NSRegularExpression) -> [String]? {
+            guard let m = rx.firstMatch(in: t, range: NSRange(location: 0, length: (t as NSString).length)) else { return nil }
+            return groups(m)
+        }
+        func grabAll(_ rx: NSRegularExpression) -> [[String]] {
+            rx.matches(in: t, range: NSRange(location: 0, length: (t as NSString).length)).map(groups)
+        }
         if let g = grab(isoRx), let y = Int(g[1]), let m = Int(g[2]), let d = Int(g[3]), let s = fmt(y, m, d) { return s }
-        if let g = grab(numRx), let d = Int(g[1]), let m = Int(g[2]), var y = Int(g[3]) {
+        if let g = grab(numRx), let a = Int(g[1]), let b = Int(g[2]), var y = Int(g[3]) {
             if g[3].count == 2 { y += 2000 }
-            if let s = fmt(y, m, d) { return s }
+            if let s = fmt(y, b, a) ?? fmt(y, a, b) { return s }       // día/mes y, si el mes no cabe, mes/día (formato de EE. UU.)
         }
-        if let g = grab(dmRx), let d = Int(g[1]), let m = months[g[2]] {
-            let y = Int(g[3]) ?? inferYear(m, d, today: today)
-            if let y, let s = fmt(y, m, d) { return s }
+        // pueden aparecer palabras que parecen fecha pero no son mes («5 items»): se prueba cada coincidencia
+        for g in grabAll(dmRx) {
+            if let d = Int(g[1]), let m = months[g[2]], let y = Int(g[3]) ?? inferYear(m, d, today: today), let s = fmt(y, m, d) { return s }
         }
-        if let g = grab(mdRx), let m = months[g[1]], let d = Int(g[2]) {
-            let y = Int(g[3]) ?? inferYear(m, d, today: today)
-            if let y, let s = fmt(y, m, d) { return s }
+        for g in grabAll(mdRx) {
+            if let m = months[g[1]], let d = Int(g[2]), let y = Int(g[3]) ?? inferYear(m, d, today: today), let s = fmt(y, m, d) { return s }
+        }
+        if let g = grab(slashRx), let a = Int(g[1]), let b = Int(g[2]) {
+            let dm: String? = a <= 31 && b <= 12 ? inferYear(b, a, today: today).flatMap { fmt($0, b, a) } : nil     // día/mes
+            let md: String? = a <= 12 && b <= 31 ? inferYear(a, b, today: today).flatMap { fmt($0, a, b) } : nil     // mes/día
+            // si caben las dos, día/mes (lo normal en Perú) salvo que caiga en el futuro y mes/día no: ahí manda el formato de EE. UU.
+            let thisYear = String(today.prefix(4))
+            if let dm, dm.hasPrefix(thisYear) { return dm }
+            if let md, md.hasPrefix(thisYear) { return md }
+            if let r = dm ?? md { return r }
         }
         let words = t.split(whereSeparator: { !$0.isLetter }).map(String.init)
         if words.contains("hoy") || words.contains("today") { return today.isEmpty ? nil : today }
         if words.contains("ayer") || words.contains("yesterday") { return addDays(today, -1) }
+        // solo el día de la semana («Viernes», «Fri.»), como encabezado: el más reciente que no sea futuro. Un texto con más palabras puede ser un comercio.
+        if words.count == 1, let wd = weekdays[words[0]], let (y, m, d) = ymd(today) {
+            var dc = DateComponents(); dc.year = y; dc.month = m; dc.day = d
+            let cal = calendar()
+            if let date = cal.date(from: dc) {
+                let back = (cal.component(.weekday, from: date) - wd + 7) % 7
+                return addDays(today, -back)
+            }
+        }
         return nil
     }
 
@@ -320,11 +357,16 @@ public enum NazcaExample {
         guard examples.count >= 2 else { return .failure(.needTwo) }
         let ls = lines(boxes)
         var found: [Found] = []
+        var missing: [Int] = []
         for (i, ex) in examples.prefix(2).enumerated() {
             if let f = find(ex, in: ls, today: today) { found.append(f) }
             else if let f = find(ex, in: ls, today: today, soft: true) { found.append(f) }
-            else { return .failure(.notFound(i)) }
+            else { missing.append(i) }
         }
+        // si solo uno apareció, se aprende con ese (con menos confianza) en vez de rendirse
+        guard missing.count < 2 else { return .failure(.notFound(missing[0])) }
+        let partial = !missing.isEmpty
+        if partial { found.append(found[0]) }
         // los que se hallaron solo por monto y fecha toman el lugar del nombre del otro ejemplo; si ambos son así, se supone el texto a la izquierda
         let softN = found.filter(\.soft).count
         if softN == 1 {
@@ -341,7 +383,7 @@ public enum NazcaExample {
         let rightGap = abs(a.box.right - b.box.right), leftGap = abs(a.box.x - b.box.x)
         let rightAligned = rightGap <= leftGap
         let amountX = rightAligned ? (a.box.right + b.box.right) / 2 : (a.box.x + b.box.x) / 2
-        let tol = max(0.05, min(rightAligned ? rightGap : leftGap, 0.2) * 1.5 + 0.03)
+        let tol = max(partial ? 0.07 : 0.05, min(rightAligned ? rightGap : leftGap, 0.2) * 1.5 + 0.03)
         checks += 1; if min(rightGap, leftGap) < 0.04 { agree += 1 }
         // descripción
         checks += 1; if a.descDy == b.descDy { agree += 1 }
@@ -365,7 +407,8 @@ public enum NazcaExample {
         else { dateMode = .none }
         checks += 1
         // signo
-        let sa = examples[0].amount < 0 ? -1 : 1, sb = examples[1].amount < 0 ? -1 : 1
+        let okEx = partial ? [examples[missing[0] == 0 ? 1 : 0]] : Array(examples.prefix(2))
+        let sa = okEx[0].amount < 0 ? -1 : 1, sb = okEx[okEx.count - 1].amount < 0 ? -1 : 1
         let ma = parseMoney(a.box.text)?.marker ?? 0, mb = parseMoney(b.box.text)?.marker ?? 0
         let signMode: SignMode
         if (ma != 0 || mb != 0) {
@@ -382,8 +425,9 @@ public enum NazcaExample {
         checks += 1; if softN == 0 { agree += 1 }
         let cur = examples[0].cur.isEmpty ? examples[1].cur : examples[0].cur
         return .success(Template(amountX: amountX, rightAligned: rightAligned, tol: tol, descDy: a.descDy == b.descDy ? a.descDy : a.descDy,
-                                 descLeft: descLeft, dateMode: dateMode, signMode: signMode, cur: cur, confidence: checks == 0 ? 0 : agree / checks,
-                                 soft: softN > 0 ? softN : nil))
+                                 descLeft: descLeft, dateMode: dateMode, signMode: signMode, cur: cur,
+                                 confidence: checks == 0 ? 0 : (agree / checks) * (partial ? 0.5 : 1),
+                                 soft: softN > 0 ? softN : nil, partial: partial ? true : nil))
     }
 
     // MARK: Aplicar
@@ -417,6 +461,7 @@ public enum NazcaExample {
                 case .row(let dy):
                     let j = li + dy
                     if ls.indices.contains(j) { date = ls[j].boxes.compactMap { parseDate($0.text, today: today) }.first ?? "" }
+                    if date.isEmpty { date = header }          // sin fecha propia: la del encabezado de arriba, si lo hay
                 case .header: date = header
                 case .none: break
                 }

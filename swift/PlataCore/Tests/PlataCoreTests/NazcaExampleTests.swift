@@ -73,13 +73,12 @@ final class NazcaExampleTests: XCTestCase {
         XCTAssertEqual(x.items[2].date, "2026-10-01")
     }
 
-    func testNotFound() {
+    /// Con uno de los dos fuera de la captura, Nazca aprende con el otro y lo marca como parcial.
+    func testOneMissingIsPartial() throws {
         let ex = [NazcaExample.Example(desc: "Netflix", amount: -44.9, date: "2026-10-12"),
                   NazcaExample.Example(desc: "Nada que ver", amount: -999, date: "2026-10-11")]
-        XCTAssertEqual({ () -> NazcaExample.LearnError? in
-            if case .failure(let e) = NazcaExample.learn(examples: ex, boxes: headerLayout(), today: today) { return e }
-            return nil
-        }(), .notFound(1))
+        let t = try NazcaExample.learn(examples: ex, boxes: headerLayout(), today: today).get()
+        XCTAssertEqual(t.partial, true)
     }
 
     func testTemplateHasNoUserData() throws {
@@ -206,5 +205,61 @@ final class NazcaExampleTests: XCTestCase {
         XCTAssertEqual(x.items.map(\.amount), [229.8, 420.32, -35, 602.14])
         XCTAssertEqual(x.items.map(\.date), ["2026-10-23", "2026-10-22", "2026-10-21", "2026-10-21"])
         XCTAssertEqual(x.items[0].desc, "Gusto, Payroll")
+    }
+
+    func testMoreMoneyShapes() {
+        let p = NazcaExample.parseMoney("($229.80)")
+        XCTAssertEqual(p?.value, 229.8)
+        XCTAssertEqual(p?.marker, -1)
+        let tail = NazcaExample.parseMoney("35.00-")
+        XCTAssertEqual(tail?.value, 35)
+        XCTAssertEqual(tail?.marker, -1)
+        XCTAssertNil(NazcaExample.parseMoney("(3)"))
+        XCTAssertNil(NazcaExample.parseMoney("-"))
+        XCTAssertEqual(NazcaExample.parseMoney("229.80 USD")?.cur, "USD")
+    }
+
+    func testMoreDateShapes() {
+        XCTAssertEqual(NazcaExample.parseDate("10/23", today: today), "2026-10-23")
+        XCTAssertEqual(NazcaExample.parseDate("23/10", today: today), "2026-10-23")
+        XCTAssertEqual(NazcaExample.parseDate("10/23/2026", today: today), "2026-10-23")
+        XCTAssertEqual(NazcaExample.parseDate("Vie 23/10", today: today), "2026-10-23")
+        XCTAssertEqual(NazcaExample.parseDate("5/11", today: today), "2026-05-11")
+        XCTAssertEqual(NazcaExample.parseDate("23 de octubre", today: today), "2026-10-23")
+        XCTAssertEqual(NazcaExample.parseDate("5 items 23 oct", today: today), "2026-10-23")
+        XCTAssertEqual(NazcaExample.parseDate("Friday", today: today), "2026-10-30")
+        XCTAssertEqual(NazcaExample.parseDate("Sábado", today: today), "2026-10-24")
+        XCTAssertEqual(NazcaExample.parseDate("Mon.", today: today), "2026-10-26")
+        XCTAssertNil(NazcaExample.parseDate("Sunday Bakery", today: today))
+        XCTAssertNil(NazcaExample.parseDate("12.50", today: today))
+    }
+
+    /// Una fila sin fecha propia toma la del encabezado de arriba, aunque la plantilla buscara la fecha en la fila.
+    func testRowDateFallsBackToHeader() {
+        let t = NazcaExample.Template(amountX: 0.92, rightAligned: true, tol: 0.06, descDy: 0, descLeft: 0.05, dateMode: .row(-2),
+                                      signMode: .marker(noMarker: 1), cur: "", confidence: 1)
+        let boxes = [B(text: "Friday, October 23rd", x: 0.05, y: 0.10, w: 0.3, h: 0.015),
+                     B(text: "Gusto", x: 0.05, y: 0.16, w: 0.2, h: 0.02), B(text: "+$229.80", x: 0.72, y: 0.16, w: 0.2, h: 0.02)]
+        let x = NazcaExample.extract(t, boxes: boxes, today: today)
+        XCTAssertEqual(x.items.first?.date, "2026-10-23")
+    }
+
+    /// Si uno de los dos ejemplos no aparece, se aprende con el otro, con menos confianza y marcado como parcial.
+    func testLearnsFromOneWhenOtherMissing() throws {
+        func row(_ y: Double, _ d: String, _ a: String) -> [B] {
+            [B(text: d, x: 0.05, y: y, w: 0.4, h: 0.02), B(text: a, x: 0.72, y: y, w: 0.2, h: 0.02)]
+        }
+        let boxes = row(0.2, "Starbucks", "-$5.40") + row(0.3, "Uber", "-$12.00") + row(0.4, "Sueldo", "+$900.00")
+        let ex = [NazcaExample.Example(desc: "Starbucks", amount: -5.4, date: ""),
+                  NazcaExample.Example(desc: "No existe", amount: -777.77, date: "")]
+        let t = try NazcaExample.learn(examples: ex, boxes: boxes, today: today).get()
+        XCTAssertEqual(t.partial, true)
+        XCTAssertLessThan(t.confidence, 0.6)
+        let x = NazcaExample.extract(t, boxes: boxes, today: today)
+        XCTAssertEqual(x.items.map(\.amount), [-5.4, -12, 900])
+        let none = [NazcaExample.Example(desc: "A", amount: -1.11, date: ""), NazcaExample.Example(desc: "B", amount: -2.22, date: "")]
+        var err: NazcaExample.LearnError?
+        if case .failure(let e) = NazcaExample.learn(examples: none, boxes: boxes, today: today) { err = e }
+        XCTAssertEqual(err, .notFound(0))
     }
 }

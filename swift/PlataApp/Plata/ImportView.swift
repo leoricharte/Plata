@@ -729,7 +729,7 @@ struct ImportFlowView: View {
         guard let h = exHold else { return }
         exHold = nil
         // Aprendizaje local. Puente al envío (apagado): NazcaShare.submit(h.template, bank: bankId, via: sink)
-        TemplateVault.remember(h.template, bank: bankId)
+        if h.template.partial != true { TemplateVault.remember(h.template, bank: bankId) }   // con un solo ejemplo no se guarda: pudo aprender mal
         showExample(h.extraction, template: h.template, institution: bankId)
     }
 
@@ -748,6 +748,7 @@ struct ImportFlowView: View {
         reviews = [rev]; idx = 0; step = .review
         if x.flags.contains("date") { notice = Notice(title: Tr.t("Revisa las fechas"), message: Tr.t("Algunos movimientos no traían fecha: puse la de hoy.")) }
         else if x.flags.contains("sign") { notice = Notice(title: Tr.t("Revisa gastos e ingresos"), message: Tr.t("En algunos movimientos adiviné si eran gasto o ingreso.")) }
+        else if template.partial == true { notice = Notice(title: Tr.t("Aprendí con un solo movimiento"), message: Tr.t("Uno de tus dos movimientos no apareció en la captura, así que Nazca se guió por el otro. Revisa bien la lista, sobre todo gastos e ingresos.")) }
         else if template.soft != nil { notice = Notice(title: Tr.t("Encontré un ejemplo por monto y fecha"), message: Tr.t("Uno de tus movimientos no se llamaba igual en la captura, pero había uno con el mismo monto y la misma fecha. Revisa la lista.")) }
         else if template.confidence < 0.6 { notice = Notice(title: Tr.t("Revisa la lista"), message: Tr.t("Tus dos movimientos se veían distintos en la captura, así que Nazca puede haberse equivocado.")) }
     }
