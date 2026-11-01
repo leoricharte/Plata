@@ -31,7 +31,10 @@ struct InsightsBanner: View {
             } else {
                 VStack(spacing: 14) {
                     if hOK { halfBanner(e, cm) }
-                    if pOK { closeBanner(e, pm, "Cierre de") }
+                    if pOK {
+                        if !e.scoreEnabled { closeBanner(e, pm, "Cierre de") }
+                        else if model.today.day <= 7 && Engine.text(e.data["settings"]?["mr_x"]) != pm.mk { RevealBanner(m: pm) }
+                    }
                     else if lk == nil { closeBanner(e, cm, "Insights de") }
                 }
             }
@@ -401,5 +404,65 @@ struct InsightsView: View {
                 }
             }
         }
+    }
+}
+
+
+/// El banner de inicio de mes: revela la nota del mes pasado (primeros 7 días). La letra se recorta por el borde de la tarjeta; la X lo cierra para ese mes.
+struct RevealBanner: View {
+    @Environment(AppModel.self) private var model
+    let m: InsightsModel
+
+    var body: some View {
+        let L = m.letter
+        let g = GradePalette.letter(L)
+        let dark = L == "C"
+        let tx: Color = dark ? Color(hex: "#3B2600") : .white
+        let mes = Spanish.monthsFull[InsightsText.monthIndex(m.mk)]
+        let y = Int(m.mk.prefix(4)) ?? 0
+        let list = InsightsText.reveal[L] ?? InsightsText.reveal["B"]!
+        let v = list[(y * 12 + InsightsText.monthIndex(m.mk)) % 3]
+        let big = m.plus == .none || m.plus == .diamond ? L : InsightsText.label(L, m.plus)
+        let size: CGFloat = big.count > 1 ? 300 : 400
+        return VStack(spacing: 0) {
+            Text(verbatim: Tr.t(v[0])).font(.inter(16)).opacity(0.95).padding(.top, 2)
+            Text(verbatim: mes.prefix(1).uppercased() + mes.dropFirst()).font(.inter(36, .heavy)).tracking(-1.2)
+            Text(verbatim: Tr.t(v[1])).font(.inter(15)).opacity(0.95).multilineTextAlignment(.center).frame(maxWidth: 260).padding(.top, 5)
+            Button {
+                model.dismissReveal(m.mk)
+                model.path.append(.insights(mk: m.mk, half: false))
+            } label: {
+                Text(verbatim: Tr.t("Revisar insights")).font(.inter(17, .semibold)).foregroundStyle(g[2])
+                    .frame(maxWidth: .infinity).frame(height: 48)
+                    .background(Color.white, in: Capsule())
+                    .shadow(color: g[2].opacity(0.5), radius: 8, y: 4)
+            }
+            .buttonStyle(.plain)
+            .padding(.top, 14)
+            Spacer(minLength: 0)
+        }
+        .foregroundStyle(tx)
+        .padding(.horizontal, 24).padding(.top, 20).padding(.bottom, 22)
+        .frame(maxWidth: .infinity).frame(height: 470)
+        .background(GradeFill(g: g))
+        .overlay(alignment: .bottom) {
+            Text(verbatim: big).font(.inter(size, .heavy)).tracking(-size * 0.04)
+                .foregroundStyle(dark ? Color(hex: "#3B2600") : .white)
+                .fixedSize()
+                .alignmentGuide(.bottom) { $0[.lastTextBaseline] }
+                .offset(y: size * 0.12)
+                .allowsHitTesting(false)
+                .accessibilityLabel(Tr.t("Tu evaluación") + " " + big)
+        }
+        .overlay(alignment: .topTrailing) {
+            Button { model.dismissReveal(m.mk) } label: {
+                Image(systemName: "xmark").font(.system(size: 14, weight: .bold)).foregroundStyle(tx)
+                    .frame(width: 36, height: 36).background((dark ? Color(hex: "#3B2600").opacity(0.14) : Color.white.opacity(0.24)), in: Circle())
+            }
+            .buttonStyle(.plain).padding(14).accessibilityLabel(Tr.t("Cerrar"))
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 34, style: .continuous))
+        .shadow(color: g[2].opacity(0.45), radius: 20, y: 14)
+        .accessibilityElement(children: .contain)
     }
 }

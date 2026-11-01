@@ -516,6 +516,15 @@ final class AppModel {
         }
     }
 
+    /// Recuerda que el banner de inicio de mes de `mk` ya se cerró (`mr_x`, igual que la web).
+    func dismissReveal(_ mk: String) {
+        try? commit { raw in
+            var s = raw["settings"] ?? .object([:])
+            s["mr_x"] = .string(mk)
+            raw["settings"] = s
+        }
+    }
+
     func removePhoto() {
         try? commit { raw in
             var s = raw["settings"] ?? .object([:])

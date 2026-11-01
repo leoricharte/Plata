@@ -68,6 +68,16 @@ enum InsightsText {
     static let half = [["¡Half‑time!", "Esto es lo que llevabas al día 15."], ["Llegó el half‑time.", "Un adelanto de tu nota, con margen para mejorarla."], ["Vas a mitad de mes.", "Este es tu half‑time: así iba tu nota el día 15."]]
     static let halfFirst = [["Tu primer half‑time.", "Tu primer cierre de mes se acerca. Así ibas el día 15."], ["¡Primer half‑time!", "Falta poco para tu primer cierre de mes."], ["Llegaste a mitad de mes.", "Este es tu primer half‑time; tu primer cierre se acerca."]]
 
+    /// Banner de inicio de mes (`MR_TXT` de la web): [encabezado, subtítulo] ×3 por nivel; se elige una según el mes.
+    static let reveal: [String: [[String]]] = [
+        "S": [["¡Mes redondo!", "Mira cómo quedaste."], ["¡Qué mes!", "Esto merece celebrarse."], ["Cierre de mes", "Tu mejor versión, en números."]],
+        "A": [["¡Se acabó el mes!", "Revisemos cómo te fue."], ["¡Buen cierre!", "Te fue muy bien. Mira por qué."], ["Mes terminado", "Veamos qué hiciste bien."]],
+        "B": [["¡Se acabó el mes!", "Revisemos cómo te fue."], ["Mes cerrado", "Nada mal. Veamos qué mejorar."], ["Llegó el cierre", "Hubo cosas buenas. Míralas."]],
+        "C": [["Se acabó el mes", "Veamos qué pasó."], ["Mes cerrado", "Se puede mejorar. Empecemos."], ["Llegó el cierre", "Revisémoslo juntos."]],
+        "D": [["Se acabó el mes", "Fue un mes difícil. Revisémoslo."], ["Mes cerrado", "Veamos dónde se escapó."], ["Llegó el cierre", "Aún hay tiempo de cambiarlo."]],
+        "F": [["Se acabó el mes", "Fue duro. Aquí te ayudamos."], ["Mes cerrado", "Empecemos de nuevo."], ["Llegó el cierre", "Veamos qué ajustar, sin culpas."]],
+    ]
+
     static let adjective = ["S": "Perfecto", "A": "Muy bueno", "B": "Bueno", "C": "Mediocre", "D": "Deficiente", "F": "Muy malo"]
 
     /// «A», «A+», «D-» o «Diamante» (`tL`).

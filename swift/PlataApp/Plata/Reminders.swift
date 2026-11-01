@@ -13,9 +13,10 @@ final class Reminders {
     private(set) var inactivity: Bool
     private(set) var upcoming: Bool
     private(set) var showAmounts: Bool
+    private(set) var insightsOn: Bool
     private(set) var denied = false
 
-    private enum K { static let inact = "plata.notif.inactivity", up = "plata.notif.upcoming", amt = "plata.notif.amounts", since = "plata.notif.since" }
+    private enum K { static let inact = "plata.notif.inactivity", up = "plata.notif.upcoming", amt = "plata.notif.amounts", ins = "plata.notif.insights", since = "plata.notif.since" }
     private static let prefix = "plata."
     /// Texto en el idioma de la app (los avisos los arma el sistema, no pasan por `Tr`).
     private static func L(_ es: String, _ en: String) -> String { Tr.isEnglish ? en : es }
@@ -54,11 +55,28 @@ final class Reminders {
                L("Un minuto hoy te ahorra un dolor de cabeza después.", "One minute today saves a headache later."))]),
     ]}
 
+    /// Aviso de que salió la evaluación del mes (día 1) y del half‑time (día 15): 5 versiones de cada uno, según el mes. `{mes}` es el mes que se evalúa.
+    private static var monthTexts: [(String, String)] {[
+        (L("Salió tu evaluación de {mes}", "Your {mes} grade is in"), L("Entra y mira qué nota sacaste.", "Open Plata and see what you got.")),
+        (L("¿Sacaste A? ¿Sacaste F?", "Did you get an A? An F?"), L("Tu evaluación de {mes} ya está lista.", "Your {mes} grade is ready.")),
+        (L("Se acabó el mes. Hora de la verdad.", "The month is over. Moment of truth."), L("Mira cómo te fue en {mes}.", "See how {mes} went.")),
+        (L("Tu cierre de mes está servido", "Your month-end report is served"), L("Una nota, tus números y algunos consejos.", "A grade, your numbers and some tips.")),
+        (L("Ding: nueva evaluación", "Ding: new grade"), L("Revisa tus insights de {mes} antes de que se enfríen.", "Check your {mes} insights while they're hot.")),
+    ]}
+    private static var halfTexts: [(String, String)] {[
+        (L("¡Half-time!", "Half-time!"), L("Así va tu nota a mitad de mes.", "Here's how your grade looks at mid-month.")),
+        (L("Llegaste a la mitad", "You've hit the halfway mark"), L("Mira tu avance: aún queda tiempo para mejorar.", "See your progress; there's still time to improve.")),
+        (L("Mitad de mes, momento de revisar", "Mid-month check-in"), L("Tu informe parcial ya está listo.", "Your partial report is ready.")),
+        (L("Tu nota va tomando forma", "Your grade is taking shape"), L("Revisa el half-time y ajusta antes del cierre.", "Check your half-time and adjust before month-end.")),
+        (L("¿Cómo vas este mes?", "How's your month going?"), L("Tu half-time te lo cuenta en un minuto.", "Your half-time tells you in a minute.")),
+    ]}
+
     private init() {
         let d = UserDefaults.standard
         inactivity = d.bool(forKey: K.inact)
         upcoming = d.bool(forKey: K.up)
         showAmounts = d.bool(forKey: K.amt)
+        insightsOn = d.bool(forKey: K.ins)
     }
 
     func attach(_ model: AppModel) { self.model = model; refreshStatus() }
@@ -72,9 +90,9 @@ final class Reminders {
     // MARK: ajustes
 
     /// Enciende o apaga un tipo de aviso. Al encender el primero, pide el permiso.
-    func set(inactivity v: Bool? = nil, upcoming u: Bool? = nil, amounts a: Bool? = nil) async {
+    func set(inactivity v: Bool? = nil, upcoming u: Bool? = nil, amounts a: Bool? = nil, insights i: Bool? = nil) async {
         let d = UserDefaults.standard
-        if v == true || u == true {
+        if v == true || u == true || i == true {
             let ok = (try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge])) ?? false
             refreshStatus()
             if !ok { return }
@@ -82,6 +100,7 @@ final class Reminders {
         if let v { inactivity = v; d.set(v, forKey: K.inact) }
         if let u { upcoming = u; d.set(u, forKey: K.up) }
         if let a { showAmounts = a; d.set(a, forKey: K.amt) }
+        if let i { insightsOn = i; d.set(i, forKey: K.ins) }
         schedule()
     }
 
@@ -101,7 +120,7 @@ final class Reminders {
         let center = UNUserNotificationCenter.current()
         let pending = await center.pendingNotificationRequests()
         center.removePendingNotificationRequests(withIdentifiers: pending.map(\.identifier).filter { $0.hasPrefix(Self.prefix) })
-        guard let model, inactivity || upcoming else { return }
+        guard let model, inactivity || upcoming || insightsOn else { return }
         let settings = await center.notificationSettings()
         guard settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional else { return }
         let cal = Calendar.current
@@ -117,6 +136,27 @@ final class Reminders {
         func at(_ day: Date, hour: Int) -> Date { cal.date(bySettingHour: hour, minute: 0, second: 0, of: day) ?? day }
 
         let e = model.engine
+
+
+        if insightsOn, model.engine.insightsEnabled, model.engine.scoreEnabled {
+            // los próximos 2 inicios de mes (nota del mes que acaba de cerrar) y los próximos 2 días 15 (half‑time), a las 9:00
+            let ym = cal.dateComponents([.year, .month], from: now)
+            for k in 0..<3 {
+                guard let first = cal.date(from: DateComponents(year: ym.year, month: (ym.month ?? 1) + k, day: 1)) else { continue }
+                let key = String(format: "%04d-%02d", cal.component(.year, from: first), cal.component(.month, from: first))
+                let idx = (cal.component(.year, from: first) * 12 + cal.component(.month, from: first)) % 5
+                if k > 0, let prev = cal.date(byAdding: .month, value: -1, to: first) {
+                    let f = DateFormatter(); f.locale = Locale(identifier: Tr.isEnglish ? "en" : "es"); f.dateFormat = "LLLL"
+                    let mes = f.string(from: prev)
+                    let t = Self.monthTexts[idx]
+                    add("insm-" + key, t.0.replacingOccurrences(of: "{mes}", with: mes), t.1.replacingOccurrences(of: "{mes}", with: mes), at: at(first, hour: 9))
+                }
+                if let mid = cal.date(byAdding: .day, value: 14, to: first) {
+                    let t = Self.halfTexts[idx]
+                    add("insh-" + key, t.0, t.1, at: at(mid, hour: 9))
+                }
+            }
+        }
 
         if inactivity {
             // el último movimiento (o, si no hay ninguno, el día en que se encendió)
@@ -217,8 +257,10 @@ struct NotificationsSheet: View {
                     row("bell.badge", "Si llevo días sin anotar", Binding(get: { r.inactivity }, set: { v in Task { await r.set(inactivity: v) } }))
                     RowDivider()
                     row("calendar.badge.clock", "Pagos y gastos previstos", Binding(get: { r.upcoming }, set: { v in Task { await r.set(upcoming: v) } }))
+                    RowDivider()
+                    row("chart.bar.xaxis", "Cuando sale mi evaluación", Binding(get: { r.insightsOn }, set: { v in Task { await r.set(insights: v) } }))
                 }
-                Text("Los recordatorios llegan a los 2, 5 y 9 días sin movimientos. Los previstos llegan el día anterior a las 9:00: pagos de tarjeta, suscripciones, gastos e ingresos que ya tienes programados.")
+                Text("Los recordatorios llegan a los 2, 5 y 9 días sin movimientos. Los previstos llegan el día anterior a las 9:00: pagos de tarjeta, suscripciones, gastos e ingresos que ya tienes programados. La evaluación avisa el día 1 de cada mes, y el half-time el día 15, a las 9:00.")
                     .font(.inter(13)).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 8).padding(.top, 8)
                 SCard {
                     row("eye", "Mostrar montos en los avisos", Binding(get: { r.showAmounts }, set: { v in Task { await r.set(amounts: v) } }))
