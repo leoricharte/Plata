@@ -114,6 +114,12 @@ function revealBanner(m) {
     '<button data-act="mrgo:' + m.mk + '" style="position:relative;width:100%;margin-top:14px;height:48px;border-radius:999px;border:0;background:#fff;color:' + g[2] + ';font-size:17px;font-weight:600;box-shadow:0 6px 18px -6px ' + g[2] + '88">Revisar insights</button>' +
     '<div role="img" aria-label="' + esc(tL(L, m.plus)) + '" style="position:absolute;left:0;right:0;bottom:-57px;text-align:center;font-size:' + (big.length > 1 ? 300 : 400) + 'px;font-weight:800;line-height:.78;letter-spacing:-.04em;color:' + (dark ? '#3B2600' : '#fff') + ';pointer-events:none">' + esc(big) + '</div></section>';
 }
+/* El banner de inicio de mes va arriba del Resumen, bajo el saludo y el estado de guardado; el banner de cierre de siempre sigue donde estaba. */
+function revealTop() {
+  if (!insOn() || !hasData()) return '';
+  const pm = insightsModel(prevMkOf(insightsModel().mk));
+  return !insLocked(pm) && revealShow(pm) ? revealBanner(pm) : '';
+}
 function insightsBanner(pos) {
   if (!insOn()) return '';
   const cm = insightsModel(), lk = insLocked(cm), pm = insightsModel(prevMkOf(cm.mk)), pOK = !insLocked(pm);
@@ -126,7 +132,7 @@ function insightsBanner(pos) {
       '<div style="font-size:15px;font-weight:600;margin-top:10px;color:var(--ink)">Vuelve a revisar en ' + lk + '.</div></div>';
   }
   const hb = hOK ? halfBanner(cm) : '';
-  if (pOK) return hb + (scoreOn() ? (revealShow(pm) ? revealBanner(pm) : '') : closeBanner(pm, 'Cierre de', 'insights:' + pm.mk));
+  if (pOK) return hb + closeBanner(pm, 'Cierre de', 'insights:' + pm.mk);
   if (!lk) return hb + closeBanner(cm, 'Insights de', 'insights:' + cm.mk);
   return hb;
 }

@@ -324,7 +324,7 @@ function renderResumen() {
     '<button class="link" data-act="tab:presupuesto">Ver presupuesto</button></div>';
   $('#s-resumen').innerHTML =
     '<div class="brandrow"><div class="plogo rlogo" role="img" aria-label="Plata"></div><button class="betapill" data-act="betainfo">B E T A</button></div><div class="head"><div><div class="eyebrow">' + dateLong(c.today) + '</div><h1>' + esc(greetLine()) + '</h1></div></div>' +
-    '<div class="filestat">' + status + '</div>' + idleBanner(c.today) + revBanner() + cloudStripHTML() +
+    '<div class="filestat">' + status + '</div>' + revealTop() + idleBanner(c.today) + revBanner() + cloudStripHTML() +
     (hasData() ? '' : '<div class="card"><div class="name" style="font-size:20px">Empieza aquí</div><div class="sub" style="padding:4px 0 6px">Tu app... no tiene (casi) nada. Pero no te me abrumes, empieza en la pestaña Cuentas: ajusta tu saldo y añade tus tarjetas, añade movimientos o carga tu archivo de perfil.</div>' +
       '<button class="linkrow" data-act="add">' + IC_ADD + 'Añadir un movimiento</button>' + (nazcaOn() ? '<button class="linkrow" data-act="imp:start">' + RMI('folder-chart-line', 22, '#1A9D63') + 'Importar movimientos</button>' : '') + '<button class="linkrow" data-act="load">' + ICON.folder.replace(/#1C1C1E/g, '#1A9D63') + 'Cargar mi archivo de perfil</button><button class="linkrow" data-act="demo">' + ICON.info + 'Ver con datos de ejemplo</button></div>') +
     '<div class="grid2">' +
