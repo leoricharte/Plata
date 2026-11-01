@@ -28,6 +28,7 @@ struct ResumenView: View {
             ScrollView {
                 VStack(spacing: 14) {
                     titleBlock(e)
+                    if hasData(e) { RevealTop() }
                     CloudStrip()
                     idleBanner(e)
                     reviewBanner(e)

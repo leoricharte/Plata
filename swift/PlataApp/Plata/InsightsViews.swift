@@ -31,10 +31,7 @@ struct InsightsBanner: View {
             } else {
                 VStack(spacing: 14) {
                     if hOK { halfBanner(e, cm) }
-                    if pOK {
-                        if !e.scoreEnabled { closeBanner(e, pm, "Cierre de") }
-                        else if model.today.day <= 7 && Engine.text(e.data["settings"]?["mr_x"]) != pm.mk { RevealBanner(m: pm) }
-                    }
+                    if pOK { closeBanner(e, pm, "Cierre de") }
                     else if lk == nil { closeBanner(e, cm, "Insights de") }
                 }
             }
@@ -407,6 +404,19 @@ struct InsightsView: View {
     }
 }
 
+
+/// El banner de inicio de mes va arriba del Resumen (bajo el saludo); el de cierre de siempre sigue en su lugar.
+struct RevealTop: View {
+    @Environment(AppModel.self) private var model
+    var body: some View {
+        let e = model.engine
+        if e.insightsEnabled, e.scoreEnabled {
+            let cm = e.insightsModel()
+            let pm = e.insightsModel(month: Engine.previousMonthKey(cm.mk))
+            if e.insightsLocked(pm) == nil, model.today.day <= 7, Engine.text(e.data["settings"]?["mr_x"]) != pm.mk { RevealBanner(m: pm) }
+        }
+    }
+}
 
 /// El banner de inicio de mes: revela la nota del mes pasado (primeros 7 días). La letra se recorta por el borde de la tarjeta; la X lo cierra para ese mes.
 struct RevealBanner: View {
