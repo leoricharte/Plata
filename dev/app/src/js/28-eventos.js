@@ -170,6 +170,8 @@ document.addEventListener('click', (e) => {
   else if (a === 'wcust') { wSync(); ui.w.customOpen = true; welcomeHTML(); setTimeout(() => { const e = $('#wCust'); if (e) e.focus(); }, 60); }
   else if (a === 'wswap') { wSync(); const w = ui.w; w.cur.reverse(); w.fx = w.fx > 0 ? Number((1 / w.fx).toPrecision(4)) : 0; welcomeHTML(); }
   else if (a === 'wfin') wFinish(arg === 'skip');
+  else if (a === 'mrx') { data.settings.mr_x = arg; ui.dirty++; persist(); renderAll(); }
+  else if (a === 'mrgo') { data.settings.mr_x = arg; ui.dirty++; persist(); renderAll(); ui.insHalf = false; ui.insMk = arg || ''; openItem('insights', 'x'); }
   else if (a === 'insights') { ui.insHalf = false; ui.insMk = arg || ''; openItem('insights', 'x'); }
   else if (a === 'inshalf') { ui.insHalf = true; openItem('insights', 'x'); }
   else if (a === 'dbgplat') { try { if (arg === 'auto') localStorage.removeItem('plata.platform'); else localStorage.setItem('plata.platform', arg); } catch (e) { /* sin almacenamiento */ } persist(); setTimeout(() => location.reload(), 120); }

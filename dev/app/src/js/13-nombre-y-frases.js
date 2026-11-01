@@ -93,6 +93,27 @@ function closeBanner(m, label, act) {
     (scoreOn() ? '<div class="btx" style="font-size:15px;line-height:1.3;opacity:.95;margin:0 6px 14px">' + esc(insPhrase(m)) + '</div>' : '<div style="height:8px"></div>') +
     '<span style="display:flex;align-items:center;justify-content:center;width:100%;height:50px;border-radius:999px;background:var(--card);color:' + g[1] + ';font-size:17px;font-weight:600">' + '<b class="btg">Ver informe</b>' + '</span></div></div>';
 }
+/* Banner de inicio de mes: revela la evaluación del mes pasado (primeros 7 días, con X; se recuerda por mes en settings.mr_x). */
+const MR_TXT = {
+  S: [['¡Mes redondo!', 'Mira cómo quedaste.'], ['¡Qué mes!', 'Esto merece celebrarse.'], ['Cierre de mes', 'Tu mejor versión, en números.']],
+  A: [['¡Se acabó el mes!', 'Revisemos cómo te fue.'], ['¡Buen cierre!', 'Te fue muy bien. Mira por qué.'], ['Mes terminado', 'Veamos qué hiciste bien.']],
+  B: [['¡Se acabó el mes!', 'Revisemos cómo te fue.'], ['Mes cerrado', 'Nada mal. Veamos qué mejorar.'], ['Llegó el cierre', 'Hubo cosas buenas. Míralas.']],
+  C: [['Se acabó el mes', 'Veamos qué pasó.'], ['Mes cerrado', 'Se puede mejorar. Empecemos.'], ['Llegó el cierre', 'Revisémoslo juntos.']],
+  D: [['Se acabó el mes', 'Fue un mes difícil. Revisémoslo.'], ['Mes cerrado', 'Veamos dónde se escapó.'], ['Llegó el cierre', 'Aún hay tiempo de cambiarlo.']],
+  F: [['Se acabó el mes', 'Fue duro. Aquí te ayudamos.'], ['Mes cerrado', 'Empecemos de nuevo.'], ['Llegó el cierre', 'Veamos qué ajustar, sin culpas.']]
+};
+const revealShow = (pm) => scoreOn() && getToday().getDate() <= 7 && (data.settings || {}).mr_x !== pm.mk;
+function revealBanner(m) {
+  const L = m.letter, g = GRAD[L] || GRAD.B, dark = L === 'C', tx = dark ? '#3B2600' : '#fff', mes = cap1(MON_FULL[m.T.getMonth()]);
+  const big = m.plus && m.plus !== 'd' ? tL(L, m.plus) : L, v = MR_TXT[L][(m.T.getFullYear() * 12 + m.T.getMonth()) % 3];
+  return '<section class="insban" aria-label="Tu evaluación del mes" style="position:relative;overflow:hidden;box-sizing:border-box;width:100%;height:470px;border-radius:34px;margin:0 0 14px;padding:20px 24px 22px;display:flex;flex-direction:column;align-items:center;text-align:center;color:' + tx + ';background:' + insBg(g) + ';box-shadow:0 18px 40px -12px ' + g[2] + '88,0 2px 0 rgba(255,255,255,.35) inset">' +
+    '<button data-act="mrx:' + m.mk + '" aria-label="Cerrar" style="position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:50%;border:0;padding:0;display:flex;align-items:center;justify-content:center;background:' + (dark ? 'rgba(59,38,0,.14)' : 'rgba(255,255,255,.24)') + ';color:' + tx + '">' + RMI('close-line', 18, 'currentColor') + '</button>' +
+    '<div style="font-size:16px;font-weight:400;margin-top:2px;opacity:.95">' + esc(v[0]) + '</div>' +
+    '<div style="font-size:36px;font-weight:800;letter-spacing:-.035em;line-height:1.05">' + esc(mes) + '</div>' +
+    '<div style="font-size:15px;line-height:1.25;margin-top:5px;opacity:.95;max-width:260px;text-wrap:balance">' + esc(v[1]) + '</div>' +
+    '<button data-act="mrgo:' + m.mk + '" style="position:relative;width:100%;margin-top:14px;height:48px;border-radius:999px;border:0;background:#fff;color:' + g[2] + ';font-size:17px;font-weight:600;box-shadow:0 6px 18px -6px ' + g[2] + '88">Revisar insights</button>' +
+    '<div role="img" aria-label="' + esc(tL(L, m.plus)) + '" style="position:absolute;left:0;right:0;bottom:-57px;text-align:center;font-size:' + (big.length > 1 ? 300 : 400) + 'px;font-weight:800;line-height:.78;letter-spacing:-.04em;color:' + (dark ? '#3B2600' : '#fff') + ';pointer-events:none">' + esc(big) + '</div></section>';
+}
 function insightsBanner(pos) {
   if (!insOn()) return '';
   const cm = insightsModel(), lk = insLocked(cm), pm = insightsModel(prevMkOf(cm.mk)), pOK = !insLocked(pm);
@@ -105,7 +126,7 @@ function insightsBanner(pos) {
       '<div style="font-size:15px;font-weight:600;margin-top:10px;color:var(--ink)">Vuelve a revisar en ' + lk + '.</div></div>';
   }
   const hb = hOK ? halfBanner(cm) : '';
-  if (pOK) return hb + closeBanner(pm, 'Cierre de', 'insights:' + pm.mk);
+  if (pOK) return hb + (scoreOn() ? (revealShow(pm) ? revealBanner(pm) : '') : closeBanner(pm, 'Cierre de', 'insights:' + pm.mk));
   if (!lk) return hb + closeBanner(cm, 'Insights de', 'insights:' + cm.mk);
   return hb;
 }
