@@ -38,6 +38,55 @@ final class NazcaImportTests: XCTestCase {
         XCTAssertEqual(r.flip, false)
     }
 
+    func testEditDateDescriptionAmountAndFutureRecalc() throws {
+        let p = base()
+        let e = engine(p)
+        var r = try review(csv, p)
+        // la fila futura pasa a una fecha válida: ya se puede marcar
+        r.setEdit(3, .init(date: "2026-10-20", desc: "Compra de oficina", amount: -12.5), engine: e)
+        XCTAssertEqual(r.rows[3].why, .none)
+        XCTAssertEqual(r.rows[3].date, "2026-10-20")
+        XCTAssertEqual(r.rows[3].desc, "Compra de oficina")
+        XCTAssertEqual(r.rows[3].amount, -12.5)
+        XCTAssertTrue(r.rows[3].edited)
+        XCTAssertTrue(r.rows[3].on)
+        // quitar la edición devuelve la fila original
+        r.setEdit(3, nil, engine: e)
+        XCTAssertEqual(r.rows[3].why, .future)
+        XCTAssertFalse(r.rows[3].edited)
+    }
+
+    func testTransferAndCardPaymentWritePairedMovementsAndUndo() throws {
+        var p = base()
+        p["accounts"] = .array(p["accounts"]!.arrayValue! + [.object(["id": .string("a2"), "name": .string("Ahorros"), "cur": .string("PEN"), "balance": .number(500), "last4": .string("9999")])])
+        p["cards"] = .array([.object(["id": .string("c1"), "kind": .string("card"), "name": .string("Visa"), "cur": .string("PEN"), "limit": .number(5000), "balance": .number(800), "apr": .number(0), "payment": .number(0), "due_day": .number(1), "last4": .string("1111")])])
+        let e = engine(p)
+        var r = try review(csv, p)
+        r.balanceMode = .adjust
+        XCTAssertEqual(r.peerOptions(.transfer, engine: e).map { Engine.identifier($0["id"]) }, ["a2"])
+        XCTAssertEqual(r.peerOptions(.cardPay, engine: e).map { Engine.identifier($0["id"]) }, ["c1"])
+        r.setEdit(2, .init(kind: .cardPay, peer: "c1"), engine: e)
+        r.setEdit(0, .init(amount: -200, kind: .transfer, peer: "a2"), engine: e)
+        XCTAssertEqual(r.rows[2].cat, Engine.payCategory)
+        XCTAssertEqual(r.rows[0].cat, Engine.xferCategory)
+        var q = p
+        let done = try XCTUnwrap(r.apply(to: &q, now: 5_000, newAccountId: "zz"))
+        XCTAssertEqual(done.total, 2)
+        let txs = q["transactions"]!.arrayValue!
+        XCTAssertEqual(txs.count, 1 + 2 + 2)
+        let xfer = txs.filter { $0["category"]?.stringValue == Engine.xferCategory }
+        XCTAssertEqual(xfer.count, 2)
+        XCTAssertEqual(xfer[0]["pair"], xfer[1]["pair"])
+        XCTAssertEqual(xfer.map { $0["amount"]!.doubleValue! }.sorted(), [-200, 200])
+        let bal = { (col: String, i: Int) in q[col]!.arrayValue![i]["balance"]!.doubleValue! }
+        XCTAssertEqual(bal("accounts", 0), 1000 - 200 - 44.9, accuracy: 0.001)
+        XCTAssertEqual(bal("accounts", 1), 700, accuracy: 0.001)
+        // el pago baja la deuda de la tarjeta
+        XCTAssertEqual(bal("cards", 0), 800 - 44.9, accuracy: 0.001)
+        ImportReview.undo(done, in: &q)
+        XCTAssertEqual(q, p)
+    }
+
     func testStatementBalanceIsDefaultWhenNewer() throws {
         let r = try review(csv, base())
         // la fila de la fecha más reciente (futura incluida) trae el saldo del archivo

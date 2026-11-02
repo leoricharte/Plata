@@ -1561,6 +1561,7 @@ struct ImportReviewBody: View {
     @State private var page = 0
     @State private var colsOpen = false
     @State private var rateText = ""
+    @State private var editing: ImportReview.Row?
     @FocusState private var rateFocus: Bool
 
     var body: some View {
@@ -1945,6 +1946,11 @@ struct ImportReviewBody: View {
         let p = min(max(page, 0), pages - 1)
         let shown = Array(frows.dropFirst(p * ImportReview.perPage).prefix(ImportReview.perPage))
         let names = e.categoryNames
+        let credit = review.projected(e)?.credit ?? false
+        func opts(_ k: ImportReview.Kind) -> [ImportRowEditSheet.Peer] {
+            review.peerOptions(k, engine: e).map { .init(id: Engine.identifier($0["id"]), name: Engine.str($0["name"]) + ImportReview.l4($0)) }
+        }
+        let transferPeers = opts(.transfer), payPeers = opts(.cardPay)
         return VStack(spacing: 0) {
             if defs.count > 2 { filterBar(defs, cur, frows.count, fsel, fon) }
             if frows.isEmpty {
@@ -1958,7 +1964,8 @@ struct ImportReviewBody: View {
                             if k > 0 { RowDivider() }
                             ImportRowView(row: r, names: names, fmt: f,
                                           onToggle: { review.toggle(r.i) },
-                                          onCategory: { review.setCategory(r.i, $0) })
+                                          onCategory: { review.setCategory(r.i, $0) },
+                                          onEdit: { editing = r })
                         }
                         if pages > 1 { pager(p, pages, frows.count).padding(.top, 8) }
                     }
@@ -1969,6 +1976,11 @@ struct ImportReviewBody: View {
                 .frame(height: min(max(listH, 60), 340))
                 .plataGlass(in: RoundedRectangle(cornerRadius: 22, style: .continuous))
                 .padding(.top, 6).padding(.bottom, 14)
+            }
+        }
+        .sheet(item: $editing) { r in
+            ImportRowEditSheet(row: r, credit: credit, transferPeers: transferPeers, payPeers: payPeers) { edit in
+                review.setEdit(r.i, edit, engine: model.engine)
             }
         }
     }
@@ -2073,6 +2085,7 @@ private struct ImportRowView: View {
     let fmt: Fmt
     let onToggle: () -> Void
     let onCategory: (String) -> Void
+    let onEdit: () -> Void
 
     private var why: String {
         switch row.why {
@@ -2107,15 +2120,19 @@ private struct ImportRowView: View {
                     Text(LocalDate(iso: row.date).map { Spanish.dateShort($0) } ?? row.date)
                     if !why.isEmpty { Text(verbatim: "·"); Text(why).foregroundStyle(Brand.warnText).fontWeight(.semibold) }
                     if let o = row.orig { Text(verbatim: "· " + fmt.exact(abs(o.amount), o.cur)) }
+                    if row.edited { Text(verbatim: "·"); Text("Editado").foregroundStyle(Brand.accent).fontWeight(.semibold) }
                 }
                 .font(.inter(12.5)).foregroundStyle(.secondary).lineLimit(1)
             }
+            .contentShape(Rectangle())
+            .onTapGesture(perform: onEdit)
             Spacer(minLength: 6)
             VStack(alignment: .trailing, spacing: 2) {
                 Text(verbatim: fmt.signed(row.amount, row.dc)).font(.inter(15, .semibold))
                     .foregroundStyle(row.amount > 0 ? Brand.gainText : Color.primary)
-                if row.amount > 0 {
+                if row.amount > 0 || row.kind != .normal {
                     Text(verbatim: row.cat).font(.inter(12.5)).foregroundStyle(.secondary).lineLimit(1)
+                        .contentShape(Rectangle()).onTapGesture(perform: onEdit)
                 } else {
                     Menu {
                         ForEach(names, id: \.self) { n in
@@ -2123,6 +2140,8 @@ private struct ImportRowView: View {
                                 if n == row.cat { Label { Text(verbatim: n) } icon: { Image(systemName: "checkmark") } } else { Text(verbatim: n) }
                             }
                         }
+                        Divider()
+                        Button(action: onEdit) { Label("Editar movimiento…", systemImage: "pencil") }
                     } label: {
                         HStack(spacing: 3) {
                             Text(verbatim: row.cat).lineLimit(1)
@@ -2139,6 +2158,124 @@ private struct ImportRowView: View {
         }
         .opacity(row.on ? 1 : 0.55)
         .padding(.vertical, 6)
+    }
+}
+
+/// Hoja para revisar de verdad un movimiento leído: fecha, descripción, monto y tipo (gasto, ingreso, transferencia o pago de tarjeta).
+private struct ImportRowEditSheet: View {
+    struct Peer: Identifiable, Hashable { var id: String; var name: String }
+    enum Kind: Hashable { case expense, income, transfer, cardPay }
+
+    let row: ImportReview.Row
+    let credit: Bool
+    let transferPeers: [Peer]
+    let payPeers: [Peer]
+    let onSave: (ImportReview.Edit?) -> Void
+
+    @Environment(\.dismiss) private var dismiss
+    @State private var desc = ""
+    @State private var date = Date()
+    @State private var amount = ""
+    @State private var kind: Kind = .expense
+    @State private var incoming = false
+    @State private var peer = ""
+    @FocusState private var amountFocus: Bool
+
+    private var kinds: [(Kind, String)] {
+        var k: [(Kind, String)] = [(.expense, "Gasto"), (.income, "Ingreso")]
+        if !transferPeers.isEmpty { k.append((.transfer, "Transferencia")) }
+        if !payPeers.isEmpty { k.append((.cardPay, "Pago de tarjeta")) }
+        return k
+    }
+    private var peers: [Peer] { kind == .transfer ? transferPeers : payPeers }
+    private var value: Double? {
+        let v = Double(amount.trimmingCharacters(in: .whitespaces).replacingOccurrences(of: ",", with: "."))
+        return (v ?? 0) > 0 ? v : nil
+    }
+    private var needsPeer: Bool { kind == .transfer || kind == .cardPay }
+    private var canSave: Bool { value != nil && (!needsPeer || !peer.isEmpty) }
+
+    private func signed(_ v: Double) -> Double {
+        switch kind {
+        case .expense: return -v
+        case .income: return v
+        case .transfer: return incoming ? v : -v
+        case .cardPay: return credit ? v : -v
+        }
+    }
+
+    private static let fmt: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX"); f.calendar = Calendar(identifier: .gregorian); f.dateFormat = "yyyy-MM-dd"
+        return f
+    }()
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    Picker("Tipo", selection: $kind) {
+                        ForEach(kinds, id: \.0) { Text(LocalizedStringKey($0.1)).tag($0.0) }
+                    }
+                    if kind == .transfer {
+                        Picker("Dirección", selection: $incoming) {
+                            Text("Sale de esta cuenta").tag(false)
+                            Text("Entra a esta cuenta").tag(true)
+                        }
+                    }
+                    if needsPeer {
+                        Picker(kind == .transfer ? (incoming ? "Desde" : "Hacia") : (credit ? "Pagado desde" : "Tarjeta"), selection: $peer) {
+                            Text("Elige una").tag("")
+                            ForEach(peers) { Text(verbatim: $0.name).tag($0.id) }
+                        }
+                    }
+                } footer: {
+                    if needsPeer { Text("También se anotará en la otra cuenta y su saldo se ajusta.") }
+                }
+                Section {
+                    TextField("Descripción", text: $desc)
+                    DatePicker("Fecha", selection: $date, displayedComponents: .date)
+                    HStack {
+                        Text("Monto")
+                        Spacer()
+                        TextField("0.00", text: $amount).keyboardType(.decimalPad).multilineTextAlignment(.trailing).focused($amountFocus)
+                        Text(verbatim: row.dc).foregroundStyle(.secondary)
+                    }
+                }
+                if row.edited {
+                    Section {
+                        Button("Volver al original", role: .destructive) { onSave(nil); dismiss() }
+                    }
+                }
+            }
+            .navigationTitle("Editar movimiento")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("Cancelar") { dismiss() } }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Guardar") {
+                        guard let v = value else { return }
+                        onSave(.init(date: Self.fmt.string(from: date), desc: desc.trimmingCharacters(in: .whitespacesAndNewlines), amount: signed(v),
+                                     kind: kind == .transfer ? .transfer : kind == .cardPay ? .cardPay : .normal, peer: needsPeer ? peer : ""))
+                        dismiss()
+                    }
+                    .disabled(!canSave)
+                }
+            }
+            .onAppear {
+                desc = row.desc
+                date = LocalDate(iso: row.date).flatMap { Self.fmt.date(from: $0.iso) } ?? Date()
+                amount = String(format: "%.2f", abs(row.amount))
+                switch row.kind {
+                case .transfer: kind = .transfer; incoming = row.amount > 0; peer = row.peer
+                case .cardPay: kind = .cardPay; peer = row.peer
+                case .normal: kind = row.amount > 0 ? .income : .expense
+                }
+            }
+            .onChange(of: kind) { _, _ in if !peers.contains(where: { $0.id == peer }) { peer = "" } }
+        }
+        .presentationDetents([.large])
+        .presentationDragIndicator(.visible)
     }
 }
 

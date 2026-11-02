@@ -28,6 +28,25 @@ public struct ImportReview {
         /// La moneda en que se muestra el monto.
         public var dc = ""
         public var on = false
+        /// Cómo se registra: movimiento normal, transferencia a otra cuenta o pago de tarjeta (con `peer` como la otra cuenta).
+        public var kind: Kind = .normal
+        public var peer = ""
+        /// La persona cambió algo a mano.
+        public var edited = false
+    }
+
+    public enum Kind: String, Sendable { case normal, transfer, cardPay }
+
+    /// Lo que la persona corrigió de una fila al revisar. `amount` va con signo (negativo = sale de la cuenta).
+    public struct Edit: Equatable, Sendable {
+        public var date: String?
+        public var desc: String?
+        public var amount: Double?
+        public var kind: Kind = .normal
+        public var peer = ""
+        public init(date: String? = nil, desc: String? = nil, amount: Double? = nil, kind: Kind = .normal, peer: String = "") {
+            self.date = date; self.desc = desc; self.amount = amount; self.kind = kind; self.peer = peer
+        }
     }
 
     public struct Statement: Equatable, Sendable { public var balance: Double; public var date: String }
@@ -76,6 +95,7 @@ public struct ImportReview {
     public var balanceMode: BalanceMode?
     public var selection: [Int: Bool] = [:]
     public var catPick: [Int: String] = [:]
+    public var edits: [Int: Edit] = [:]
     public var fxMode: FxMode?
     public var fxRate: Double = 0
     /// Cuenta que recibe los movimientos de la otra moneda; vacío = crear una nueva.
@@ -184,7 +204,7 @@ public struct ImportReview {
         let ex = Nazca.extract(analysis, Nazca.Options(cols: colOverrides))
         extracted = ex.items
         unreadable = ex.skipped.unreadable
-        selection = [:]; catPick = [:]; flip = nil; balanceMode = nil
+        selection = [:]; catPick = [:]; edits = [:]; flip = nil; balanceMode = nil
         build(engine)
     }
 
@@ -197,14 +217,33 @@ public struct ImportReview {
 
     public mutating func chooseAccount(_ id: String, engine: Engine) {
         if source != nil && id != Self.newId { source!.mergeId = id }
-        account = id; flip = nil; balanceMode = nil; selection = [:]; fxMode = nil; fxRate = 0; fxAccount = ""
+        account = id; flip = nil; balanceMode = nil; selection = [:]; edits = [:]; fxMode = nil; fxRate = 0; fxAccount = ""
         build(engine)
     }
 
-    public mutating func setFlip(_ on: Bool, engine: Engine) { flip = on; selection = [:]; catPick = [:]; build(engine) }
+    public mutating func setFlip(_ on: Bool, engine: Engine) { flip = on; selection = [:]; catPick = [:]; edits = [:]; build(engine) }
     public mutating func setFxMode(_ m: FxMode, engine: Engine) { fxMode = m; selection = [:]; build(engine) }
     public mutating func setFxRate(_ r: Double, engine: Engine) { if r > 0 { fxRate = r; selection = [:]; build(engine) } }
     public mutating func setFxAccount(_ id: String, engine: Engine) { fxAccount = id; selection = [:]; build(engine) }
+
+    /// Guarda (o quita, con `nil`) lo que la persona corrigió de una fila y recalcula.
+    public mutating func setEdit(_ i: Int, _ edit: Edit?, engine: Engine) {
+        if let edit { edits[i] = edit } else { edits[i] = nil }
+        build(engine)
+    }
+
+    /// Cuentas con las que se puede enlazar un movimiento: para una transferencia, otras cuentas de la misma moneda; para un pago, las tarjetas (si esta es una cuenta) o las cuentas (si esta es una tarjeta).
+    public func peerOptions(_ kind: Kind, engine e: Engine) -> [JSONValue] {
+        guard kind != .normal, let cur = resolve(e.data) else { return [] }
+        let cc = Engine.str(cur.acc["cur"]), me = Engine.identifier(cur.acc["id"])
+        let pool: [JSONValue]
+        switch kind {
+        case .transfer: pool = cur.credit ? [] : e.allAccounts
+        case .cardPay: pool = cur.credit ? e.allAccounts : e.allCards
+        case .normal: pool = []
+        }
+        return pool.filter { Engine.str($0["cur"]) == cc && Engine.identifier($0["id"]) != me }
+    }
 
     public mutating func setCategory(_ i: Int, _ cat: String) {
         catPick[i] = cat
@@ -297,7 +336,15 @@ public struct ImportReview {
             }
         }
         let known = Self.known(e)
-        let dups = Nazca.markDuplicates(items, existing: known, acc: accId, includeImported: loose)
+        let dupsOrig = Nazca.markDuplicates(items, existing: known, acc: accId, includeImported: loose)
+        for (k, ed) in edits where items.indices.contains(k) {
+            if let d = ed.date, !d.isEmpty { items[k].date = d }
+            if let t = ed.desc { items[k].desc = t }
+            if let a = ed.amount { items[k].amount = a }
+        }
+        // la huella sale del movimiento original: así reimportar el mismo archivo lo sigue reconociendo
+        var dups = edits.isEmpty ? dupsOrig : Nazca.markDuplicates(items, existing: known, acc: accId, includeImported: loose)
+        if !edits.isEmpty { for k in dups.indices { dups[k].fp = dupsOrig[k].fp; if dupsOrig[k].dup == .exact { dups[k].dup = .exact } } }
         let guesser = Nazca.categorizer(e.categoryNames, history: known)
         var dupF: [Int: Nazca.Duplicate] = [:]
         if mode == .split && !fxAccount.isEmpty {
@@ -325,6 +372,13 @@ public struct ImportReview {
             var r = Row(i: i, line: it.line, date: it.date, desc: it.desc, amount: it.amount, cur: it.cur, balance: it.balance, orig: origs[i])
             r.fp = dups[i].fp; r.why = why; r.cat = cat; r.side = side; r.dc = side ? F : accCur
             r.on = hard ? false : (selection[i] ?? (soft || why == .none))
+            if let ed = edits[i] {
+                r.edited = true
+                if !side, ed.kind != .normal {
+                    r.kind = ed.kind; r.peer = ed.peer
+                    r.cat = ed.kind == .transfer ? Engine.xferCategory : Engine.payCategory
+                }
+            }
             return r
         }
         let st = statement(credit: credit)
@@ -386,7 +440,7 @@ public struct ImportReview {
         }
         names += a.names
         mdup += a.mdup
-        selection = [:]; catPick = [:]; flip = nil; balanceMode = nil
+        selection = [:]; catPick = [:]; edits = [:]; flip = nil; balanceMode = nil
         build(engine)
     }
 
@@ -474,11 +528,13 @@ public struct ImportReview {
         var parts: [Applied.Part] = [], dones: [Applied.Done] = []
         let mode = balanceMode ?? .adjust
 
-        func push(_ r: Row, acc id: JSONValue, note: String) -> Double {
+        func push(_ r: Row, acc id: JSONValue, note: String, pair: String? = nil) -> Double {
             let amt = Engine.round2(Migration.clampAmt(r.amount))
             let tid = ProfileEditor.nextTxId(p, now: now)
             var list = p["transactions"]?.arrayValue ?? []
-            list.append(.object(["id": .number(tid), "date": .string(r.date), "amount": .number(amt), "category": .string(r.cat), "note": .string(note), "acc": id, "imp": .string(r.fp)]))
+            var tx: [String: JSONValue] = ["id": .number(tid), "date": .string(r.date), "amount": .number(amt), "category": .string(r.cat), "note": .string(note), "acc": id, "imp": .string(r.fp)]
+            if let pair { tx["pair"] = .string(pair) }
+            list.append(.object(tx))
             p["transactions"] = .array(list)
             return tid
         }
@@ -497,6 +553,7 @@ public struct ImportReview {
             return Applied.Done(n: n, account: Engine.str(o["name"]) + Self.l4(o), balance: Engine.num(o["balance"]), cur: Engine.str(o["cur"]), credit: l.col == "cards", created: created)
         }
 
+        var peerParts: [Applied.Part] = []
         if !main.isEmpty {
             // cuenta nueva: se crea al importar, no antes
             if isNew {
@@ -507,15 +564,34 @@ public struct ImportReview {
             }
             let before = isNew ? 0 : bal(accId)
             var ids: [Double] = []
+            var peerIds: [String: (ids: [Double], before: Double)] = [:], peerOrder: [String] = []
             for r in main {
                 var note = r.desc.isEmpty ? r.cat : r.desc
                 if let o = r.orig { note += " (" + Money.exact(abs(o.amount), o.cur) + ")" }
-                let tid = push(r, acc: acc0["id"] ?? .string(accId), note: note)
+                // transferencia o pago con otra cuenta: se anota también del otro lado, con el mismo `pair`
+                var peerJson: JSONValue?
+                if r.kind != .normal, !r.peer.isEmpty, r.peer != accId, let l = ProfileEditor.locate(p, .string(r.peer)),
+                   Engine.identifier(p[l.col]?.arrayValue?[l.index]["id"]) == r.peer {
+                    peerJson = p[l.col]?.arrayValue?[l.index]["id"]
+                }
+                let pairId = peerJson == nil ? nil : "imp" + String(Int(now)) + "-" + String(r.i)
+                let tid = push(r, acc: acc0["id"] ?? .string(accId), note: note, pair: pairId)
                 ids.append(tid)
-                if mode == .adjust { ProfileEditor.applyTo(&p, acc0["id"], Engine.round2(Migration.clampAmt(r.amount))) }
+                let amt = Engine.round2(Migration.clampAmt(r.amount))
+                if mode == .adjust { ProfileEditor.applyTo(&p, acc0["id"], amt) }
+                if let peerJson, let pairId {
+                    let pid = Engine.identifier(peerJson)
+                    if peerIds[pid] == nil { peerIds[pid] = ([], bal(pid)); peerOrder.append(pid) }
+                    var cp = r; cp.amount = -amt
+                    let t2 = push(cp, acc: peerJson, note: r.desc.isEmpty ? r.cat : r.desc, pair: pairId)
+                    peerIds[pid]!.ids.append(t2)
+                    ProfileEditor.applyTo(&p, peerJson, -amt)
+                }
             }
+            peerParts = peerOrder.map { Applied.Part(ids: peerIds[$0]!.ids, acc: $0, before: peerIds[$0]!.before, created: nil, cur2: nil) }
             if mode == .stmt, let st { setBal(accId, Engine.round2(st.balance)) }
             parts.append(.init(ids: ids, acc: accId, before: before, created: isNew ? accId : nil, cur2: nil))
+            parts += peerParts
             dones.append(summary(accId, n: ids.count, created: isNew))
         }
         if !side.isEmpty {
