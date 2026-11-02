@@ -1948,7 +1948,7 @@ struct ImportReviewBody: View {
         let names = e.categoryNames
         let credit = review.projected(e)?.credit ?? false
         func opts(_ k: ImportReview.Kind) -> [ImportRowEditSheet.Peer] {
-            review.peerOptions(k, engine: e).map { .init(id: Engine.identifier($0["id"]), name: Engine.str($0["name"]) + ImportReview.l4($0)) }
+            review.peerOptions(k, engine: e).map { .init(id: Engine.identifier($0["id"]), name: Engine.text($0["name"]) + ImportReview.l4($0)) }
         }
         let transferPeers = opts(.transfer), payPeers = opts(.cardPay)
         return VStack(spacing: 0) {
