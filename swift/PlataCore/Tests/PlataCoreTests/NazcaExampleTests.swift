@@ -127,6 +127,85 @@ final class NazcaExampleTests: XCTestCase {
         XCTAssertEqual(NazcaExample.statement(x).name, "")
     }
 
+    // MARK: captura de Interbank, «Mi Cuenta» (plantilla verificada)
+
+    /// Una captura de «Mi Cuenta» de una cuenta simple en soles, con nombres y montos inventados: descripción arriba, fecha y hora debajo,
+    /// el monto a la derecha entre las dos líneas, los gastos con «-» en negro y los abonos sin signo en verde. Las posiciones siguen la captura real.
+    func miCuentaBoxes() -> [B] {
+        let w = 471.0, h = 1020.0
+        func b(_ t: String, _ x: Double, _ cy: Double, _ bw: Double, _ bh: Double, _ tone: Int = 0) -> B {
+            B(text: t, x: x / w, y: (cy - bh / 2) / h, w: bw / w, h: bh / h, tone: tone)
+        }
+        var out = [b("Mi Cuenta", 184, 91, 106, 22), b("Cuenta Simple Soles", 90, 167, 180, 18), b("S/ 3.57", 38, 251, 60, 17), b("Saldo disponible", 38, 275, 112, 15),
+                   b("Movimientos", 52, 342, 98, 17), b("Movimientos alcancía", 252, 342, 180, 17)]
+        let rows: [(String, String, String, Int, Double)] = [
+            ("Plin-ana ru", "Lun 02 Nov | 10:01 pm", "S/ -20.00", 0, 394), ("Io*mercado", "Dom 01 Nov | 2:21 pm", "S/ -682.72", 0, 468),
+            ("Dale-k21 sa", "Dom 01 Nov | 2:16 pm", "S/ 35.00", 1, 541), ("Dale-k21 sa", "Dom 01 Nov | 2:11 pm", "S/ 70.00", 1, 615),
+            ("Dale-k21 sa", "Dom 01 Nov | 1:41 pm", "S/ 300.01", 1, 688), ("Dale-k21 sa", "Dom 01 Nov | 1:41 pm", "S/ 300.00", 1, 762),
+            ("Plin-ana ru", "Jue 29 Oct | 11:15 pm", "S/ -1.00", 0, 835), ("Io*mercado", "Vie 02 Oct | 12:17 am", "S/ -45.00", 0, 908)]
+        for (d, f, a, tone, cy) in rows {
+            let aw = max(60.0, Double(a.count) * 8.4)
+            out += [b(d, 38, cy, Double(d.count) * 8.2, 16), b(f, 38, cy + 24, Double(f.count) * 7.2, 14), b(a, 414 - aw, cy + 13, aw, 16, tone)]
+        }
+        return out
+    }
+
+    private let miCuentaToday = "2026-11-02"
+    private let miCuentaWant: [(String, Double, String)] = [
+        ("2026-11-02", -20, "Plin-ana ru"), ("2026-11-01", -682.72, "Io*mercado"), ("2026-11-01", 35, "Dale-k21 sa"), ("2026-11-01", 70, "Dale-k21 sa"),
+        ("2026-11-01", 300.01, "Dale-k21 sa"), ("2026-11-01", 300, "Dale-k21 sa"), ("2026-10-29", -1, "Plin-ana ru"), ("2026-10-02", -45, "Io*mercado")]
+
+    private func assertMiCuenta(_ x: NazcaExample.Extraction, file: StaticString = #filePath, line: UInt = #line) {
+        XCTAssertEqual(x.items.count, miCuentaWant.count, file: file, line: line)
+        XCTAssertTrue(x.flags.isEmpty, file: file, line: line)
+        for (i, w) in miCuentaWant.enumerated() where i < x.items.count {
+            XCTAssertEqual(x.items[i].date, w.0, "fecha de la fila \(i)", file: file, line: line)
+            XCTAssertEqual(x.items[i].amount, w.1, accuracy: 0.005, "monto de la fila \(i)", file: file, line: line)
+            XCTAssertEqual(x.items[i].desc, w.2, "descripción de la fila \(i)", file: file, line: line)
+        }
+    }
+
+    func testMiCuentaFormats() {
+        for (s, want) in [("Lun 02 Nov | 10:01 pm", "2026-11-02"), ("Dom 01 Nov | 2:21 pm", "2026-11-01"), ("Jue 29 Oct | 11:15 pm", "2026-10-29"), ("Vie 02 Oct | 12:17 am", "2026-10-02")] {
+            XCTAssertEqual(NazcaExample.parseDate(s, today: miCuentaToday), want, s)
+        }
+        XCTAssertEqual(NazcaExample.parseMoney("S/ -20.00")?.value, 20)
+        XCTAssertEqual(NazcaExample.parseMoney("S/ -20.00")?.marker, -1)
+        XCTAssertEqual(NazcaExample.parseMoney("S/ 35.00")?.marker, 0)
+    }
+
+    func testMiCuentaIsLearnedFromTwoMovements() throws {
+        let ex = [NazcaExample.Example(desc: "Plin-ana ru", amount: -20, date: "2026-11-02"), NazcaExample.Example(desc: "Io*mercado", amount: -682.72, date: "2026-11-01")]
+        let t = try NazcaExample.learn(examples: ex, boxes: miCuentaBoxes(), today: miCuentaToday).get()
+        XCTAssertTrue(t.rightAligned)
+        XCTAssertEqual(t.descDy, -1)
+        XCTAssertEqual(t.dateMode, .row(1))
+        XCTAssertEqual(t.signMode, .marker(noMarker: 1))
+        assertMiCuenta(NazcaExample.extract(t, boxes: miCuentaBoxes(), today: miCuentaToday))
+        // la plantilla guardada es «la misma captura» que la verificada
+        XCTAssertTrue(NazcaTemplates.similar(t, NazcaTemplates.verified[0].template))
+    }
+
+    func testVerifiedMiCuentaCapture() throws {
+        // sin dar ningún ejemplo: la plantilla verificada lee la captura completa, sin tomar el saldo ni los encabezados por movimientos
+        let hit = try XCTUnwrap(NazcaTemplates.best(NazcaTemplates.verified, boxes: miCuentaBoxes(), today: miCuentaToday))
+        XCTAssertEqual(hit.index, 0)
+        assertMiCuenta(hit.extraction)
+        // la plantilla es de Interbank: nombra la cuenta, pero sin el sello de banco verificado (eso es solo de los lectores oficiales)
+        XCTAssertEqual(NazcaTemplates.verified[0].bank, "interbank")
+        let st = NazcaExample.statement(hit.extraction, institution: NazcaTemplates.verified[0].bank)
+        XCTAssertEqual(st.name, "Interbank")
+        XCTAssertNil(st.bank)
+        XCTAssertEqual(st.kind, "corriente")
+        // y no inventa movimientos en una captura con otra forma
+        XCTAssertNil(NazcaTemplates.best(NazcaTemplates.verified, boxes: headerLayout(), today: today))
+    }
+
+    func testVerifiedTemplatesHoldNoUserData() throws {
+        let json = String(data: try JSONEncoder().encode(NazcaTemplates.verified), encoding: .utf8) ?? ""
+        for s in ["Plin", "Io*", "Dale", "898", "2026", "S/"] { XCTAssertFalse(json.contains(s), s) }
+    }
+
     func testSavedTemplateRemembersBank() throws {
         let ex = [NazcaExample.Example(desc: "Netflix", amount: -44.9, date: "2026-10-12"),
                   NazcaExample.Example(desc: "Bodega Lupe", amount: -18, date: "2026-10-11")]
@@ -137,7 +216,7 @@ final class NazcaExampleTests: XCTestCase {
         XCTAssertEqual(saved[0].bank, "bcp")
         let back = try JSONDecoder().decode([NazcaTemplates.Saved].self, from: JSONEncoder().encode(saved))
         XCTAssertEqual(back, saved)
-        XCTAssertTrue(NazcaTemplates.verified.isEmpty)
+        XCTAssertEqual(NazcaTemplates.verified.count, 1)   // «Mi Cuenta» (ver testVerifiedMiCuentaCapture)
         XCTAssertEqual(NazcaShare.payload(t, bank: "bcp").status, "pending")
     }
 

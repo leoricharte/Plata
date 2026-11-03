@@ -12,9 +12,16 @@ public enum NazcaTemplates {
         public init(template: NazcaExample.Template, uses: Int = 1, bank: String? = nil) { self.template = template; self.uses = uses; self.bank = bank }
     }
 
-    /// El catálogo VERIFICADO: formas de captura que Nazca global revisó y probó con capturas sintéticas. Vacío hasta que el aporte compartido exista;
-    /// la app solo usa de forma automática estas y las que la propia persona enseñó, nunca una plantilla sin verificar.
-    public static let verified: [Saved] = []
+    /// El catálogo VERIFICADO: formas de captura que Nazca global revisó y probó con capturas sintéticas (las que sí se ven en un teléfono, con
+    /// nombres y montos inventados). La app solo usa de forma automática estas y las que la propia persona enseñó, nunca una plantilla sin verificar.
+    /// Aquí no hay datos de nadie: solo dónde va cada columna.
+    public static let verified: [Saved] = [
+        // Interbank, captura de la app (no el estado de cuenta): «Mi Cuenta» de una cuenta simple en soles. La descripción va arriba, la fecha con la hora
+        // debajo (`Lun 02 Nov | 10:01 pm`) y el monto a la derecha entre las dos líneas; los gastos llevan «-» y los abonos van sin signo.
+        // Probada en NazcaExampleTests.testVerifiedMiCuentaCapture. El banco solo nombra la cuenta: no lleva el sello de banco verificado.
+        Saved(template: NazcaExample.Template(amountX: 0.879, rightAligned: true, tol: 0.02, descDy: -1, descLeft: 0.081, dateMode: .row(1),
+                                              signMode: .marker(noMarker: 1), cur: "", confidence: 1), uses: 1, bank: "interbank")
+    ]
 
     public static let maxSaved = 8
 
