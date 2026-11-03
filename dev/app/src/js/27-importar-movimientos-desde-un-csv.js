@@ -468,6 +468,9 @@ async function impExLoad(f) {
     else impFail('No pude leer texto en la captura', 'Prueba con una captura más clara y completa.');
     return;
   }
+  /* Una captura que Nazca ya conoce de fábrica se lee sola, sin pedir ejemplos ni la institución. */
+  const known = NazcaEjemplo.bestVerified(impEx.boxes, iso(getToday()));
+  if (known) { impEx.hold = { template: known.template, x: known.x }; impExFinish(known.bank, true); return; }
   impShow('ejemplo', 'tab');
 }
 /* Lo que se encerró: Nazca saca de ahí uno o dos ejemplos, aprende y lee todo lo demás. Si sale bien, pregunta la institución antes de la revisión. */
@@ -481,7 +484,7 @@ function impExGo() {
   if (!x.items.length) { impFail('Nazca no encontró más movimientos', 'Prueba con una captura que muestre varios movimientos.'); return; }
   impEx.hold = { template: r.template, x: x }; impShow('inst', 'push');
 }
-function impExFinish(bankId) {
+function impExFinish(bankId, known) {
   const h = impEx && impEx.hold; if (!h) return;
   const st = NazcaEjemplo.statement(h.x, { institution: bankId, name: bankId ? impBankShort(bankId) : '', defaultCur: curP() });
   st.loose = true;   /* una captura no trae huella de importación: los repetidos se buscan también entre lo ya importado de la cuenta */
@@ -491,6 +494,7 @@ function impExFinish(bankId) {
   else if (h.x.flags.indexOf('sign') >= 0) toast('En algunos movimientos adiviné si eran gasto o ingreso. Revísalos.');
   else if (T0.partial) toast('Nazca se guió por un solo movimiento: revisa bien la lista.');
   else if (T0.soft) toast('Encontré un ejemplo por monto y fecha. Revisa la lista.');
+  else if (known) toast('Nazca ya conocía esta captura. Revisa la lista.');
   else if (T0.confidence < 0.6) toast('Los movimientos se veían distintos en la captura, así que Nazca puede haberse equivocado. Revisa la lista.');
 }
 function impBodyHTML(st) {
@@ -632,7 +636,7 @@ function impReviewHTML() {
     (I.fxMode === 'split' ? '<div class="imacc">' +
       '<button class="imopt' + (I.fxAcc === '__new' ? ' on' : '') + '" data-act="imp:fxacc:new" style="border-top:0"><span class="imrad"></span><span class="grow"><span class="imt">Crear cuenta nueva</span><span class="sub" data-notr>' + esc(sideNew) + '</span></span></button>' +
       (fxPool.length ? '<button class="imopt' + (I.fxAcc !== '__new' ? ' on' : '') + '" data-act="imp:fxacc:merge"><span class="imrad"></span><span class="grow"><span class="imt">Fusionar con otra cuenta</span><span class="sub">Suma estos movimientos a una que ya tienes.</span></span></button>' +
-        (I.fxAcc !== '__new' ? '<div class="imacc" style="padding-left:0"><select class="sinput" id="impFxAcc" aria-label="Cuenta">' + fxPool.map((o) => '<option value="' + o.id + '"' + (o.id === I.fxAcc ? ' selected' : '') + ' data-notr>' + esc(o.name + l4(o)) + ' · ' + o.cur + '</option>').join('') + '</select></div>' : '') : '') +
+        (I.fxAcc !== '__new' ? '<div class="imacc" style="padding-left:0"><select class="sinput" id="impFxAcc" aria-label="Cuenta">' + byUse(fxPool).map((o) => '<option value="' + o.id + '"' + (o.id === I.fxAcc ? ' selected' : '') + ' data-notr>' + esc(accLabel(o)) + '</option>').join('') + '</select></div>' : '') : '') +
       (F !== curP() && F !== curS() ? '<div class="sub" style="padding:4px 0 10px">Se activará esa moneda como segunda moneda de Plata.</div>' : '') + '</div>' : '') + '</div>' : '';
   return profile + foot + (sum ? '<div class="imsum">' + sum + '</div>' : '') + accCard + fxCard +
     '<div class="scard"><div class="slabel" style="padding:10px 0 0">' + (credit ? 'Deuda de la tarjeta' : 'Saldo de la cuenta') + '</div>' +

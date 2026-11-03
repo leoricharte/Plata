@@ -30,6 +30,12 @@ jobs:
       - name: Nazca (constancias de Yape y Plin)
         run: node dev/tests/constancia.mjs
 
+      - name: Nazca (sesión de reconocimiento y capturas de fábrica)
+        run: node dev/tests/ejemplo.mjs
+
+      - name: Frase de recuperación (español e inglés, misma llave)
+        run: node dev/tests/frase.mjs
+
       - name: Pruebas de seguridad del servidor
         run: |
           node dev/tests/carrera.mjs

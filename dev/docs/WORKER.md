@@ -10,6 +10,8 @@ Almacenamiento:
 ## Orígenes (CORS)
 
 - Rutas públicas y de cuenta: `web.plataapp.net` (la app), `plataapp.net` (el sitio y la app vieja durante la mudanza) y la app de escritorio (Tauri).
+- **App de iOS (nativa)**: no es un navegador y no manda la cabecera `Origin`. El servidor solo rechaza un `Origin` presente que no esté en la lista, así que entra sin cambios (lo comprueba `dev/tests/cliente-nativo.mjs`). Se identifica con la plataforma `iPhone · app` o `iPad · app` (la web abierta en Safari manda `iPhone · móvil`); esa cadena aparece en el correo y en la tarjeta de aprobación de dispositivos.
+- La frase de recuperación puede escribirse en español (sin tildes ni eñes) o en inglés: es la misma llave, el servidor no la ve.
 - Rutas de administración: solo los orígenes de `ADMIN_ORIGINS` (el panel privado, que vive en el repo privado `dev-estudio22`) y, con `DEV=1`, `localhost`. Desde cualquier otro origen del navegador responden 403, aunque el token sea correcto.
 
 ## Claves del KV

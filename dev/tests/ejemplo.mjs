@@ -110,5 +110,33 @@ const headerLayout = () => [B('12 oct', 0.05, 0.10, 0.15, 0.02), ...rowH(0.15, '
   eq(x2.items.map((i) => i.amount), [229.8, -5.4, -12], 'cuadro: montos'); eq([...new Set(x2.items.map((i) => i.date))], ['2026-10-23'], 'cuadro: fecha del encabezado');
   eq(E.examples({ x: 0, y: 0, w: 1, h: 0.05 }, boxes, today), [], 'cuadro sin montos: sin ejemplos');
 }
+// captura de Interbank, «Mi Cuenta» (plantilla de fábrica): nombres y montos inventados; las posiciones siguen la captura real.
+// Descripción arriba, fecha y hora debajo, monto a la derecha entre las dos líneas; gastos con «-» en negro y abonos sin signo en verde.
+// Son las mismas pruebas que swift/PlataCore/Tests/PlataCoreTests/NazcaExampleTests.swift (testVerifiedMiCuentaCapture).
+{
+  const mc = '2026-11-02', W = 471, H = 1020;
+  const b = (t, x, cy, w, h, tone = 0) => B(t, x / W, (cy - h / 2) / H, w / W, h / H, tone);
+  const boxes = [b('Mi Cuenta', 184, 91, 106, 22), b('Cuenta Simple Soles', 90, 167, 180, 18), b('S/ 3.57', 38, 251, 60, 17), b('Saldo disponible', 38, 275, 112, 15), b('Movimientos', 52, 342, 98, 17), b('Movimientos alcancía', 252, 342, 180, 17)];
+  [['Plin-ana ru', 'Lun 02 Nov | 10:01 pm', 'S/ -20.00', 0, 394], ['Io*mercado', 'Dom 01 Nov | 2:21 pm', 'S/ -682.72', 0, 468], ['Dale-k21 sa', 'Dom 01 Nov | 2:16 pm', 'S/ 35.00', 1, 541],
+    ['Dale-k21 sa', 'Dom 01 Nov | 2:11 pm', 'S/ 70.00', 1, 615], ['Dale-k21 sa', 'Dom 01 Nov | 1:41 pm', 'S/ 300.01', 1, 688], ['Dale-k21 sa', 'Dom 01 Nov | 1:41 pm', 'S/ 300.00', 1, 762],
+    ['Plin-ana ru', 'Jue 29 Oct | 11:15 pm', 'S/ -1.00', 0, 835], ['Io*mercado', 'Vie 02 Oct | 12:17 am', 'S/ -45.00', 0, 908]].forEach(([d, f, a, tone, cy]) => {
+    const aw = Math.max(60, a.length * 8.4); boxes.push(b(d, 38, cy, d.length * 8.2, 16), b(f, 38, cy + 24, f.length * 7.2, 14), b(a, 414 - aw, cy + 13, aw, 16, tone));
+  });
+  const want = [['2026-11-02', -20, 'Plin-ana ru'], ['2026-11-01', -682.72, 'Io*mercado'], ['2026-11-01', 35, 'Dale-k21 sa'], ['2026-11-01', 70, 'Dale-k21 sa'],
+    ['2026-11-01', 300.01, 'Dale-k21 sa'], ['2026-11-01', 300, 'Dale-k21 sa'], ['2026-10-29', -1, 'Plin-ana ru'], ['2026-10-02', -45, 'Io*mercado']];
+  const rowsOf = (x) => x.items.map((i) => [i.date, i.amount, i.desc]);
+  eq(['Lun 02 Nov | 10:01 pm', 'Dom 01 Nov | 2:21 pm', 'Jue 29 Oct | 11:15 pm', 'Vie 02 Oct | 12:17 am'].map((t) => E.parseDate(t, mc)), ['2026-11-02', '2026-11-01', '2026-10-29', '2026-10-02'], 'Mi Cuenta: fechas con día y hora');
+  eq([E.parseMoney('S/ -20.00').value, E.parseMoney('S/ -20.00').marker, E.parseMoney('S/ 35.00').marker], [20, -1, 0], 'Mi Cuenta: montos');
+  const hit = E.bestVerified(boxes, mc);
+  ok(hit && hit.bank === 'interbank', 'Mi Cuenta: se reconoce de fábrica como Interbank');
+  eq(rowsOf(hit.x), want, 'Mi Cuenta: las ocho filas, sin tomar el saldo ni los encabezados'); eq(hit.x.flags, [], 'Mi Cuenta: sin banderas');
+  const st = E.statement(hit.x, { institution: 'interbank', name: 'Interbank' });
+  ok(st.bank === null && st.name === 'Interbank' && st.kind === 'corriente', 'Mi Cuenta: nombra la cuenta, sin sello de banco verificado');
+  const r = E.learn([ex('Plin-ana ru', -20, '2026-11-02'), ex('Io*mercado', -682.72, '2026-11-01')], boxes, mc);
+  ok(r.ok && r.template.rightAligned && r.template.descDy === -1 && JSON.stringify(r.template.dateMode) === '{"row":1}' && JSON.stringify(r.template.signMode) === '{"marker":1}', 'Mi Cuenta: con dos ejemplos aprende la misma forma');
+  eq(rowsOf(E.extract(r.template, boxes, mc)), want, 'Mi Cuenta: aprendida lee las mismas ocho filas');
+  eq(E.bestVerified(headerLayout(), today), null, 'otra captura: Nazca no inventa movimientos con la plantilla de fábrica');
+  const json = JSON.stringify(E.VERIFIED); ok(!['Plin', 'Io*', 'Dale', '898', '2026', 'S/'].some((s) => json.includes(s)), 'las plantillas de fábrica no guardan datos de nadie');
+}
 console.log(f ? '\n' + f + ' FALLAS' : '\nTodo bien');
 process.exit(f ? 1 : 0);
