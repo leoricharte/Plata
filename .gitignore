@@ -21,3 +21,6 @@ swift/PlataCore/.swiftpm/
 swift/PlataApp/Plata.xcodeproj/
 !dev/tests/constancias.json
 !dev/app/src/tr/*.json
+
+# Info.plist generados por XcodeGen
+swift/PlataApp/*/Info.plist

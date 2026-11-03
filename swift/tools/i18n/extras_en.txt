@@ -312,3 +312,4 @@ Plata llega a iPhone y Apple Watch como app nativa: constancias de Yape y Plin q
 # --- Menús de cuentas (saldo o disponible junto al nombre)
 disponible ¦ available
 pendiente ¦ owed
+Añadir al calendario ¦ Add to Calendar

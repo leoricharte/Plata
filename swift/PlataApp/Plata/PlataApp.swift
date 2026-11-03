@@ -22,6 +22,7 @@ struct PlataApp: App {
                 .onChange(of: lang) { _, _ in WidgetBridge.shared.push() }
             }
             .environment(model)
+                .onOpenURL { model.open(url: $0) }
                 .environment(cloud)
                 .task { cloud.attach(model); WatchBridge.shared.start(model); WidgetBridge.shared.start(model); Reminders.shared.attach(model) }
                 .preferredColorScheme(Prefs.scheme(theme))

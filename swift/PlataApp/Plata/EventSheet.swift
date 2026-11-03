@@ -11,6 +11,7 @@ struct EventSheet: View {
     @State private var amount = ""
     @State private var date = Date()
     @State private var errorText: String?
+    @State private var calendarDraft: CalendarDraft?
     @FocusState private var focus: Bool
 
     private static let seriesTitle = ["income": "serie del ingreso", "expense": "serie del gasto", "cardpay": "serie del pago", "sub": "suscripción", "debt": "tarjeta o préstamo"]
@@ -35,6 +36,9 @@ struct EventSheet: View {
                     .frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 8).padding(.bottom, 10)
                 if let errorText { Text(errorText).font(.inter(14)).foregroundStyle(Brand.lossText).padding(.bottom, 10) }
                 Button("Guardar") { save() }.buttonStyle(PrimaryPillStyle()).padding(.top, 8).padding(.bottom, 12)
+                if let draft = makeCalendarDraft() {
+                    Button("Añadir al calendario") { calendarDraft = draft }.buttonStyle(SecondaryPillStyle()).padding(.bottom, 12)
+                }
                 if !skipped {
                     Button("Omitir este evento") { model.setEventOverride(key: key, entry: .object(["skip": .bool(true)])); dismiss() }
                         .buttonStyle(SecondaryPillStyle()).padding(.bottom, 12)
@@ -53,6 +57,21 @@ struct EventSheet: View {
         .fitSheet().presentationDragIndicator(.visible).presentationCornerRadius(38)
         .presentationBackground(Brand.sheetBg)
         .onAppear(perform: load)
+        .sheet(item: $calendarDraft) { d in CalendarEditSheet(draft: d) { calendarDraft = nil }.ignoresSafeArea() }
+    }
+
+    /// El evento para el Calendario de Apple: su nombre, el monto de hoy (con tus cambios) y un enlace que lo abre en Plata.
+    private func makeCalendarDraft() -> CalendarDraft? {
+        guard let entry, entry.type != "sim" else { return nil }
+        let iso = Engine.text(stored?["date"]).isEmpty ? d0 : Engine.text(stored?["date"])
+        guard let day = LocalDate(iso: iso) else { return nil }
+        let cur = entry.cur ?? model.engine.primaryCurrency
+        let amt = stored?["amt"].flatMap { $0.isNull ? nil : Engine.number($0) } ?? abs(entry.a0)
+        var link = URLComponents()
+        link.scheme = "plata"
+        link.host = "event"
+        link.queryItems = [URLQueryItem(name: "key", value: key)]
+        return CalendarDraft(title: entry.name, day: day, notes: Tr.t("Monto") + ": " + model.fmt.exact(amt, cur), url: link.url)
     }
 
     private func num(_ t: String) -> Double { Double(t.replacingOccurrences(of: ",", with: ".").trimmingCharacters(in: .whitespaces)) ?? 0 }

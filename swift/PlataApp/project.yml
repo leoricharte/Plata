@@ -11,7 +11,7 @@ settings:
   base:
     SWIFT_VERSION: "5.0"
     MARKETING_VERSION: "5.0"
-    CURRENT_PROJECT_VERSION: "95"
+    CURRENT_PROJECT_VERSION: "96"
 packages:
   PlataCore:
     path: ../PlataCore
@@ -30,6 +30,16 @@ targets:
       - target: PlataWatch
       - target: PlataWidgets
       - target: PlataShare
+    # El enlace plata://event?key=… lleva del evento del Calendario de Apple al mismo evento en Plata. Lo demás del Info.plist sale de INFOPLIST_KEY_*.
+    info:
+      path: Plata/Info.plist
+      properties:
+        CFBundleDisplayName: Plata
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleURLTypes:
+          - CFBundleURLName: net.plataapp.plata
+            CFBundleURLSchemes: [plata]
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: net.plataapp.plata   # CÁMBIALO si tu App ID en Apple Developer es otro
@@ -43,6 +53,7 @@ targets:
         INFOPLIST_KEY_CFBundleDisplayName: Plata
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.finance
         INFOPLIST_KEY_NSFaceIDUsageDescription: Plata usa Face ID para abrir la app de forma segura.
+        INFOPLIST_KEY_NSCalendarsWriteOnlyAccessUsageDescription: Plata añade tus pagos al Calendario solo cuando tú lo pides.
         INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UILaunchScreen_BackgroundColor: SplashGreen

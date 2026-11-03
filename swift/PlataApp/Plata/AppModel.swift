@@ -269,6 +269,25 @@ final class AppModel {
     /// Abre la hoja de confirmar si hay algo vencido y no hay otra hoja abierta (`checkPending`).
     var splashDone = false
 
+    /// Abre lo que dice un enlace de Plata. Hoy solo `plata://event?key=…`, el que lleva el evento que se añadió al Calendario de Apple:
+    /// espera a que termine la animación de arranque y el bloqueo, y abre ese evento en Proyección.
+    func open(url: URL) {
+        guard url.scheme == "plata", url.host == "event",
+              let key = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first(where: { $0.name == "key" })?.value,
+              !key.isEmpty else { return }
+        Task { [self] in
+            while !splashDone || AppLock.shared.locked { try? await Task.sleep(for: .milliseconds(100)); if Task.isCancelled { return } }
+            openEvent(key: key)
+        }
+    }
+
+    /// Lleva a Proyección y abre el evento. Si ya no existe (se pagó, se movió o se borró la serie), la persona queda en Proyección.
+    func openEvent(key: String) {
+        path = []
+        tab = .proyeccion
+        if engine.projection().timeline.contains(where: { $0.key == key }) { activeSheet = .event(key: key) }
+    }
+
     /// Lee las constancias que dejó «Compartir». Nunca crea movimientos: quedan en espera (banner del Resumen y «Constancias» en Revisión)
     /// hasta que la persona las revise. Las que ya están en sus movimientos (repetidas) se quitan solas.
     func processConstanciaInbox() {
