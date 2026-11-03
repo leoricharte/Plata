@@ -308,6 +308,6 @@ async function cloudJoin(el) {
 function syncDevice() {
   let id = ''; try { id = localStorage.getItem('plata.dev') || ''; if (!id) { id = 'd' + Math.random().toString(36).slice(2, 10); localStorage.setItem('plata.dev', id); } } catch (e) { /* sin almacenamiento */ }
   const ua = navigator.userAgent || '', web = document.documentElement.classList.contains('web');
-  const os = /iPhone|iPad|iPod/.test(ua) ? 'iPhone' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : /Linux/.test(ua) ? 'Linux' : 'Dispositivo';
+  const os = /iPad/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1) ? 'iPad' : /iPhone|iPod/.test(ua) ? 'iPhone' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : /Linux/.test(ua) ? 'Linux' : 'Dispositivo';
   return { id: id, plat: os + (web ? ' · escritorio' : ' · móvil') };
 }

@@ -9,6 +9,7 @@
 - **Menús de cuentas más útiles (505):** en cada menú donde eliges una cuenta o tarjeta salen primero las que más usaste en los últimos 90 días y, junto al nombre, su saldo en su propia moneda; en una tarjeta, lo disponible (y en un préstamo, lo que todavía se debe).
 - **Añadir al calendario (505):** en un evento de Proyección, el botón «Añadir al calendario» descarga un archivo .ics de día completo, con el monto en las notas y un aviso a las 9:00 del día anterior. El evento lleva un enlace que, al tocarlo, abre ese evento en Plata.
 - **Los pagos de tarjeta y préstamo terminan (505):** el pago mensual de una tarjeta o préstamo se programa con intereses hasta que se acaba la deuda (la última cuota sale por lo que queda), en vez de repetirse todos los meses.
+- **Frase de recuperación en español o inglés (506):** la frase de 12 palabras se muestra en español (sin tildes ni eñes) si la app está en español, y en inglés si no. Se acepta escrita en cualquiera de los dos idiomas: es la misma llave, y una cuenta creada en la app de iPhone se abre en la web con la frase que recibió, y al revés. Los dispositivos iPad se distinguen de iPhone en Plata Cloud.
 - **Captura de Interbank de fábrica (505):** Nazca ya conoce la captura de «Mi Cuenta» de la app de Interbank y la lee sola, sin pedirte ejemplos.
 - **Sesión de reconocimiento (496):** sube una captura de cualquier app o banco y encierra con el dedo uno o varios movimientos; Nazca aprende cómo está armada y trae el resto. Se lee en el dispositivo y pasa por Revisión.
 
