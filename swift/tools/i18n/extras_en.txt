@@ -308,3 +308,7 @@ PRESUPUESTO ¦ BUDGET
 Presupuesto en aros ¦ Budget in rings
 Los mismos aros del reloj, hasta 4 categorías a la vez, y un encabezado que cambia con la estación del año. ¦ The same rings as the watch, up to 4 categories at once, and a header that changes with the season.
 Plata llega a iPhone y Apple Watch como app nativa: constancias de Yape y Plin que se leen en tu dispositivo, widgets y Bentos, aros de presupuesto y Face ID. ¦ Plata arrives on iPhone and Apple Watch as a native app: Yape and Plin receipts read on your device, widgets and Bentos, budget rings and Face ID.
+
+# --- Menús de cuentas (saldo o disponible junto al nombre)
+disponible ¦ available
+pendiente ¦ owed

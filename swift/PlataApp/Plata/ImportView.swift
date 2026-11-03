@@ -1720,7 +1720,7 @@ struct ImportReviewBody: View {
     // MARK: cuenta
 
     private func accountChoices(_ e: Engine) -> [(id: String, label: String)] {
-        (e.allAccounts + e.allCards).map { (Engine.identifier($0["id"]), Engine.text($0["name"]) + ImportReview.l4($0)) }
+        e.accountsAndCardsByUse.map { (Engine.identifier($0["id"]), e.menuLabel($0)) }
     }
 
     private func accountCard(_ e: Engine) -> some View {
@@ -1764,9 +1764,9 @@ struct ImportReviewBody: View {
     private func statementAccountCard(_ e: Engine, _ src: ImportReview.Source) -> some View {
         let isNew = review.account == ImportReview.newId
         let merge = review.mergeTarget(e)
-        let accounts = e.allAccounts
+        let accounts = e.accountsByUse
         // una captura sin institución verificada puede ser de una cuenta o de una tarjeta: se ofrecen las dos
-        let cards = (src.card || src.bank == nil) ? e.allCards.filter { Engine.text($0["kind"]) == "card" } : []
+        let cards = (src.card || src.bank == nil) ? e.cardsByUse.filter { Engine.text($0["kind"]) == "card" } : []
         return SCard {
             Text("Cuenta").font(.inter(13)).foregroundStyle(.secondary).padding(.top, 10).padding(.bottom, 2)
             OptionRow(title: "Crear cuenta nueva", subVerbatim: Engine.text(src.newAcc["name"]) + ImportReview.l4(src.newAcc), on: isNew) {
@@ -1781,13 +1781,13 @@ struct ImportReviewBody: View {
                     Picker("Cuenta", selection: Binding(get: { review.account }, set: { review.chooseAccount($0, engine: model.engine) })) {
                         Section("Débito") {
                             ForEach(Array(accounts.enumerated()), id: \.offset) { _, o in
-                                Text(verbatim: Engine.text(o["name"]) + ImportReview.l4(o) + " · " + Engine.text(o["cur"])).tag(Engine.identifier(o["id"]))
+                                Text(verbatim: e.menuLabel(o)).tag(Engine.identifier(o["id"]))
                             }
                         }
                         if !cards.isEmpty {
                             Section("Crédito") {
                                 ForEach(Array(cards.enumerated()), id: \.offset) { _, o in
-                                    Text(verbatim: Engine.text(o["name"]) + ImportReview.l4(o) + " · " + Engine.text(o["cur"])).tag(Engine.identifier(o["id"]))
+                                    Text(verbatim: e.menuLabel(o)).tag(Engine.identifier(o["id"]))
                                 }
                             }
                         }
@@ -1840,8 +1840,8 @@ struct ImportReviewBody: View {
                         }
                         if !review.fxAccount.isEmpty {
                             Picker("Cuenta", selection: Binding(get: { review.fxAccount }, set: { review.setFxAccount($0, engine: model.engine) })) {
-                                ForEach(Array(pool.enumerated()), id: \.offset) { _, o in
-                                    Text(verbatim: Engine.text(o["name"]) + ImportReview.l4(o) + " · " + Engine.text(o["cur"])).tag(Engine.identifier(o["id"]))
+                                ForEach(Array(e.orderedByUse(pool).enumerated()), id: \.offset) { _, o in
+                                    Text(verbatim: e.menuLabel(o)).tag(Engine.identifier(o["id"]))
                                 }
                             }
                             .pickerStyle(.menu).labelsHidden().frame(maxWidth: .infinity, alignment: .leading).padding(.bottom, 8)
@@ -1948,7 +1948,7 @@ struct ImportReviewBody: View {
         let names = e.categoryNames
         let credit = review.projected(e)?.credit ?? false
         func opts(_ k: ImportReview.Kind) -> [ImportRowEditSheet.Peer] {
-            review.peerOptions(k, engine: e).map { .init(id: Engine.identifier($0["id"]), name: Engine.text($0["name"]) + ImportReview.l4($0)) }
+            e.orderedByUse(review.peerOptions(k, engine: e)).map { .init(id: Engine.identifier($0["id"]), name: e.menuLabel($0)) }
         }
         let transferPeers = opts(.transfer), payPeers = opts(.cardPay)
         return VStack(spacing: 0) {

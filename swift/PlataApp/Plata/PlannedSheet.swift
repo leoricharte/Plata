@@ -45,7 +45,7 @@ struct PlannedSheet: View {
                     if isPay {
                         RowDivider()
                         SRow(symbol: "creditcard", label: "Tarjeta o préstamo") {
-                            menu($card, e.allCards.map { (Engine.text($0["id"]), label($0)) })
+                            menu($card, e.cardsByUse.map { (Engine.text($0["id"]), label($0)) })
                         }
                     } else {
                         RowDivider()
@@ -55,7 +55,7 @@ struct PlannedSheet: View {
                     }
                     RowDivider()
                     SRow(symbol: "creditcard", label: isPay ? "Pagar desde (monto en \(pcur))" : "Cuenta al ejecutarlo (monto en \(pcur))") {
-                        menu($account, (isPay ? e.allAccounts : e.allAccounts + e.allCards).map { (Engine.text($0["id"]), label($0)) })
+                        menu($account, (isPay ? e.accountsByUse : e.accountsAndCardsByUse).map { (Engine.text($0["id"]), label($0)) })
                     }
                 }
 
@@ -102,10 +102,7 @@ struct PlannedSheet: View {
     }
 
     private func label(_ a: JSONValue) -> String {
-        var s = Engine.text(a["name"])
-        let l4 = Engine.text(a["last4"])
-        if !l4.isEmpty { s += " · ● " + l4 }
-        return s + " · " + Engine.text(a["cur"])
+        model.engine.menuLabel(a)
     }
 
     private func num(_ t: String) -> Double { Double(t.replacingOccurrences(of: ",", with: ".").trimmingCharacters(in: .whitespaces)) ?? 0 }

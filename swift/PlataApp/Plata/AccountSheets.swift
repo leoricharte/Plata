@@ -291,11 +291,11 @@ struct SubSheet: View {
                             Picker("", selection: $account) {
                                 Text("Sin especificar").tag("")
                                 Section("Débito") {
-                                    ForEach(Array(e.allAccounts.enumerated()), id: \.offset) { _, a in Text(label(a)).tag(Engine.text(a["id"])) }
+                                    ForEach(Array(e.accountsByUse.enumerated()), id: \.offset) { _, a in Text(label(a)).tag(Engine.text(a["id"])) }
                                 }
                                 if !e.allCards.isEmpty {
                                     Section("Crédito") {
-                                        ForEach(Array(e.allCards.enumerated()), id: \.offset) { _, a in Text(label(a)).tag(Engine.text(a["id"])) }
+                                        ForEach(Array(e.cardsByUse.enumerated()), id: \.offset) { _, a in Text(label(a)).tag(Engine.text(a["id"])) }
                                     }
                                 }
                             }
@@ -326,10 +326,7 @@ struct SubSheet: View {
     }
 
     private func label(_ a: JSONValue) -> String {
-        var s = Engine.text(a["name"])
-        let l4 = Engine.text(a["last4"])
-        if !l4.isEmpty { s += " · ● " + l4 }
-        return s + " · " + Engine.text(a["cur"])
+        model.engine.menuLabel(a)
     }
 
     private func selected(_ e: Engine) -> String {

@@ -133,7 +133,7 @@ private struct ConfirmBody: View {
                 Menu {
                     Picker("", selection: $from) {
                         Text("Sin descontar de una cuenta").tag("")
-                        ForEach(Array(e.allAccounts.enumerated()), id: \.offset) { _, a in Text(accLabel(a)).tag(Engine.text(a["id"])) }
+                        ForEach(Array(e.accountsByUse.enumerated()), id: \.offset) { _, a in Text(accLabel(a)).tag(Engine.text(a["id"])) }
                     }
                 } label: {
                     Text(from.isEmpty ? "Sin descontar de una cuenta" : e.allAccounts.first(where: { Engine.text($0["id"]) == from }).map(accLabel) ?? "")
@@ -190,10 +190,7 @@ private struct ConfirmBody: View {
     private func taxText(_ v: Double) -> String { (v == v.rounded() ? String(Int(v)) : String(v)) + "%" }
 
     private func accLabel(_ a: JSONValue) -> String {
-        var s = Engine.text(a["name"])
-        let l4 = Engine.text(a["last4"])
-        if !l4.isEmpty { s += " · ● " + l4 }
-        return s + " · " + Engine.text(a["cur"])
+        model.engine.menuLabel(a)
     }
 
     @ViewBuilder

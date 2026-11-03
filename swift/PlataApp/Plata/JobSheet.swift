@@ -56,7 +56,7 @@ struct JobSheet: View {
                     SRow(symbol: "creditcard", label: "Cuenta donde cae el pago") {
                         Menu {
                             Picker("", selection: $account) {
-                                ForEach(Array(e.allAccounts.enumerated()), id: \.offset) { _, a in Text(label(a)).tag(Engine.text(a["id"])) }
+                                ForEach(Array(e.accountsByUse.enumerated()), id: \.offset) { _, a in Text(label(a)).tag(Engine.text(a["id"])) }
                             }
                         } label: {
                             Text(e.allAccounts.first(where: { Engine.text($0["id"]) == account }).map(label) ?? "")
@@ -95,10 +95,7 @@ struct JobSheet: View {
     }
 
     private func label(_ a: JSONValue) -> String {
-        var s = Engine.text(a["name"])
-        let l4 = Engine.text(a["last4"])
-        if !l4.isEmpty { s += " · ● " + l4 }
-        return s + " · " + Engine.text(a["cur"])
+        model.engine.menuLabel(a)
     }
 
     private func num(_ t: String) -> Double { Double(t.replacingOccurrences(of: ",", with: ".").trimmingCharacters(in: .whitespaces)) ?? 0 }

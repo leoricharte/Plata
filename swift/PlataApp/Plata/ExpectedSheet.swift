@@ -46,7 +46,7 @@ struct ExpectedSheet: View {
                     if isCardPay {
                         SRow(symbol: "creditcard", label: "Tarjeta o préstamo") {
                             Menu {
-                                Picker("", selection: $card) { ForEach(Array(e.allCards.enumerated()), id: \.offset) { _, a in Text(label(a)).tag(Engine.text(a["id"])) } }
+                                Picker("", selection: $card) { ForEach(Array(e.cardsByUse.enumerated()), id: \.offset) { _, a in Text(label(a)).tag(Engine.text(a["id"])) } }
                             } label: {
                                 Text(e.allCards.first(where: { Engine.text($0["id"]) == card }).map(label) ?? "").foregroundStyle(.primary).lineLimit(1).frame(maxWidth: .infinity, alignment: .leading)
                             }
@@ -57,11 +57,11 @@ struct ExpectedSheet: View {
                         Menu {
                             Picker("", selection: $account) {
                                 Section("Débito") {
-                                    ForEach(Array(e.allAccounts.enumerated()), id: \.offset) { _, a in Text(label(a)).tag(Engine.text(a["id"])) }
+                                    ForEach(Array(e.accountsByUse.enumerated()), id: \.offset) { _, a in Text(label(a)).tag(Engine.text(a["id"])) }
                                 }
                                 if !isIncome && !isCardPay && !e.allCards.isEmpty {
                                     Section("Crédito") {
-                                        ForEach(Array(e.allCards.enumerated()), id: \.offset) { _, a in Text(label(a)).tag(Engine.text(a["id"])) }
+                                        ForEach(Array(e.cardsByUse.enumerated()), id: \.offset) { _, a in Text(label(a)).tag(Engine.text(a["id"])) }
                                     }
                                 }
                             }
@@ -131,10 +131,7 @@ struct ExpectedSheet: View {
     }
 
     private func label(_ a: JSONValue) -> String {
-        var s = Engine.text(a["name"])
-        let l4 = Engine.text(a["last4"])
-        if !l4.isEmpty { s += " · ● " + l4 }
-        return s + " · " + Engine.text(a["cur"])
+        model.engine.menuLabel(a)
     }
 
     private func selectedLabel(_ e: Engine) -> String {

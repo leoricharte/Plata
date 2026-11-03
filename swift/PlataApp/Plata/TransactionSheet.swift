@@ -68,13 +68,13 @@ struct TransactionSheet: View {
                         Menu {
                             Picker("Cuenta", selection: $account) {
                                 Section("Débito") {
-                                    ForEach(Array(e.allAccounts.enumerated()), id: \.offset) { _, a in
+                                    ForEach(Array(e.accountsByUse.enumerated()), id: \.offset) { _, a in
                                         Text(accountLabel(a)).tag(Engine.text(a["id"]))
                                     }
                                 }
                                 if (isOut || isPayLike) && !e.allCards.isEmpty {
                                     Section("Crédito") {
-                                        ForEach(Array(e.allCards.enumerated()), id: \.offset) { _, k in
+                                        ForEach(Array(e.cardsByUse.enumerated()), id: \.offset) { _, k in
                                             Text(accountLabel(k)).tag(Engine.text(k["id"]))
                                         }
                                     }
@@ -225,10 +225,7 @@ struct TransactionSheet: View {
     }
 
     private func accountLabel(_ a: JSONValue) -> String {
-        var s = Engine.text(a["name"])
-        let l4 = Engine.text(a["last4"])
-        if !l4.isEmpty { s += " · ● " + l4 }
-        return s + " · " + Engine.text(a["cur"])
+        model.engine.menuLabel(a)
     }
 
     // MARK: pago de crédito
@@ -255,7 +252,7 @@ struct TransactionSheet: View {
         SRow(symbol: "creditcard", label: "Tarjeta o préstamo") {
             Menu {
                 Picker("Tarjeta", selection: $card) {
-                    ForEach(Array(e.allCards.enumerated()), id: \.offset) { _, a in Text(accountLabel(a)).tag(Engine.text(a["id"])) }
+                    ForEach(Array(e.cardsByUse.enumerated()), id: \.offset) { _, a in Text(accountLabel(a)).tag(Engine.text(a["id"])) }
                 }
             } label: {
                 Text(k.map(accountLabel) ?? "").foregroundStyle(.primary).lineLimit(1).frame(maxWidth: .infinity, alignment: .leading)
@@ -266,7 +263,7 @@ struct TransactionSheet: View {
             Menu {
                 Picker("Desde", selection: $from) {
                     Text("Sin descontar de una cuenta").tag("")
-                    ForEach(Array(e.allAccounts.enumerated()), id: \.offset) { _, a in Text(accountLabel(a)).tag(Engine.text(a["id"])) }
+                    ForEach(Array(e.accountsByUse.enumerated()), id: \.offset) { _, a in Text(accountLabel(a)).tag(Engine.text(a["id"])) }
                 }
             } label: {
                 Text(from.isEmpty ? "Sin descontar de una cuenta" : (e.allAccounts.first(where: { Engine.text($0["id"]) == from }).map(accountLabel) ?? ""))

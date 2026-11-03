@@ -83,7 +83,7 @@ struct TransferSheet: View {
     private func picker(_ selection: Binding<String>, _ list: [JSONValue]) -> some View {
         Menu {
             Picker("", selection: selection) {
-                ForEach(Array(list.enumerated()), id: \.offset) { _, a in Text(label(a)).tag(Engine.text(a["id"])) }
+                ForEach(Array(model.engine.orderedByUse(list).enumerated()), id: \.offset) { _, a in Text(label(a)).tag(Engine.text(a["id"])) }
             }
         } label: {
             Text(list.first(where: { Engine.text($0["id"]) == selection.wrappedValue }).map(label) ?? "")
@@ -92,10 +92,7 @@ struct TransferSheet: View {
     }
 
     private func label(_ a: JSONValue) -> String {
-        var s = Engine.text(a["name"])
-        let l4 = Engine.text(a["last4"])
-        if !l4.isEmpty { s += " · ● " + l4 }
-        return s + " · " + Engine.text(a["cur"])
+        model.engine.menuLabel(a)
     }
 
     private func num(_ t: String) -> Double { Double(t.replacingOccurrences(of: ",", with: ".").trimmingCharacters(in: .whitespaces)) ?? 0 }
