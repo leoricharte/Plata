@@ -473,11 +473,18 @@ public struct Engine {
                                       form: "sub", srcId: Engine.idStr(s["id"]), cur: cur, a0: -amount))
             }
         }
+        // El pago mensual de una tarjeta o préstamo termina cuando se acaba la deuda (igual que la web): cada mes se suma el interés (APR/12)
+        // a lo que se debe y el cobro es el menor entre el pago y esa deuda. Con deuda 0 no hay cobros; la última cuota sale por lo que queda.
         for c in list("cards") where Engine.num(c["payment"]) > 0 {
             let cur = Engine.str(c["cur"]), pay = Engine.num(c["payment"])
+            var bal = Engine.num(c["balance"])
+            let rate = Engine.num(c["apr"]) / 1200
             monthly(dayOr1(c["due_day"])) { d in
-                ev.append(EngineEvent(date: d, name: "Pago " + Engine.str(c["name"]), amt: -usd(pay, cur), type: "card", key: "card:" + Engine.idStr(c["id"]) + ":" + d.iso,
-                                      form: "debt", srcId: Engine.idStr(c["id"]), cur: cur, a0: -pay))
+                guard bal > 0.005 else { return }
+                let owed = Engine.round2(bal * (1 + rate)), due = min(pay, owed)
+                bal = Engine.round2(owed - due)
+                ev.append(EngineEvent(date: d, name: "Pago " + Engine.str(c["name"]), amt: -usd(due, cur), type: "card", key: "card:" + Engine.idStr(c["id"]) + ":" + d.iso,
+                                      form: "debt", srcId: Engine.idStr(c["id"]), cur: cur, a0: -due))
             }
         }
 
