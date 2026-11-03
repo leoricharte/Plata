@@ -4,6 +4,7 @@ Falla (y marca el paso en rojo) si falta algo, y deja el resumen como anotación
 Uso: python3 android/scripts/check-apk.py salida/plata-debug.apk salida/plata-release.aab"""
 import sys, re, zipfile, subprocess, glob, os
 
+TARGET_MIN = int(os.environ.get('PLATA_TARGET_MIN', '36'))   # nivel de API mínimo que Play exige a las apps nuevas (revisar cada año, ver android/LEEME.md)
 apk_path, aab_path = sys.argv[1], sys.argv[2]
 apk, aab = zipfile.ZipFile(apk_path), zipfile.ZipFile(aab_path)
 names = apk.namelist(); fallos = []; resumen = []
@@ -40,17 +41,19 @@ if aapt2:
     ok("application-label:'Plata'" in bd, "nombre de la app: Plata")
     for perm in ("android.permission.INTERNET", "android.permission.USE_BIOMETRIC", "android.permission.POST_NOTIFICATIONS"):
         ok(f"uses-permission: name='{perm}'" in bd, "permiso " + perm.split(".")[-1])
-    extra = sorted(set(re.findall(r"uses-permission: name='([^']+)'", bd)) - {"android.permission.INTERNET", "android.permission.USE_BIOMETRIC", "android.permission.POST_NOTIFICATIONS"})
-    ok(not [p for p in extra if not p.startswith(("net.plataapp.plata.DYNAMIC", "androidx."))], "ningún permiso de más (ubicación, contactos, cámara…)", f"(extra: {extra})" if extra else "")
-    ok("allowBackup" in xt and "(Raw: \"false\")" in xt.split("allowBackup")[1][:120] or "allowBackup(0x01010280)=(type 0x12)0x0" in xt, "sin copias automáticas (allowBackup=false)")
+    # los que traen los plugins y son inocuos: reiniciar el teléfono no pierde los avisos (BOOT), mantener despierto el aviso (WAKE_LOCK) y la huella en Android antiguo (USE_FINGERPRINT)
+    propios = {"android.permission.INTERNET", "android.permission.USE_BIOMETRIC", "android.permission.POST_NOTIFICATIONS", "android.permission.RECEIVE_BOOT_COMPLETED", "android.permission.WAKE_LOCK", "android.permission.USE_FINGERPRINT"}
+    extra = sorted(set(re.findall(r"uses-permission: name='([^']+)'", bd)) - propios)
+    ok(not [p for p in extra if not p.endswith("DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION")], "ningún permiso de más (ubicación, contactos, cámara…)", f"(extra: {extra})" if extra else "")
+    ok(bool(re.search(r"allowBackup\(0x01010280\)=(false|\(type 0x12\)0x0)", xt)), "sin copias automáticas (allowBackup=false)")
     ok("android.intent.action.SEND" in xt, "recibe «Compartir»")
     ok(all(t in xt for t in ("image/*", "application/pdf", "text/plain")), "tipos que recibe: imágenes, PDF y texto")
     ok("web.plataapp.net" in xt, "enlaces https://web.plataapp.net")
     ok("autoVerify" in xt, "enlaces verificables (autoVerify)")
     ok("android.intent.action.MAIN" in xt, "se abre desde el ícono")
     ok("launchable-activity" in bd and "icon=" in bd, "tiene ícono y actividad de arranque")
-    m = re.search(r"sdkVersion:'(\d+)'", bd); t = re.search(r"targetSdkVersion:'(\d+)'", bd)
-    ok(bool(m and t and int(t.group(1)) >= 35), "targetSdk 35 o más (lo que Google Play pide hoy)", f"(min {m.group(1) if m else '?'}, target {t.group(1) if t else '?'})")
+    m = re.search(r"(?:min)?[sS]dkVersion:'(\d+)'", bd); t = re.search(r"targetSdkVersion:'(\d+)'", bd)
+    ok(bool(t and int(t.group(1)) >= TARGET_MIN), f"targetSdk {TARGET_MIN} o más (Google Play lo exige desde el 31 de agosto de 2026)", f"(target {t.group(1) if t else '?'}, minSdk {m.group(1) if m else '?'})")
 else: resumen.append("(aapt2 no está: no se revisó el manifiesto)")
 icons = [n for n in names if re.search(r"ic_launcher|ic_stat_plata|splash_icon", n)]
 ok(len(icons) >= 8, "íconos, ícono de notificaciones y splash", f"({len(icons)} recursos)")

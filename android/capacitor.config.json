@@ -8,8 +8,7 @@
   },
   "android": {
     "allowMixedContent": false,
-    "webContentsDebuggingEnabled": false,
-    "adjustMarginsForEdgeToEdge": "force"
+    "webContentsDebuggingEnabled": false
   },
   "plugins": {
     "SplashScreen": {

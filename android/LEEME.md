@@ -82,6 +82,12 @@ Android solo abre `https://web.plataapp.net/…` en la app si el sitio demuestra
 6. Proyección → un evento → **Añadir al calendario**: abre el `.ics` en el calendario.
 7. Cuenta de Plata Cloud: entra con tu correo (el origen de la app es `https://web.plataapp.net`, el que ya acepta el servidor).
 
+## Nivel de API que exige Google Play
+
+Desde el **31 de agosto de 2026**, las apps nuevas y las actualizaciones deben apuntar a **Android 16 (API 36)** o más. Plata usa Capacitor 8 (que apunta a la 36) y el CI **falla** si el APK queda por debajo (`PLATA_TARGET_MIN` en `android/scripts/check-apk.py`). Cada año, hacia agosto, Google sube ese número: sube también Capacitor y ese valor.
+
+Con la 36, la app dibuja bajo las barras del sistema (de borde a borde) y el sistema reserva los márgenes con las variables `env(safe-area-inset-*)`, que la web ya usa por el iPhone. **Mira la primera pantalla en el teléfono** para confirmar que ni la barra de estado ni la de navegación tapan nada.
+
 ## Límites conocidos
 
 - **Widgets:** no hay (ver arriba).
