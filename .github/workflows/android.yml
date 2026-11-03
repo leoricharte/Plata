@@ -7,6 +7,7 @@
 #   ANDROID_KEYSTORE_PASSWORD la contraseña del archivo
 #   ANDROID_KEY_ALIAS         el alias de la llave
 #   ANDROID_KEY_PASSWORD      la contraseña de la llave
+#   claude de mierda
 name: Android
 
 on:
