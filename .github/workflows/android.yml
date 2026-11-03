@@ -94,6 +94,9 @@ jobs:
           cp android/android/app/build/outputs/apk/debug/*.apk salida/plata-debug.apk
           ls -la salida
 
+      - name: Revisar por dentro el APK y el AAB (la web, el plugin, los permisos, los enlaces)
+        run: python3 android/scripts/check-apk.py salida/plata-debug.apk salida/plata-release.aab
+
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: plata-android-${{ github.run_number }}
