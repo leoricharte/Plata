@@ -8,7 +8,7 @@ const LOCKSQ = (n, c) => '<svg width="' + n + '" height="' + n + '" viewBox="0 0
 const PN = (function () {
   const C = window.Capacitor, on = !!(C && C.isNativePlatform && C.isNativePlatform()), cache = {};
   const plugin = (n) => { if (!on) return null; if (cache[n] === undefined) { try { cache[n] = C.registerPlugin ? C.registerPlugin(n) : ((C.Plugins || {})[n] || null); } catch (e) { cache[n] = null; } } return cache[n]; };
-  return { on: on, plugin: plugin };
+  return { on: on, plugin: plugin, launching: on };   // launching: la animación de arranque sigue en pantalla (38-lanzamiento.js)
 })();
 const BIOSVG = '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M5 9.5A7.5 7.5 0 0 1 19 9.5"/><path d="M7.5 20c-.6-1.6-.9-3.2-.9-5a5.4 5.4 0 0 1 10.8 0c0 1.1.8 2 1.9 2"/><path d="M10.5 21c-.9-1.6-1.4-3.4-1.4-5.4a2.9 2.9 0 0 1 5.8 0c0 2 .7 3.7 2 5"/><path d="M12 15.6c0 1.9.4 3.5 1.3 4.9"/><path d="M3.5 13c0-1 .1-2 .5-3"/></svg>';
 const PINLOCK = (function () {
@@ -31,6 +31,7 @@ const PINLOCK = (function () {
   }
   function tryBio() {
     if (!S || S.mode !== 'lock' || S.bioTried || !bioOn() || waitLeft()) return;
+    if (PN.launching) { setTimeout(tryBio, 250); return; }          // la huella se pide cuando ya terminó la animación de arranque
     S.bioTried = true; bioAsk().then((ok) => { if (ok && S && S.mode === 'lock') { locked = false; close(); } });
   }
   function bioToggle() {

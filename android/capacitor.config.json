@@ -8,11 +8,12 @@
   },
   "android": {
     "allowMixedContent": false,
-    "webContentsDebuggingEnabled": false
+    "webContentsDebuggingEnabled": false,
+    "appendUserAgent": "PlataApp"
   },
   "plugins": {
     "SplashScreen": {
-      "launchShowDuration": 600,
+      "launchShowDuration": 4000,
       "launchAutoHide": true,
       "backgroundColor": "#22B573",
       "showSpinner": false,

@@ -100,6 +100,7 @@ var android=/Android/i.test(ua),ios=/iPhone|iPad|iPod/i.test(ua);
 var standalone=(window.navigator.standalone===true)||(window.matchMedia&&matchMedia("(display-mode: standalone)").matches);
 var wv=(android&&/; wv\)/.test(ua))||(ios&&!/Safari\//.test(ua)&&!standalone);
 if(standalone||(!named&&!wv))return;
+if(window.Capacitor||/PlataApp/.test(ua))return;   /* dentro de la app de Android el WebView es el de Plata: no hay navegador al que mandar a nadie */
 try{if(sessionStorage.getItem("plata.inapp")==="1")return}catch(e){}
 var es=/^es/i.test(document.documentElement.lang||navigator.language||"es");
 var T=es?{t:"Ábrela en tu navegador",b:"Aquí dentro Plata puede cerrarse y no guardar tus datos. Ábrela en "+(ios?"Safari":"Chrome")+(ios?": toca ••• o el ícono de compartir y elige «Abrir en Safari».":"."),o:"Abrir en Chrome",c:"Copiar enlace",k:"¡Copiado!",x:"Continuar de todos modos"}:{t:"Open it in your browser",b:"In here, Plata can close and not save your data. Open it in "+(ios?"Safari":"Chrome")+(ios?": tap ••• or the share icon and choose “Open in Safari”.":"."),o:"Open in Chrome",c:"Copy link",k:"Copied!",x:"Continue anyway"};

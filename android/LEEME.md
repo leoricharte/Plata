@@ -10,7 +10,7 @@ Todo lo propio de Android solo corre **dentro de esa app** (cuando existe `windo
 |---|---|
 | Face ID / Touch ID sobre el PIN | Huella o rostro sobre el PIN (`BiometricPrompt`). El PIN sigue de respaldo. Se activa en Ajustes → Bloqueo con PIN. |
 | Avisos locales (`Reminders.swift`) | Los mismos: días sin anotar, pagos y cobros de mañana, nota del mes y half-time. Se programan en el teléfono, sin servidor ni Firebase. Ajustes → Avisos. |
-| Pantalla de inicio verde con el logo | Pantalla de inicio de Android 12+ (verde de marca, verde bosque en oscuro) con el logo; luego la animación de la web. |
+| Animación de arranque (la flecha rebota como piedra y las letras hacen «pop») | La misma: sus datos salen del Swift (`android/scripts/gen-lanzamiento.py`) y se dibuja en un canvas. El splash nativo es solo el fondo verde, sin imagen, como la pantalla de arranque del iPhone; al terminar, la animación se desvanece (el iPhone hace además un zoom del logo, que aquí es un fundido simple). Verde de marca en claro y verde bosque en oscuro. |
 | «Compartir» hacia Plata (capturas, PDF, CSV, Excel, texto de constancias) | Igual, desde cualquier app. Plata aparece en la hoja de compartir. |
 | Guardar archivos y exportar | Se guardan en la caché y se abre «Compartir» (WebView no descarga `blob:`). |
 | Enlace del evento del calendario | `https://web.plataapp.net/?ev=…` abre ese evento (necesita el paso de **assetlinks.json**, abajo). |
@@ -74,7 +74,7 @@ Android solo abre `https://web.plataapp.net/…` en la app si el sitio demuestra
 
 ## Lo que probar en el teléfono con el APK
 
-1. Abre la app: se ve la pantalla verde con el logo y luego la animación de Plata.
+1. Abre la app: pantalla verde lisa y enseguida la animación de Plata (unos 2 segundos); no debe salir ninguna aleta de «Ábrela en tu navegador».
 2. Ajustes → Bloqueo con PIN → crea un PIN → **Huella o rostro: activada**. Cierra y abre: debe pedir la huella y, si cancelas, el PIN.
 3. Ajustes → **Avisos**: enciende uno; Android pide permiso de notificaciones. Comprueba que llega alguno (por ejemplo, lleva el reloj del teléfono al día anterior de un pago).
 4. Perfil → guardar archivo: se abre la hoja de compartir con el JSON.

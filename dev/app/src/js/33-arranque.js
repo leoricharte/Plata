@@ -1,7 +1,7 @@
 /* ---------- Arranque ---------- */
 (function () {
   const sp = document.getElementById('splash'); if (!sp) return;
-  if (/[?&]nosplash/.test(location.search)) { sp.remove(); return; }
+  if (/[?&]nosplash/.test(location.search) || PN.on) { sp.remove(); return; }   // en la app de Android lo reemplaza la animación de arranque (38-lanzamiento.js)
   if (!hasData() && !wSeen()) { sp.remove(); return; } // primer arranque: la bienvenida ocupa su lugar
   const hide = () => { sp.classList.add('off'); setTimeout(() => sp.remove(), 700); };
   sp.addEventListener('click', hide); setTimeout(hide, 1500);

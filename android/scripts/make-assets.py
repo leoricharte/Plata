@@ -58,14 +58,11 @@ def render_logo(width_px):
     return Image.open(io.BytesIO(png)).convert("RGBA")
 logo = render_logo(1200)
 
-# ---- splash de Android 12+: ícono animado de 288 dp (960 px) con el logo dentro del círculo seguro de 192 dp ----
-sp = Image.new("RGBA", (960, 960), (0, 0, 0, 0)); lg = fit(logo, 540); sp.alpha_composite(lg, ((960 - lg.width) // 2, (960 - lg.height) // 2))
-save(sp, os.path.join(OUT, "drawable-nodpi", "splash_icon.png"))
-
-# ---- splash de versiones anteriores: fondo verde con el logo, vertical y horizontal ----
-for name, size, w in (("port", (1080, 1920), 520), ("land", (1920, 1080), 520)):
-    im = Image.new("RGBA", size, GREEN); lg = fit(logo, w); im.alpha_composite(lg, ((size[0] - lg.width) // 2, (size[1] - lg.height) // 2))
-    save(im.convert("RGB"), os.path.join(OUT, "splash", f"splash-{name}.png"))
+# ---- splash nativo: SOLO el fondo verde, sin imagen (igual que la pantalla de arranque del iPhone); el logo lo dibuja la animación de la web ----
+sp = Image.new("RGBA", (960, 960), (0, 0, 0, 0))
+save(sp, os.path.join(OUT, "drawable-nodpi", "splash_icon.png"))          # transparente: Android 12+ exige un ícono y así no muestra el de la app
+for name, size in (("port", (1080, 1920)), ("land", (1920, 1080))):        # versiones anteriores a Android 12
+    save(Image.new("RGB", size, GREEN[:3]), os.path.join(OUT, "splash", f"splash-{name}.png"))
 
 # ---- Google Play: ícono de 512 y gráfico de funciones de 1024 x 500 ----
 save(icon.resize((512, 512), Image.LANCZOS).convert("RGB"), os.path.join(PLAY, "icono-512.png"))

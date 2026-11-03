@@ -20,6 +20,7 @@ const mock = (cfg) => {
     if (name === 'App' && m === 'getLaunchUrl') return {};
     return {};
   };
+  if (cfg.noCap) return;
   window.Capacitor = { isNativePlatform: () => true, registerPlugin: (name) => new Proxy({}, { get: (_, m) => (a, cb) => {
     window.__calls.push([name, m, a]);
     if (name === 'App' && m === 'addListener') { (window.__listeners[a] = window.__listeners[a] || []).push(cb); return Promise.resolve({ remove() {} }); }
@@ -29,26 +30,44 @@ const calls = (p, name, m) => p.evaluate(([n, mm]) => window.__calls.filter((c) 
 
 (async () => {
   const b = await chromium.launch(); const errs = [];
+  const WV = 'Mozilla/5.0 (Linux; Android 14; Pixel 8 Build/AP2A.240805.005; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/130.0.0.0 Mobile Safari/537.36';
   const open = async (cfg, url) => {
-    const ctx = await b.newContext({ viewport: { width: 430, height: 900 } }); const p = await ctx.newPage(); p.on('pageerror', (e) => errs.push(String(e)));
+    const ctx = await b.newContext({ viewport: { width: 430, height: 900 }, userAgent: cfg.wv ? WV : undefined }); const p = await ctx.newPage(); p.on('pageerror', (e) => errs.push(String(e)));
     await p.addInitScript(mock, cfg); await p.goto(BASE + (url || '?demo=shawn&lang=es&nosplash')); return p;
   };
   const pinOpen = (p) => p.evaluate(() => !!document.getElementById('pinov') && /bloqueada/.test(document.getElementById('pinov').innerText));
 
   // 1) Huella activada y correcta: se pide sola al abrir y desbloquea
-  let p = await open({ bioSaved: true, bioOk: true }); await p.waitForTimeout(2500);
+  let p = await open({ bioSaved: true, bioOk: true }); await p.waitForTimeout(5500);
   ok((await calls(p, 'PlataNative', 'biometricAuth')).length >= 1, 'huella: se pide sola al abrir la app bloqueada');
   ok(!(await pinOpen(p)), 'huella: si es correcta, el bloqueo se abre sin PIN');
   const t = (await calls(p, 'PlataNative', 'biometricAuth'))[0]; ok(t && t.cancel === 'Usar el PIN', 'huella: el botón del sistema dice «Usar el PIN»');
 
   // 2) Huella cancelada: queda el PIN, con un botón para intentar de nuevo
-  p = await open({ bioSaved: true, bioOk: false }); await p.waitForTimeout(2500);
+  p = await open({ bioSaved: true, bioOk: false }); await p.waitForTimeout(5500);
   ok(await pinOpen(p), 'huella cancelada: el bloqueo sigue y se puede usar el PIN');
   ok(!!(await p.$('#pinov [data-pk="bio"]')), 'huella cancelada: hay un botón de huella en el teclado');
   const n0 = (await calls(p, 'PlataNative', 'biometricAuth')).length; await p.click('#pinov [data-pk="bio"]'); await p.waitForTimeout(300);
   ok((await calls(p, 'PlataNative', 'biometricAuth')).length === n0 + 1, 'huella cancelada: el botón vuelve a pedirla');
   // solo una vez por bloqueo: no se queda pidiéndola en bucle
   ok(n0 === 1, 'huella: se pide una sola vez automáticamente (no en bucle)');
+
+  // 2b) Arranque animado: velo verde con la animación encima de todo, el splash nativo se quita al pintar el primer cuadro, y la huella espera a que termine
+  p = await open({ bioSaved: true, bioOk: true }); await p.waitForTimeout(350);
+  const v = await p.evaluate(() => { const e = document.getElementById('lanzamiento'); return e ? { z: getComputedStyle(e).zIndex, bg: getComputedStyle(e).backgroundColor, canvas: !!e.querySelector('canvas'), web: !!document.getElementById('splash') } : null; });
+  ok(!!v && v.canvas && v.z === '2147483647', 'arranque: hay un velo con la animación por encima de todo');
+  ok(!!v && v.bg === 'rgb(34, 181, 115)', 'arranque: el fondo es el verde de marca (el mismo del splash nativo)');
+  ok(!!v && v.web === false, 'arranque: el splash estático de la web no sale en Android');
+  await p.waitForTimeout(500); const hides = await calls(p, 'SplashScreen', 'hide'); ok(hides.length === 1, 'arranque: el splash nativo se oculta una sola vez, cuando ya se pintó el primer cuadro');
+  ok((await calls(p, 'PlataNative', 'biometricAuth')).length === 0, 'arranque: la huella NO se pide mientras corre la animación');
+  await p.waitForTimeout(3600);
+  ok(!(await p.evaluate(() => !!document.getElementById('lanzamiento'))), 'arranque: al terminar el velo se quita');
+  ok((await calls(p, 'PlataNative', 'biometricAuth')).length >= 1, 'arranque: y entonces se pide la huella');
+  // 2c) La aleta «Ábrela en tu navegador»: no sale dentro de la app, pero sí en un navegador integrado de verdad
+  p = await open({ noPin: true, wv: true }); await p.waitForTimeout(2500);
+  ok(!(await p.evaluate(() => !!document.querySelector('.iab'))), 'aleta: dentro de la app de Android NO sale «Ábrela en tu navegador»');
+  p = await open({ noPin: true, wv: true, noCap: true }); await p.waitForTimeout(2500);
+  ok(await p.evaluate(() => !!document.querySelector('.iab')), 'aleta: en un WebView cualquiera (sin la app) SÍ sale, como antes');
 
   // 3) Sin huella guardada o sin sensor: no hay botón ni se pide
   p = await open({ bioSaved: false, bioOk: true }); await p.waitForTimeout(2200);
@@ -86,7 +105,7 @@ const calls = (p, name, m) => p.evaluate(([n, mm]) => window.__calls.filter((c) 
   ok(await p.evaluate(() => /no parece una constancia|Constancia|constancia/i.test(document.body.innerText)), 'compartir: un texto se manda a leer como constancia');
 
   // 7) Enlace de un evento: abre ese evento en Proyección
-  p = await open({ noPin: true }); await p.waitForTimeout(2500);
+  p = await open({ noPin: true }); await p.waitForTimeout(4500);
   await p.locator('[data-act="tab:proyeccion"]:visible').first().click(); await p.waitForTimeout(700);
   const key = await p.$eval('[data-act^="evedit:"]', (e) => e.getAttribute('data-act').slice(7));
   await p.locator('[data-act="tab:resumen"]:visible').first().click(); await p.waitForTimeout(500);
