@@ -1,0 +1,47 @@
+[
+ [
+  "Pon un PIN de 4 dígitos para que nadie más abra tus finanzas en este teléfono. Puedes cambiarlo o quitarlo en Ajustes.",
+  "Set a 4-digit PIN so nobody else opens your finances on this phone. You can change or remove it in Settings.",
+  "4桁のPINを設定すると、このスマートフォンで他の人があなたの家計を開けなくなります。設定で変更や解除ができます。",
+  "Imposta un PIN di 4 cifre così nessun altro apre le tue finanze su questo telefono. Puoi cambiarlo o rimuoverlo in Impostazioni.",
+  "Définis un code PIN à 4 chiffres pour que personne d’autre n’ouvre tes finances sur ce téléphone. Tu peux le changer ou le retirer dans Réglages.",
+  "Postavi PIN od 4 znamenke da nitko drugi ne otvori tvoje financije na ovom telefonu. Možeš ga promijeniti ili ukloniti u Postavkama.",
+  "Variante para la app de Android de la oferta de PIN."
+ ],
+ [
+  "Plata no puede confirmar que eres tú sin el PIN. Para quitarlo hay que borrar los datos de Plata en este teléfono. Si usas Plata Cloud o guardaste tu archivo de perfil, puedes recuperarlos después.",
+  "Plata can’t confirm it’s you without the PIN. To remove it, Plata’s data on this phone has to be erased. If you use Plata Cloud or saved your profile file, you can recover it afterwards.",
+  "PINがないと、Plataは本人確認ができません。解除するには、このスマートフォン上のPlataのデータを消去する必要があります。Plata Cloudを使っているか、プロフィールファイルを保存している場合は、後で復元できます。",
+  "Senza il PIN, Plata non può confermare che sei tu. Per rimuoverlo bisogna cancellare i dati di Plata su questo telefono. Se usi Plata Cloud o hai salvato il file del profilo, potrai recuperarli dopo.",
+  "Sans le PIN, Plata ne peut pas confirmer que c’est bien toi. Pour le retirer, il faut effacer les données de Plata sur ce téléphone. Si tu utilises Plata Cloud ou as enregistré ton fichier de profil, tu pourras les récupérer ensuite.",
+  "Bez PIN-a Plata ne može potvrditi da si to ti. Da bi ga uklonio, moraju se izbrisati podaci Plate na ovom telefonu. Ako koristiš Plata Cloud ili si spremio datoteku profila, poslije ih možeš vratiti.",
+  "Variante para la app de Android de «¿Olvidaste tu PIN?»."
+ ],
+ [
+  "Plata te pide el PIN al abrirla en este teléfono. Tus datos no se cifran con él: protege la entrada, no el contenido.",
+  "Plata asks for the PIN when you open it on this phone. Your data isn’t encrypted with it: it protects entry, not content.",
+  "このスマートフォンでPlataを開くときにPINを求めます。データはPINでは暗号化されません。保護するのは入口で、中身ではありません。",
+  "Plata chiede il PIN quando la apri su questo telefono. I tuoi dati non vengono cifrati con esso: protegge l’accesso, non il contenuto.",
+  "Plata te demande le PIN à l’ouverture sur ce téléphone. Tes données ne sont pas chiffrées avec lui : il protège l’accès, pas le contenu.",
+  "Plata traži PIN kad je otvoriš na ovom telefonu. Podaci se njime ne šifriraju: štiti ulaz, a ne sadržaj.",
+  "Variante para la app de Android del menú del bloqueo con PIN."
+ ],
+ [
+  "Conéctate a internet para leer tu estado de cuenta, o importa el CSV de tu banco.",
+  "Connect to the internet to read your statement, or import your bank’s CSV.",
+  "明細を読み取るにはインターネットに接続するか、銀行のCSVをインポートしてください。",
+  "Connettiti a internet per leggere il tuo estratto conto, oppure importa il CSV della tua banca.",
+  "Connecte-toi à internet pour lire ton relevé, ou importe le CSV de ta banque.",
+  "Spoji se na internet da pročitaš izvadak ili uvezi CSV svoje banke.",
+  "Variante para la app de Android cuando Nazca no carga el lector."
+ ],
+ [
+  "Aros por categoría, hasta 4 a la vez, y un encabezado que cambia con la estación del año.",
+  "Rings per category, up to 4 at a time, and a header that changes with the season.",
+  "カテゴリごとのリング。最大4つ同時に表示でき、ヘッダーは季節によって変わります。",
+  "Anelli per categoria, fino a 4 alla volta, e un’intestazione che cambia con la stagione.",
+  "Des anneaux par catégorie, jusqu’à 4 à la fois, et un en-tête qui change selon la saison.",
+  "Prstenovi po kategoriji, do 4 odjednom, i zaglavlje koje se mijenja s godišnjim dobom.",
+  "Variante para Android de la tarjeta «Presupuesto en aros» de las novedades (sin el reloj)."
+ ]
+]

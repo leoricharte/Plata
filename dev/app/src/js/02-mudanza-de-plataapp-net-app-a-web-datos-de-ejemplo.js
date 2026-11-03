@@ -5,7 +5,7 @@
 (function () {
   const NEW = 'https://web.plataapp.net', OLD = 'https://plataapp.net';
   try {
-    if (location.origin !== NEW || localStorage.getItem('plata.mudanza')) return;
+    if (PN.on || location.origin !== NEW || localStorage.getItem('plata.mudanza')) return;   // PN.on: la app de Android también usa el origen web.plataapp.net, pero no tiene nada que mudar
     if (localStorage.getItem('finanzas.v3') || localStorage.getItem('plata.cloud')) { localStorage.setItem('plata.mudanza', 'propia'); return; } // ya hay datos aquí: no se pisa nada
   } catch (e) { return; }
   const f = document.createElement('iframe'); f.src = OLD + '/app/puente.html'; f.title = 'mudanza'; f.setAttribute('aria-hidden', 'true'); f.style.cssText = 'position:absolute;width:0;height:0;border:0;visibility:hidden';

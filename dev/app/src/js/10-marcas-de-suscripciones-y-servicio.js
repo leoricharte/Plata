@@ -123,8 +123,8 @@ function newsPopup() {
     { ic: 'file-search-line', sub: 'CONSTANCIAS', h: 'Yape y Plin, directo a Plata', t: 'Comparte la captura de tu constancia a Plata y Nazca la lee en tu dispositivo, sin servidor. Queda en Revisión para que la confirmes.' },
     { ic: 'time-line', sub: 'APPLE WATCH', h: 'Tu presupuesto en la muñeca', t: 'Aros por categoría, como los de Actividad, con un ✓, un – o una ✕ según cómo vayas. Anota gastos girando la corona.' },
     { ic: 'layout-grid-line', sub: 'WIDGETS', h: 'Plata en tu pantalla de inicio', t: 'Widgets y Bentos para ver tu plata sin abrir la app.' },
-    { ic: 'pie-chart-2-line', sub: 'PRESUPUESTO', h: 'Presupuesto en aros', t: 'Los mismos aros del reloj, hasta 4 categorías a la vez, y un encabezado que cambia con la estación del año.' }
-  ], n = slides.length;
+    { ic: 'pie-chart-2-line', sub: 'PRESUPUESTO', h: 'Presupuesto en aros', t: PN.on ? 'Aros por categoría, hasta 4 a la vez, y un encabezado que cambia con la estación del año.' : 'Los mismos aros del reloj, hasta 4 categorías a la vez, y un encabezado que cambia con la estación del año.' }
+  ].filter((x) => !(PN.on && /^(IPHONE|APPLE WATCH|WIDGETS)$/.test(x.sub))), n = slides.length;
   box.innerHTML = '<div class="nbg"></div><div class="nbars">' + slides.map(() => '<i><b></b></i>').join('') + '</div>' +
     '<div class="nhead"><span class="betapill b2 nbeta">B E T A&nbsp;&nbsp;5</span><button type="button" class="nx" aria-label="Cerrar">' + RMI('close-line', 28, '#fff') + '</button></div>' +
     '<div class="nstage">' + slides.map((x, k) => {

@@ -263,7 +263,7 @@ function impPdfError(e, f) {
   if (c === 'need_password' && ui.impAt !== 'key' && !(ui.impAt === 'bank' && IMP_KEY[ui.impBank])) { impPend = f; ui.impErr = null; impShow('key', 'push'); }   /* entró por «Importar archivo»: pide la contraseña en su propia pantalla */
   else if (c === 'need_password') { impPend = f; impFail('Este estado de cuenta está protegido', 'Escribe tu DNI y súbelo otra vez.'); }
   else if (c === 'bad_password') { impPend = f; ui.impAt === 'bank' && IMP_KEY[ui.impBank] ? impFail('Ese DNI no abre el estado de cuenta', 'Revísalo e inténtalo otra vez.') : impFail('Esa contraseña no abre el estado de cuenta', 'Revísala e inténtalo otra vez.'); }
-  else if (c === 'unavailable') impFail('Nazca no pudo cargar el lector', 'Abre Plata desde web.plataapp.net con conexión para leer tu estado de cuenta, o importa el CSV de tu banco.');
+  else if (c === 'unavailable') impFail('Nazca no pudo cargar el lector', PN.on ? 'Conéctate a internet para leer tu estado de cuenta, o importa el CSV de tu banco.' : 'Abre Plata desde web.plataapp.net con conexión para leer tu estado de cuenta, o importa el CSV de tu banco.');
   else if (c === 'no_text') impFail('Este archivo no tiene texto', 'Parece una foto o un escaneo. Descarga el estado de cuenta desde la banca por internet de tu banco.', impKey ? null : f);
   else if (c === 'not_pdf') impFail('Ese archivo no es un estado de cuenta', 'Elige el estado de cuenta que descargaste de tu banco.', f);
   else if (c === 'too_big') impFail('El archivo es muy grande', 'El máximo es 15 MB.');

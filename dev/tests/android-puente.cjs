@@ -112,6 +112,38 @@ const calls = (p, name, m) => p.evaluate(([n, mm]) => window.__calls.filter((c) 
   await p.evaluate((k) => (window.__listeners.appUrlOpen || []).forEach((cb) => cb({ url: 'https://web.plataapp.net/?ev=' + encodeURIComponent(k) })), key); await p.waitForTimeout(1500);
   ok(await p.evaluate(() => /Editar este evento/.test(document.body.innerText)), 'enlace: https://web.plataapp.net/?ev=… abre el evento en Proyección');
 
+  // 8) Textos: dentro de la app de Android no se habla de «navegador» ni de «la web»; en la web quedan exactamente como siempre
+  const pinTxt = async (cfg) => {
+    const q = await open(cfg); await q.waitForTimeout(2500);
+    await q.waitForSelector('#pinov [data-pk="forgot"]', { timeout: 6000 }); await q.click('#pinov [data-pk="forgot"]');
+    await q.waitForTimeout(400); return q.evaluate(() => (document.getElementById('pinov') || { innerText: '' }).innerText);
+  };
+  // menú «Bloqueo con PIN» (Ajustes): se desbloquea con la huella simulada y se abre la fila
+  p = await open({ bioSaved: true, bioOk: true }); await p.waitForTimeout(5500);
+  await p.locator('[data-act="settings"]:visible').first().click().catch(() => {}); await p.waitForTimeout(900);
+  await p.click('[data-act="pin:menu"]'); await p.waitForTimeout(500);
+  let tx = await p.evaluate(() => (document.querySelector('.alertbox') || { innerText: '' }).innerText);
+  ok(/este teléfono/.test(tx) && !/navegador/i.test(tx), 'textos: el menú «Bloqueo con PIN» dice «este teléfono», no «navegador»');
+  tx = await pinTxt({ bioSaved: false, bioOk: false });
+  ok(/Plata en este teléfono/.test(tx) && !/navegador|la web/i.test(tx), 'textos: «¿Olvidaste tu PIN?» no habla de navegador ni de la web');
+  tx = await pinTxt({ bioSaved: false, bioOk: false, noCap: true });
+  ok(/este navegador/.test(tx), 'textos: en la web «¿Olvidaste tu PIN?» sigue igual');
+  // la mudanza de plataapp.net/app → web.plataapp.net: la app de Android también corre en el origen web.plataapp.net y NO debe pedir nada al sitio viejo
+  const mudanza = async (noCap) => {
+    const ctx = await b.newContext({ viewport: { width: 430, height: 900 } }); let pidio = false;
+    await ctx.route('https://plataapp.net/**', (r) => { if (/puente\.html/.test(r.request().url())) pidio = true; r.abort(); });
+    await ctx.route('https://web.plataapp.net/**', async (r) => { const u = new URL(r.request().url()); try { await r.fulfill({ response: await r.fetch({ url: BASE + u.pathname.replace(/^\//, '') + u.search }) }); } catch (e) { r.abort(); } });
+    const q = await ctx.newPage(); q.on('pageerror', (e) => errs.push(String(e))); await q.addInitScript(mock, { noPin: true, noCap });
+    await q.goto('https://web.plataapp.net/?nosplash'); await q.waitForTimeout(2500); return pidio;
+  };
+  ok((await mudanza(true)) === true, 'mudanza: en la web sin datos SÍ pide los datos al sitio viejo (control de la prueba)');
+  ok((await mudanza(false)) === false, 'mudanza: en la app de Android NO se llama al sitio viejo');
+  // novedades: sin Apple Watch, widgets ni «nativa en iPhone»
+  p = await open({ noPin: true }); await p.waitForTimeout(2500);
+  await p.locator('[data-act="settings"]:visible').first().click().catch(() => {}); await p.waitForTimeout(900);
+  await p.click('[data-act="news"]'); await p.waitForSelector('.newsbx', { timeout: 4000 }); const nw = await p.evaluate(() => document.querySelector('.newsbx').innerText);
+  ok(!/iPhone|Apple Watch|reloj|muñeca|Widgets/i.test(nw) && /Yape/.test(nw), 'novedades: en Android no salen las de iPhone, Watch ni widgets');
+
   console.log('errores de página:', errs.length ? errs : 'ninguno'); if (errs.length) f++;
   await b.close(); console.log(f ? '\n' + f + ' FALLAS' : '\nTodo bien'); process.exit(f ? 1 : 0);
 })();

@@ -46,7 +46,7 @@ const PINLOCK = (function () {
     if (!S) return; if (!ov) { ov = document.createElement('div'); ov.id = 'pinov'; document.body.appendChild(ov); ov.addEventListener('click', onClick); }
     const w = (S.mode === 'lock' || S.mode === 'verify') ? waitLeft() : 0, dots = []; for (let i = 0; i < LEN; i++) dots.push('<i' + (i < S.buf.length ? ' class="on"' : '') + '></i>');
     if (S.mode === 'cover') { ov.innerHTML = '<div class="pk-ic">' + LOCKSQ(34, '#fff') + '</div><h1>Plata</h1>'; return; }
-    if (S.mode === 'offer') { ov.innerHTML = '<div class="pk-ic">' + LOCKSQ(34, '#fff') + '</div><h1>Protege tu app</h1><div class="pk-m">Pon un PIN de 4 dígitos para que nadie más abra tus finanzas en este navegador. Puedes cambiarlo o quitarlo en Ajustes.</div><button class="pk-b" data-pk="make">Crear PIN</button><button class="pk-b alt" data-pk="skip">Ahora no</button>'; return; }
+    if (S.mode === 'offer') { ov.innerHTML = '<div class="pk-ic">' + LOCKSQ(34, '#fff') + '</div><h1>Protege tu app</h1><div class="pk-m">Pon un PIN de 4 dígitos para que nadie más abra tus finanzas en ' + (PN.on ? 'este teléfono' : 'este navegador') + '. Puedes cambiarlo o quitarlo en Ajustes.</div><button class="pk-b" data-pk="make">Crear PIN</button><button class="pk-b alt" data-pk="skip">Ahora no</button>'; return; }
     const title = S.mode === 'lock' ? 'Plata está bloqueada' : S.mode === 'setup' ? (S.first ? 'Repite tu PIN' : 'Crea tu PIN') : (S.title || 'Escribe tu PIN actual');
     const msg = w ? 'Demasiados intentos. Espera ' + (w >= 60 ? Math.floor(w / 60) + ' min ' + (w % 60) + ' s' : w + ' s') + '.' : (S.msg || (S.mode === 'setup' ? (S.first ? 'Escríbelo otra vez para confirmarlo.' : 'Elige ' + LEN + ' dígitos que solo tú sepas.') : S.mode === 'lock' ? 'Escribe tu PIN' : 'Escribe tu PIN actual.'));
     let keys = ''; '123456789'.split('').forEach((d) => { keys += '<button data-pk="' + d + '">' + d + '</button>'; });
@@ -93,7 +93,7 @@ const PINLOCK = (function () {
   }
   function forgot() {
     if (!ov) return;
-    ov.innerHTML = '<div class="pk-ic">' + LOCKSQ(34, '#fff') + '</div><h1>¿Olvidaste tu PIN?</h1><div class="pk-m">En la web no hay un código del dispositivo para confirmarte. Para quitar el PIN hay que borrar los datos de este navegador. Si usas Plata Cloud o guardaste tu archivo de perfil, puedes recuperarlos después.</div><button class="pk-b" style="background:var(--rt)" data-pk="wipe">Borrar datos y quitar el PIN</button><button class="pk-b alt" data-pk="back">Volver</button>';
+    ov.innerHTML = '<div class="pk-ic">' + LOCKSQ(34, '#fff') + '</div><h1>¿Olvidaste tu PIN?</h1><div class="pk-m">' + (PN.on ? 'Plata no puede confirmar que eres tú sin el PIN. Para quitarlo hay que borrar los datos de Plata en este teléfono. Si usas Plata Cloud o guardaste tu archivo de perfil, puedes recuperarlos después.' : 'En la web no hay un código del dispositivo para confirmarte. Para quitar el PIN hay que borrar los datos de este navegador. Si usas Plata Cloud o guardaste tu archivo de perfil, puedes recuperarlos después.') + '</div><button class="pk-b" style="background:var(--rt)" data-pk="wipe">Borrar datos y quitar el PIN</button><button class="pk-b alt" data-pk="back">Volver</button>';
     ov.onclick = (e) => { const b = e.target.closest('[data-pk]'); if (!b) return; const k = b.getAttribute('data-pk'); if (k === 'back') { ov.onclick = null; draw(); } else if (k === 'wipe') { try { Object.keys(localStorage).filter((x) => /^(finanzas|plata)\./.test(x) && x !== 'plata.theme' && x !== 'plata.lang').forEach((x) => localStorage.removeItem(x)); } catch (er) { /* sin almacenamiento */ } location.reload(); } };
   }
   function start(mode, done, title) { close(); S = { mode: mode, buf: '', first: '', msg: '', err: false, sh: false, done: done, title: title }; draw(); if ((mode === 'lock' || mode === 'verify') && waitLeft()) startTick(); if (mode === 'lock') tryBio(); }
@@ -108,7 +108,7 @@ const PINLOCK = (function () {
     const b = e.target.closest && e.target.closest('[data-act="pin:menu"]'); if (!b) return; e.stopPropagation(); e.preventDefault();
     const fin = () => { try { renderAll(); } catch (er) { /* sin pantalla */ } };
     if (!rec) { start('setup', (ok) => { if (ok) { toast('PIN activado'); fin(); } }); return; }
-    askConfirm('Bloqueo con PIN', 'Plata te pide el PIN al abrirla en este navegador. Tus datos no se cifran con él: protege la entrada, no el contenido.', [
+    askConfirm('Bloqueo con PIN', PN.on ? 'Plata te pide el PIN al abrirla en este teléfono. Tus datos no se cifran con él: protege la entrada, no el contenido.' : 'Plata te pide el PIN al abrirla en este navegador. Tus datos no se cifran con él: protege la entrada, no el contenido.', [
       { label: 'Cambiar PIN', fn: () => start('verify', (ok) => { if (ok) start('setup', (ok2) => { if (ok2) toast('PIN cambiado'); }); }) },
       { label: 'Pedir el PIN: ' + (GR.find((g) => g[0] === (rec.grace || 0)) || GR[0])[1] + ' (tocar para cambiar)', fn: () => { const i = GR.findIndex((g) => g[0] === (rec.grace || 0)); rec.grace = GR[(i + 1) % GR.length][0]; wr(rec); toast('Pedir el PIN: ' + GR[(i + 1) % GR.length][1]); } },
       ...(bioOk ? [{ label: 'Huella o rostro: ' + (rec.bio ? 'activada' : 'desactivada') + ' (tocar para cambiar)', fn: bioToggle }] : []),
