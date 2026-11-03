@@ -392,7 +392,7 @@ function openBento() {
   document.addEventListener('keydown', bentoKey); document.documentElement.classList.add('bnopen');
 }
 window.addEventListener('resize', () => { if (document.getElementById('bento')) { clearTimeout(window._bz); window._bz = setTimeout(bentoRender, 150); } });
-function closeBento() { document.documentElement.classList.remove('bnopen'); ui.bPick = false; const el = $('#bento'); if (el) el.remove(); document.removeEventListener('keydown', bentoKey); }
+function closeBento() { document.documentElement.classList.remove('bnopen'); ui.bPick = false; const el = $('#bento'); if (el) el.remove(); document.removeEventListener('keydown', bentoKey); const m = $('main'); if (m && (m.style.filter || m.style.transform || m.style.opacity)) flowRecede(false, 260); }   /* sin importar por dónde se cierre (girar, Esc, el botón), el Resumen que quedó detrás vuelve nítido */
 
 
 /* Deslizar movimientos (solo móvil): uno abierto a la vez */
@@ -592,7 +592,7 @@ function flowOpen() {
 function flowClose() {
   const el = $('#bento'); if (!el) return; const d = flowDir(); const mn = $('main'); if (mn) { mn.style.scrollBehavior = 'auto'; mn.scrollTop = 0; mn.style.scrollBehavior = ''; } flowShadow(el); flowRecede(false, 520);
   const a = el.animate([{ transform: 'none' }, { transform: 'translateY(' + 100 * d + '%)' }], { duration: 480, easing: FLOW_EASE, fill: 'forwards' });
-  a.onfinish = () => { if (el === $('#bento')) closeBento(); const m = $('main'); if (m) { m.style.transition = ''; m.style.filter = ''; m.style.transform = ''; m.style.opacity = ''; } };
+  a.onfinish = () => { if (el === $('#bento')) closeBento(); const m = $('main'); if (m && !$('#bento')) { m.style.transition = ''; m.style.filter = ''; m.style.transform = ''; m.style.opacity = ''; } };   /* si ya se abrió otro Bento mientras tanto, el Resumen sigue detrás de él */
 }
 function flowStep(k, dir) { // salta entre bentos fijados con profundidad
   const old = $('#bento'); if (!old) return; const ghost = old.cloneNode(true); ghost.removeAttribute('id'); ghost.style.zIndex = 119; ghost.style.animation = 'none'; ghost.style.pointerEvents = 'none'; deviceEl.appendChild(ghost);

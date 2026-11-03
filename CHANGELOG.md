@@ -6,6 +6,7 @@
 - **Constancias de Yape y Plin**: comparte la captura y Nazca la lee en tu dispositivo; queda en Revisión.
 - **Presupuesto en aros** (hasta 4 categorías) y encabezado que cambia con la estación.
 - **Apple Watch**: aros por categoría con ✓ / – / ✕, texto «Te pasaste» y la corona para anotar gastos.
+- **Bento sin difuminado (509):** en escritorio, si cerrabas el Bento con Esc o con el botón de cerrar, el Resumen se quedaba difuminado, achicado y medio transparente. Ahora vuelve nítido salga como salga del Bento.
 - **Menús de cuentas más útiles (505):** en cada menú donde eliges una cuenta o tarjeta salen primero las que más usaste en los últimos 90 días y, junto al nombre, su saldo en su propia moneda; en una tarjeta, lo disponible (y en un préstamo, lo que todavía se debe).
 - **Añadir al calendario (505):** en un evento de Proyección, el botón «Añadir al calendario» descarga un archivo .ics de día completo, con el monto en las notas y un aviso a las 9:00 del día anterior. El evento lleva un enlace que, al tocarlo, abre ese evento en Plata.
 - **Los pagos de tarjeta y préstamo terminan (505):** el pago mensual de una tarjeta o préstamo se programa con intereses hasta que se acaba la deuda (la última cuota sale por lo que queda), en vez de repetirse todos los meses.
