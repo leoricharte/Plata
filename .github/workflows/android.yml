@@ -52,8 +52,8 @@ jobs:
           build=$(grep -ho 'const APP_BUILD = [0-9]*' dev/app/src/js/*.js | grep -o '[0-9]*$')
           [ -n "$build" ] || { echo "No encontré APP_BUILD en dev/app/src/js/"; exit 1; }
           echo "PLATA_VERSION_NAME=5.0.$build" >> "$GITHUB_ENV"
-          echo "PLATA_VERSION_CODE=$((GITHUB_RUN_NUMBER + 100))" >> "$GITHUB_ENV"
-          echo "Plata para Android 5.0.$build (versionCode $((GITHUB_RUN_NUMBER + 100)))"
+          echo "PLATA_VERSION_CODE=$((1000 + GITHUB_RUN_NUMBER * 10 + GITHUB_RUN_ATTEMPT))" >> "$GITHUB_ENV"
+          echo "Plata para Android 5.0.$build (versionCode $((1000 + GITHUB_RUN_NUMBER * 10 + GITHUB_RUN_ATTEMPT)))"
 
       - name: Instalar Capacitor y crear el proyecto de Android
         working-directory: android
