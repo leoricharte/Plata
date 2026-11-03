@@ -84,6 +84,7 @@ document.addEventListener('click', (e) => {
   else if (a === 'new') openForm(arg, null);
   else if (a === 'evedit') openEv(arg);
   else if (a === 'evsave') evSave();
+  else if (a === 'evcal') evCal();
   else if (a === 'subadv') {
     const sb = data.subs.find((x) => x.id === ui.itemId); if (!sb) return;
     askConfirm('¿Adelantar este cobro?', 'Se registra el gasto hoy y se salta el próximo cobro, para que no se cuente doble.', [{ label: 'Adelantar', fn: () => subAdvance(sb) }]);

@@ -710,6 +710,12 @@ function bentoAct0(a, arg) {
 applyLang(); renderAll(); setTab('resumen'); movePill(true);
 if (!hasData() && !wSeen() && (!/[?&]nosplash/.test(location.search) || /[?&]welcome/.test(location.search))) { showWelcome(); } else setTimeout(checkPending, 2300);
 seasonPlay();
+/* Enlace de un evento (el del calendario): ?ev=card:k:2026-11-10 abre ese evento en Proyección. Si ya no existe, queda en Proyección. */
+(function () {
+  const m = /[?&]ev=([^&#]+)/.exec(location.search); if (!m) return;
+  let key = ''; try { key = decodeURIComponent(m[1]); } catch (e) { return; }
+  setTimeout(() => { try { genEvents(getToday()); setTab('proyeccion'); if (EVKEY[key]) setTimeout(() => openEv(key), 350); } catch (e) { /* si falla, queda la app normal */ } try { history.replaceState(null, '', location.pathname); } catch (e) {} }, 900);
+})();
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { ui.skipPending = false; updatePendingDot(); checkPending(); } });
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => movePill(true));
 

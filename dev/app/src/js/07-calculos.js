@@ -60,7 +60,19 @@ function genEvents(today, o) {
   /* key identifica cada ocurrencia (origen + fecha original) para poder editarla o saltarla sin tocar la serie */
   data.recurring.forEach((r, ri) => monthly(r.day || 1, (d) => ev.push({ date: d, name: r.name, amt: r.amount, type: 'rec', key: 'rec:' + ri + ':' + iso(d), cur: curP(), a0: r.amount })));
   data.subs.forEach((s) => monthly(s.day || 1, (d) => ev.push({ date: d, name: s.name, amt: -usd(s.amount, s.cur), type: 'sub', key: 'sub:' + s.id + ':' + iso(d), form: 'sub', srcId: s.id, cur: s.cur, a0: -s.amount })));
-  data.cards.forEach((c) => { if (c.payment > 0) monthly(c.due_day || 1, (d) => ev.push({ date: d, name: 'Pago ' + c.name, amt: -usd(c.payment, c.cur), type: 'card', key: 'card:' + c.id + ':' + iso(d), form: 'debt', srcId: c.id, cur: c.cur, a0: -c.payment })); });
+  /* El pago mensual de una tarjeta o préstamo termina cuando se acaba la deuda: cada mes se suma el interés (APR/12) a lo que se debe y
+     el cobro es el menor entre el pago y esa deuda. Con deuda 0 no hay cobros; la última cuota sale por lo que queda. */
+  data.cards.forEach((c) => {
+    if (!(c.payment > 0)) return;
+    let bal = Number(c.balance) || 0;
+    const rate = (Number(c.apr) || 0) / 1200;
+    monthly(c.due_day || 1, (d) => {
+      if (!(bal > 0.005)) return;
+      const owed = round2(bal * (1 + rate)), pay = Math.min(c.payment, owed);
+      bal = round2(owed - pay);
+      ev.push({ date: d, name: 'Pago ' + c.name, amt: -usd(pay, c.cur), type: 'card', key: 'card:' + c.id + ':' + iso(d), form: 'debt', srcId: c.id, cur: c.cur, a0: -pay });
+    });
+  });
   [[data.expected_income, 1, 'in', 'income'], [data.expected_expense, -1, 'exp', 'expense']].forEach((g) => g[0].forEach((e) => {
     const cur = accOf(e.acc).cur, amt = g[1] * usd(e.amount, cur), mk = (d) => ({ date: d, name: e.name, amt: amt, type: g[2], key: g[2] + ':' + e.id + ':' + iso(d), form: e.card && payOf(e) ? 'cardpay' : g[3], srcId: e.id, cur: cur, a0: g[1] * e.amount });
     let d = pd(e.date), n = 0;

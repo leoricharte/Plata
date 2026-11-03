@@ -49,7 +49,7 @@ function openXfer() {
 }
 function xferHTML(keep) {
   const k = keep || {}, x = ui.xf, f = accOf(x.from), t = accOf(x.to), diff = f.cur !== t.cur;
-  const opts = (sel, skip) => data.accounts.filter((a) => a.id !== skip).map((a) => '<option value="' + a.id + '"' + (a.id === sel ? ' selected' : '') + '>' + esc(a.name) + l4(a) + ' · ' + a.cur + '</option>').join('');
+  const opts = (sel, skip) => byUse(data.accounts).filter((a) => a.id !== skip).map((a) => '<option value="' + a.id + '"' + (a.id === sel ? ' selected' : '') + '>' + esc(accLabel(a)) + '</option>').join('');
   const row = (ic, lbl, inner) => '<label class="srow">' + fico(ic) + '<span class="grow"><span class="slabel">' + lbl + '</span>' + inner + '</span></label>';
   return sheetHead('Transferir', null, 'xsubmit') +
     '<div class="amtblock"><div class="amtlabel">Monto</div><div class="amount"><span id="fSym">' + symOf(f.cur).trim() + '</span><input id="fAmount" inputmode="decimal" placeholder="' + (decOf(f.cur) ? '0.00' : '0') + '" autocomplete="off" value="' + esc(k.amount || '') + '" style="width:' + amtW(k.amount, decOf(f.cur) ? '0.00' : '0') + '"></div></div>' +
@@ -97,8 +97,8 @@ function sheetHTML(keep) {
     '<div id="catWrap">' + catsHTML() + '</div>' +
     '<div class="scard">' +
     (ui.sheetType === 'pay'
-      ? '<label class="srow">' + fico(['#B98AE6', 'card']) + '<span class="grow"><span class="slabel">Tarjeta o préstamo</span><select class="sinput" id="fAcc">' + data.cards.map((a) => '<option value="' + a.id + '"' + (a.id === acc.id ? ' selected' : '') + '>' + esc(a.name) + l4(a) + ' · ' + a.cur + '</option>').join('') + '</select></span></label>' +
-        '<label class="srow">' + fico(['#22B573', 'card']) + '<span class="grow"><span class="slabel">Pagar desde</span><select class="sinput" id="fFrom"><option value="">Sin descontar de una cuenta</option>' + data.accounts.map((a) => '<option value="' + a.id + '"' + (a.id === ui.sheetFrom ? ' selected' : '') + '>' + esc(a.name) + l4(a) + ' · ' + a.cur + '</option>').join('') + '</select></span></label>' + '<div id="apWrap">' + apRowHTML() + '</div>'
+      ? '<label class="srow">' + fico(['#B98AE6', 'card']) + '<span class="grow"><span class="slabel">Tarjeta o préstamo</span><select class="sinput" id="fAcc">' + byUse(data.cards).map((a) => '<option value="' + a.id + '"' + (a.id === acc.id ? ' selected' : '') + '>' + esc(accLabel(a)) + '</option>').join('') + '</select></span></label>' +
+        '<label class="srow">' + fico(['#22B573', 'card']) + '<span class="grow"><span class="slabel">Pagar desde</span><select class="sinput" id="fFrom"><option value="">Sin descontar de una cuenta</option>' + byUse(data.accounts).map((a) => '<option value="' + a.id + '"' + (a.id === ui.sheetFrom ? ' selected' : '') + '>' + esc(accLabel(a)) + '</option>').join('') + '</select></span></label>' + '<div id="apWrap">' + apRowHTML() + '</div>'
       : '<label class="srow">' + fico(['#22B573', 'card']) + '<span class="grow"><span class="slabel">Cuenta</span><select class="sinput" id="fAcc">' + acctOpts(acc.id, ui.sheetType !== 'in') + '</select></span></label>') +
     '<label class="srow">' + fico(['#22B573', 'pen']) + '<span class="grow"><span class="slabel">Nota</span><input class="sinput" id="fNote" placeholder="Opcional" autocomplete="off" value="' + esc(k.note || '') + '"></span></label>' +
     '<div class="nsug" id="nsug">' + noteSugHTML(k.note || '') + '</div>' +

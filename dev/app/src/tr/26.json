@@ -1,0 +1,47 @@
+[
+ [
+  "pendiente",
+  "owed",
+  "未払い",
+  "da pagare",
+  "à payer",
+  "za platiti",
+  "Lo que todavía se debe en un préstamo o en una tarjeta sin límite, junto al saldo en los menús de cuentas."
+ ],
+ [
+  "disponible",
+  "available",
+  "利用可能",
+  "disponibile",
+  "disponible",
+  "raspoloživo",
+  "Crédito disponible de una tarjeta, junto al nombre en los menús de cuentas (en minúscula)."
+ ],
+ [
+  "Añadir al calendario",
+  "Add to Calendar",
+  "カレンダーに追加",
+  "Aggiungi al calendario",
+  "Ajouter au calendrier",
+  "Dodaj u kalendar",
+  "Botón del editor de un evento de Proyección: descarga un archivo .ics."
+ ],
+ [
+  "Evento listo para tu calendario",
+  "Event ready for your calendar",
+  "カレンダー用のイベントを用意しました",
+  "Evento pronto per il tuo calendario",
+  "Événement prêt pour votre calendrier",
+  "Događaj je spreman za vaš kalendar",
+  "Aviso al descargar el .ics."
+ ],
+ [
+  "Nazca ya conocía esta captura. Revisa la lista.",
+  "Nazca already knew this screenshot. Review the list.",
+  "Nazcaはこのスクリーンショットを既に知っていました。リストを確認してください。",
+  "Nazca conosceva già questo screenshot. Controlla l'elenco.",
+  "Nazca connaissait déjà cette capture. Vérifiez la liste.",
+  "Nazca je već poznavala ovaj snimak ekrana. Provjerite popis.",
+  "Aviso cuando una captura se lee con una plantilla de fábrica (hoy: Interbank)."
+ ]
+]

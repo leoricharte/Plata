@@ -220,7 +220,7 @@ function fieldInput(fd, o) {
   const v = o[fd.k] == null ? '' : o[fd.k];
   if (fd.t === 'select') {
     if (fd.k === 'cat') return '<select class="sinput" data-f="cat">' + CAT_ORDER.map((x) => '<option value="' + x + '"' + (x === (v || 'Otros') ? ' selected' : '') + '>' + x + '</option>').join('') + '</select>';
-    if (fd.k === 'card') return '<select class="sinput" data-f="card">' + data.cards.map((x) => '<option value="' + x.id + '"' + (x.id === v ? ' selected' : '') + '>' + esc(x.name) + l4(x) + ' · ' + x.cur + '</option>').join('') + '</select>';
+    if (fd.k === 'card') return '<select class="sinput" data-f="card">' + byUse(data.cards).map((x) => '<option value="' + x.id + '"' + (x.id === v ? ' selected' : '') + '>' + esc(accLabel(x)) + '</option>').join('') + '</select>';
     if (fd.k === 'acc' && ui.form && ui.form.kind === 'sub') return '<select class="sinput" data-f="acc"><option value="">Sin especificar</option>' + acctOpts(v, true) + '</select>';
     if (fd.k === 'acc' && !fd.pay && ui.form && (ui.form.kind === 'sim' || ui.form.kind === 'expense')) return '<select class="sinput" data-f="acc">' + acctOpts(v, true) + '</select>';
     const list = fd.k === 'sav' ? data.savings : data.accounts;
@@ -309,6 +309,7 @@ function evHTML() {
     '<div class="scard"><label class="srow">' + fico(['#FF9F0A', 'cal']) + '<span class="grow"><span class="slabel">Fecha de este evento</span><input class="sinput" type="date" id="evDate" value="' + esc(v.date) + '"></span></label></div>' +
     '<div class="sub" style="font-size:13px;padding:0 8px 6px">Solo cambia este evento; el resto de la serie sigue igual.</div>' +
     '<button class="primary" data-act="evsave">Guardar</button>' +
+    '<button class="secbtn" data-act="evcal">Añadir al calendario</button>' +
     (v.skipped ? '' : '<button class="secbtn" data-act="evskip">Omitir este evento</button>') +
     (v.had ? '<button class="secbtn" data-act="evreset">Restaurar el original</button>' : '') +
     (v.form && EV_FORM_TITLE[v.form] ? '<button class="secbtn" data-act="evseries">Editar toda la ' + (v.form === 'income' || v.form === 'expense' ? EV_FORM_TITLE[v.form] : EV_FORM_TITLE[v.form]) + '</button>' : '');
@@ -325,6 +326,27 @@ function evSave() {
   if (date <= iso(getToday())) { toast('Elige una fecha futura'); return; }
   const e = {}; if (Math.abs(amt - v.a0) > 0.0049) e.amt = round2(amt); if (date !== v.d0) e.date = date;
   evStore(Object.keys(e).length ? e : null); toast('Evento actualizado');
+}
+/* «Añadir al calendario»: un archivo .ics de día completo (lo abre cualquier calendario) con el monto en las notas, un aviso a las 9:00 del día anterior
+   y un enlace que, al tocarlo en el calendario, abre ese evento en Plata (?ev=…). El mismo evento siempre tiene el mismo UID: volver a añadirlo lo actualiza. */
+function evIcs(key, name, date, notes) {
+  const t = (s) => String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+  const fold = (l) => { const o = []; while (l.length > 73) { o.push(l.slice(0, 73)); l = ' ' + l.slice(73); } o.push(l); return o.join('\r\n'); };
+  const day = date.replace(/-/g, ''), next = iso(addDays(pd(date), 1)).replace(/-/g, '');
+  const link = (/^https?:/.test(location.protocol) ? location.origin + location.pathname : 'https://web.plataapp.net/') + '?ev=' + encodeURIComponent(key);
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Plata//Calendario//ES', 'CALSCALE:GREGORIAN', 'BEGIN:VEVENT', 'UID:plata-' + key.replace(/[^A-Za-z0-9:_-]/g, '') + '@plataapp.net',
+    'DTSTAMP:' + stamp, 'DTSTART;VALUE=DATE:' + day, 'DTEND;VALUE=DATE:' + next, 'SUMMARY:' + t(name), 'DESCRIPTION:' + t(notes + '\n' + link), 'URL:' + link,
+    'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + t(name), 'TRIGGER:-PT15H', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].map(fold).join('\r\n') + '\r\n';
+}
+function evCal() {
+  const v = ui.ev; if (!v) return;
+  const hero = parseFloat(String(($('#fHero') || {}).value).replace(',', '.')), amt = hero > 0 ? hero : v.amt, date = ($('#evDate') || {}).value || v.date;
+  const file = new File([evIcs(v.key, v.name, date, trText('Monto') + ': ' + fmtC2(amt, v.cur))], 'plata-' + date + '.ics', { type: 'text/calendar' });
+  const url = URL.createObjectURL(file), a = document.createElement('a');
+  a.href = url; a.download = file.name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+  toast('Evento listo para tu calendario');
 }
 const jobModes = () => { const a = activeCurs(), m = []; if (a.indexOf('USD') >= 0) m.push(['h', 'EE.UU.']); if (a.indexOf('PEN') >= 0) m.push(['s', 'Perú']); if (m.length > 1 && curP() === 'PEN') m.reverse(); return m.length ? m : [['h', 'EE.UU.'], ['s', 'Perú']]; };
 const jobOf = (e) => (e && e.job ? data.jobs.find((j) => j.id === e.job) : null);
@@ -497,7 +519,7 @@ function confirmHTML() {
       '<div class="amtblock"><div class="amtlabel">' + esc(c.name) + ' · día de pago ' + when + (list.length > 1 ? ' · 1 de ' + list.length : '') + '</div>' +
       '<div class="amount"><span id="fSym">' + symOf(cur).trim() + '</span><input id="fHero" inputmode="decimal" autocomplete="off" placeholder="' + (decOf(cur) ? '0.00' : '0') + '" value="' + (apFinal(c) ? c.balance.toFixed(decOf(cur) ? 2 : 0) : '') + '" style="width:' + amtW(apFinal(c) ? c.balance.toFixed(decOf(cur) ? 2 : 0) : '', decOf(cur) ? '0.00' : '0') + '"></div>' +
       '<div class="deltachip">' + (apFinal(c) ? 'Última cuota · es lo que te queda' : '¿Cuánto pagaste?') + '</div></div>' +
-      '<div class="scard"><label class="srow">' + fico(['#22B573', 'card']) + '<span class="grow"><span class="slabel">Pagar desde</span><select class="sinput" id="cFrom"><option value="">Sin descontar de una cuenta</option>' + data.accounts.map((a) => '<option value="' + a.id + '"' + (a.id === c.auto.from ? ' selected' : '') + '>' + esc(a.name) + l4(a) + ' · ' + a.cur + '</option>').join('') + '</select></span></label></div>' +
+      '<div class="scard"><label class="srow">' + fico(['#22B573', 'card']) + '<span class="grow"><span class="slabel">Pagar desde</span><select class="sinput" id="cFrom"><option value="">Sin descontar de una cuenta</option>' + byUse(data.accounts).map((a) => '<option value="' + a.id + '"' + (a.id === c.auto.from ? ' selected' : '') + '>' + esc(accLabel(a)) + '</option>').join('') + '</select></span></label></div>' +
       '<button class="primary" data-act="cok">Confirmar</button><button class="secbtn" data-act="' + (ui.confirmPick ? 'cclose' : 'clater') + '">' + (ui.confirmPick ? 'Cancelar' : 'Aún no pagué') + '</button></div>';
   }
   const pcd = out ? payOf(e) : null;

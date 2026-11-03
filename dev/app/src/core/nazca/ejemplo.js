@@ -380,6 +380,24 @@ const NazcaEjemplo = (() => {
     return st;
   }
 
-  return { parseMoney, number, parseDate, lines, learn, extract, examples, rows, listRegion, statement, CARD_ISSUERS };
+  /* Capturas que Nazca ya conoce de fábrica: solo la FORMA de cada una (dónde van el monto, la descripción y la fecha, y cómo se distingue un gasto de un abono),
+   * nunca datos de nadie. Cada una se probó con una captura sintética (dev/tests/ejemplo.mjs). `bank` solo nombra la cuenta, sin el sello de banco verificado.
+   * Interbank, captura de la app (no el estado de cuenta): «Mi Cuenta» de una cuenta simple en soles. La descripción va arriba, la fecha con la hora debajo
+   * (`Lun 02 Nov | 10:01 pm`) y el monto a la derecha entre las dos líneas; los gastos llevan «-» y los abonos van sin signo. */
+  const VERIFIED = [
+    { bank: 'interbank', template: { amountX: 0.879, rightAligned: true, tol: 0.02, descDy: -1, descLeft: 0.081, dateMode: { row: 1 }, signMode: { marker: 1 }, cur: '', confidence: 1, soft: null, partial: null } },
+  ];
+  /* La captura de fábrica que mejor lee esta imagen (la que saca más movimientos completos, con al menos 2), o null si ninguna la entiende. */
+  function bestVerified(boxes, today) {
+    let best = null;
+    VERIFIED.forEach((v) => {
+      const x = extract(v.template, boxes, today); if (x.items.length < 2) return;
+      const score = x.items.length - x.flags.length * 2;
+      if (!best || score > best.score) best = { bank: v.bank, template: v.template, x, score };
+    });
+    return best;
+  }
+
+  return { parseMoney, number, parseDate, lines, learn, extract, examples, rows, listRegion, statement, CARD_ISSUERS, VERIFIED, bestVerified };
 })();
 if (typeof module !== 'undefined' && module.exports) module.exports = NazcaEjemplo;
