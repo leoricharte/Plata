@@ -96,6 +96,13 @@ ok('colores (claro y oscuro)');
     else s = s.replace('</manifest>', perms + '\n</manifest>');
   }
   ok('permisos: huella y avisos');
+  // El plugin de avisos agrega SCHEDULE_EXACT_ALARM: Google Play lo restringe a apps de alarmas y calendarios y pide justificarlo. Plata no lo necesita (sus avisos
+  // son de «mañana a las 9:00» y no pasa nada si Android los mueve unos minutos), así que se quita al unir los manifiestos.
+  if (!/xmlns:tools=/.test(s)) s = s.replace('<manifest ', '<manifest xmlns:tools="http://schemas.android.com/tools" ');
+  for (const x of ['android.permission.SCHEDULE_EXACT_ALARM', 'android.permission.USE_EXACT_ALARM']) {
+    if (!s.includes(`"${x}" tools:node="remove"`)) s = s.replace('</manifest>', `    <uses-permission android:name="${x}" tools:node="remove" />\n</manifest>`);
+  }
+  ok('sin permisos de alarmas exactas (Play los restringe)');
   // los datos de Plata no deben viajar en las copias automáticas de Android
   if (/android:allowBackup="true"/.test(s)) s = s.replace('android:allowBackup="true"', 'android:allowBackup="false"');
   ok('sin copias automáticas de la app (allowBackup=false)');
