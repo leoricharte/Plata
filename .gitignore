@@ -10,3 +10,10 @@ __pycache__/
 dist-web/
 !dev/tests/constancias.json
 !dev/app/src/tr/*.json
+
+# Android: el proyecto de Capacitor se genera en el CI (android/scripts/prepare.mjs); solo se versionan su receta y sus recursos
+android/android/
+android/node_modules/
+android/www/
+android/package-lock.json
+!android/capacitor.config.json

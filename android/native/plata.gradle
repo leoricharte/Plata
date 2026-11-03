@@ -1,0 +1,31 @@
+// Lo que Plata añade al app/build.gradle que genera Capacitor (scripts/prepare.mjs lo enlaza con «apply from»).
+// Versión y firma salen del entorno (GitHub Actions): así el versionCode siempre sube y la llave de Play nunca está en el repositorio.
+def env = System.getenv()
+
+android {
+    defaultConfig {
+        versionCode (env.PLATA_VERSION_CODE ? env.PLATA_VERSION_CODE.toInteger() : 1)
+        versionName (env.PLATA_VERSION_NAME ?: "5.0")
+    }
+    signingConfigs {
+        release {
+            if (env.PLATA_KEYSTORE_FILE) {
+                storeFile file(env.PLATA_KEYSTORE_FILE)
+                storePassword env.PLATA_KEYSTORE_PASSWORD
+                keyAlias env.PLATA_KEY_ALIAS
+                keyPassword env.PLATA_KEY_PASSWORD
+            }
+        }
+    }
+    buildTypes {
+        release {
+            if (env.PLATA_KEYSTORE_FILE) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation 'androidx.biometric:biometric:1.1.0'
+}

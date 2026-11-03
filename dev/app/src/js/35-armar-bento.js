@@ -719,7 +719,7 @@ seasonPlay();
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { ui.skipPending = false; updatePendingDot(); checkPending(); } });
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => movePill(true));
 
-if ('serviceWorker' in navigator && /^https?:/.test(location.protocol)) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); }); }
+if ('serviceWorker' in navigator && /^https?:/.test(location.protocol) && !PN.on) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); }); }
 /* Interruptores: mantiene el vidrio al cambiar de estado y se asienta suave */
 document.addEventListener('click', (e) => {
   const b = e.target.closest && e.target.closest('.sw2'); if (!b || b.classList.contains('dis')) return;

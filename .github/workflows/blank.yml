@@ -36,6 +36,9 @@ jobs:
       - name: Frase de recuperación (español e inglés, misma llave)
         run: node dev/tests/frase.mjs
 
+      - name: Avisos de la app de Android (plan de recordatorios)
+        run: node dev/tests/avisos.mjs
+
       - name: Pruebas de seguridad del servidor
         run: |
           node dev/tests/carrera.mjs

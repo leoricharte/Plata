@@ -1,0 +1,27 @@
+{
+  "appId": "net.plataapp.plata",
+  "appName": "Plata",
+  "webDir": "www",
+  "server": {
+    "hostname": "web.plataapp.net",
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false,
+    "webContentsDebuggingEnabled": false,
+    "adjustMarginsForEdgeToEdge": "force"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 600,
+      "launchAutoHide": true,
+      "backgroundColor": "#22B573",
+      "showSpinner": false,
+      "androidScaleType": "CENTER_INSIDE"
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_plata",
+      "iconColor": "#22B573"
+    }
+  }
+}
