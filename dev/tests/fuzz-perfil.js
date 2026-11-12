@@ -36,7 +36,8 @@ const SKIP = new Set(['id','acc','card','pair','job','from','to','next','until',
         await p.waitForTimeout(120);
         await p.keyboard.press('Escape').catch(() => {});
       }
-      await p.evaluate(() => { document.querySelectorAll('.sheet,.alertback,#alertback').forEach(e => e.remove()); }); await go(tab);
+      // cierra lo que haya abierto como lo haría una persona (borrar la hoja del DOM rompía la app y daba errores falsos)
+      await p.evaluate(() => { const x = document.querySelector('#sheet.show [data-act="close"], #alertback [data-act="close"]'); if (x) x.click(); const bd = document.querySelector('#backdrop.show'); if (bd) bd.click(); }); await p.keyboard.press('Escape').catch(() => {}); await go(tab);
     }
     await p.close();
   }
