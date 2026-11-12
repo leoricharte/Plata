@@ -4,14 +4,11 @@ const { round2, isQ, qDays, qMake, repN, qNext, nextRep, addMonths } = Motor;   
 const fxRate = () => (data.settings && data.settings.fx > 0 ? data.settings.fx : (curS() ? fxDefault(curP(), curS()) : 1));
 const usd = (n, cur) => (curS() && cur === curS() ? n / fxRate() : n);
 const fromUSD = (n, cur) => (curS() && cur === curS() ? n * fxRate() : n);
-const symOf = (cur) => (CURRENCIES[cur] || CURRENCIES.USD).sym.replace(/ $/, '\u00a0');
-const fmtC = (n, cur) => (n < 0 ? '−' : '') + symOf(cur) + Math.abs(Math.round(n)).toLocaleString('en-US');
-const fmtC2 = (n, cur) => symOf(cur) + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: decOf(cur), maximumFractionDigits: decOf(cur) });
-const fmtSC2 = (n, cur) => (n < 0 ? '−' : '+') + fmtC2(n, cur);
+const { symOf, fmtC, fmtC2, fmtSC2 } = Motor;   /* del motor (src/motor/monedas.mjs) */
 const accOf = (id) => data.accounts.find((a) => a.id === id) || data.cards.find((c) => c.id === id) || data.accounts[0];
 const isCredit = (a) => data.cards.indexOf(a) >= 0 || (!!a && a.id === '__new' && a.kind === 'card');
 /* Un movimiento en débito suma o resta al saldo; en crédito, un gasto sube la deuda y un pago la baja */
-const applyTo = (a, signed) => { a.balance = round2(isCredit(a) ? a.balance - signed : a.balance + signed); };
+const applyTo = (a, signed) => { a.balance = Motor.nextBalance(a.balance, signed, isCredit(a)); };
 const l4 = (o) => (o && o.last4 ? ' · ● ' + o.last4 : '');
 const l4tag = (o) => (o && o.last4 ? ' <span class="sub" style="font-weight:500;font-size:13px;white-space:nowrap"><i style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--ink);margin:0 6px 1px 2px"></i><span class="cn" style="font-size:15px;color:var(--ink)">' + esc(o.last4) + '</span></span>' : '');
 /* Cuentas y tarjetas en los menús donde se elige una (igual que en la app de iPhone): las que más usaste en los últimos 90 días primero y, junto al nombre,

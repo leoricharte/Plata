@@ -1,6 +1,6 @@
 # Motor de Plata
 
-La lógica de la app que no dibuja pantallas: fechas, repeticiones, números… Cada archivo es un módulo de verdad (`import`/`export`),
+La lógica de la app que no dibuja pantallas: fechas, repeticiones, números, monedas y saldos… Cada archivo es un módulo de verdad (`import`/`export`),
 se prueba solo en Node (`node dev/tests/motor.mjs`) y no toca el DOM ni el estado de la app (`data`, `ui`).
 
 La app no carga estos archivos directamente: `npm run motor` (desde `dev/`) los empaqueta con esbuild en

@@ -1,4 +1,4 @@
-// Pruebas del motor de Plata (dev/app/src/motor/): fechas, repeticiones y montos, sin navegador.
+// Pruebas del motor de Plata (dev/app/src/motor/): fechas, repeticiones, montos, monedas y saldos, sin navegador.
 // Uso: node dev/tests/motor.mjs   · Cada prueba imprime OK/FALLA.
 // Que dev/app/src/js/00-motor.js esté al día con los módulos lo revisa el CI (lo regenera y compara con git).
 import * as M from '../app/src/motor/index.mjs';
@@ -34,6 +34,27 @@ ok(S(M.nextRep(D('2026-01-31'), 'm')) === '2026-02-28' && S(M.nextRep(D('2026-03
 ok(S(M.nextRep(D('2026-11-12'), 7)) === '2026-11-19' && S(M.nextRep(D('2026-11-12'), 14)) === '2026-11-26', 'nextRep: semanal y cada 2 semanas');
 ok(S(M.nextRep(D('2026-11-12'), 0)) === '2026-11-19', 'nextRep: sin repetición válida, una semana (como antes)');
 ok(S(M.nextRep(D('2026-12-20'), 'q1,15')) === '2027-01-01', 'nextRep quincenal: cruza de año');
+
+// --- monedas
+ok(M.symOf('PEN') === 'S/ ' && M.symOf('USD') === '$' && M.symOf('XYZ') === '$', 'symOf: el espacio final pasa a no separable; una moneda desconocida usa $');
+ok(M.decOf('JPY') === 0 && M.decOf('CLP') === 0 && M.decOf('PEN') === 2 && M.decOf('XYZ') === 2, 'decOf: yen y peso chileno sin decimales');
+ok(M.fmtC(-1234.6, 'PEN') === '−S/ 1,235' && M.fmtC(0, 'USD') === '$0', 'fmtC: entero, con signo menos tipográfico');
+ok(M.fmtC2(1234.5, 'USD') === '$1,234.50' && M.fmtC2(-1500, 'JPY') === '¥1,500', 'fmtC2: con decimales según la moneda (y sin signo)');
+ok(M.fmtSC2(12.5, 'USD') === '+$12.50' && M.fmtSC2(-12.5, 'USD') === '−$12.50', 'fmtSC2: con + o −');
+ok(M.fxDefault('USD', 'PEN') === 3.7 && M.fxDefault('PEN', 'USD') === 0.2703, 'fxDefault: tipo de cambio por defecto a 4 cifras');
+ok(M.CUR_GRID.every((c) => M.CURRENCIES[c]) && M.CUR_OTHERS().indexOf('USD') < 0, 'la grilla solo tiene monedas conocidas; CUR_OTHERS excluye las de la grilla');
+{
+  const c = M.regCustom('  ₿tc '), had = !!M.CURRENCIES[c];
+  ok(c === '₿TC' && had && M.CUR_ORDER[M.CUR_ORDER.length - 1] === '₿TC' && M.symOf('₿TC') === '₿TC', 'regCustom: registra una moneda propia (máx. 3 caracteres) en la tabla compartida');
+  const d = M.regCustom('pts');
+  ok(d === 'PTS' && !M.CURRENCIES['₿TC'] && M.CURRENCIES.PTS && M.symOf('PTS') === 'PTS ', 'regCustom: solo una a la vez; si son letras, el símbolo lleva espacio');
+  ok(M.regCustom('USD') === '' && M.regCustom('') === '' && !M.CURRENCIES.PTS && M.CUR_ORDER.join() === M.CUR_GRID.join(), 'regCustom: un código que ya existe o vacío no registra nada y limpia la anterior');
+}
+
+// --- saldos
+ok(M.nextBalance(100, -30, false) === 70 && M.nextBalance(100, 30, false) === 130, 'nextBalance débito: un gasto resta, un ingreso suma');
+ok(M.nextBalance(500, -30, true) === 530 && M.nextBalance(500, 200, true) === 300, 'nextBalance crédito: un gasto sube la deuda, un pago la baja');
+ok(M.nextBalance(0.1, 0.2, false) === 0.3, 'nextBalance: redondea a céntimos (0.1 + 0.2 = 0.3)');
 
 console.log(f ? '\n' + f + ' FALLA(S)' : '\nTodo bien');
 process.exit(f ? 1 : 0);

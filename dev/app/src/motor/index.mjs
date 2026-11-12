@@ -2,3 +2,5 @@
 export * from './numeros.mjs';
 export * from './fechas.mjs';
 export * from './repeticiones.mjs';
+export * from './monedas.mjs';
+export * from './saldos.mjs';
