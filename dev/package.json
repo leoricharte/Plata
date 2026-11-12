@@ -3,9 +3,11 @@
   "private": true,
   "description": "Herramientas de desarrollo de Plata (no entran a la app).",
   "scripts": {
-    "lint": "node app/lint.mjs"
+    "lint": "node app/lint.mjs",
+    "motor": "esbuild app/src/motor/index.mjs --bundle --format=iife --global-name=Motor --target=es2020 --charset=utf8 --legal-comments=none --banner:js='/* GENERADO por `npm run motor` desde src/motor/. No lo edites: tus cambios se pierden. */' --outfile=app/src/js/00-motor.js"
   },
   "devDependencies": {
+    "esbuild": "0.25.12",
     "eslint": "9.39.5",
     "globals": "17.4.0"
   }
