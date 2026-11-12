@@ -156,5 +156,16 @@
 ["Aún hay tiempo de cambiarlo.", "There’s still time to change it.", "まだ変えられます。", "C’è ancora tempo per cambiare.", "Il est encore temps de changer.", "Još ima vremena za promjenu."],
 ["Fue duro. Aquí te ayudamos.", "That was rough. We’re here to help.", "つらい月でした。サポートします。", "È stato duro. Ti aiutiamo noi.", "C’était dur. On t’aide.", "Bilo je teško. Tu smo da pomognemo."],
 ["Empecemos de nuevo.", "Let’s start fresh.", "もう一度始めよう。", "Ricominciamo.", "Repartons de zéro.", "Krenimo ispočetka."],
-["Veamos qué ajustar, sin culpas.", "Let’s see what to adjust, no blame.", "責めずに調整点を見よう。", "Vediamo cosa sistemare, senza colpe.", "Voyons quoi ajuster, sans culpabilité.", "Pogledajmo što prilagoditi, bez krivnje."]
+["Veamos qué ajustar, sin culpas.", "Let’s see what to adjust, no blame.", "責めずに調整点を見よう。", "Vediamo cosa sistemare, senza colpe.", "Voyons quoi ajuster, sans culpabilité.", "Pogledajmo što prilagoditi, bez krivnje."],
+["Dirección", "Direction", "方向", "Direzione", "Sens", "Smjer"],
+["Sale de esta cuenta", "Leaves this account", "この口座から出る", "Esce da questo conto", "Sort de ce compte", "Izlazi s ovog računa"],
+["Entra a esta cuenta", "Enters this account", "この口座に入る", "Entra in questo conto", "Entre sur ce compte", "Ulazi na ovaj račun"],
+["Hacia", "To", "送金先", "Verso", "Vers", "Na"],
+["Pagado desde", "Paid from", "支払元", "Pagato da", "Payé depuis", "Plaćeno s"],
+["Elige una", "Choose one", "選択してください", "Scegline uno", "Choisissez-en un", "Odaberi"],
+["También se anotará en la otra cuenta y su saldo se ajusta.", "It will also be recorded in the other account, and its balance will be adjusted.", "もう一方の口座にも記録され、残高が調整されます。", "Verrà registrato anche nell’altro conto e il suo saldo sarà aggiornato.", "Il sera aussi enregistré sur l’autre compte et son solde sera ajusté.", "Zabilježit će se i na drugom računu, a njegovo stanje će se uskladiti."],
+["Volver al original", "Revert to original", "元に戻す", "Ripristina l’originale", "Revenir à l’original", "Vrati izvorno"],
+["Escribe un monto mayor que cero.", "Enter an amount greater than zero.", "0より大きい金額を入力してください。", "Inserisci un importo maggiore di zero.", "Saisissez un montant supérieur à zéro.", "Unesi iznos veći od nule."],
+["Elige una fecha.", "Choose a date.", "日付を選択してください。", "Scegli una data.", "Choisissez une date.", "Odaberi datum."],
+["Elige la otra cuenta.", "Choose the other account.", "もう一方の口座を選択してください。", "Scegli l’altro conto.", "Choisissez l’autre compte.", "Odaberi drugi račun."]
 ]
