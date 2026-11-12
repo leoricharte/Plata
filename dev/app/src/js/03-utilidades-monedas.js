@@ -1,11 +1,7 @@
 /* ---------- Utilidades ---------- */
 const $ = (s, el) => (el || document).querySelector(s);
 const clone = (o) => JSON.parse(JSON.stringify(o));
-const sum = (a, f) => a.reduce((s, x) => s + f(x), 0);
-const pad = (n) => String(n).padStart(2, '0');
-const iso = (d) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
-const pd = (s) => { const p = String(s).split('-').map(Number); return new Date(p[0], p[1] - 1, p[2]); };
-const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+const { sum, iso, pd, addDays, MAXAMT, clampAmt } = Motor;   /* del motor (src/motor/): fechas y montos, probados en dev/tests/motor.mjs */
 /* ---------- Monedas (hasta 2 activas: principal + segunda) ---------- */
 const CURRENCIES = {
   USD: { sym: '$', name: 'Dólar estadounidense', rate: 1, k: 1 }, EUR: { sym: '€', name: 'Euro', rate: 0.92, k: 1 },
@@ -147,8 +143,6 @@ const CUR_GRID = ['USD', 'EUR', 'JPY', 'GBP', 'CAD', 'BAM', 'PEN', 'MXN', 'ARS',
 const CUR_ORDER = CUR_GRID.slice();
 const CUR_BUILTIN = Object.keys(CURRENCIES);
 const CUR_OTHERS = () => CUR_BUILTIN.filter((c) => CUR_GRID.indexOf(c) < 0).sort();
-const MAXAMT = 999999999;
-const clampAmt = (n) => (typeof n === 'number' && isFinite(n) ? Math.max(-MAXAMT, Math.min(MAXAMT, n)) : (typeof n === 'number' ? 0 : n));
 const normCustom = (s) => { s = Array.from(String(s || '').trim().toUpperCase().replace(/\s+/g, '')).slice(0, 3).join(''); return /^[\p{L}\p{N}$€£¥₿₽₩₹₫₺₴]{1,3}$/u.test(s) && CUR_BUILTIN.indexOf(s) < 0 ? s : ''; };
 function regCustom(code) {
   Object.keys(CURRENCIES).forEach((k) => { if (CURRENCIES[k].custom) delete CURRENCIES[k]; });

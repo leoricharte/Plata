@@ -18,6 +18,8 @@ CHANNEL=alpha python3 dev/app/build.py   # variante con icono blanco
 node dev/app/lint.mjs             # revisa la compilación: nombres repetidos, variables que no existen, código sin usar
 ```
 
+El **motor** (fechas, repeticiones, montos; lo que no dibuja pantallas) vive en `dev/app/src/motor/` como módulos de verdad (`import`/`export`), con pruebas en `dev/tests/motor.mjs`. `npm run motor --prefix dev` los empaqueta con esbuild en `src/js/00-motor.js` (va primero y expone `Motor`); los archivos de `src/js/` toman lo que usan con `const { iso, pd } = Motor;`. Edita los módulos, nunca `00-motor.js`: el CI lo regenera y falla si no coincide. Detalles en [`app/src/motor/README.md`](app/src/motor/README.md).
+
 `lint.mjs` revisa el JavaScript ya compilado, porque todos los archivos de `src/js/` comparten el mismo ámbito: por separado todo parecería «no definido», juntos se ve si dos archivos usan el mismo nombre (el segundo pisa al primero sin aviso) o si un `.map()` no devuelve nada. Cada problema sale con su archivo y línea de origen. Corre en el CI de cada push a `main`.
 
 `dev/app/src/` contiene:
