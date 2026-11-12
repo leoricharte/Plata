@@ -145,7 +145,7 @@ final class AppLock {
     func enableBio() async -> Bool {
         let c = LAContext(); var e: NSError?
         guard c.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &e) else { return false }
-        guard (try? await c.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: "Activa \(Self.bioName) para abrir Plata")) == true else { return false }
+        guard (try? await c.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: Tr.t("Activa \(Self.bioName) para abrir Plata"))) == true else { return false }
         if let st = c.domainState.biometry.stateHash { Self.kcSet(st, Acct.bioState) }
         UserDefaults.standard.set(true, forKey: Self.bioKey)
         bioOn = true
@@ -161,11 +161,11 @@ final class AppLock {
     func unlockWithBio() async -> Bool {
         guard hasPIN, bioOn, waitUntil.map({ $0 <= Date() }) ?? true else { return false }
         let c = LAContext(); var e: NSError?
-        c.localizedCancelTitle = "Usar PIN"
+        c.localizedCancelTitle = Tr.t("Usar PIN")
         guard c.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &e) else { return false }
         // si cambiaron las caras o huellas registradas, se vuelve a pedir el PIN
         if let saved = Self.kcGet(Acct.bioState), let now = c.domainState.biometry.stateHash, saved != now { disableBio(); return false }
-        guard (try? await c.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: "Abre Plata")) == true else { return false }
+        guard (try? await c.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: Tr.t("Abre Plata"))) == true else { return false }
         locked = false; leftAt = nil; sync()
         return true
     }
@@ -174,7 +174,7 @@ final class AppLock {
     func resetWithDevicePasscode() async -> Bool {
         let c = LAContext(); var e: NSError?
         guard c.canEvaluatePolicy(.deviceOwnerAuthentication, error: &e) else { return false }
-        guard (try? await c.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: "Confirma que eres tú para quitar el PIN de Plata")) == true else { return false }
+        guard (try? await c.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: Tr.t("Confirma que eres tú para quitar el PIN de Plata"))) == true else { return false }
         disable()
         return true
     }

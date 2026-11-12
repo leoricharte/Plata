@@ -313,3 +313,310 @@ Plata llega a iPhone y Apple Watch como app nativa: constancias de Yape y Plin q
 disponible ¦ available
 pendiente ¦ owed
 Añadir al calendario ¦ Add to Calendar
+
+# --- Textos que estaban solo en tr_en.json (constancias, capturas, edición al importar, avisos…)
+Pegar constancia de Yape o Plin ¦ Paste a Yape or Plin receipt
+Pega el texto de la constancia que compartes al pagar. Plata lo lee en este dispositivo. ¦ Paste the text of the receipt you share after paying. Plata reads it on this device.
+Yape o Plin ¦ Yape or Plin
+Constancia ¦ Receipt
+Yape · Constancia ¦ Yape · Receipt
+Plin · Constancia ¦ Plin · Receipt
+Copia todo el texto de la constancia y pégalo aquí. No se sube a ningún servidor. ¦ Copy all the text of the receipt and paste it here. It isn't uploaded to any server.
+Pega aquí el texto de la constancia ¦ Paste the receipt text here
+Pegar del portapapeles ¦ Paste from clipboard
+Revisa el monto, la fecha y si fue un pago o un ingreso antes de importar. ¦ Check the amount, the date and whether it was a payment or income before importing.
+Leer constancia ¦ Read receipt
+Esto no parece una constancia ¦ This doesn't look like a receipt
+No encontramos un monto. Copia todo el texto de la constancia de Yape o Plin y vuélvelo a pegar. ¦ We couldn't find an amount. Copy all the text of the Yape or Plin receipt and paste it again.
+No pude leer el portapapeles. Pega el texto en el recuadro. ¦ I couldn't read the clipboard. Paste the text into the box.
+No encontré la fecha: puse la de hoy. Revísala. ¦ I couldn't find the date, so I used today's. Please check it.
+No sé si fue un pago o un ingreso. Revísalo. ¦ I can't tell if it was a payment or income. Please check.
+Elige la captura de la constancia de Yape o Plin. Se lee en este dispositivo: no se sube a ningún servidor. ¦ Choose the screenshot of the Yape or Plin receipt. It's read on this device: it isn't uploaded to any server.
+O copia todo el texto de la constancia y pégalo aquí. ¦ Or copy all the text of the receipt and paste it here.
+No pude abrir el lector de capturas ¦ I couldn't open the screenshot reader
+Revisa tu conexión y vuelve a intentarlo, o pega el texto de la constancia. ¦ Check your connection and try again, or paste the receipt text.
+No pude abrir esa captura ¦ I couldn't open that screenshot
+Elige una captura de pantalla de la constancia (imagen de hasta 12 MB). ¦ Choose a screenshot of the receipt (an image up to 12 MB).
+No pude leer texto en la captura ¦ I couldn't read text in the screenshot
+Prueba con una captura más clara y completa, o pega el texto de la constancia. ¦ Try a clearer, complete screenshot, or paste the receipt text.
+No encontramos un monto en la captura. Prueba con una captura más clara que muestre el monto y la fecha. ¦ We didn't find an amount in the screenshot. Try a clearer screenshot that shows the amount and date.
+¿Enviaste dinero o te llegó? Mucha gente guarda la captura de quien envió, así que Plata no lo puede adivinar. ¦ Did you send money or receive it? Many people keep the screenshot of whoever sent it, so Plata can't guess.
+Envié dinero ¦ I sent money
+Pagaste o transferiste a alguien. ¦ You paid or transferred to someone.
+Me llegó dinero ¦ I received money
+Alguien te yapeó, te plineó o te transfirió. ¦ Someone Yaped, Plined or transferred to you.
+Primero elige si enviaste dinero o te llegó. ¦ First choose whether you sent money or received it.
+¿Fue un gasto o un ingreso? Mucha gente guarda la captura de quien envió, así que Plata no lo puede adivinar. ¦ Was it an expense or income? Many people keep the screenshot of whoever sent it, so Plata can't guess.
+Sube la captura de la constancia de Yape o Plin. Se lee en este dispositivo: no se sube a ningún servidor. ¦ Upload the screenshot of the Yape or Plin receipt. It's read on this device: it isn't uploaded to any server.
+Subir captura ¦ Upload screenshot
+Importar captura de Yape o Plin ¦ Import a Yape or Plin screenshot
+Sube la captura de la constancia. Plata la lee en este dispositivo. ¦ Upload the receipt screenshot. Plata reads it on this device.
+Primero elige si fue un gasto o un ingreso. ¦ First choose whether it was an expense or income.
+Revisa tu conexión y vuelve a intentarlo. ¦ Check your connection and try again.
+Prueba con una captura más clara y completa. ¦ Try a clearer, complete screenshot.
+Registrar ¦ Record
+Planear ¦ Plan
+Algo que ya pasó ¦ Something that already happened
+Archivo o captura ¦ File or screenshot
+Sueldo o pago ¦ Paycheck or payment
+Recibo o compra ¦ Bill or purchase
+Trae tus movimientos desde tu banco o tu app, sin conectar tus cuentas. ¦ Bring in your transactions from your bank or app, without linking your accounts.
+Subir ¦ Upload
+Subir archivo o captura ¦ Upload a file or screenshot
+Un CSV, un estado de cuenta o una captura. Nazca reconoce el formato y usa lo que ya sabe leer. ¦ A CSV, a statement or a screenshot. Nazca recognizes the format and uses what it already knows how to read.
+Archivo ¦ File
+CSV, PDF o Excel ¦ CSV, PDF or Excel
+Captura de Fotos ¦ Screenshot from Photos
+De tu banco o de una app ¦ From your bank or an app
+Enseñar a Nazca ¦ Teach Nazca
+Sesión de reconocimiento ¦ Recognition session
+Escribe o elige dos movimientos y sube una captura de cualquier app o banco. Nazca aprende cómo está armada y trae el resto. ¦ Write or pick two transactions and upload a screenshot from any app or bank. Nazca learns how it is laid out and brings in the rest.
+Guías por banco ¦ Bank guides
+Ver cómo funciona ¦ See how it works
+Cómo descargar tu archivo y subirlo. ¦ How to download your file and upload it.
+Escribe o elige dos movimientos que salgan en tu captura. ¦ Write or pick two transactions that appear in your screenshot.
+Sube la captura: Nazca lee el resto igual que esos dos. ¦ Upload the screenshot: Nazca reads the rest just like those two.
+Escribirlos ¦ Write them
+Elegir de mis movimientos ¦ Pick from my transactions
+Ej. Netflix ¦ e.g. Netflix
+Escríbelos como salen en la captura. No se guardan aparte: entran con los demás en la revisión. ¦ Write them as they appear in the screenshot. They are not saved separately: they come in with the rest in the review.
+Buscar por nombre o monto ¦ Search by name or amount
+Ver más movimientos ¦ Show more transactions
+No hay movimientos con eso. ¦ No transactions match that.
+Listo: sube la captura. ¦ Ready: upload the screenshot.
+Completa el nombre y el monto de los dos. ¦ Fill in the name and amount of both.
+Leer captura ¦ Read screenshot
+Nazca aún no conoce esta captura ¦ Nazca doesn't know this screenshot yet
+Dale dos movimientos de ejemplo y aprende a leerla. ¦ Give it two example transactions and it learns to read it.
+Parece una constancia de Yape o Plin ¦ This looks like a Yape or Plin receipt
+Dime si fue un gasto o un ingreso y Nazca la lee. ¦ Tell me if it was an expense or income and Nazca reads it.
+Institución ¦ Institution
+No es ninguna de estas ¦ None of these
+Nazca ya reconoció la captura. ¿Es de alguna de estas instituciones? Así la cuenta queda bien nombrada y Nazca la recuerda mejor. ¦ Nazca recognized the screenshot. Is it from one of these institutions? That way the account is named properly and Nazca remembers it better.
+Encontré un ejemplo por monto y fecha ¦ I found an example by amount and date
+Uno de tus movimientos no se llamaba igual en la captura, pero había uno con el mismo monto y la misma fecha. Revisa la lista. ¦ One of your transactions wasn't named the same in the screenshot, but there was one with the same amount and date. Check the list.
+Revisa las fechas ¦ Check the dates
+Algunos movimientos no traían fecha: puse la de hoy. ¦ Some transactions had no date: I used today's.
+Revisa gastos e ingresos ¦ Check expenses and income
+En algunos movimientos adiviné si eran gasto o ingreso. ¦ For some transactions I guessed whether they were expenses or income.
+Tus dos movimientos se veían distintos en la captura, así que Nazca puede haberse equivocado. ¦ Your two transactions looked different in the screenshot, so Nazca may have gotten it wrong.
+No encontré uno de los dos movimientos ¦ I couldn't find one of the two transactions
+Elige dos movimientos ¦ Pick two transactions
+Nazca necesita dos para aprender. ¦ Nazca needs two to learn.
+Nazca no encontró más movimientos ¦ Nazca didn't find more transactions
+Prueba con una captura que muestre varios movimientos. ¦ Try a screenshot that shows several transactions.
+Busqué «{0}» ({1}) en la captura, por nombre y por monto y fecha, y no lo vi. Revisa que ese movimiento salga completo en la imagen. ¦ I looked for “{0}” ({1}) in the screenshot, by name and by amount and date, and didn't see it. Check that transaction is fully visible in the image.
+Aprendí con un solo movimiento ¦ I learned from just one transaction
+Nazca se guió por un solo movimiento, así que puede haberse equivocado en gastos, ingresos o fechas. Revisa bien la lista. ¦ Nazca went by a single transaction, so it may have gotten expenses, income or dates wrong. Check the list carefully.
+Sube una captura de cualquier app o banco y encierra con el dedo uno o varios movimientos. Nazca aprende cómo está armada y trae el resto. ¦ Upload a screenshot from any app or bank and outline one or more transactions with your finger. Nazca learns how it's laid out and brings in the rest.
+Arrastra en diagonal sobre los movimientos ¦ Drag diagonally over the transactions
+Arrastra en diagonal desde una esquina para encerrar un movimiento, varios o toda la lista. Nazca lee el resto igual. ¦ Drag diagonally from a corner to outline one transaction, several, or the whole list. Nazca reads the rest the same way.
+Sube una captura de tu app o banco. ¦ Upload a screenshot from your app or bank.
+Encierra con el dedo un movimiento, varios o toda la lista. ¦ Outline one transaction, several, or the whole list with your finger.
+Nazca lee el resto igual que lo que encerraste. ¦ Nazca reads the rest the same way as what you outlined.
+Arrastra sobre los movimientos. ¦ Drag over the transactions.
+1 movimiento en el cuadro: Nazca aprende de ese. ¦ 1 transaction in the box: Nazca learns from it.
+{0} movimientos en el cuadro. ¦ {0} transactions in the box.
+Toda la lista ¦ Whole list
+Escribir movimientos ¦ Type transactions
+Prefiero escribir los movimientos ¦ I'd rather type the transactions
+No veo un monto en el cuadro ¦ I don't see an amount in the box
+Encierra al menos un movimiento completo, con su monto. ¦ Outline at least one full transaction, with its amount.
+Encierra con el dedo uno o varios movimientos y aprende a leerla. ¦ Outline one or more transactions with your finger and Nazca learns to read it.
+Captura. Arrastra para encerrar los movimientos. ¦ Screenshot. Drag to outline the transactions.
+¿Qué es esta captura? ¦ What is this screenshot?
+¿Qué hacemos con este archivo? ¦ What should we do with this file?
+Constancia de Yape o Plin ¦ Yape or Plin receipt
+Un pago o ingreso suelto ¦ A single payment or deposit
+Nazca lee la lista de movimientos ¦ Nazca reads the list of transactions
+Plata reconoce el banco sola ¦ Plata detects the bank on its own
+Tú dices de cuál es ¦ You tell us which one
+Abre Plata para seguir. Te estará esperando. ¦ Open Plata to continue. It will be waiting for you.
+Archivo recibido ¦ File received
+¿De qué banco es? ¦ Which bank is it from?
+Contraseña del archivo ¦ File password
+Leer este archivo ¦ Read this file
+Plata ya tiene tu archivo. Elige el banco para saber cómo leerlo. ¦ Plata already has your file. Pick the bank so it knows how to read it.
+Necesita su contraseña ¦ It needs its password
+Leyendo tu archivo ¦ Reading your file
+Este archivo está protegido con una contraseña. Escríbela para que Plata pueda leerlo. Se abre solo en este dispositivo. ¦ This file is protected by a password. Enter it so Plata can read it. It opens only on this device.
+Revisar insights ¦ Review insights
+¡Mes redondo! ¦ Perfect month!
+Mira cómo quedaste. ¦ See where you ended up.
+¡Qué mes! ¦ What a month!
+Esto merece celebrarse. ¦ This deserves a celebration.
+Cierre de mes ¦ Month-end
+Tu mejor versión, en números. ¦ Your best self, in numbers.
+¡Se acabó el mes! ¦ The month is over!
+Revisemos cómo te fue. ¦ Let’s see how it went.
+¡Buen cierre! ¦ Great finish!
+Te fue muy bien. Mira por qué. ¦ You did great. See why.
+Mes terminado ¦ Month done
+Veamos qué hiciste bien. ¦ Let’s see what you did well.
+Mes cerrado ¦ Month closed
+Nada mal. Veamos qué mejorar. ¦ Not bad. Let’s see what to improve.
+Llegó el cierre ¦ Month-end is here
+Hubo cosas buenas. Míralas. ¦ There were good things. Take a look.
+Se acabó el mes ¦ The month is over
+Veamos qué pasó. ¦ Let’s see what happened.
+Se puede mejorar. Empecemos. ¦ There’s room to improve. Let’s start.
+Revisémoslo juntos. ¦ Let’s go over it together.
+Fue un mes difícil. Revisémoslo. ¦ It was a tough month. Let’s review it.
+Veamos dónde se escapó. ¦ Let’s see where it slipped away.
+Aún hay tiempo de cambiarlo. ¦ There’s still time to change it.
+Fue duro. Aquí te ayudamos. ¦ That was rough. We’re here to help.
+Empecemos de nuevo. ¦ Let’s start fresh.
+Veamos qué ajustar, sin culpas. ¦ Let’s see what to adjust, no blame.
+Cuando sale mi evaluación ¦ When my grade is out
+# (la clave va ya normalizada: los números son marcadores y «días» pasa a singular)
+Los recordatorios llegan a los {0}, {1} y {2} día sin movimientos. Los previstos llegan el día anterior a las {3}:{4}: pagos de tarjeta, suscripciones, gastos e ingresos que ya tienes programados. La evaluación avisa el día {5} de cada mes, y el half-time el día {6}, a las {7}:{8}. ¦ Reminders arrive after 2, 5 and 9 days without transactions. Upcoming items arrive the day before at 9:00: card payments, subscriptions, and the expenses and income you've already scheduled. Your grade notifies you on the 1st of each month, and half-time on the 15th, at 9:00.
+Editar movimiento… ¦ Edit transaction…
+Dirección ¦ Direction
+Sale de esta cuenta ¦ Leaves this account
+Entra a esta cuenta ¦ Enters this account
+Hacia ¦ To
+Pagado desde ¦ Paid from
+Elige una ¦ Choose one
+También se anotará en la otra cuenta y su saldo se ajusta. ¦ It will also be recorded in the other account and its balance adjusted.
+Volver al original ¦ Revert to original
+
+# --- Auditoría (nov 2026): pantallas nativas que quedaban en español
+# Bloqueo con PIN
+Activa Face ID para abrir Plata ¦ Turn on Face ID to open Plata
+Activa Touch ID para abrir Plata ¦ Turn on Touch ID to open Plata
+Usar PIN ¦ Use PIN
+Abre Plata ¦ Open Plata
+Confirma que eres tú para quitar el PIN de Plata ¦ Confirm it's you to remove Plata's PIN
+Borrar ¦ Delete
+Plata está bloqueada ¦ Plata is locked
+Demasiados intentos. Espera {0} s. ¦ Too many attempts. Wait {0} s.
+Demasiados intentos. Espera {0} min {1} s. ¦ Too many attempts. Wait {0} min {1} s.
+Escribe tu PIN ¦ Enter your PIN
+PIN incorrecto. Te quedan {0} intentos antes de esperar. ¦ Wrong PIN. {0} attempts left before a wait.
+¿Olvidaste tu PIN? ¦ Forgot your PIN?
+Usar el código del iPhone ¦ Use iPhone passcode
+No se pudo confirmar con el código del iPhone. ¦ Couldn't confirm with the iPhone passcode.
+Confirma con el código de tu iPhone para quitar el PIN. Tus datos no se tocan. Después puedes crear uno nuevo en Ajustes. ¦ Confirm with your iPhone passcode to remove the PIN. Your data isn't touched. You can create a new one later in Settings.
+# Seguridad
+Seguridad ¦ Security
+Crea tu PIN ¦ Create your PIN
+Repite tu PIN ¦ Repeat your PIN
+Elige {0} dígito que solo tú sepas. ¦ Choose {0} digits only you know.
+Escríbelo otra vez para confirmarlo. ¦ Enter it again to confirm.
+No coinciden. Empieza de nuevo. ¦ They don't match. Start over.
+Ese PIN es muy fácil de adivinar. Elige otro. ¦ That PIN is too easy to guess. Choose another.
+Escribe tu PIN actual. ¦ Enter your current PIN.
+Escribe tu PIN actual ¦ Enter your current PIN
+Protege la entrada a Plata en este iPhone con un PIN y, si quieres, con Face ID. ¦ Protect access to Plata on this iPhone with a PIN and, if you like, Face ID.
+Protege la entrada a Plata en este iPhone con un PIN y, si quieres, con Touch ID. ¦ Protect access to Plata on this iPhone with a PIN and, if you like, Touch ID.
+Bloquear con PIN ¦ Lock with PIN
+No se pudo activar Face ID. Revisa que esté configurado en tu iPhone y que Plata tenga permiso. ¦ Couldn't turn on Face ID. Check that it's set up on your iPhone and that Plata has permission.
+No se pudo activar Touch ID. Revisa que esté configurado en tu iPhone y que Plata tenga permiso. ¦ Couldn't turn on Touch ID. Check that it's set up on your iPhone and that Plata has permission.
+Cambiar PIN ¦ Change PIN
+Pedir el PIN ¦ Require PIN
+Es el tiempo que puedes salir de la app antes de que vuelva a pedirlo. ¦ How long you can leave the app before it asks again.
+Tu PIN se guarda como una huella cifrada en el llavero de este iPhone, nunca en claro ni en la nube. Tras 5 intentos fallidos, la app te hace esperar cada vez más. ¦ Your PIN is stored as an encrypted hash in this iPhone's keychain, never in plain text or in the cloud. After 5 failed attempts, the app makes you wait longer each time.
+Si lo olvidas, puedes quitarlo confirmando con el código de tu iPhone. Tus datos no se tocan. ¦ If you forget it, you can remove it by confirming with your iPhone passcode. Your data isn't touched.
+El bloqueo cubre la app. El Apple Watch y los widgets de la pantalla de inicio no piden PIN. ¦ The lock covers the app. Apple Watch and Home Screen widgets don't ask for a PIN.
+Crea tu PIN nuevo ¦ Create your new PIN
+Escribe tu PIN para apagar el bloqueo ¦ Enter your PIN to turn off the lock
+Protege tu app ¦ Protect your app
+Crear PIN ¦ Create PIN
+Pon un PIN para que nadie más abra tus finanzas en este iPhone. Puedes cambiarlo cuando quieras en Ajustes → Seguridad. ¦ Set a PIN so no one else opens your finances on this iPhone. You can change it anytime in Settings → Security.
+Pon un PIN y Face ID para que nadie más abra tus finanzas en este iPhone. Puedes cambiarlo cuando quieras en Ajustes → Seguridad. ¦ Set a PIN and Face ID so no one else opens your finances on this iPhone. You can change it anytime in Settings → Security.
+Pon un PIN y Touch ID para que nadie más abra tus finanzas en este iPhone. Puedes cambiarlo cuando quieras en Ajustes → Seguridad. ¦ Set a PIN and Touch ID so no one else opens your finances on this iPhone. You can change it anytime in Settings → Security.
+# Avisos
+Avisos ¦ Notifications
+Plata te avisa desde tu iPhone, sin servidor: todo se calcula aquí con tus datos. ¦ Plata notifies you from your iPhone, with no server: everything is worked out here with your data.
+Si llevo días sin anotar ¦ If I go days without logging
+Pagos y gastos previstos ¦ Upcoming payments and expenses
+Mostrar montos en los avisos ¦ Show amounts in notifications
+Si lo dejas apagado, los avisos dicen qué vence pero no cuánto, para que nadie lo lea en tu pantalla bloqueada. ¦ If you leave it off, notifications say what's due but not how much, so no one reads it on your lock screen.
+Activar permiso en Configuración ¦ Allow in Settings
+Las notificaciones de Plata están bloqueadas en tu iPhone. ¦ Plata's notifications are blocked on your iPhone.
+# Widgets y galería de bentos
+Crea widgets con las piezas del Bento y añádelos a tu pantalla de inicio. Podrían volverse una función premium en el futuro. ¦ Create widgets from Bento pieces and add them to your Home Screen. They may become a premium feature in the future.
+Arma widgets con las piezas del Bento, guárdalos en tu galería y añádelos a tu pantalla de inicio. ¦ Build widgets from Bento pieces, save them to your gallery and add them to your Home Screen.
+Los widgets podrían volverse una función premium en el futuro. ¦ Widgets may become a premium feature in the future.
+Mi galería ¦ My gallery
+Todavía no guardaste ningún bento. Crea uno o parte de una plantilla. ¦ You haven't saved a bento yet. Create one or start from a template.
+Crear widget ¦ Create widget
+Cómo añadirlo a tu pantalla ¦ How to add it to your screen
+Mantén presionada tu pantalla de inicio y toca «+». ¦ Touch and hold your Home Screen and tap “+”.
+Busca Plata y elige «Bento» (o cualquiera de las piezas sueltas). ¦ Search for Plata and choose “Bento” (or any of the single pieces).
+Toca «Añadir widget», luego tócalo y elige el bento de tu galería. ¦ Tap “Add Widget”, then tap it and choose the bento from your gallery.
+¿Eliminar este bento? ¦ Delete this bento?
+Los widgets que lo usan quedarán vacíos hasta que elijas otro. ¦ Widgets that use it will stay empty until you choose another.
+Duplicar ¦ Duplicate
+Añadir a mi galería ¦ Add to my gallery
+Guardar en mi galería ¦ Save to my gallery
+¿De qué tamaño? ¦ What size?
+Elige el tamaño del widget. Después eliges las piezas. ¦ Choose the widget size. Then you pick the pieces.
+1 pieza ¦ 1 piece
+hasta {0} piezas ¦ up to {0} pieces
+Elige las piezas ¦ Choose the pieces
+Este tamaño lleva una pieza. ¦ This size holds one piece.
+Hasta {0} piezas, en el orden en que las toques. ¦ Up to {0} pieces, in the order you tap them.
+Ponle nombre ¦ Name it
+Así lo vas a ver en tu galería y al elegirlo en el widget. ¦ This is how you'll see it in your gallery and when choosing it in the widget.
+Nombre del bento ¦ Bento name
+Elige piezas para tu bento ¦ Choose pieces for your bento
+# Cuentas, presupuesto, proyección
+Si la eliminas, se borran esos movimientos. Para conservar el historial, mejor ocúltala. ¦ If you delete it, those transactions are deleted too. To keep the history, hide it instead.
+y está ligada a ¦ and is linked to
+DEUDA EN TARJETAS ¦ CARD DEBT
+DEUDA EN PRÉSTAMOS ¦ LOAN DEBT
+Queda 1 día del mes ¦ 1 day left in the month
+Quedan {0} días del mes ¦ {0} days left in the month
+Editar toda la serie del ingreso ¦ Edit the whole income series
+Editar toda la serie del gasto ¦ Edit the whole expense series
+{0} ya está en 0. ¿Seguro que quieres registrar este pago? ¦ {0} is already at 0. Are you sure you want to record this payment?
+Convertir al tipo asignado (1 {0} = {1} {2}) ¦ Convert at the assigned rate (1 {0} = {1} {2})
+{0} → {1}\n¿Qué hacemos con los montos? ¦ {0} → {1}\nWhat should we do with the amounts?
+{0} movimientos en el cuadro. ¦ {0} transactions in the box.
+Revisando tu nube… ¦ Checking your cloud…
+Anotado desde el Apple Watch ¦ Logged from Apple Watch
+Importar datos ¦ Import data
+Los mismos aros del reloj, hasta 4 categorías a la vez, y un encabezado que cambia con la estación del año. ¦ The same rings as the watch, up to 4 categories at once, and a header that changes with the season.
+Siempre ¦ Always
+{0} minuto ¦ {0} {0?minute:minutes}
+{0} minutos ¦ {0} {0?minute:minutes}
+Usar Face ID ¦ Use Face ID
+Usar Touch ID ¦ Use Touch ID
+Tienes 1 constancia de {0} por revisar ¦ You have 1 {0} receipt to review
+Tienes {0} constancias de {1} por revisar ¦ You have {0} {1} receipts to review
+Tu opinión nos ayuda a mejorarla. Son unos 3 minutos. Al continuar, aceptas que la información que envíes en el formulario sí se recopila y autorizas a Estudio 22 y a Plata a usarla para mejorar la app. Este botón lleva a Google Forms. ¦ Your feedback helps us improve it. It takes about 3 minutes.\n\nBy continuing, you agree that the information you send in the form is collected, and you authorize Estudio 22 and Plata to use it to improve the app.\n\nThis button opens Google Forms.
+# Apple Watch, widgets y compartir
+Abre Plata en tu iPhone ¦ Open Plata on your iPhone
+al límite ¦ at the limit
+Presupuesto del mes agotado ¦ Monthly budget used up
+Toca el círculo para ver todos ¦ Tap the circle to see all
+Gira la corona · toca el monto para escribirlo ¦ Turn the crown · tap the amount to type it
+Crédito disp. ¦ Credit avail.
+crédito disp. ¦ credit avail.
+toca para ver los días ¦ tap to see the days
+Anotado ¦ Logged
+en caja ¦ in cash
+caja ¦ cash
+Sin cobros ni ingresos ¦ No charges or income
+Cuánto llevas contra tus límites. ¦ How you're doing against your limits.
+Nota del mes ¦ Monthly grade
+Tu nota de Insights. ¦ Your Insights grade.
+Elige uno de los bentos que guardaste en tu galería. ¦ Choose one of the bentos you saved in your gallery.
+Crea uno en Plata → Ajustes → Widgets ¦ Create one in Plata → Settings → Widgets
+Un bento de tu galería: tú eliges las piezas. ¦ A bento from your gallery: you choose the pieces.
+Presupuesto de hoy ¦ Today's budget
+Sin cobros próximos ¦ No upcoming charges
+Lo que te queda para gastar hoy. ¦ What you have left to spend today.
+Nota de Insights ¦ Insights grade
+La nota del mes. ¦ The month's grade.
+Próximo cobro ¦ Next charge
+Tu próximo ingreso o pago. ¦ Your next income or payment.
+Había más de un monto: revisa que este sea el correcto. ¦ There was more than one amount: check that this is the right one.
+Abre Plata para cargar tus datos ¦ Open Plata to load your data
+Ahorro neto del mes ¦ Net savings this month
+Gastos del mes ¦ Spending this month
+Presupuesto del mes ¦ Monthly budget
+Crédito usado ¦ Credit used
+Gasto por día de la semana ¦ Spending by day of the week
+Pequeño ¦ Small

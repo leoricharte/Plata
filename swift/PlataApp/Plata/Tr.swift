@@ -287,6 +287,7 @@ enum Tr {
         rule("^Cuenta al ejecutarlo \\(monto en (.+)\\)$") { m, _ in "Account when executed (amount in \(m[1]))" },
         rule("^Próximos (\\d+) meses$") { m, _ in "Next \(m[1]) months" },
         rule("^¿Cargar el perfil de (.+)\\?$") { m, _ in "Load \(m[1])’s profile?" },
+        rule("^¿Eliminar la categoría «(.+)»\\?$") { m, names in "Delete the category “\(trCore(m[1], names: names) ?? m[1])”?" },
         rule("^(.+) \\((S/|US\\$|C\\$|A\\$|\\p{Sc}|[A-Z]{2,3})\\)$") { m, names in
             guard let b = trCore(m[1], names: names) else { return nil }
             return "\(b) (\(m[2]))"
