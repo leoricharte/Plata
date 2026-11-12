@@ -232,7 +232,8 @@ final class Reminders {
                     }
                 }
                 guard let before = cal.date(byAdding: .day, value: -1, to: day) else { continue }
-                let id = "ev\(ev.date.iso)-\(abs(ev.name.hashValue) % 100000)"
+                // todo lo de `plata.` se borra y se vuelve a programar cada vez: el identificador solo tiene que ser único en esta pasada
+                let id = "ev\(ev.date.iso)-\(count)"
                 // el día anterior a las 9:00; si ya pasó, el mismo día a las 8:00
                 if at(before, hour: 9) > now { add(id + "a", eve.0, eve.1, at: at(before, hour: 9)); count += 1 }
                 else if at(day, hour: 8) > now { add(id + "b", today.0, today.1, at: at(day, hour: 8)); count += 1 }

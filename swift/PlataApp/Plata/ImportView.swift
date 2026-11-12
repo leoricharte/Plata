@@ -2189,7 +2189,12 @@ private struct ImportRowEditSheet: View {
     }
     private var peers: [Peer] { kind == .transfer ? transferPeers : payPeers }
     private var value: Double? {
-        let v = Double(amount.trimmingCharacters(in: .whitespaces).replacingOccurrences(of: ",", with: "."))
+        var s = amount.trimmingCharacters(in: .whitespaces).replacingOccurrences(of: " ", with: "")
+        if let c = s.lastIndex(of: ","), let d = s.lastIndex(of: ".") {
+            // con los dos signos, el último es el decimal y el otro separa miles
+            s = c > d ? s.replacingOccurrences(of: ".", with: "").replacingOccurrences(of: ",", with: ".") : s.replacingOccurrences(of: ",", with: "")
+        } else { s = s.replacingOccurrences(of: ",", with: ".") }
+        let v = Double(s)
         return (v ?? 0) > 0 ? v : nil
     }
     private var needsPeer: Bool { kind == .transfer || kind == .cardPay }
@@ -2255,8 +2260,11 @@ private struct ImportRowEditSheet: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Guardar") {
                         guard let v = value else { return }
-                        onSave(.init(date: Self.fmt.string(from: date), desc: desc.trimmingCharacters(in: .whitespacesAndNewlines), amount: signed(v),
-                                     kind: kind == .transfer ? .transfer : kind == .cardPay ? .cardPay : .normal, peer: needsPeer ? peer : ""))
+                        let edit = ImportReview.Edit(date: Self.fmt.string(from: date), desc: desc.trimmingCharacters(in: .whitespacesAndNewlines), amount: signed(v),
+                                                     kind: kind == .transfer ? .transfer : kind == .cardPay ? .cardPay : .normal, peer: needsPeer ? peer : "")
+                        // si no cambió nada, la fila no se marca como editada
+                        let same = !row.edited && edit.date == row.date && edit.desc == row.desc && abs((edit.amount ?? 0) - row.amount) < 0.005 && edit.kind == row.kind
+                        if !same { onSave(edit) }
                         dismiss()
                     }
                     .disabled(!canSave)
