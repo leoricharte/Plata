@@ -177,7 +177,7 @@ function impMerge(b, a) {   /* a se une a b: suma los movimientos (sin los que y
   const aLater = a.stmtEnd && (!b.stmtEnd || a.stmtEnd.date >= b.stmtEnd.date);
   if (aLater) { b.stmtEnd = a.stmtEnd; if (a.card && a.cardInfo) b.cardInfo = Object.assign({}, b.cardInfo || {}, a.cardInfo); }
   b.checks = (b.checks || [b.check]).concat([a.check]); b.check = impAggCheck(b.checks);
-  b.names = b.names.concat(a.names); b.mdup += a.mdup || 0; b.sel = {}; b.cat = {}; b.flip = null; b.bal = null; b.page = 0;
+  b.names = b.names.concat(a.names); b.mdup += a.mdup || 0; b.sel = {}; b.cat = {}; b.ed = {}; b.flip = null; b.bal = null; b.page = 0;
   const keep = ui.imp; ui.imp = b; try { impBuild(); } finally { ui.imp = keep; }
 }
 function impCollect() {
@@ -564,7 +564,10 @@ function impBuild() {
   }
   const mode = F ? I.fxMode : 'skip';
   if (mode === 'convert') items.forEach((it) => { if (it.cur === F) { it.orig = { amount: it.amount, cur: F }; it.amount = round2(it.amount * I.fxRate); } });
-  const dups = Nazca.markDuplicates(items, data.transactions, acc.id, I.loose), guess = Nazca.categorizer(data.cats, data.transactions);
+  /* Lo que la persona corrigió a mano (fecha, descripción, monto) entra antes de buscar repetidos; la huella sale del movimiento original, para que reimportar el mismo archivo lo siga reconociendo. */
+  const E = I.ed || (I.ed = {}), edited = Object.keys(E).length > 0, dups0 = Nazca.markDuplicates(items, data.transactions, acc.id, I.loose);
+  Object.keys(E).forEach((k) => { const it = items[k], e = E[k]; if (!it) return; if (e.date) it.date = e.date; if (e.desc != null) it.desc = e.desc; if (e.amount != null) it.amount = e.amount; });
+  const dups = edited ? Nazca.markDuplicates(items, data.transactions, acc.id, I.loose).map((d, k) => ({ fp: dups0[k].fp, dup: dups0[k].dup === 'exact' ? 'exact' : d.dup })) : dups0, guess = Nazca.categorizer(data.cats, data.transactions);
   let dupF = {};
   if (mode === 'split' && I.fxAcc !== '__new') { const idx = []; items.forEach((it, i) => { if (it.cur === F) idx.push(i); }); const d2 = Nazca.markDuplicates(idx.map((i) => items[i]), data.transactions, I.fxAcc, I.loose); idx.forEach((i, k) => { dupF[i] = d2[k].dup; }); }
   I.rows = items.map((it, i) => {
@@ -572,7 +575,8 @@ function impBuild() {
     const why = it.date > today ? 'future' : (foreign && !fx) ? 'cur' : fx ? ((mode === 'split' ? dupF[i] : dups[i].dup) || (mode === 'split' ? 'fxs' : 'fxc')) : dups[i].dup;
     const cat = it.amount > 0 ? (credit ? PAY : 'Ingreso') : (I.cat[i] && CAT_ORDER.indexOf(I.cat[i]) >= 0 ? I.cat[i] : guess(it.desc, it.amount));
     const hard = why === 'future' || why === 'cur', soft = why === 'fxc' || why === 'fxs';
-    return Object.assign(it, { i: i, fp: dups[i].fp, why: why, cat: cat, side: fx && mode === 'split', dc: fx && mode === 'split' ? F : acc.cur, on: hard ? false : I.sel[i] != null ? I.sel[i] : (soft || !why) });
+    const e = E[i], side = fx && mode === 'split', kind = e && e.kind && !side ? e.kind : '';   /* transferencia o pago de tarjeta con otra cuenta (`peer`) */
+    return Object.assign(it, { i: i, fp: dups[i].fp, why: why, cat: kind === 'transfer' ? XFER : kind === 'pay' ? PAY : cat, edited: !!e, kind: kind, peer: kind ? e.peer : '', side: side, dc: fx && mode === 'split' ? F : acc.cur, on: hard ? false : I.sel[i] != null ? I.sel[i] : (soft || !why) });
   });
   if (I.bal === null || (I.bal === 'stmt' && !impStmt())) { // si el archivo trae el saldo y es más reciente que lo que ya hay en la cuenta, ese es el saldo correcto
     const st = impStmt(), last = data.transactions.filter((t) => t.acc === acc.id).reduce((m, t) => (t.date > m ? t.date : m), '');
@@ -596,7 +600,7 @@ function impReviewHTML() {
   const hs = I.a.headers, ncol = Math.max(I.a.width, hs.length), cols = Object.assign({}, I.a.cols, I.cols || {});
   const colSel = (role, label) => '<label class="srow"><span class="grow"><span class="slabel">' + label + '</span><select class="sinput" data-imp-col="' + role + '"><option value="-1">—</option>' +
     Array.from({ length: ncol }, (_, j) => '<option value="' + j + '"' + (cols[role] === j ? ' selected' : '') + ' data-notr>' + esc(hs[j] || ('#' + (j + 1))) + '</option>').join('') + '</select></span></label>';
-  const catSel = (r) => (r.amount > 0 ? '<span class="sub">' + esc(r.cat) + '</span>' : '<select class="imcat" data-imp-cat="' + r.i + '" aria-label="Categoría">' + CAT_ORDER.map((c) => '<option value="' + esc(c) + '"' + (c === r.cat ? ' selected' : '') + '>' + esc(c) + '</option>').join('') + '</select>');
+  const catSel = (r) => (r.amount > 0 || r.kind ? '<span class="sub imed" data-act="imp:ed:' + r.i + '">' + esc(r.cat) + '</span>' : '<select class="imcat" data-imp-cat="' + r.i + '" aria-label="Categoría">' + CAT_ORDER.map((c) => '<option value="' + esc(c) + '"' + (c === r.cat ? ' selected' : '') + '>' + esc(c) + '</option>').join('') + '</select>');
   /* Filtro rápido por tipo: lo que hay en el archivo (gastos, ingresos, repetidos y las categorías de los gastos). */
   const fdefs = [['all', 'Todos', () => true]];
   if (rows.some((r) => r.amount < 0)) fdefs.push(['out', 'Gastos', (r) => r.amount < 0]);
@@ -610,7 +614,7 @@ function impReviewHTML() {
   const pages = Math.max(1, Math.ceil(frows.length / IMP_PER)); I.page = Math.min(Math.max(I.page || 0, 0), pages - 1);
   const shown = frows.slice(I.page * IMP_PER, (I.page + 1) * IMP_PER);   /* de 20 en 20: con 100 o más movimientos la pantalla se hace eterna */
   const list = shown.map((r) => '<div class="imrow' + (r.on ? '' : ' off') + '"><button class="imck' + (r.on ? ' on' : '') + '" data-act="imp:t:' + r.i + '" role="checkbox" aria-checked="' + r.on + '" aria-label="Importar este movimiento">' + (r.on ? RMI('check-line', 16, '#fff') : '') + '</button>' +
-    '<div class="grow" style="min-width:0"><div class="imd" data-notr>' + esc(r.desc || '—') + '</div><div class="sub" style="font-size:12.5px">' + dshort(pd(r.date)) + (r.why ? ' · <span class="imwhy">' + IMP_WHY[r.why] + '</span>' : '') + (r.orig ? ' · <span data-notr>' + fmtC2(Math.abs(r.orig.amount), r.orig.cur) + '</span>' : '') + '</div></div>' +
+    '<div class="grow imed" style="min-width:0" data-act="imp:ed:' + r.i + '" role="button" tabindex="0" aria-label="Editar movimiento"><div class="imd" data-notr>' + esc(r.desc || '—') + '</div><div class="sub" style="font-size:12.5px">' + dshort(pd(r.date)) + (r.why ? ' · <span class="imwhy">' + IMP_WHY[r.why] + '</span>' : '') + (r.orig ? ' · <span data-notr>' + fmtC2(Math.abs(r.orig.amount), r.orig.cur) + '</span>' : '') + (r.edited ? ' · <span class="imedt">Editado</span>' : '') + '</div></div>' +
     '<div class="imr"><div class="amt" style="font-size:15px;font-weight:600;color:' + (r.amount > 0 ? 'var(--gt)' : 'var(--ink)') + '">' + fmtSC2(r.amount, r.dc || acc.cur) + '</div>' + catSel(r) + '</div></div>').join('');
   const pdf = I.src === 'pdf', bk = pdf && I.bank ? impBankName(I.bank) : (pdf && I.mark === 'plin' ? 'Plin' : ''), title = bk ? (I.bank ? impBankShort(I.bank) : bk) : (I.label && pdf ? I.label : I.guess ? I.guess : I.gen ? 'Archivo PDF' : 'Archivo CSV');
   const ci = I.cardInfo || {}, cmeta = (ci.dueDate ? '<span>' + RMI('calendar-line', 16, 'currentColor') + 'Pagar antes del ' + dshort(pd(ci.dueDate)) + '</span>' : '') + (ci.apr != null ? '<span>' + RMI('percent-line', 16, 'currentColor') + '<span data-notr>' + ci.apr + ' %</span> de tasa anual</span>' : '');
@@ -705,16 +709,65 @@ function impAct(arg) {
     const r = I.rows[+p[1]]; if (!r) return;
     if (r.why === 'future' || r.why === 'cur') { toast(r.why === 'future' ? 'No se importan movimientos con fecha futura' : 'Este movimiento es de otra moneda que la cuenta'); return; }
     r.on = !r.on; I.sel[r.i] = r.on; impRender();
-  } else if (p[0] === 'acc') { I.acc = p[1] === 'new' ? '__new' : mergeId(); I.flip = null; I.bal = null; I.sel = {}; I.fxMode = null; I.fxRate = null; I.fxAcc = null; impBuild(); impRender(); }
+  } else if (p[0] === 'acc') { I.acc = p[1] === 'new' ? '__new' : mergeId(); I.flip = null; I.bal = null; I.sel = {}; I.ed = {}; I.fxMode = null; I.fxRate = null; I.fxAcc = null; impBuild(); impRender(); }
   else if (p[0] === 'fx') { I.fxMode = p[1]; I.sel = {}; impBuild(); impRender(); }
   else if (p[0] === 'fxacc') { if (p[1] === 'new') I.fxAcc = '__new'; else { const pl = impFxPool(impAcc(), I.fcur); I.fxAcc = pl.length ? pl[0].id : '__new'; } I.sel = {}; impBuild(); impRender(); }
-  else if (p[0] === 'flip') { I.flip = !I.flip; I.sel = {}; I.cat = {}; impBuild(); impRender(); }
+  else if (p[0] === 'flip') { I.flip = !I.flip; I.sel = {}; I.cat = {}; I.ed = {}; impBuild(); impRender(); }
   else if (p[0] === 'bal') { I.bal = p[1]; impRender(); }
   else if (p[0] === 'fo') { I.fopen = !I.fopen; impRender(); }
   else if (p[0] === 'f') { I.flt = decodeURIComponent(p.slice(1).join(':')); I.page = 0; impRender(); }
   else if (p[0] === 'fm') { const want = p[1] === '1'; impFiltered().forEach((r) => { if (r.why !== 'future' && r.why !== 'cur') { r.on = want; I.sel[r.i] = want; } }); impRender(); }
   else if (p[0] === 'pg') { I.page = Math.max(0, +p[1] || 0); impRender(); const sc = document.querySelector('#s-cuenta'), l = sc && sc.querySelector('.imlist'); if (sc && l) sc.scrollTop = Math.max(0, l.offsetTop - 70); }
+  else if (p[0] === 'ed') impEdDlg(+p[1]);
+  else if (p[0] === 'edsave') impEdSave();
+  else if (p[0] === 'edreset') { const d = ui.impEd; closeSheet(); if (d) { delete I.ed[d.i]; ui.impEd = null; impBuild(); impRender(); } }
   else if (p[0] === 'go') impGo();
+}
+/* --- Revisar de verdad un movimiento antes de importarlo: fecha, descripción, monto y tipo (gasto, ingreso, transferencia a otra cuenta o pago de tarjeta). --- */
+/* Con qué cuentas se puede enlazar: una transferencia, con otras cuentas de la misma moneda; un pago, con las tarjetas (si esta es una cuenta) o con las cuentas (si esta es una tarjeta). */
+function impPeers(kind) {
+  const acc = impAcc(), credit = isCredit(acc), pool = kind === 'transfer' ? (credit ? [] : data.accounts) : (credit ? data.accounts : data.cards);
+  return byUse(pool.filter((o) => o.cur === acc.cur && o.id !== acc.id));
+}
+function impEdPeerUI() {   /* según el tipo: muestra la dirección y la otra cuenta, con su etiqueta */
+  const d = ui.impEd, k = $('#impEdKind'); if (!d || !k) return;
+  const kind = k.value, credit = isCredit(impAcc()), need = kind === 'transfer' || kind === 'pay', dir = $('#impEdDir'), inc = dir && dir.value === 'in';
+  $('#impEdDirRow').hidden = kind !== 'transfer'; $('#impEdPeerRow').hidden = !need; $('#impEdNote').hidden = !need;
+  if (!need) return;
+  const sel = $('#impEdPeer'), cur = sel.value || d.peer, list = impPeers(kind);
+  $('#impEdPeerLbl').textContent = kind === 'transfer' ? (inc ? 'Desde' : 'Hacia') : (credit ? 'Pagado desde' : 'Tarjeta');
+  sel.innerHTML = '<option value="">Elige una</option>' + list.map((o) => '<option value="' + o.id + '"' + (o.id === cur ? ' selected' : '') + ' data-notr>' + esc(accLabel(o)) + '</option>').join('');
+}
+function impEdDlg(i) {
+  const I = ui.imp, r = I && I.rows[i]; if (!r) return;
+  const tp = r.side ? [] : impPeers('transfer'), pp = r.side ? [] : impPeers('pay'), kind = r.kind || (r.amount > 0 ? 'in' : 'out');
+  ui.impEd = { i: i, peer: r.peer || '' };
+  const o = (v, t, on) => '<option value="' + v + '"' + (on ? ' selected' : '') + '>' + t + '</option>';
+  const row = (ic, label, inner, id) => '<label class="srow"' + (id ? ' id="' + id + '"' : '') + '>' + fico(ic) + '<span class="grow"><span class="slabel"' + (id === 'impEdPeerRow' ? ' id="impEdPeerLbl"' : '') + '>' + label + '</span>' + inner + '</span></label>';
+  showSheet(sheetHead('Editar movimiento', 'close', 'imp:edsave') +
+    '<div class="scard">' + row(['#22B573', '▦'], 'Tipo', '<select class="sinput" id="impEdKind">' + o('out', 'Gasto', kind === 'out') + o('in', 'Ingreso', kind === 'in') + (tp.length ? o('transfer', 'Transferencia', kind === 'transfer') : '') + (pp.length ? o('pay', 'Pago de tarjeta', kind === 'pay') : '') + '</select>') +
+    row(['#0A84FF', '▭'], 'Dirección', '<select class="sinput" id="impEdDir">' + o('out', 'Sale de esta cuenta', r.amount <= 0) + o('in', 'Entra a esta cuenta', r.amount > 0) + '</select>', 'impEdDirRow') +
+    row(['#0A84FF', 'card'], 'Hacia', '<select class="sinput" id="impEdPeer"></select>', 'impEdPeerRow') + '</div>' +
+    '<div class="sub" id="impEdNote" style="font-size:13px;padding:0 6px 10px">También se anotará en la otra cuenta y su saldo se ajusta.</div>' +
+    '<div class="scard">' + row(['#8E8E93', 'pen'], 'Descripción', '<input class="sinput" id="impEdDesc" type="text" maxlength="120" autocomplete="off" value="' + esc(r.desc || '') + '">') +
+    row(['#FF9F0A', 'cal'], 'Fecha', '<input class="sinput" id="impEdDate" type="date" value="' + esc(r.date) + '">') +
+    row(['#22B573', '$'], 'Monto <span data-notr>(' + esc(symOf(r.dc || impAcc().cur).trim()) + ')</span>', '<input class="sinput" id="impEdAmt" type="number" inputmode="decimal" step="any" min="0" value="' + Math.abs(r.amount).toFixed(2) + '">') + '</div>' +
+    '<button class="primary" data-act="imp:edsave" style="margin-top:4px">Guardar</button>' +
+    (r.edited ? '<button class="linkrow" data-act="imp:edreset" style="color:var(--ot);justify-content:center">Volver al original</button>' : ''));
+  impEdPeerUI();
+}
+function impEdSave() {
+  const I = ui.imp, d = ui.impEd, r = I && d && I.rows[d.i]; if (!r) { closeSheet(); return; }
+  const kind = $('#impEdKind').value, need = kind === 'transfer' || kind === 'pay', peer = need ? $('#impEdPeer').value : '', v = parseFloat(String($('#impEdAmt').value).replace(',', '.'));
+  const date = $('#impEdDate').value, desc = $('#impEdDesc').value.trim();
+  if (!(v > 0) || !isFinite(v)) { toast('Escribe un monto mayor que cero.'); return; }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) { toast('Elige una fecha.'); return; }
+  if (need && !peer) { toast('Elige la otra cuenta.'); return; }
+  const credit = isCredit(impAcc()), amount = round2(kind === 'out' ? -v : kind === 'in' ? v : kind === 'transfer' ? ($('#impEdDir').value === 'in' ? v : -v) : (credit ? v : -v));
+  const e = { date: date, desc: desc, amount: amount, kind: need ? kind : '', peer: peer };
+  const same = !r.edited && date === r.date && desc === (r.desc || '') && Math.abs(amount - r.amount) < 0.005 && e.kind === (r.kind || '');   /* si no cambió nada, no se marca como editado */
+  closeSheet(); ui.impEd = null;
+  if (!same) { I.ed[d.i] = e; impBuild(); impRender(); }
 }
 function impFiltered() {   /* los movimientos que muestra el filtro activo */
   const I = ui.imp, k = I.flt || 'all';
@@ -727,14 +780,23 @@ function impGoOne(I) {   /* importa una revisión del carrusel; devuelve lo nece
     const mainRows = on.filter((r) => !r.side), sideRows = on.filter((r) => r.side), byDate = (p, q) => (p.date < q.date ? -1 : p.date > q.date ? 1 : p.i - q.i), parts = [], dones = [];
     if (mainRows.length) {
       let created = null; if (I.acc === '__new') { acc.id = uid(); (acc.kind === 'card' ? data.cards : data.accounts).push(acc); created = acc.id; } /* cuenta nueva: se crea al importar, no antes */
-      const before = acc.balance, ids = [], st = impStmt();
+      const before = acc.balance, ids = [], st = impStmt(), peers = {}, peerOrder = [];
       mainRows.slice().sort(byDate).forEach((r) => {
         const amt = round2(clampAmt(r.amount)), t = { id: nextTxId(), date: r.date, amount: amt, category: r.cat, note: (r.desc || r.cat) + (r.orig ? ' (' + fmtC2(Math.abs(r.orig.amount), r.orig.cur) + ')' : ''), acc: acc.id, imp: r.fp };
+        /* transferencia o pago con otra cuenta: se anota también del otro lado, con el mismo `pair`, y esa cuenta sí cambia de saldo (el archivo no la trae) */
+        const peer = r.kind && r.peer && r.peer !== acc.id ? data.accounts.concat(data.cards).find((o) => o.id === r.peer) : null;
+        if (peer) t.pair = uid();
         data.transactions.push(t); ids.push(t.id);
         if (I.bal === 'adjust') applyTo(acc, amt);
+        if (peer) {
+          if (!peers[peer.id]) { peers[peer.id] = { ids: [], acc: peer.id, before: peer.balance }; peerOrder.push(peer.id); }
+          const t2 = { id: nextTxId(), date: r.date, amount: -amt, category: r.cat, note: r.desc || r.cat, acc: peer.id, pair: t.pair, imp: r.fp };
+          data.transactions.push(t2); peers[peer.id].ids.push(t2.id); applyTo(peer, -amt);
+        }
       });
       if (I.bal === 'stmt' && st) acc.balance = round2(st.balance);
       parts.push({ ids: ids, acc: acc.id, before: before, created: created });
+      peerOrder.forEach((k) => parts.push(peers[k]));
       dones.push({ n: ids.length, acc: acc.name + l4(acc), bal: acc.balance, cur: acc.cur, credit: isCredit(acc), created: !!created });
     }
     if (sideRows.length) {   /* los de otra moneda van a su propia cuenta (nueva o una que ya existe) */
@@ -785,13 +847,14 @@ $('#impshot').addEventListener('change', (e) => { const f = (e.target.files || [
 $('#impfile').addEventListener('change', (e) => { const fs = Array.prototype.slice.call(e.target.files || []); e.target.value = ''; impFiles(fs); });
 document.addEventListener('change', (e) => {
   const el = e.target, I = ui.imp; if (!I || !el || !el.matches) return;
+  if (el.id === 'impEdKind' || el.id === 'impEdDir') { impEdPeerUI(); return; }
   if (el.matches('select[data-imp-cat]')) { const i = +el.getAttribute('data-imp-cat'), r = I.rows[i]; I.cat[i] = el.value; if (r) r.cat = el.value; }
-  else if (el.id === 'impAcc') { I.acc = el.value; I.mergeId = el.value; I.flip = null; I.bal = null; I.sel = {}; I.fxMode = null; I.fxRate = null; I.fxAcc = null; impBuild(); impRender(); }
+  else if (el.id === 'impAcc') { I.acc = el.value; I.mergeId = el.value; I.flip = null; I.bal = null; I.sel = {}; I.ed = {}; I.fxMode = null; I.fxRate = null; I.fxAcc = null; impBuild(); impRender(); }
   else if (el.id === 'impFxAcc') { I.fxAcc = el.value; I.sel = {}; impBuild(); impRender(); }
   else if (el.id === 'impFxRate') { const v = parseFloat(String(el.value).replace(',', '.')); if (v > 0) { I.fxRate = v; I.sel = {}; impBuild(); impRender(); } }
   else if (el.matches('select[data-imp-col]')) {
     I.cols = Object.assign({}, I.a.cols, I.cols || {}); I.cols[el.getAttribute('data-imp-col')] = +el.value;
-    I.x = Nazca.extract(I.a, { cols: I.cols }); I.sel = {}; I.cat = {}; I.flip = null; I.bal = null; impBuild(); impRender();
+    I.x = Nazca.extract(I.a, { cols: I.cols }); I.sel = {}; I.cat = {}; I.ed = {}; I.flip = null; I.bal = null; impBuild(); impRender();
   }
 });
 

@@ -107,7 +107,11 @@ const TR_ROWS = __TR_DATA__; // [[es,en,ja,it,fr], ...]
 const TR_IDX = {};   // lang -> {exact:Map, lower:Map}
 function buildIdx(l) {
   const col = COL_OF[l], ex = new Map(), lo = new Map();
-  TR_ROWS.forEach((r) => { const v = r[col]; if (/\d/.test(r[0]) && !/\{\d+\}/.test(r[0])) { let c = 0; r = [r[0].replace(RE_NUM, () => '{' + (c++) + '}')].concat(r.slice(1)); } if (v == null || v === '') return; ex.set(r[0], v); const lk = r[0].toLowerCase(); if (!lo.has(lk)) lo.set(lk, v); });
+  const lit = [];
+  TR_ROWS.forEach((r) => { const v = r[col]; if (/\d/.test(r[0]) && !/\{\d+\}/.test(r[0])) { let c = 0; const nums = []; r = [r[0].replace(RE_NUM, (m) => { nums.push(m); return '{' + (c++) + '}'; })].concat(r.slice(1)); if (v != null && v !== '') lit.push([r[0], v, nums]); } if (v == null || v === '') return; ex.set(r[0], v); const lk = r[0].toLowerCase(); if (!lo.has(lk)) lo.set(lk, v); });
+  // Una frase escrita con el número puesto («más de 10 años») se busca ya con el plural en singular («más de {0} año»), así que con la clave
+  // de arriba nunca coincidía. Se añade también esa forma, sin pisar una fila genérica, y con los números de la traducción como marcadores.
+  lit.forEach((x) => { const k2 = x[0].replace(RE_PL, (m, n, w) => n + ' ' + PL_SING[w.toLowerCase()]); if (k2 === x[0] || ex.has(k2)) return; let i = 0, ok = true; const v2 = x[1].replace(RE_NUM, (m) => { if (m === x[2][i]) return '{' + (i++) + '}'; ok = false; return m; }); ex.set(k2, ok && i === x[2].length ? v2 : x[1]); });
   TR_IDX[l] = { exact: ex, lower: lo };
 }
 let trCache = new Map(), trSig = '';
