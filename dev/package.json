@@ -1,0 +1,12 @@
+{
+  "name": "plata-dev",
+  "private": true,
+  "description": "Herramientas de desarrollo de Plata (no entran a la app).",
+  "scripts": {
+    "lint": "node app/lint.mjs"
+  },
+  "devDependencies": {
+    "eslint": "9.39.5",
+    "globals": "17.4.0"
+  }
+}

@@ -10,12 +10,15 @@ Guía para seguir el desarrollo sin depender de nadie. Todo lo necesario para co
 
 ## Compilar la app
 
-Requiere solo Python 3.
+Compilar requiere solo Python 3. Revisar el código requiere Node 22 (una vez: `npm ci --prefix dev`).
 
 ```
 python3 dev/app/build.py          # genera dev/app/out/finanzas.html
 CHANNEL=alpha python3 dev/app/build.py   # variante con icono blanco
+node dev/app/lint.mjs             # revisa la compilación: nombres repetidos, variables que no existen, código sin usar
 ```
+
+`lint.mjs` revisa el JavaScript ya compilado, porque todos los archivos de `src/js/` comparten el mismo ámbito: por separado todo parecería «no definido», juntos se ve si dos archivos usan el mismo nombre (el segundo pisa al primero sin aviso) o si un `.map()` no devuelve nada. Cada problema sale con su archivo y línea de origen. Corre en el CI de cada push a `main`.
 
 `dev/app/src/` contiene:
 
@@ -37,8 +40,8 @@ Los datos de cada persona viven en el navegador **por dominio**: un fallo en el 
 
 ## Publicar una versión nueva de la app
 
-1. En `dev/app/src/js/21-version-y-debug.js` sube `APP_BUILD` (busca `const APP_BUILD`; si cambia el número del archivo, `grep -rn "const APP_BUILD" dev/app/src/js`). El número de la pantalla de inicio sale de ahí.
-2. Compila: `python3 dev/app/build.py`. La compilación agrega la Content-Security-Policy con el hash de cada script; si alguien agrega un `onclick="…"` o un `<script src>`, la compilación se detiene.
+1. En `dev/app/src/js/21-version-y-creditos-depuracion.js` sube `APP_BUILD` (busca `const APP_BUILD`; si cambia el número del archivo, `grep -rn "const APP_BUILD" dev/app/src/js`). El número de la pantalla de inicio sale de ahí.
+2. Compila: `python3 dev/app/build.py` y revisa: `node dev/app/lint.mjs` (tiene que decir «Todo bien»). La compilación agrega la Content-Security-Policy con el hash de cada script; si alguien agrega un `onclick="…"` o un `<script src>`, la compilación se detiene.
 3. Sube `CACHE` (`finanzas-vNNN`) al mismo número en `dev/web/sw.js`.
 4. En `README.md` (línea de "Compilación") pon el mismo número.
 5. Commit y push a `main`. Cloudflare Pages compila `web.plataapp.net` solo; GitHub Pages publica el sitio.
