@@ -54,7 +54,6 @@ function makeSample() {
   addP(12, -26, 'Transporte', 'Uber', 'cap'); addP(13, -80, 'Ocio', 'Concierto', 'apple'); addP(14, -44.9, 'Comida', 'Cena', 'apple'); addP(14, -95, 'Comida', 'Cena de cumpleaños', 'apple');
   addP(15, -19.99, 'Ocio', 'Streaming', 'cap'); addP(16, 450, 'Ingreso', 'Proyecto Estudio 2²', 'bank', 450); addP(16, -150, 'Proyectos', 'Locación', 'bank'); addP(17, -49, 'Transporte', 'Pasajes', 'cash');
   addP(20, -95, 'Comida', 'Supermercado', 'bank'); addP(22, -210, 'Proyectos', 'Software', 'apple'); addP(24, 1420, 'Ingreso', 'Sueldo', 'bank', 1420); addP(27, -72, 'Mascotas', 'Veterinario', 'bank');
-  const n = tx.length;
   return {
     version: 3,
     settings: { currency: 'USD', currency2: 'PEN', fx: 3.7, cushion: 400, variable_weekly: 180, acct_sort: 'name', first: 'Leonardo', last: 'Richarte', nick: 'Leo', gender: 'm' },
@@ -158,6 +157,6 @@ const ICON = {
   sliders: RMI('equalizer-3-line', 22, '#1A9D63')
 };
 const IC_BACK = RMC('arrow-left-s-line', 12, 20, 1.2, '#1C1C1E');
-const IC_PEN = RMI('pencil-line', 21, '#1C1C1E'), IC_PEN_W = RMI('pencil-line', 21, '#fff'), IC_CAL_W = RMI('calendar-line', 21, '#fff');
+const IC_PEN = RMI('pencil-line', 21, '#1C1C1E');
 const IC_ADD = RMI('add-circle-line', 24, '#1A9D63');
 

@@ -56,7 +56,7 @@ const NazcaInterbank = (() => {
     const out = { bank: 'interbank', kind: 'ahorros', label, cur, account: { last4: acct ? acct.str.replace(/\D/g, '').slice(-4) : '' }, period: null, items: [], skipped: { unreadable: 0, zero: 0 }, check: null };
     if (!sp) return Object.assign(out, { error: 'period' });
 
-    let prev = null, totIn = null, totOut = null, end = null, endDay = null, sumIn = 0, sumOut = 0, line = 0, running = true, last = null;
+    let prev = null, totIn = null, totOut = null, end = null, sumIn = 0, sumOut = 0, line = 0, running = true, last = null;
     for (const page of pages) {
       const hi = page.items.find((i) => i.str === 'Ingresos'), hg = page.items.find((i) => i.str === 'Gastos');
       const mid = hi && hg ? ((hi.x + hi.w) + (hg.x + hg.w)) / 2 : null;     // solo se usa si un monto no trae signo
@@ -65,7 +65,7 @@ const NazcaInterbank = (() => {
         const open = its.find((i) => /^EMPEZASTE .+ CON$/.test(i.str));
         if (open) { if (amts.length) prev = money(amts[amts.length - 1].str); continue; }
         const tot = its.find((i) => /^SALDO CONTABLE AL \d{2}\/\d{2}$/.test(i.str));
-        if (tot) { if (amts.length >= 3) { totIn = Math.abs(money(amts[0].str)); totOut = Math.abs(money(amts[1].str)); end = money(amts[amts.length - 1].str); endDay = tot.str.slice(-5); } continue; }
+        if (tot) { if (amts.length >= 3) { totIn = Math.abs(money(amts[0].str)); totOut = Math.abs(money(amts[1].str)); end = money(amts[amts.length - 1].str); } continue; }
         const d = DATE.exec(its[0].str);
         if (!d || its[0].x > page.w * 0.2) continue;                       // no es una fila de movimiento
         const body = its.slice(1).filter((i) => !AMOUNT.test(i.str) || i.x <= page.w * 0.3).map((i) => i.str).join(' ').replace(/\s+/g, ' ').trim();

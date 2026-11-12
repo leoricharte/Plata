@@ -156,6 +156,7 @@ function renderProyeccion() {
   const jobIn = jobTxs().slice(0, 6).map((t) => {
     const cur = accOf(t.acc).cur, d = pd(t.date);
     const html = '<div class="row tap" data-act="tx:' + t.id + '">' + tile('#22B573', esc(t.note || 'T').charAt(0)) + '<div class="grow"><div class="name" style="font-size:16px">' + esc(t.note) + '</div><div class="sub" style="font-size:13px">' + dlabel(d) + '</div></div>' + amtHrs(t, '<span class="amt" style="color:var(--gt);font-weight:600">+' + fmtC(t.amount, cur) + '</span>') + ICON.chev + '</div>';
+    return isWebView() ? html : swWrap(t, html, isPay(t), isXfer(t));
   }).join('');
   const pendX = pendingItems().filter((x) => x.k === 'out').map((x) => x.e.id);
   const exRows = data.expected_expense.slice().sort((a, b) => (a.date < b.date ? -1 : 1)).map((e) => {

@@ -4,7 +4,6 @@
 ["Mantener los montos", "Keep the amounts", "金額はそのまま", "Mantieni gli importi", "Garder les montants", "Zadrži iznose"],
 ["Convertir al tipo asignado", "Convert at the set rate", "設定したレートで換算", "Converti al cambio impostato", "Convertir au taux défini", "Pretvori po zadanom tečaju"],
 ["Usar otro tipo de cambio", "Use another exchange rate", "別のレートを使う", "Usa un altro cambio", "Utiliser un autre taux", "Koristi drugi tečaj"],
-["Convertir", "Convert", "換算する", "Converti", "Convertir", "Pretvori"],
 ["Volver", "Back", "戻る", "Indietro", "Retour", "Natrag"],
 ["Escribe un tipo de cambio válido", "Enter a valid exchange rate", "有効なレートを入力してください", "Inserisci un cambio valido", "Saisissez un taux valide", "Unesite valjan tečaj"],
 ["Incluye", "Includes", "含む", "Include", "Inclut", "Uključuje"],

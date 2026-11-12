@@ -1,5 +1,5 @@
 /* ---------- Lente Liquid Glass: resorte, lente al presionar, arrastre y reflejo ---------- */
-const tabbar = $('#tabbar'), tabsEl = $('#tabs'), barbg = $('#barbg'), pill = $('#pill');
+const tabbar = $('#tabbar'), tabsEl = $('#tabs'), pill = $('#pill');
 const reduce = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
 const P = { x: 0, w: 0, vx: 0, vw: 0, tx: 0, tw: 0, s: 1, vs: 0, ts: 1, raf: 0, last: 0, bubble: false, drag: false, on: false };
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -60,13 +60,12 @@ function askGyro() {
     } else window.addEventListener('deviceorientation', onTilt);
   } catch (e) { /* sin giroscopio */ }
 }
-let holdT = 0, startX = 0, suppress = false;
+let holdT = 0, suppress = false;
 let heldT = 0;
 tabbar.addEventListener('pointerdown', (e) => {
   askGyro(); setLight(e.clientX);
   clearTimeout(heldT); heldT = setTimeout(() => tabbar.classList.add('held'), 90);
   const t = e.target.closest('.tab'); if (!t) return;
-  startX = e.clientX;
   if (t.classList.contains('on') && !reduce) {
     holdT = setTimeout(() => {
       P.bubble = true; P.drag = true; P.ts = 1.16; tabbar.classList.add('pressing');

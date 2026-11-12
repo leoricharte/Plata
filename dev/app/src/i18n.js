@@ -91,7 +91,6 @@ function tokenize(s) {
   return { key: k, ctx: ctx };
 }
 function fillTpl(tpl, ctx, l) {
-  let di = 0;
   return tpl
     .replace(/\{(\d+)\?([^:}]*):([^}]*)\}/g, (m, i, a, b) => (parseInt(String(ctx.nums[+i] || '').replace(/[^\d]/g, ''), 10) === 1 ? a : b))
     .replace(/\{(\d+)\}/g, (m, i) => (ctx.nums[+i] != null ? ctx.nums[+i] : m))
@@ -268,6 +267,6 @@ function applyLang() {
   document.documentElement.lang = l;
   if (l !== 'es' && !TR_IDX[l]) buildIdx(l);
   startTrObserver();
-  if (changed || true) retranslateAll();
+  retranslateAll();
   return changed;
 }
