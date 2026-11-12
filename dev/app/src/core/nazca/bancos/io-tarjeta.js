@@ -54,7 +54,6 @@ const NazcaIO = (() => {
       if (!sec) continue;
       if (/^subtotal/.test(nt)) { const v = x.it.filter((i) => NUM.test(i.str)); if (v.length >= 2) sub[sec] = { PEN: num(v[0].str), USD: num(v[1].str) }; continue; }
       const dm = /^(\d{1,2})-([A-Za-zÁ-ú]{3})$/.exec(x.it[0].str.trim()); if (!dm || x.it[0].x > 70 || !MES[norm(dm[2])]) continue;
-      const am = x.it.slice(1).filter((i) => NUM.test(i.str) && i.x >= bound - 60 && !(i.x < bound - 60));
       const amt = x.it.slice(1).filter((i) => NUM.test(i.str)); if (!amt.length) { out.skipped.unreadable++; continue; }
       const last = amt[amt.length - 1], cur = last.x >= bound ? 'USD' : 'PEN', v = Math.abs(num(last.str));
       const descIt = []; for (const i of x.it.slice(1)) { if (/^[\d.,%\/ -]+$/.test(i.str.trim())) break; descIt.push(i.str); }

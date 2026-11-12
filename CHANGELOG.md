@@ -6,6 +6,7 @@
 - **Constancias de Yape y Plin**: comparte la captura y Nazca la lee en tu dispositivo; queda en Revisión.
 - **Presupuesto en aros** (hasta 4 categorías) y encabezado que cambia con la estación.
 - **Apple Watch**: aros por categoría con ✓ / – / ✕, texto «Te pasaste» y la corona para anotar gastos.
+- **Auditoría y limpieza (510):** vuelve la sección «Últimos ingresos de trabajo» en Proyección (se armaba pero no se mostraba desde hace muchas compilaciones); el interruptor «Incluir gasto variable» ya no se queda con aspecto de presionado después de tocarlo; se quitó código y traducciones repetidas que no se usaban (la app pesa unos 25 KB menos). La prueba de seguridad que recorre la app ahora sí cambia de pestaña.
 - **Bento sin difuminado (509):** en escritorio, si cerrabas el Bento con Esc o con el botón de cerrar, el Resumen se quedaba difuminado, achicado y medio transparente. Ahora vuelve nítido salga como salga del Bento.
 - **Menús de cuentas más útiles (505):** en cada menú donde eliges una cuenta o tarjeta salen primero las que más usaste en los últimos 90 días y, junto al nombre, su saldo en su propia moneda; en una tarjeta, lo disponible (y en un préstamo, lo que todavía se debe).
 - **Añadir al calendario (505):** en un evento de Proyección, el botón «Añadir al calendario» descarga un archivo .ics de día completo, con el monto en las notas y un aviso a las 9:00 del día anterior. El evento lleva un enlace que, al tocarlo, abre ese evento en Plata.

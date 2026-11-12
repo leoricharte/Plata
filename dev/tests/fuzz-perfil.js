@@ -4,12 +4,12 @@ const { chromium } = require('playwright');
 const APP = process.argv[2] || 'http://localhost:8770/app/';
 const SKIP = new Set(['id','acc','card','pair','job','from','to','next','until','date','start','end','jstart','firstHalf','mk','c','t','an','at']);
 (async () => {
-  const b = await chromium.launch(); const hits = new Set();
+  const b = await chromium.launch(); const hits = new Set(), visited = new Set(), errs = new Set();
   for (const vp of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
     const p = await b.newPage({ viewport: vp });
     await p.exposeFunction('__hit', (x) => hits.add(x));
     await p.addInitScript(() => { window.__h = (x) => window.__hit(x); });
-    p.on('dialog', d => d.dismiss());
+    p.on('dialog', d => d.dismiss()); p.on('pageerror', (e) => errs.add(String(e).slice(0, 200)));
     await p.goto(APP + '?demo=alessandro'); await p.waitForTimeout(2500);
     await p.evaluate((SKIP) => {
       const SK = new Set(SKIP), o = JSON.parse(localStorage.getItem('finanzas.v3'));
@@ -26,18 +26,23 @@ const SKIP = new Set(['id','acc','card','pair','job','from','to','next','until',
       delete f.demo; localStorage.setItem('finanzas.v3', JSON.stringify(f));
     }, [...SKIP]);
     await p.goto(APP); await p.waitForTimeout(2500);
-    for (const tab of ['resumen', 'movimientos', 'presupuesto', 'proyeccion', 'ahorro', 'deuda', 'cuenta']) {
-      await p.evaluate((t) => { try { setTab(t); } catch (e) {} }, tab); await p.waitForTimeout(500);
+    // La app vive dentro de una función cerrada: desde aquí no existe setTab(). Se cambia de pestaña como lo hace una persona, tocando el botón.
+    const go = (t) => p.evaluate((t) => { const e = document.querySelector('[data-act="tab:' + t + '"]'); if (e) e.click(); return !!e; }, t);
+    for (const tab of ['resumen', 'presupuesto', 'proyeccion', 'deuda', 'cuenta']) {
+      if (await go(tab)) visited.add(vp.width + ':' + tab); await p.waitForTimeout(500);
       const acts = await p.evaluate(() => [...new Set([...document.querySelectorAll('[data-act]')].map(e => e.getAttribute('data-act')))].filter(a => !/del|wipe|reset|clear|demo|logout|cl:|save|load|tab:|lang|theme/.test(a)).slice(0, 60));
       for (const a of acts) {
         await p.evaluate((a) => { const e = document.querySelector('[data-act="' + CSS.escape(a) + '"]'); if (e) e.click(); }, a).catch(() => {});
         await p.waitForTimeout(120);
         await p.keyboard.press('Escape').catch(() => {});
       }
-      await p.evaluate((t) => { try { document.querySelectorAll('.sheet,.alertback,#alertback').forEach(e => e.remove()); setTab(t); } catch (e) {} }, tab);
+      await p.evaluate(() => { document.querySelectorAll('.sheet,.alertback,#alertback').forEach(e => e.remove()); }); await go(tab);
     }
     await p.close();
   }
   console.log('HITS', hits.size); console.log([...hits].sort().join('\n'));
+  console.log('PESTAÑAS', visited.size, [...visited].join(' '));   // si sale 0, el recorrido no está probando nada
+  console.log('ERRORES', errs.size); console.log([...errs].join('\n'));
+  if (hits.size || visited.size < 8) process.exitCode = 1;
   await b.close();
 })();

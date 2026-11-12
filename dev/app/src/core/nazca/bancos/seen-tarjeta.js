@@ -8,7 +8,6 @@
  * "Cuadra": Previous Balance − pagos y créditos + compras + intereses + comisiones = New Balance, y cada total del resumen igual a la suma de sus filas.
  * Salida de read(): { bank:'seen', kind:'tarjeta', label, cur:'USD', account:{ last4 }, period, card:{ apr, dueDate, dueDay, minPayment, limit }, items, skipped, check } */
 const NazcaSeen = (() => {
-  const pad = (n) => String(n).padStart(2, '0');
   const r2 = (n) => Math.round(n * 100) / 100;
   const near = (a, b) => Math.abs(a - b) < 0.005;
   const D = /^(\d{2})\/(\d{2})\/(\d{4})$/;

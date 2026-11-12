@@ -7,11 +7,6 @@ function catsHTML() {
 const XSVG = RMI('close-line', 22, '#1C1C1E');
 const OKSVG = RMI('check-line', 24, '#F5F5F5');
 function sheetHead(title, act, save) { return '<div class="shead"><button class="xbtn" data-act="' + (act || 'close') + '" aria-label="Cerrar">' + XSVG + '</button><div class="stitle">' + title + '</div>' + (save ? '<button class="okbtn" data-act="' + save + '" aria-label="Guardar">' + OKSVG + '</button>' : '') + '</div>'; }
-const GL = {
-  pen: '' + IC_PEN_W + '',
-  cal: '' + IC_CAL_W + '',
-  card: ICON.card.replace('width="24" height="24"', 'width="19" height="19"')
-};
 const FICO = { pen: 'pencil-line', cal: 'calendar-line', card: 'bank-card-line', '#': 'hashtag-line', '%': 'percent-line', '$': 'coins-line', '◎': 'seedling-line', '▦': 'layout-grid-line', '▭': 'bank-card-line' };
 const NUMC = (n) => '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.25" fill="none" stroke="currentColor" stroke-width="2"/><text x="12" y="16.4" text-anchor="middle" font-size="12.5" font-weight="700" fill="currentColor" font-family="Inter,-apple-system,sans-serif">' + n + '</text></svg>';
 const fico = (ic) => '<span class="sico" aria-hidden="true">' + (ic[1] === 'n1' || ic[1] === 'n2' ? NUMC(ic[1].slice(1)) : FICO[ic[1]] ? RMI(FICO[ic[1]], 24, 'currentColor') : '<b class="glyph">' + ic[1] + '</b>') + '</span>';

@@ -98,7 +98,7 @@ function mergeCol(col, B, L, R, tL, tR) {
       if (col === 'savings') { const seenL = new Set(), log = []; (l.log || []).concat(r.log || []).forEach((x) => { const k = x.date + '|' + x.amount + '|' + (x.from || ''); if (!seenL.has(k)) { seenL.add(k); log.push(x); } }); log.sort((a, c) => (a.date < c.date ? -1 : a.date > c.date ? 1 : 0)); w.log = log; }
       w.mod = Math.max(l.mod || 0, r.mod || 0); out.push(w); return;
     }
-    const it = l || r, tomb = l ? tR : tL, other = l ? 'r' : 'l';
+    const it = l || r, tomb = l ? tR : tL;
     const t = tomb.get(col + '|' + id), inBase = !!b;
     if (t && t > (it.mod || 0)) return; // el otro lado lo borró después de la última edición
     if (inBase && !t && mgCmp(it) === mgCmp(b)) return; // estaba en la base, el otro lado ya no lo tiene y aquí no cambió: se fue

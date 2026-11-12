@@ -218,7 +218,6 @@ const BW = {
     const leftW = (d[0] - 60) * 0.64, txt = insPhrase(m), nl = h > 1 ? 3 : 2;
     let pf = Math.min(leftW * nl / (txt.length * 0.56), d[1] * (h > 1 ? 0.14 : 0.15)), vf = Math.min(leftW / 4 / 3.5, d[1] * 0.27);
     const need = pf * 1.2 * nl + vf * 1.2 + vf * 0.45 + 28, k = Math.min(1, (d[1] - 4) / need); pf *= k; vf *= k;
-    const net = m.cur.inc - m.cur.exp;
     const st = [['Ingresos', fmt(m.cur.inc), 0], ['Gastos', fmt(m.cur.exp), 1], ['Ahorro', m.rateC == null ? '—' : Math.round(m.rateC * 100) + '%', m.rateC != null && m.rateC < 0 ? 1 : 0], ['Nota', tL(m.letter, m.plus) + ' · ' + m.score, 0]].map((x) => '<div style="display:flex;flex-direction:column;gap:.1em"><span style="color:var(--mute);font-size:' + Math.max(13, Math.round(vf * 0.4)) + 'px">' + x[0] + '</span><b style="font-size:' + Math.round(vf) + 'px;white-space:nowrap;font-weight:800;letter-spacing:-.03em;line-height:1.1;background:' + (x[2] ? 'linear-gradient(180deg,#FF9A92,#E5625A 55%,#8E2C28)' : 'linear-gradient(180deg,#46E096,#22B573 55%,#0B5F3B)') + ';-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">' + x[1] + '</b></div>').join('');
     const kf = Math.round(Math.max(14, Math.min(d[1] * 0.074, d[0] * 0.026, 22))), kp = '<div data-kp="1" style="flex:none;width:36%;border-left:1px solid var(--wline);padding-left:1.2em;display:flex;align-items:center;justify-content:center;font-size:' + kf + 'px"><div style="display:flex;flex-direction:column;gap:.6em;max-width:100%"><div style="color:var(--mute);font-size:.72em;text-transform:uppercase;letter-spacing:.08em;font-weight:600">Puntos clave</div>' + pts.map((x) => '<div style="display:flex;gap:.6em;align-items:flex-start;line-height:1.28"><i style="flex:none;width:.55em;height:.55em;border-radius:50%;margin-top:.365em;background:' + (x[0] === null ? '#8E8E93' : x[0] ? '#22B573' : '#E5625A') + '"></i><span>' + esc(x[1]) + '</span></div>').join('') + '</div></div>';
     const phrase2 = '<div style="font-size:' + Math.round(pf) + 'px;font-weight:700;letter-spacing:-.03em;line-height:1.2;background:' + tg + ';-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent">' + esc(txt) + '</div>';
@@ -249,7 +248,7 @@ function bentoHTML() {
   const tiles = lay.map((x, i) => {
     if (x.off) return '';
     const W = BW[x.id];
-    const zs = bsorted(W), zi = zs.indexOf(x.s);
+    const zs = bsorted(W);
     const ctl = !ui.bnEdit ? '' : (''+ '<div class="bctl"><button class="pal" data-act="bncolor:' + x.id + '" title="Color del widget">' + RMI('palette-line', 15, '#fff') + '</button><button class="x" data-act="bndel:' + x.id + '" title="Quitar">' + RMI('delete-bin-line', 15, 'currentColor') + '</button></div>' + (zs.length > 1 ? '<i class="bres" data-bres="' + x.id + '" title="Arrastra para cambiar el tamaño"></i>' : ''));
     return '<div data-bid="' + x.id + '" class="bw' + (W.dk ? ' dk' : '') + (x.c ? ' sol s' + (x.c - 1) : '') + '" style="grid-column:' + (x.x + 1) + '/span ' + x.w + ';grid-row:' + (x.y + 1) + '/span ' + x.h + '">' + ctl + (W.nh && x.h === 1 && !ui.bnEdit ? '' : '<div class="bw-h">' + (W.tt ? W.tt(x) : W.t) + '</div>') + '<div class="bw-b">' + W.r(c, x.w, x.h, x) + '</div></div>';
   }).join('');
@@ -310,7 +309,7 @@ document.addEventListener('keydown', (e) => { const t = e.target; if (t && t.cla
     try { h.setPointerCapture(e.pointerId); } catch (x) { /* sin captura */ }
   });
   document.addEventListener('pointermove', (e) => {
-    if (!D) return; const r = D.cv.getBoundingClientRect(), L = D.live.style;
+    if (!D) return; const L = D.live.style;
     L.left = D.ox + 'px'; L.top = D.oy + 'px'; L.width = Math.max(D.cw * .6, e.clientX - D.left) + 'px'; L.height = Math.max(D.ch * .6, e.clientY - D.top) + 'px';
     const k = best(e), me = place(k); if (me) { D.cur = k; show(me, true); mark(me); } else { const m0 = place(D.cur); if (m0) show(m0, false); }
   });
@@ -409,12 +408,12 @@ document.addEventListener('pointermove', (e) => {
   if (!SW.drag) { if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy) * 1.4) { SW.drag = true; SW.moved = true; c.classList.add('sd'); try { c.setPointerCapture(e.pointerId); } catch (x) { /* */ } } else if (Math.abs(dy) > 10) { SW.el = null; return; } else return; }
   const W = swW(c); let x = SW.base + dx; if (x > 0) x = x * 0.25; else if (x < -W) x = -W + (x + W) * 0.25; c.style.transform = 'translateX(' + x + 'px)';
 }, true);
-function swEnd(e) {
+function swipeEnd(e) {
   const c = SW.el; if (!c || (e && e.pointerId !== SW.id)) return; SW.el = null; if (!SW.drag) return; c.classList.remove('sd');
   const m = /translateX\((-?[\d.]+)px\)/.exec(c.style.transform), x = m ? Number(m[1]) : 0, W = swW(c), open = x < -W * 0.4 && (SW.base === 0 || x < -W * 0.6);
   c.classList.toggle('open', open); c.style.transform = open ? 'translateX(' + -W + 'px)' : '';
 }
-document.addEventListener('pointerup', swEnd, true); document.addEventListener('pointercancel', swEnd, true);
+document.addEventListener('pointerup', swipeEnd, true); document.addEventListener('pointercancel', swipeEnd, true);
 document.addEventListener('click', (e) => {
   const c = e.target.closest && e.target.closest('.swc'); if (!c) return;
   if (SW.moved) { SW.moved = false; e.stopPropagation(); e.preventDefault(); return; }
@@ -469,7 +468,7 @@ function ctxClose() { document.querySelectorAll('.ctxm').forEach((x) => x.remove
   const draw = () => {
     if (!pop || !cur) return;
     const L = lang(), mon0 = !(L === 'en' || L === 'ja'), sel = parse(cur.value), td = new Date();
-    const first = new Date(view.y, view.m, 1), start = (first.getDay() + (mon0 ? 6 : 0)) % 7, dim = new Date(view.y, view.m + 1, 0).getDate();
+    const first = new Date(view.y, view.m, 1), start = (first.getDay() + (mon0 ? 6 : 0)) % 7;
     let title = ''; try { title = new Intl.DateTimeFormat(L, { month: 'long', year: 'numeric' }).format(first); } catch (e) { title = (view.m + 1) + '/' + view.y; }
     title = title.charAt(0).toUpperCase() + title.slice(1);
     let wd = ''; for (let i = 0; i < 7; i++) { let n = ''; try { n = new Intl.DateTimeFormat(L, { weekday: 'narrow' }).format(new Date(2024, 0, 1 + ((i + (mon0 ? 0 : 6)) % 7))); } catch (e) { n = '·'; } wd += '<span>' + n + '</span>'; }

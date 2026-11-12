@@ -48,7 +48,7 @@ function gradeStreak(mk, letter) {
   return { n: n, plus: n >= 2 ? (letter === 'S' && n >= 4 ? 'd' : true) : false };
 }
 function streakHTML(letter, n, plus) {
-  const g = GRAD[letter] || GRAD.B, dia = plus === 'd', pg = tierG(letter, plus), bad = letter === 'D' || letter === 'F', mid = letter === 'B' || letter === 'C', S = letter === 'S';
+  const g = GRAD[letter] || GRAD.B, dia = plus === 'd', pg = tierG(letter, plus), bad = letter === 'D' || letter === 'F', mid = letter === 'B' || letter === 'C';
   const dot = (on, last) => '<span style="width:12px;height:12px;border-radius:50%;display:inline-block;box-sizing:border-box;' + (on ? 'background:' + (last ? pg[1] : g[1]) : 'border:2px solid ' + (last ? pg[1] : '#C7C7CC')) + '"></span>';
   const dots = '<span style="display:inline-flex;gap:6px;align-items:center">' + (dia ? dot(true) + dot(true, true) + dot(true) + dot(true, true) : dot(n >= 1) + dot(n >= 2, true)) + '</span>';
   const grad = (txt) => '<div style="font-size:15px;font-weight:700;background:linear-gradient(135deg,' + pg[1] + ',' + pg[2] + ');-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent">' + txt + '</div>';
@@ -76,7 +76,7 @@ function monthScreenHTML() {
   const mm = ui.mm, y = Number(mm.mk.slice(0, 4)), mo = Number(mm.mk.slice(5, 7)) - 1, sc = monthScore(mm.mk), ms = monthSums(mm.mk, 0), T = getToday();
   const hasPay = data.transactions.some(isPay), items = [{ k: 'all', label: 'Todos', act: 'mmf:all' }, { k: 'in', label: 'Ingresos', act: 'mmf:in' }, { k: 'out', label: 'Gastos', act: 'mmf:out' }];
   if (hasPay) { const hx = data.transactions.some(isXfer), hp = data.transactions.some((t) => t.category === PAY); items.push({ k: 'pay', label: hx ? (hp ? 'Pagos y transf.' : 'Transferencias') : 'Pagos', act: 'mmf:pay' }); }
-  const pm = new Date(T.getFullYear(), T.getMonth() - 1, 1), st = (l, v, c) => '<div><span class="sub">' + l + '</span><b' + (c ? ' style="color:' + c + '"' : '') + '>' + v + '</b></div>', net = ms.inc - ms.exp;
+  const st = (l, v, c) => '<div><span class="sub">' + l + '</span><b' + (c ? ' style="color:' + c + '"' : '') + '>' + v + '</b></div>', net = ms.inc - ms.exp;
   const openM = mm.mk >= iso(T).slice(0, 7);
   const pendRow = '<div class="card" style="padding:14px 16px"><div style="display:flex;align-items:center;gap:14px"><div style="flex:none">' + ghostScore('?', 52) + '</div><div class="grow" style="font-size:16px;font-weight:600;line-height:1.3;color:var(--ink2)">Aún estamos trabajando en tu puntaje de este mes.</div></div></div>';
   const scoreRow = sc && openM ? pendRow : sc ? '<div class="card" style="padding:14px 16px"><div style="display:flex;align-items:center;gap:14px"><div style="flex:none">' + scoreTile(sc.letter, 52, sc.plus) + '</div><div class="grow"><div class="sub" style="font-size:13px">Puntaje</div><div style="font-size:26px;font-weight:800;letter-spacing:-.5px;line-height:1.1">' + sc.score + '<span class="sub" style="font-size:15px;font-weight:600"> / 100</span></div></div></div>' + streakHTML(sc.letter, sc.streak, sc.plus) + '</div>' : '';
