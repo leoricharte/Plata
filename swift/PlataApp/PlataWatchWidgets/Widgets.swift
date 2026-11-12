@@ -98,7 +98,7 @@ struct NextWidgetView: View {
                 Amt(text: "\(s.nextName) \(when)")
             default:
                 VStack(alignment: .leading, spacing: 1) {
-                    Text(s.nextAmt > 0 ? "Próximo ingreso" : "Próximo pago").font(.system(size: 12, weight: .semibold)).foregroundStyle(accent)
+                    Text(verbatim: s.nextAmt > 0 ? Tr.t("Próximo ingreso") : (Tr.isEnglish ? "Next payment" : "Próximo pago")).font(.system(size: 12, weight: .semibold)).foregroundStyle(accent)
                     Text(s.nextName).font(.system(size: 14, weight: .semibold)).lineLimit(1)
                     HStack { Amt(text: s.fmt(s.nextAmt, signed: true)); Text("· " + when).foregroundStyle(.secondary) }.font(.system(size: 12))
                 }
