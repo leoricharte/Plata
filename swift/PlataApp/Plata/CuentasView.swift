@@ -9,11 +9,6 @@ struct CuentasView: View {
     @State private var showExtra = false
 
     private static let colors = ["#B98AE6", "#6D8BEA", "#EDB03E", "#F08FB0", "#5CC8C0"]
-    private static let icons: [String: String] = [
-        "bank": "building.columns", "card": "creditcard", "wallet": "wallet.bifold", "cash": "banknote", "coins": "dollarsign.circle",
-        "bag": "bag", "car": "car", "home": "house", "cap": "graduationcap", "plane": "airplane", "heart": "heart", "star": "star",
-        "bolt": "bolt", "phone": "iphone", "globe": "globe", "gift": "gift",
-    ]
     private static let types = ["checking": "Corriente", "savings": "Ahorros", "cash": "Efectivo"]
 
     var body: some View {

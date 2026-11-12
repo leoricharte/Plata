@@ -199,7 +199,6 @@ struct SecuritySheet: View {
 struct ProtectStep: View {
     var next: () -> Void
     @State private var creating = false
-    @State private var asked = false
     private var lock: AppLock { .shared }
 
     var body: some View {

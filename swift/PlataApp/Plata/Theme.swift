@@ -265,17 +265,6 @@ struct GlassCircle: ViewModifier {
     }
 }
 
-struct GlassIcon: View {
-    let symbol: String
-    var body: some View {
-        Image(systemName: symbol)
-            .font(.system(size: 18, weight: .semibold))
-            .foregroundStyle(.primary)
-            .frame(width: 44, height: 44)
-            .modifier(GlassCircle())
-    }
-}
-
 /// El botón principal oscuro de la web (píldora negra, texto blanco).
 struct PrimaryPillStyle: ButtonStyle {
     @Environment(\.isEnabled) private var enabled

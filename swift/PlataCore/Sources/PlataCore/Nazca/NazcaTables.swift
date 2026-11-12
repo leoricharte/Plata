@@ -2,7 +2,6 @@
 import Foundation
 
 extension Nazca {
-    static let roleNames = ["date","desc","amount","debit","credit","balance","currency","type"]
     static let roleRules: [String: (re: Rx, prefer: Rx?, avoid: Rx?)] = [
         "date": (Rx(#"^(fecha|date|dia|f )|fecha|transaction date|posted date|posting date|booking date"#), Rx(#"operacion|transaccion|consumo|movimiento|compra|transaction"#), Rx(#"valor|valuta|proceso|contable|posted|posting|vencimiento|corte|pago"#)),
         "desc": (Rx(#"descripcion|concepto|detalle|glosa|referencia|comercio|establecimiento|description|memo|payee|narrative|details|beneficiario|^movimiento$|^operacion$|^nombre$"#), Rx(#"descripcion|concepto|detalle|glosa|comercio|establecimiento|description|payee"#), nil),

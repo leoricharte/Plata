@@ -91,7 +91,6 @@ public extension Engine {
     func budgetLimits(_ set: JSONValue?) -> [String: Double] {
         budOf(set).mapValues { Engine.num($0) }
     }
-    var budgetSetList: [JSONValue] { list("budgetSets") }
     var subscriptionList: [JSONValue] { list("subs") }
 }
 

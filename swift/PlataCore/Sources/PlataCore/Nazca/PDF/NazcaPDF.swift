@@ -155,7 +155,6 @@ enum PDFx {
     }
     static func iso(_ y: Int, _ m: Int, _ d: Int) -> String { "\(y)-\(pad(m))-\(pad(d))" }
 
-    static func upperFirst(_ s: String) -> String { s.prefix(1).uppercased() + s.dropFirst() }
     /// `s.toLowerCase().replace(/(^|\s)\S/g, c => c.toUpperCase())`
     static func titleCase(_ s: String) -> String { Rx(#"(^|\s)\S"#).replace(s.lowercased()) { $0[0].uppercased() } }
 }
