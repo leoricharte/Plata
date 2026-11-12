@@ -110,7 +110,7 @@ const NazcaConstancia = (() => {
     lines.forEach((ln, i) => {
       const re = new RegExp(AMT.source, 'gi'); let m;
       while ((m = re.exec(ln))) {
-        const v = parseAmt(m[4]); if (!(v === v)) continue;
+        const v = parseAmt(m[4]); if (Number.isNaN(v)) continue;
         const usd = !!m[1] && /^(US|USD|\$)/i.test(m[1].replace(/\s+/g, '')) && !/^S/i.test(m[1]);
         let sc = 0; if (KEY.test(ns[i])) sc += 3; if (i > 0 && KEY.test(ns[i - 1])) sc += 2; if (BAD.test(ns[i]) || (i > 0 && BAD.test(ns[i - 1]) && ln.replace(m[0], '').trim() === '')) sc -= 5;
         c.push({ v, cur: usd ? 'USD' : 'PEN', sc, i, neg: !!m[3] });

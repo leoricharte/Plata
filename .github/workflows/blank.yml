@@ -43,3 +43,8 @@ jobs:
 
       - name: La app compila (y su CSP se genera)
         run: sh dev/web/build.sh
+
+      - name: Revisión del código (nombres repetidos, variables que no existen, código sin usar)
+        run: |
+          npm ci --prefix dev --no-audit --no-fund
+          node dev/app/lint.mjs

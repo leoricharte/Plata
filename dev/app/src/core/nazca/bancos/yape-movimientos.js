@@ -33,7 +33,7 @@ const NazcaYape = (() => {
       const r = rows[i] || []; if (!r.some((c) => String(c || '').trim())) continue; line++;
       const ty = norm(r[h.type]), amt = money(r[h.amount]), dm = /^(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(String(r[h.date] || '').trim());
       const sign = NEG.test(ty) ? -1 : POS.test(ty) ? 1 : 0;
-      if (!sign || !dm || !(amt === amt)) { skipped.unreadable++; continue; } if (amt === 0) { skipped.zero++; continue; }
+      if (!sign || !dm || Number.isNaN(amt)) { skipped.unreadable++; continue; } if (amt === 0) { skipped.zero++; continue; }
       const date = dm[3] + '-' + pad(+dm[2]) + '-' + pad(+dm[1]), who = String(r[sign < 0 ? h.to : h.from] || '').replace(/\s+/g, ' ').trim(), msg = h.msg >= 0 ? clean(r[h.msg]) : '';
       const desc = ((who || (sign < 0 ? 'Yape' : 'Yape (recibido)')) + (msg ? ' · ' + msg : '')).slice(0, 90);
       items.push({ line, date, desc, amount: sign * Math.abs(amt), cur: 'PEN' }); if (!from || date < from) from = date; if (!to || date > to) to = date;
